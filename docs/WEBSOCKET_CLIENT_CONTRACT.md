@@ -31,8 +31,13 @@ Payload baseline:
 - `requestId: string`
 - `robotId: string`
 - `status: string`
-- `position: { x?: number, y?: number, zone?: string }`
+- `position: { floorId?: string, x?: number, y?: number, zone?: string }`
 - `updatedAt: string`
+
+Status meaning notes for UI:
+- `READY` means delivered and ready for pickup
+- `READY` does not mean `COMPLETED`
+- Offline timeout before `READY` should be displayed as delivery failure
 
 ## Connection lifecycle
 

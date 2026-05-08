@@ -1,72 +1,79 @@
 # Frontend Architecture
 
-## Role
+## Project identity
 
-The frontend is the user interface layer for the Smart Library Robot Delivery system.
+- Product: 같이Go Smart Library/bookstore robot delivery
+- Current frontend phase: student-facing features first
+- Admin/staff dashboard frontend scope is intentionally deferred for now
 
-It should:
-- Display book catalog search
-- Display book details
-- Allow students to request robot delivery
-- Show live robot tracking
-- Show request history
-- Provide staff/admin monitoring pages
+## Backend capabilities available to frontend
 
-It should NOT:
-- Control robot motors
-- Communicate with MQTT
-- Store permanent robot state locally
-- Implement backend business rules
-- Rewrite existing real-estate pages before MVP is stable
+Frontend can rely on completed backend domains and flows:
+- Book APIs
+- BookInventory APIs
+- Robot APIs
+- Request APIs for BORROW and PURCHASE
+- Request status lifecycle updates from backend
+- MQTT-backed robot command lifecycle (backend-managed)
+- WebSocket robot/request tracking gateway
+- Twit feed backend
+- Follow backend
+- Member profile backend
+- Twit comments backend (deleted comments filtered from list query)
 
-## Existing architecture
+## Transport and ownership boundaries
 
-This project uses:
-- Next.js Pages Router
-- TypeScript
-- Apollo GraphQL
-- SCSS
-- Material UI
-- Existing layouts under `libs/components/layout`
-- Existing admin pages under `pages/_admin`
+- App data transport: GraphQL (Apollo)
+- Live tracking transport: WebSocket
+- Frontend must not communicate with MQTT directly
+- Backend is the source of truth for request/robot lifecycle
 
-## Smart Library route strategy
+## Request lifecycle meaning for UI
 
-Create new routes instead of replacing old ones.
+- Student creates BORROW or PURCHASE request
+- Backend assigns book/inventory/robot when possible
+- Backend publishes robot commands over MQTT
+- Robot telemetry updates backend state
+- Backend pushes live updates over WebSocket
 
-Student:
-- `/library/books`
-- `/library/books/[id]`
-- `/library/tracking/[requestId]`
-- `/library/requests`
+UI semantics:
+- `READY` means delivered and ready for student pickup
+- `READY` does not mean `COMPLETED`
+- `COMPLETED` should represent finalized student pickup/flow when product logic uses it
+- `BOOK_NOT_FOUND` should be shown as a clear failure state
+- Offline timeout before `READY` should be shown as robot/offline delivery failure
+- After `READY`, frontend should reflect robot availability again (`IDLE`, `currentRequestId: null`)
 
-Admin:
-- `/_admin/library`
-- `/_admin/library/requests`
-- `/_admin/library/robots`
-- `/_admin/library/books`
+## Robot and pickup model vocabulary
 
-## Architecture flow
+Use fixed gripper terminology only:
+- Robot has no fork lift
+- Robot has no moving arm
+- Robot has a fixed gripper that opens/closes
+- Delivery sequence: drive to pickup coordinate -> open gripper -> close on book -> carry -> open to release
 
-```text
-Student browser
--> Next.js frontend
--> Apollo GraphQL client
--> NestJS backend GraphQL API
--> Database (via backend)
+BookInventory pickup fields supported by backend:
+- `gripperOpenWidthCm`
+- `gripperCloseWidthCm`
+- `gripHoldSeconds`
+- `pickupDirection`
 
-Robot tracking
-Robot -> MQTT -> NestJS backend -> WebSocket -> Next.js frontend
-```
+Do not reintroduce removed fork/container concepts in UI labels or types.
 
-## Isolation principle for live tracking
+## Coordinate model note
 
-- Keep robot tracking WebSocket logic in dedicated library modules.
-- Do not bind robot tracking handlers to existing chat socket handlers.
-- Do not reuse chat event names for robot events.
+- Keep `floorId` in coordinate/map models even for the one-floor demo.
 
-## Backward-compatibility principle
+## Request-related nested data
 
-- Existing real-estate pages remain intact during Smart Library rollout.
-- New Smart Library pages are additive.
-- Migration from old domain pages to library pages happens only after MVP stability.
+Request outputs can include nested objects that frontend pages can render directly:
+- `bookData`
+- `robotData`
+- `inventoryData`
+- `memberData`
+
+## Migration and naming policy
+
+- Keep legacy real-estate pages intact during student MVP rollout
+- Add Smart Library pages incrementally under `pages/library/*`
+- Do not reintroduce real-estate naming in new frontend modules

@@ -8,6 +8,10 @@ Repo-level instructions for Codex and other coding agents working on the fronten
 
 This repository is the frontend for 같이Go, a Smart Library Robot Delivery system.
 
+Current phase:
+- Student-facing frontend first
+- Admin/staff dashboard frontend is deferred unless explicitly requested
+
 The frontend lets students:
 - Search books
 - View book details
@@ -15,7 +19,7 @@ The frontend lets students:
 - Track robot position live
 - View request history
 
-The frontend lets staff/admin users:
+The frontend can later let staff/admin users:
 - Monitor active delivery requests
 - Monitor robot health
 - View failed requests
@@ -131,14 +135,9 @@ After implementing a task, Codex should:
 4. Show the proposed commit message.
 5. Ask for confirmation before committing, unless my prompt explicitly says `commit after successful build`.
 
-Preferred commit format:
-- `Add backend book module`
-- `Add backend robot module`
-- `Add backend request lifecycle`
-- `Add frontend book search page`
-- `Add frontend tracking page`
-- `Fix frontend book search loading state`
-- `Update Smart Library docs`
+Preferred commit prefix:
+- `feat:`
+- `fix:`
 
 ## If I explicitly request auto-commit
 
@@ -173,7 +172,7 @@ Student routes:
 - `pages/library/tracking/[requestId].tsx` preferred, or `pages/library/tracking.tsx` if matching existing route style is safer
 - `pages/library/requests.tsx`
 
-Staff/admin routes:
+Staff/admin routes (deferred for current student-first phase):
 - `pages/_admin/library/index.tsx`
 - `pages/_admin/library/requests.tsx`
 - `pages/_admin/library/robots.tsx`
@@ -189,8 +188,9 @@ Staff/admin routes:
 6. Add Request History page
 7. Add Live Tracking page with mocked WebSocket data
 8. Connect real WebSocket tracking
-9. Add admin/staff dashboard pages
-10. Polish UI for final demo
+9. Add Community Twit feed pages
+10. Add Profile/follow/comments pages
+11. Polish UI for final demo
 
 ## Build/test expectations
 

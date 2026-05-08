@@ -1,103 +1,100 @@
 # Smart Library Frontend Pages
 
-## Student pages
+## Current scope
 
-## `/library/books`
+- Build student-facing pages first
+- Do not implement admin/staff dashboard pages unless explicitly requested later
+
+## Student pages to build
+
+## 1) `/library/books`
 Purpose:
 - Search and browse books
 - Filter by title, author, category, availability
 
 Minimum UI sections:
 - Search bar
-- Filters panel
+- Filters
 - Book list/grid
 - Pagination
 - Empty/loading/error states
 
-Data needs:
-- `books` list query with filters
-- total count for pagination
+Primary data:
+- Books list query
 
-## `/library/books/[id]`
+## 2) `/library/books/[id]`
 Purpose:
-- View one book detail
-- Request robot delivery
+- Show one book detail
+- Start BORROW/PURCHASE request flow
 
 Minimum UI sections:
 - Book metadata
-- Availability status
-- "Request Delivery" button
+- Availability view from inventory-aware response
+- BORROW and PURCHASE actions
 - Request submission feedback
 
-Data needs:
-- `bookById` query
-- `createDeliveryRequest` mutation
+Primary data:
+- Book detail query
+- Create request mutation
 
-## `/library/tracking/[requestId]`
+## 3) `/library/requests`
 Purpose:
-- Live status and position tracking for a request
+- Show student request status/history
 
 Minimum UI sections:
-- Current status badge (queued, assigned, moving, arrived, failed)
-- Last update time
-- Position/zone display
-- Fallback when socket disconnects
-
-Data needs:
-- request summary query
-- tracking WebSocket events keyed by `requestId`
-
-## `/library/requests`
-Purpose:
-- Student request history
-
-Minimum UI sections:
-- Request list
-- Status chips
+- Request list/history
+- Status chips/timeline labels
 - Date/time
 - Link to tracking page for active requests
 
-Data needs:
-- paginated request history query
+Primary data:
+- Request history query
+- Nested request fields (`bookData`, `robotData`, `inventoryData`, `memberData`)
 
-## Staff/admin pages
-
-## `/_admin/library`
+## 4) `/library/tracking/[requestId]`
 Purpose:
-- Dashboard overview
+- Live robot/request tracking per request
 
 Minimum UI sections:
-- Active requests count
-- Failed requests count
-- Online robots count
-- Recent incidents panel
+- Current status badge
+- Last update time
+- Position/zone/floor rendering (keep `floorId`)
+- Socket disconnect/offline indicator
 
-## `/_admin/library/requests`
+Primary data:
+- Request summary query
+- Tracking WebSocket events keyed by `requestId`
+
+Status display notes:
+- `READY` means delivered and waiting pickup
+- `READY` does not mean `COMPLETED`
+- Show `BOOK_NOT_FOUND` as clear failure state
+- Show offline timeout before `READY` as robot/offline delivery failure
+
+## 5) `/library/community` (or equivalent existing community route)
 Purpose:
-- Request queue management and monitoring
+- Twit feed with Smart Library context
 
-Minimum UI sections:
-- Table with filters and pagination
-- Status transitions view (read-only unless backend supports actions)
+Primary data:
+- Twit list/create/like actions from backend contract
 
-## `/_admin/library/robots`
+## 6) Profile/follow pages
 Purpose:
-- Robot status monitoring
+- Member profile view and follow relationships
 
-Minimum UI sections:
-- Robot list (online/offline, battery, current task)
-- Error state indicators
+Primary data:
+- Member profile APIs
+- Follow APIs
 
-## `/_admin/library/books`
+## 7) Twit comments pages/components
 Purpose:
-- Book inventory/availability monitoring
+- View/create/update/delete comments where allowed
 
-Minimum UI sections:
-- Book list table
-- Availability status
-- Optional search and filter
+Primary data:
+- Twit comments APIs
+- Respect backend behavior where deleted comments are filtered from list query
 
-## Routing notes
+## Explicitly deferred
 
-- Prefer dynamic routes (`[id]`, `[requestId]`) for stable URL semantics.
-- If migration risk is high, temporary query-style routes are acceptable, then migrate to dynamic routes.
+- `/_admin/library/*` pages are deferred in current phase
+- Do not scope or implement admin dashboards until explicitly requested

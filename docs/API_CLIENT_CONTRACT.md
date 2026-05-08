@@ -2,54 +2,62 @@
 
 ## Backend contract baseline
 
-- Backend: NestJS GraphQL-first
-- Frontend transport for app data: GraphQL (Apollo)
-- Frontend must not call MQTT
+- Backend: NestJS GraphQL-first backend
+- Frontend app data transport: GraphQL (Apollo)
+- Frontend live transport: WebSocket
+- Frontend must not call MQTT directly
 
-## Environment variables
+## Environment variable rules
 
-Required:
-- `REACT_APP_API_URL`
-- `REACT_APP_API_GRAPHQL_URL`
-- `REACT_APP_API_WS`
+- Do not hardcode backend URLs in components
+- Keep API and WS endpoints environment-driven using this repo's established pattern
 
-Rules:
-- Do not hardcode API base URLs in components.
-- Read URLs through environment variables only.
+## Domain organization
 
-## Apollo integration rules
+Keep frontend API modules organized by backend domain:
+- `book`
+- `bookInventory`
+- `robot`
+- `request`
+- `twit`
+- `follow`
+- `member`
+- `twitComment`
 
-- Use existing Apollo client entrypoint: `apollo/client.ts`.
-- Keep existing auth header behavior (`Authorization: Bearer <token>`).
-- Keep Smart Library operations isolated from real-estate operations.
+Prefer isolated Smart Library operations (for example under `apollo/library/*`) rather than mixing with legacy real-estate operations.
 
-Recommended structure:
-- `apollo/library/query.ts`
-- `apollo/library/mutation.ts`
-- `apollo/library/types.ts` (optional)
+## Request flow contract for frontend
 
-## Operation naming convention
+- Student creates BORROW or PURCHASE request
+- Backend decides assignment and lifecycle transitions
+- Frontend should not reproduce backend assignment rules in UI
 
-Queries:
-- `GET_LIBRARY_BOOKS`
-- `GET_LIBRARY_BOOK`
-- `GET_LIBRARY_REQUESTS`
-- `GET_ADMIN_LIBRARY_REQUESTS`
-- `GET_ADMIN_LIBRARY_ROBOTS`
+Common status expectations for UI:
+- `READY` = delivered and waiting for pickup
+- `READY` != `COMPLETED`
+- `BOOK_NOT_FOUND` = actionable failure message
+- Offline timeout before `READY` = delivery failure state
+- After `READY`, robot data may show reusable state (`IDLE`, `currentRequestId: null`)
 
-Mutations:
-- `CREATE_LIBRARY_DELIVERY_REQUEST`
-- `CANCEL_LIBRARY_DELIVERY_REQUEST` (if backend supports)
-- `UPDATE_LIBRARY_BOOK_STATUS` (admin, if backend supports)
+## Nested request payload fields
+
+Request-related pages can consume nested response fields:
+- `bookData`
+- `robotData`
+- `inventoryData`
+- `memberData`
+
+## Pickup model contract
+
+Use only fixed gripper pickup fields from backend inventory models:
+- `gripperOpenWidthCm`
+- `gripperCloseWidthCm`
+- `gripHoldSeconds`
+- `pickupDirection`
+
+Do not use removed fork/container fields.
 
 ## Error handling contract
 
-- Use consistent UI error handling (existing sweetAlert pattern is acceptable).
-- Surface backend error messages clearly for operational pages.
-- Do not swallow auth errors; redirect or prompt login as needed.
-
-## Auth/role contract
-
-- Token source remains localStorage `accessToken`.
-- Frontend role checks are UI guards only.
-- Backend remains source of truth for authorization.
+- Show backend request/robot failure states with student-friendly language
+- Keep auth failures visible and route user to login flow when appropriate
