@@ -17,12 +17,15 @@ export const UPDATE_MEMBER_BY_ADMIN = gql`
 			memberImage
 			memberAddress
 			memberDesc
-			memberProperties
-			memberRank
-			memberArticles
+			memberBooks
+			memberTwits
+			memberFollowers
+			memberFollowings
 			memberPoints
 			memberLikes
 			memberViews
+			memberComments
+			memberRank
 			memberWarnings
 			memberBlocks
 			deletedAt
@@ -34,61 +37,248 @@ export const UPDATE_MEMBER_BY_ADMIN = gql`
 `;
 
 /**************************
- *        PROPERTY        *
+ *        BOOK       *
  *************************/
 
-export const UPDATE_PROPERTY_BY_ADMIN = gql`
-	mutation UpdatePropertyByAdmin($input: PropertyUpdate!) {
-		updatePropertyByAdmin(input: $input) {
+export const CREATE_BOOK = gql`
+	mutation CreateBook($input: CreateBookInput!) {
+		createBook(input: $input) {
 			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
-			memberId
-			soldAt
+			bookTitle
+			bookAuthor
+			bookIsbn
+			bookCallNumber
+			bookImages
+			bookType
+			bookCategory
+			bookAudience
+			bookFormat
+			bookLanguage
+			bookPublishedYear
+			bookPages
+			bookDescription
+			isBorrowable
+			isPurchasable
+			bookLikes
+			bookViews
+			bookComments
+			bookRank
+			bookStatus
 			deletedAt
-			constructedAt
+			createdAt
+			updatedAt
+			bookPrice {
+				amount
+				currency
+				discountPercent
+				isDiscounted
+			}
+			bookDimensions {
+				widthCm
+				heightCm
+				weightGrams
+			}
+		}
+	}
+`;
+
+export const REMOVE_BOOK_BY_ADMIN = gql`
+	mutation RemoveBookByAdmin($input: String!) {
+		removeBookByAdmin(bookId: $input) {
+			_id
+			bookTitle
+			bookAuthor
+			bookIsbn
+			bookCallNumber
+			bookImages
+			bookType
+			bookCategory
+			bookAudience
+			bookFormat
+			bookLanguage
+			bookPublishedYear
+			bookPages
+			bookDescription
+			isBorrowable
+			isPurchasable
+			bookLikes
+			bookViews
+			bookComments
+			bookRank
+			bookStatus
+			deletedAt
+			createdAt
+			updatedAt
+			bookPrice {
+				amount
+				currency
+				discountPercent
+				isDiscounted
+			}
+			bookDimensions {
+				widthCm
+				heightCm
+				weightGrams
+			}
+		}
+	}
+`;
+
+export const UPDATE_BOOK = gql`
+	mutation UpdateBook($input: UpdateBookInput!) {
+		updateBook(input: $input) {
+			_id
+			bookTitle
+			bookAuthor
+			bookIsbn
+			bookCallNumber
+			bookImages
+			bookType
+			bookCategory
+			bookAudience
+			bookFormat
+			bookLanguage
+			bookPublishedYear
+			bookPages
+			bookDescription
+			isBorrowable
+			isPurchasable
+			bookLikes
+			bookViews
+			bookComments
+			bookRank
+			bookStatus
+			deletedAt
+			createdAt
+			updatedAt
+			bookPrice {
+				amount
+				currency
+				discountPercent
+				isDiscounted
+			}
+			bookDimensions {
+				widthCm
+				heightCm
+				weightGrams
+			}
+			bookRating {
+				average
+				count
+			}
+		}
+	}
+`;
+/**************************
+ *      BOOK_INVENTORY     *
+ *************************/
+
+export const CREATE_BOOK_INVENTORY = gql`
+	mutation CreateBookInventory($input: CreateBookInventoryInput!) {
+		createBookInventory(input: $input) {
+			_id
+			bookId
+			bookInventoryType
+			bookStorageZone
+			bookInventoryStatus
+			bookTotalQuantity
+			bookSoldQuantity
+			bookReservedQuantity
+			bookBorrowedQuantity
+			deletedAt
+			createdAt
+			updatedAt
+			bookShelf {
+				section
+				row
+				level
+				slot
+			}
+			bookLocation {
+				floorId
+				x
+				y
+				theta
+			}
+			bookPickup {
+				gripperOpenWidthCm
+				gripperCloseWidthCm
+				gripHoldSeconds
+				pickupDirection
+			}
+		}
+	}
+`;
+
+export const UPDATE_BOOK_INVENTORY = gql`
+	mutation UpdateBookInventory($input: UpdateBookInventoryInput!) {
+		updateBookInventory(input: $input) {
+			_id
+			bookId
+			bookInventoryType
+			bookStorageZone
+			bookInventoryStatus
+			bookTotalQuantity
+			bookSoldQuantity
+			bookReservedQuantity
+			bookBorrowedQuantity
+			deletedAt
+			createdAt
+			updatedAt
+			bookShelf {
+				section
+				row
+				level
+				slot
+			}
+			bookLocation {
+				floorId
+				x
+				y
+				theta
+			}
+			bookPickup {
+				gripperOpenWidthCm
+				gripperCloseWidthCm
+				gripHoldSeconds
+				pickupDirection
+			}
+		}
+	}
+`;
+
+export const UPDATE_BOOK_INVENTORY_STATUS = gql`
+	mutation UpdateBookInventoryStatus($input: UpdateBookInventoryStatusInput!) {
+		updateBookInventoryStatus(input: $input) {
+			_id
+			bookId
+			bookInventoryType
+			bookStorageZone
+			bookInventoryStatus
+			bookTotalQuantity
+			bookSoldQuantity
+			bookReservedQuantity
+			bookBorrowedQuantity
+			deletedAt
 			createdAt
 			updatedAt
 		}
 	}
 `;
 
-export const REMOVE_PROPERTY_BY_ADMIN = gql`
-	mutation RemovePropertyByAdmin($input: String!) {
-		removePropertyByAdmin(propertyId: $input) {
+export const RREMOVE_BOOK_INVENTORY_BY_ADMIN = gql`
+	mutation RemoveBookInventoryByAdmin($input: String!) {
+		removeBookInventoryByAdmin(bookInventoryId: $input) {
 			_id
-			propertyType
-			propertyStatus
-			propertyLocation
-			propertyAddress
-			propertyTitle
-			propertyPrice
-			propertySquare
-			propertyBeds
-			propertyRooms
-			propertyViews
-			propertyLikes
-			propertyImages
-			propertyDesc
-			propertyBarter
-			propertyRent
-			memberId
-			soldAt
+			bookId
+			bookInventoryType
+			bookStorageZone
+			bookInventoryStatus
+			bookTotalQuantity
+			bookSoldQuantity
+			bookReservedQuantity
+			bookBorrowedQuantity
 			deletedAt
-			constructedAt
 			createdAt
 			updatedAt
 		}
@@ -96,39 +286,118 @@ export const REMOVE_PROPERTY_BY_ADMIN = gql`
 `;
 
 /**************************
- *      BOARD-ARTICLE     *
+ *         REQUEST        *
  *************************/
 
-export const UPDATE_BOARD_ARTICLE_BY_ADMIN = gql`
-	mutation UpdateBoardArticleByAdmin($input: BoardArticleUpdate!) {
-		updateBoardArticleByAdmin(input: $input) {
+export const UPDATE_REQUEST_STATUS = gql`
+	mutation UpdateRequestStatus($input:UpdateRequestStatusInput!) {
+    updateRequestStatus(input: $input) {
+        _id
+        bookId
+        sourceInventoryId
+        requestType
+        robotId
+        memberId
+        sessionId
+        destinationDeskId
+        destinationType
+        status
+        paymentStatus
+        createdAt
+        updatedAt
+        destination {
+            floorId
+            x
+            y
+            theta
+        }
+        timeline {
+            status
+            message
+            timestamp
+        }
+        error {
+            code
+            message
+            timestamp
+        }
+    }
+`;
+
+/**************************
+ *         ROBOT        *
+ *************************/
+
+export const CREATE_ROBOT = gql`
+	mutation CreateRobot($input: CreateRobotInput!) {
+		createRobot(input: $input) {
 			_id
-			articleCategory
-			articleStatus
-			articleTitle
-			articleContent
-			articleImage
-			articleViews
-			articleLikes
-			memberId
+			robotId
+			name
+			status
+			battery
+			isOnline
+			lastSeenAt
+			currentRequestId
 			createdAt
 			updatedAt
 		}
 	}
 `;
 
-export const REMOVE_BOARD_ARTICLE_BY_ADMIN = gql`
-	mutation RemoveBoardArticleByAdmin($input: String!) {
-		removeBoardArticleByAdmin(articleId: $input) {
+export const UPDATE_ROBOT = gql`
+	mutation UpdateRobot($input: UpdateRobotInput!) {
+		updateRobot(input: $input) {
 			_id
-			articleCategory
-			articleStatus
-			articleTitle
-			articleContent
-			articleImage
-			articleViews
-			articleLikes
+			robotId
+			name
+			status
+			battery
+			isOnline
+			lastSeenAt
+			currentRequestId
+			createdAt
+			updatedAt
+			currentPose {
+				floorId
+				x
+				y
+				theta
+			}
+		}
+	}
+`;
+
+/**************************
+ *         TWIT        *
+ *************************/
+
+export const UPDATE_TWIT_BY_ADMIN = gql`
+	mutation UpdateTwitByAdmin($input: TwitUpdate!) {
+		updateTwitByAdmin(input: $input) {
+			_id
 			memberId
+			text
+			image
+			likes
+			likeCount
+			deletedAt
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const REMOVE_TWIT_BY_ADMIN = gql`
+	mutation RemoveTwitByAdmin($input: String!) {
+		removeTwitByAdmin(twitId: $input) {
+			_id
+			memberId
+			text
+			image
+			likes
+			likeCount
+			deletedAt
 			createdAt
 			updatedAt
 		}
@@ -136,7 +405,7 @@ export const REMOVE_BOARD_ARTICLE_BY_ADMIN = gql`
 `;
 
 /**************************
- *         COMMENT        *
+ *         TWIT        *
  *************************/
 
 export const REMOVE_COMMENT_BY_ADMIN = gql`
@@ -148,6 +417,24 @@ export const REMOVE_COMMENT_BY_ADMIN = gql`
 			commentContent
 			commentRefId
 			memberId
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const REMOVE_TWIT_COMMENT_BY_ADMIN = gql`
+	mutation RemoveTwitCommentByAdmin($input: String!) {
+		removeTwitCommentByAdmin(commentId: $input) {
+			_id
+			twitId
+			memberId
+			text
+			parentCommentId
+			depth
+			likes
+			likeCount
+			deletedAt
 			createdAt
 			updatedAt
 		}
