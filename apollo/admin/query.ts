@@ -18,14 +18,17 @@ export const GET_ALL_MEMBERS_BY_ADMIN = gql`
 				memberImage
 				memberAddress
 				memberDesc
-				memberWarnings
-				memberBlocks
-				memberProperties
-				memberRank
-				memberArticles
+				memberBooks
+				memberTwits
+				memberFollowers
+				memberFollowings
 				memberPoints
 				memberLikes
 				memberViews
+				memberComments
+				memberRank
+				memberWarnings
+				memberBlocks
 				deletedAt
 				createdAt
 				updatedAt
@@ -39,57 +42,42 @@ export const GET_ALL_MEMBERS_BY_ADMIN = gql`
 `;
 
 /**************************
- *        PROPERTY        *
+ *        BOOK        *
  *************************/
 
-export const GET_ALL_PROPERTIES_BY_ADMIN = gql`
-	query GetAllPropertiesByAdmin($input: AllPropertiesInquiry!) {
-		getAllPropertiesByAdmin(input: $input) {
+export const GET_ALL_BOOKS_BY_ADMIN = gql`
+	query GetAllBooksByAdmin($input: AllBooksInquiry!) {
+		getAllBooksByAdmin(input: $input) {
 			list {
 				_id
-				propertyType
-				propertyStatus
-				propertyLocation
-				propertyAddress
-				propertyTitle
-				propertyPrice
-				propertySquare
-				propertyBeds
-				propertyRooms
-				propertyViews
-				propertyLikes
-				propertyImages
-				propertyDesc
-				propertyBarter
-				propertyRent
-				memberId
-				soldAt
+				bookTitle
+				bookAuthor
+				bookIsbn
+				bookCallNumber
+				bookImages
+				bookType
+				bookCategory
+				bookAudience
+				bookFormat
+				bookLanguage
+				bookPublishedYear
+				bookPages
+				bookDescription
+				isBorrowable
+				isPurchasable
+				bookLikes
+				bookViews
+				bookComments
+				bookRank
+				bookStatus
 				deletedAt
-				constructedAt
 				createdAt
 				updatedAt
-				memberData {
-					_id
-					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
-					memberNick
-					memberFullName
-					memberImage
-					memberAddress
-					memberDesc
-					memberWarnings
-					memberBlocks
-					memberProperties
-					memberRank
-					memberPoints
-					memberLikes
-					memberViews
-					deletedAt
-					createdAt
-					updatedAt
-					accessToken
+				bookPrice {
+					amount
+					currency
+					discountPercent
+					isDiscounted
 				}
 			}
 			metaCounter {
@@ -100,22 +88,20 @@ export const GET_ALL_PROPERTIES_BY_ADMIN = gql`
 `;
 
 /**************************
- *      BOARD-ARTICLE     *
+ *      TWIT     *
  *************************/
 
-export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`
-	query GetAllBoardArticlesByAdmin($input: AllBoardArticlesInquiry!) {
-		getAllBoardArticlesByAdmin(input: $input) {
+export const GET_ALL_TWITS_BY_ADMIN = gql`
+	query GetAllTwitsByAdmin($input: AllTwitsInquiry!) {
+		getAllTwitsByAdmin(input: $input) {
 			list {
 				_id
-				articleCategory
-				articleStatus
-				articleTitle
-				articleContent
-				articleImage
-				articleViews
-				articleLikes
 				memberId
+				text
+				image
+				likes
+				likeCount
+				deletedAt
 				createdAt
 				updatedAt
 				memberData {
@@ -129,13 +115,17 @@ export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`
 					memberImage
 					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
-					memberProperties
-					memberRank
+					memberBooks
+					memberTwits
+					memberFollowers
+					memberFollowings
 					memberPoints
 					memberLikes
 					memberViews
+					memberComments
+					memberRank
+					memberWarnings
+					memberBlocks
 					deletedAt
 					createdAt
 					updatedAt
@@ -176,13 +166,17 @@ export const GET_COMMENTS = gql`
 					memberImage
 					memberAddress
 					memberDesc
-					memberWarnings
-					memberBlocks
-					memberProperties
-					memberRank
+					memberBooks
+					memberTwits
+					memberFollowers
+					memberFollowings
 					memberPoints
 					memberLikes
 					memberViews
+					memberComments
+					memberRank
+					memberWarnings
+					memberBlocks
 					deletedAt
 					createdAt
 					updatedAt
@@ -191,6 +185,231 @@ export const GET_COMMENTS = gql`
 			}
 			metaCounter {
 				total
+			}
+		}
+	}
+`;
+
+/**************************
+ *         BOOK-INVENTORY       *
+ *************************/
+
+export const GET_BOOK_INVENTORIES = gql`
+	query GetBookInventories($input: BookInventoriesInquiry!) {
+		getBookInventories(input: $input) {
+			list {
+				_id
+				bookId
+				bookInventoryType
+				bookStorageZone
+				bookInventoryStatus
+				bookTotalQuantity
+				bookSoldQuantity
+				bookReservedQuantity
+				bookBorrowedQuantity
+				deletedAt
+				createdAt
+				updatedAt
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_BOOK_INVENTORy = gql`
+	query GetBookInventory($input: String!) {
+		getBookInventory(bookInventoryId: $input) {
+			_id
+			bookId
+			bookInventoryType
+			bookStorageZone
+			bookInventoryStatus
+			bookTotalQuantity
+			bookSoldQuantity
+			bookReservedQuantity
+			bookBorrowedQuantity
+			deletedAt
+			createdAt
+			updatedAt
+			bookShelf {
+				section
+				row
+				level
+				slot
+			}
+			bookLocation {
+				floorId
+				x
+				y
+				theta
+			}
+			bookPickup {
+				gripperOpenWidthCm
+				gripperCloseWidthCm
+				gripHoldSeconds
+				pickupDirection
+			}
+		}
+	}
+`;
+
+/**************************
+ *         REQUEST       *
+ *************************/
+
+export const GET_REQUEST = gql`
+	query GetRequest($input: String!) {
+		getRequest(requestId: $input) {
+			_id
+			bookId
+			sourceInventoryId
+			requestType
+			robotId
+			memberId
+			sessionId
+			destinationDeskId
+			destinationType
+			status
+			paymentStatus
+			createdAt
+			updatedAt
+			destination {
+				floorId
+				x
+				y
+				theta
+			}
+		}
+	}
+`;
+
+export const GET_REQUESTS = gql`
+	query GetRequests($input: RequestsInquiry!) {
+		getRequests(input: $input) {
+			list {
+				_id
+				bookId
+				sourceInventoryId
+				requestType
+				robotId
+				memberId
+				sessionId
+				destinationDeskId
+				destinationType
+				status
+				paymentStatus
+				createdAt
+				updatedAt
+				memberData {
+					_id
+					memberNick
+					memberImage
+					memberType
+					memberStatus
+				}
+				inventoryData {
+					_id
+					bookInventoryType
+					bookInventoryStatus
+					bookTotalQuantity
+					bookReservedQuantity
+					bookBorrowedQuantity
+					bookSoldQuantity
+				}
+				robotData {
+					_id
+					robotId
+					status
+					isOnline
+					battery
+					lastSeenAt
+				}
+				bookData {
+					_id
+					bookTitle
+					bookAuthor
+					bookImages
+					bookCallNumber
+					bookStatus
+					bookType
+					bookCategory
+				}
+				error {
+					code
+					message
+					timestamp
+				}
+				timeline {
+					status
+					message
+					timestamp
+				}
+				destination {
+					floorId
+					x
+					y
+					theta
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+/**************************
+ *         ROBOT       *
+ *************************/
+
+export const GET_ROBOTS = gql`
+	query GetRobots($input: RobotsInquiry!) {
+		getRobots(input: $input) {
+			list {
+				_id
+				robotId
+				name
+				status
+				battery
+				isOnline
+				lastSeenAt
+				currentRequestId
+				createdAt
+				updatedAt
+				currentPose {
+					floorId
+					x
+					y
+					theta
+				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+export const GET_ROBOT = gql`
+	query GetRobot($input: String!) {
+		getRobot(robotId: $input) {
+			_id
+			robotId
+			name
+			status
+			battery
+			isOnline
+			lastSeenAt
+			currentRequestId
+			createdAt
+			updatedAt
+			currentPose {
+				floorId
+				x
+				y
+				theta
 			}
 		}
 	}
