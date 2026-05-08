@@ -1,0 +1,17 @@
+export enum BookInventoryType {
+	LIBRARY = 'LIBRARY',
+	COMMERCIAL = 'COMMERCIAL',
+}
+
+export enum BookStorageZone {
+	LIBRARY_SHELF = 'LIBRARY_SHELF',
+	COMMERCIAL_WAREHOUSE = 'COMMERCIAL_WAREHOUSE',
+}
+
+export enum BookInventoryStatus {
+	AVAILABLE = 'AVAILABLE',
+	RESERVED = 'RESERVED',
+	BORROWED = 'BORROWED',
+	IN_DELIVERY = 'IN_DELIVERY',
+	MISSING = 'MISSING',
+}
