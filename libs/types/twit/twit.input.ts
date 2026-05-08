@@ -16,3 +16,17 @@ export interface TwitsInquiry {
 	direction?: Direction;
 	search?: TwitSearch;
 }
+
+interface AllTwitsSearch {
+	text?: string;
+	memberId?: string;
+	isDeleted?: boolean;
+}
+
+export interface AllTwitsInquiry {
+	page: number;
+	limit: number;
+	sort?: string;
+	direction?: Direction;
+	search?: AllTwitsSearch;
+}
