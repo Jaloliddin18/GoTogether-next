@@ -1,15 +1,11 @@
-import {
-	LibraryMemberAuthType,
-	LibraryMemberStatus,
-	LibraryMemberType,
-} from '../../enums/library.enum';
+import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
 import { LibraryMeFollowed, LibraryMeLiked, LibraryTotalCounter } from './common';
 
 export interface LibraryMember {
 	_id: string;
-	memberType: LibraryMemberType;
-	memberStatus: LibraryMemberStatus;
-	memberAuthType: LibraryMemberAuthType;
+	memberType: MemberType;
+	memberStatus: MemberStatus;
+	memberAuthType: MemberAuthType;
 	memberPhone: string;
 	memberNick: string;
 	memberPassword?: string;
@@ -40,8 +36,8 @@ export interface LibraryMemberSummary {
 	_id: string;
 	memberNick: string;
 	memberImage?: string;
-	memberType?: LibraryMemberType;
-	memberStatus?: LibraryMemberStatus;
+	memberType?: MemberType;
+	memberStatus?: MemberStatus;
 }
 
 export interface LibraryMembers {

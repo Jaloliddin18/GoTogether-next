@@ -160,23 +160,6 @@ export enum LibraryRequestErrorCode {
 	INTERNAL_ERROR = 'INTERNAL_ERROR',
 }
 
-export enum LibraryMemberType {
-	USER = 'USER',
-	ADMIN = 'ADMIN',
-}
-
-export enum LibraryMemberStatus {
-	ACTIVE = 'ACTIVE',
-	BLOCK = 'BLOCK',
-	DELETE = 'DELETE',
-}
-
-export enum LibraryMemberAuthType {
-	PHONE = 'PHONE',
-	EMAIL = 'EMAIL',
-	TELEGRAM = 'TELEGRAM',
-}
-
 // Backend currently exposes pickupDirection as a string field, with FRONT used by default.
 export enum LibraryPickupDirection {
 	FRONT = 'FRONT',

@@ -1,20 +1,10 @@
 import { PickupDirection } from '../../enums/library.enum';
+import type { MeLiked, TotalCounter } from '../property/property';
+import type { MeFollowed } from '../follow/follow';
 
-export interface LibraryTotalCounter {
-	total?: number;
-}
-
-export interface LibraryMeLiked {
-	memberId: string;
-	likeRefId: string;
-	myFavorite: boolean;
-}
-
-export interface LibraryMeFollowed {
-	followingId: string;
-	followerId: string;
-	myFollowing: boolean;
-}
+export type LibraryTotalCounter = TotalCounter;
+export type LibraryMeLiked = MeLiked;
+export type LibraryMeFollowed = MeFollowed;
 
 export interface LibraryPose {
 	floorId: string;
