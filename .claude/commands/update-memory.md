@@ -1,37 +1,33 @@
 # /update-memory
 
-Refresh MEMORY.md with the accurate current state of the frontend repo.
+Update MEMORY.md to reflect the exact current state of the project.
+Do not guess. Only write what the filesystem and git confirm.
 
-## Steps
+## Step 1 — Gather data
 
-1. Run:
-   ```bash
-   git branch --show-current
-   git log --oneline -8
-   git status
-   ```
+Run these commands:
+git branch --show-current
+git log --oneline -8
+git status
+ls pages/
+ls apollo/
+ls libs/types/library/
+ls libs/enums/
 
-2. Inspect current file state:
-   ```bash
-   find pages/library -type f | sort
-   find apollo/library -type f | sort
-   find libs/types -maxdepth 1 | sort
-   find libs/enums -type f | sort
-   ```
+## Step 2 — Rewrite MEMORY.md
 
-3. Rewrite MEMORY.md with:
-   - **Last Updated**: today's date + latest commit hash
-   - **Current Branch**: from git branch
-   - **What Is Complete**: only files that actually exist on disk
-   - **What Is In Progress**: any partially implemented pages/features
-   - **What Is Next**: next implementation step based on the order in CLAUDE.md
-   - **Known Issues**: any outstanding problems (TypeScript errors, missing dependencies, etc.)
-   - **Recent Commits**: git log --oneline -8
+Update every section with accurate data:
+- Last Updated: today's date + latest commit hash
+- Current Branch: result of git branch --show-current
+- What Is Complete: only files that actually exist on disk
+- What Is In Progress: anything stubbed or partially done
+- What Is Next: next incomplete task
+- Known Issues: any build errors or cleanup items
+- Recent Commits: git log --oneline -8
+- Agent Notes: one line about this session
 
-4. Show a `git diff MEMORY.md` before committing.
+## Step 3 — Show and confirm
 
-5. Propose commit message:
-   ```
-   fix: update memory with current frontend state
-   ```
-   Wait for confirmation before committing.
+Run git diff MEMORY.md and show the diff.
+Propose commit message: feat: update session memory
+Wait for confirmation before committing.
