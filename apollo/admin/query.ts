@@ -414,3 +414,8 @@ export const GET_ROBOT = gql`
 		}
 	}
 `;
+
+// STUB operations — removed from backend
+// TODO: replace with Twit admin operations
+export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`query GetAllBoardArticlesByAdmin { __typename }`;
+export const GET_ALL_PROPERTIES_BY_ADMIN = gql`query GetAllPropertiesByAdmin { __typename }`;

@@ -17,6 +17,7 @@ export interface Member {
 	memberProperties: number;
 	memberRank: number;
 	memberTwits: number;
+	memberArticles?: number;
 	memberPoints: number;
 	memberLikes: number;
 	memberFollowers?: number;

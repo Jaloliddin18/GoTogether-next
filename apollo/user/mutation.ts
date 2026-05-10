@@ -136,7 +136,7 @@ export const LIKE_TARGET_MEMBER = gql`
  *        BOOK        *
  *************************/
 
-export const CREATE_PROPERTY = gql``;
+export const CREATE_PROPERTY = gql`mutation CreateProperty { __typename }`;
 
 export const LIKE_TARGET_BOOK = gql`
 	mutation LikeTargetBook($input: String!) {
@@ -444,3 +444,12 @@ export const UNSUBSCRIBE = gql`
 		}
 	}
 `;
+
+// STUB operations — removed from backend
+// TODO: remove when legacy pages are transformed
+export const LIKE_TARGET_PROPERTY = gql`mutation LikeTargetProperty { __typename }`;
+export const LIKE_TARGET_BOARD_ARTICLE = gql`mutation LikeTargetBoardArticle { __typename }`;
+export const CREATE_BOARD_ARTICLE = gql`mutation CreateBoardArticle { __typename }`;
+export const UPDATE_BOARD_ARTICLE_BY_ADMIN = gql`mutation UpdateBoardArticleByAdmin { __typename }`;
+export const REMOVE_BOARD_ARTICLE_BY_ADMIN = gql`mutation RemoveBoardArticleByAdmin { __typename }`;
+export const UPDATE_PROPERTY = gql`mutation UpdateProperty { __typename }`;

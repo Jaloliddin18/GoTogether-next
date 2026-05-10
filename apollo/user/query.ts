@@ -609,3 +609,15 @@ export const GET_TWIT_COMMENTS = gql`
 		}
 	}
 `;
+
+// STUB operations — removed from backend
+// TODO: remove when legacy pages are transformed
+export const GET_AGENTS = gql`query GetAgents { __typename }`;
+export const GET_PROPERTIES = gql`query GetProperties { __typename }`;
+export const GET_PROPERTY = gql`query GetProperty { __typename }`;
+export const GET_BOARD_ARTICLES = gql`query GetBoardArticles { __typename }`;
+export const GET_BOARD_ARTICLE = gql`query GetBoardArticle { __typename }`;
+export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`query GetAllBoardArticlesByAdmin { __typename }`;
+export const GET_FAVORITES = gql`query GetFavorites { __typename }`;
+export const GET_VISITED = gql`query GetVisited { __typename }`;
+export const GET_AGENT_PROPERTIES = gql`query GetAgentProperties { __typename }`;

@@ -322,6 +322,7 @@ export const UPDATE_REQUEST_STATUS = gql`
             timestamp
         }
     }
+}
 `;
 
 /**************************
@@ -440,3 +441,10 @@ export const REMOVE_TWIT_COMMENT_BY_ADMIN = gql`
 		}
 	}
 `;
+
+// STUB operations — removed from backend
+// TODO: replace with Twit admin operations
+export const UPDATE_BOARD_ARTICLE_BY_ADMIN = gql`mutation UpdateBoardArticleByAdmin { __typename }`;
+export const REMOVE_BOARD_ARTICLE_BY_ADMIN = gql`mutation RemoveBoardArticleByAdmin { __typename }`;
+export const UPDATE_PROPERTY_BY_ADMIN = gql`mutation UpdatePropertyByAdmin { __typename }`;
+export const REMOVE_PROPERTY_BY_ADMIN = gql`mutation RemovePropertyByAdmin { __typename }`;
