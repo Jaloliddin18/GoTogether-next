@@ -49,8 +49,8 @@ const AgentList: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setAgents(data?.getAgents?.list);
-			setTotal(data?.getAgents?.metaCounter[0]?.total);
+			setAgents(data?.getAgents?.list ?? []);
+			setTotal(data?.getAgents?.metaCounter[0]?.total ?? 0);
 		},
 	});
 	/** LIFECYCLES **/

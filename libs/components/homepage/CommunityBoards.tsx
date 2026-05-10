@@ -30,7 +30,7 @@ const CommunityBoards = () => {
 		variables: { input: { ...searchCommunity, limit: 6, search: { articleCategory: BoardArticleCategory.NEWS } } },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setNewsArticles(data?.getBoardArticles?.list);
+			setNewsArticles(data?.getBoardArticles?.list ?? []);
 		},
 	});
 
@@ -44,7 +44,7 @@ const CommunityBoards = () => {
 		variables: { input: { ...searchCommunity, limit: 3, search: { articleCategory: BoardArticleCategory.FREE } } },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setFreeArticles(data?.getBoardArticles?.list);
+			setFreeArticles(data?.getBoardArticles?.list ?? []);
 		},
 	});
 
@@ -66,7 +66,7 @@ const CommunityBoards = () => {
 								<img src="/img/icons/arrowBig.svg" alt="" />
 							</Stack>
 							<Stack className={'card-wrap'}>
-								{newsArticles.map((article, index) => {
+								{(newsArticles ?? []).map((article, index) => {
 									return <CommunityCard vertical={true} article={article} index={index} key={article?._id} />;
 								})}
 							</Stack>
@@ -79,7 +79,7 @@ const CommunityBoards = () => {
 								<img src="/img/icons/arrowBig.svg" alt="" />
 							</Stack>
 							<Stack className={'card-wrap vertical'}>
-								{freeArticles.map((article, index) => {
+								{(freeArticles ?? []).map((article, index) => {
 									return <CommunityCard vertical={false} article={article} index={index} key={article?._id} />;
 								})}
 							</Stack>

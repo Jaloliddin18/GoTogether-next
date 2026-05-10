@@ -30,7 +30,7 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 		skip: !searchFilter?.search?.memberId,
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setAgentProperties(data?.getProperties?.list);
+			setAgentProperties(data?.getProperties?.list ?? []);
 			setTotal(data?.getProperties?.metaCounter[0]?.total ?? 0);
 		},
 	});

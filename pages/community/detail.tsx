@@ -98,7 +98,7 @@ const CommunityDetail: NextPage = ({ initialInput, ...props }: T) => {
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: any) => {
-			setComments(data.getComments.list);
+			setComments(data?.getComments?.list ?? []);
 			setTotal(data.getComments?.metaCounter?.[0]?.total || 0);
 		},
 	});

@@ -42,7 +42,7 @@ const AdminProperties: NextPage = ({ initialInquiry, ...props }: any) => {
 		variables: { input: propertiesInquiry },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setProperties(data?.getAllPropertiesByAdmin?.list);
+			setProperties(data?.getAllPropertiesByAdmin?.list ?? []);
 			setPropertiesTotal(data?.getAllPropertiesByAdmin?.metaCounter[0]?.total ?? 0);
 		},
 	});

@@ -24,7 +24,7 @@ const RecentlyVisited: NextPage = () => {
 		fetchPolicy: 'network-only',
 		variables: { input: searchVisited },
 		onCompleted: (data: T) => {
-			setRecentlyVisited(data.getVisited?.list);
+			setRecentlyVisited(data.getVisited?.list ?? []);
 			setTotal(data.getVisited?.metaCounter[0]?.total || 0);
 		},
 	});

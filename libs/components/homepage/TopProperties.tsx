@@ -36,7 +36,7 @@ const TopProperties = (props: TopPropertiesProps) => {
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setTopProperties(data?.getProperties?.list);
+			setTopProperties(data?.getProperties?.list ?? []);
 		},
 	});
 	/** HANDLERS **/
@@ -73,7 +73,7 @@ const TopProperties = (props: TopPropertiesProps) => {
 							spaceBetween={15}
 							modules={[Autoplay]}
 						>
-							{topProperties.map((property: Property) => {
+							{(topProperties ?? []).map((property: Property) => {
 								return (
 									<SwiperSlide className={'top-property-slide'} key={property?._id}>
 										<TopPropertyCard property={property} likePropertyHandler={likePropertyHandler} />
@@ -116,7 +116,7 @@ const TopProperties = (props: TopPropertiesProps) => {
 								el: '.swiper-top-pagination',
 							}}
 						>
-							{topProperties.map((property: Property) => {
+							{(topProperties ?? []).map((property: Property) => {
 								return (
 									<SwiperSlide className={'top-property-slide'} key={property?._id}>
 										<TopPropertyCard property={property} likePropertyHandler={likePropertyHandler} />

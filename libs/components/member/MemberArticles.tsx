@@ -33,7 +33,7 @@ const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setMemberBoArticles(data?.getBoardArticles?.list);
+			setMemberBoArticles(data?.getBoardArticles?.list ?? []);
 			setTotal(data?.getBoardArticles?.metaCounter[0]?.total || 0);
 		},
 	});

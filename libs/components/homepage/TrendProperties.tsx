@@ -36,7 +36,7 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setTrendProperties(data?.getProperties?.list);
+			setTrendProperties(data?.getProperties?.list ?? []);
 		},
 	});
 	/** HANDLERS **/
@@ -81,7 +81,7 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 								spaceBetween={15}
 								modules={[Autoplay]}
 							>
-								{trendProperties.map((property: Property) => {
+								{(trendProperties ?? []).map((property: Property) => {
 									return (
 										<SwiperSlide key={property._id} className={'trend-property-slide'}>
 											<TrendPropertyCard property={property} likePropertyHandler={likePropertyHandler} />
@@ -130,7 +130,7 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 									el: '.swiper-trend-pagination',
 								}}
 							>
-								{trendProperties.map((property: Property) => {
+								{(trendProperties ?? []).map((property: Property) => {
 									return (
 										<SwiperSlide key={property._id} className={'trend-property-slide'}>
 											<TrendPropertyCard property={property} likePropertyHandler={likePropertyHandler} />

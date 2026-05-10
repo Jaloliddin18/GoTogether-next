@@ -45,7 +45,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		variables: { input: searchCommunity },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setBoardArticles(data?.getBoardArticles?.list);
+			setBoardArticles(data?.getBoardArticles?.list ?? []);
 			setTotalCount(data?.getBoardArticles?.metaCounter[0]?.total);
 		},
 	});

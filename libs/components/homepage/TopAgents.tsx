@@ -33,7 +33,7 @@ const TopAgents = (props: TopAgentsProps) => {
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setTopAgents(data?.getAgents?.list);
+			setTopAgents(data?.getAgents?.list ?? []);
 		},
 	});
 	/** HANDLERS **/
@@ -53,7 +53,7 @@ const TopAgents = (props: TopAgentsProps) => {
 							spaceBetween={29}
 							modules={[Autoplay]}
 						>
-							{topAgents.map((agent: Member) => {
+							{(topAgents ?? []).map((agent: Member) => {
 								return (
 									<SwiperSlide className={'top-agents-slide'} key={agent?._id}>
 										<TopAgentCard agent={agent} key={agent?.memberNick} />
@@ -96,7 +96,7 @@ const TopAgents = (props: TopAgentsProps) => {
 									prevEl: '.swiper-agents-prev',
 								}}
 							>
-								{topAgents.map((agent: Member) => {
+								{(topAgents ?? []).map((agent: Member) => {
 									return (
 										<SwiperSlide className={'top-agents-slide'} key={agent?._id}>
 											<TopAgentCard agent={agent} key={agent?.memberNick} />

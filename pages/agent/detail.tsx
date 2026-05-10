@@ -91,7 +91,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 		skip: !searchFilter.search.memberId,
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setAgentProperties(data?.getProperties?.list);
+			setAgentProperties(data?.getProperties?.list ?? []);
 			setPropertyTotal(data?.getProperties?.metaCounter[0]?.total ?? 0);
 		},
 	});
@@ -107,7 +107,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 		skip: !commentInquiry.search.commentRefId,
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setAgentComments(data?.getComments?.list);
+			setAgentComments(data?.getComments?.list ?? []);
 			setCommentTotal(data?.getComments?.metaCounter[0]?.total ?? 0);
 		},
 	});

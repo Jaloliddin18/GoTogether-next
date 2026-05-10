@@ -48,8 +48,8 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setProperties(data?.getProperties?.list);
-			setTotal(data?.getProperties?.metaCounter[0].total);
+			setProperties(data?.getProperties?.list ?? []);
+			setTotal(data?.getProperties?.metaCounter[0]?.total ?? 0);
 		},
 	});
 
