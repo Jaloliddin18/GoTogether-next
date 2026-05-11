@@ -1,12 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Stack, Box, Modal, Divider, Button } from '@mui/material';
+import {
+	Stack,
+	Box,
+	Modal,
+	Divider,
+	Button,
+	FormControl,
+	Select,
+	MenuItem,
+	Switch,
+	Slider,
+	TextField,
+	InputAdornment,
+} from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CloseIcon from '@mui/icons-material/Close';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { propertySquare, propertyYears } from '../../config';
 import { PropertyLocation, PropertyType } from '../../enums/property.enum';
 import { PropertiesInquiry } from '../../types/property/property.input';
 import { useRouter } from 'next/router';
@@ -24,16 +33,6 @@ const style = {
 	boxShadow: 24,
 };
 
-const MenuProps = {
-	PaperProps: {
-		style: {
-			maxHeight: '200px',
-		},
-	},
-};
-
-const thisYear = new Date().getFullYear();
-
 interface HeaderFilterProps {
 	initialInput: PropertiesInquiry;
 }
@@ -41,7 +40,7 @@ interface HeaderFilterProps {
 const HeaderFilter = (props: HeaderFilterProps) => {
 	const { initialInput } = props;
 	const device = useDeviceDetect();
-	const { t, i18n } = useTranslation('common');
+	const { t } = useTranslation('common');
 	const [searchFilter, setSearchFilter] = useState<PropertiesInquiry>(initialInput);
 	const locationRef: any = useRef();
 	const typeRef: any = useRef();
@@ -51,10 +50,16 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 	const [openLocation, setOpenLocation] = useState(false);
 	const [openType, setOpenType] = useState(false);
 	const [openRooms, setOpenRooms] = useState(false);
-	const [propertyLocation, setPropertyLocation] = useState<PropertyLocation[]>(Object.values(PropertyLocation));
-	const [propertyType, setPropertyType] = useState<PropertyType[]>(Object.values(PropertyType));
-	const [yearCheck, setYearCheck] = useState({ start: 1970, end: thisYear });
-	const [optionCheck, setOptionCheck] = useState('all');
+	const [propertyLocation] = useState<PropertyLocation[]>(Object.values(PropertyLocation));
+	const [propertyType] = useState<PropertyType[]>(Object.values(PropertyType));
+
+	const [bookAudience, setBookAudience] = useState('');
+	const [bookLanguage, setBookLanguage] = useState('');
+	const [isBorrowable, setIsBorrowable] = useState(false);
+	const [isPurchasable, setIsPurchasable] = useState(false);
+	const [minRating, setMinRating] = useState(0);
+	const [minPrice, setMinPrice] = useState(0);
+	const [maxPrice, setMaxPrice] = useState(0);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -165,150 +170,47 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 		[searchFilter],
 	);
 
-	const propertyBedSelectHandler = useCallback(
-		async (number: Number) => {
-			try {
-				if (number != 0) {
-					if (searchFilter?.search?.bedsList?.includes(number)) {
-						setSearchFilter({
-							...searchFilter,
-							search: {
-								...searchFilter.search,
-								bedsList: searchFilter?.search?.bedsList?.filter((item: Number) => item !== number),
-							},
-						});
-					} else {
-						setSearchFilter({
-							...searchFilter,
-							search: { ...searchFilter.search, bedsList: [...(searchFilter?.search?.bedsList || []), number] },
-						});
-					}
-				} else {
-					delete searchFilter?.search.bedsList;
-					setSearchFilter({ ...searchFilter });
-				}
-
-				console.log('propertyBedSelectHandler:', number);
-			} catch (err: any) {
-				console.log('ERROR, propertyBedSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const propertyOptionSelectHandler = useCallback(
-		async (e: any) => {
-			try {
-				const value = e.target.value;
-				setOptionCheck(value);
-
-				if (value !== 'all') {
-					setSearchFilter({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							options: [value],
-						},
-					});
-				} else {
-					delete searchFilter.search.options;
-					setSearchFilter({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-						},
-					});
-				}
-			} catch (err: any) {
-				console.log('ERROR, propertyOptionSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const propertySquareHandler = useCallback(
-		async (e: any, type: string) => {
-			const value = e.target.value;
-
-			if (type == 'start') {
-				setSearchFilter({
-					...searchFilter,
-					search: {
-						...searchFilter.search,
-						// @ts-ignore
-						squaresRange: { ...searchFilter.search.squaresRange, start: parseInt(value) },
-					},
-				});
-			} else {
-				setSearchFilter({
-					...searchFilter,
-					search: {
-						...searchFilter.search,
-						// @ts-ignore
-						squaresRange: { ...searchFilter.search.squaresRange, end: parseInt(value) },
-					},
-				});
-			}
-		},
-		[searchFilter],
-	);
-
-	const yearStartChangeHandler = async (event: any) => {
-		setYearCheck({ ...yearCheck, start: Number(event.target.value) });
-
-		setSearchFilter({
-			...searchFilter,
-			search: {
-				...searchFilter.search,
-				periodsRange: { start: Number(event.target.value), end: yearCheck.end },
-			},
-		});
-	};
-
-	const yearEndChangeHandler = async (event: any) => {
-		setYearCheck({ ...yearCheck, end: Number(event.target.value) });
-
-		setSearchFilter({
-			...searchFilter,
-			search: {
-				...searchFilter.search,
-				periodsRange: { start: yearCheck.start, end: Number(event.target.value) },
-			},
-		});
-	};
-
 	const resetFilterHandler = () => {
-		setSearchFilter(initialInput);
-		setOptionCheck('all');
-		setYearCheck({ start: 1970, end: thisYear });
+		setBookAudience('');
+		setBookLanguage('');
+		setIsBorrowable(false);
+		setIsPurchasable(false);
+		setMinRating(0);
+		setMinPrice(0);
+		setMaxPrice(0);
+	};
+
+	const toNonNegativeNumber = (value: string): number => {
+		const parsed = Number(value);
+		if (Number.isNaN(parsed) || parsed < 0) return 0;
+		return parsed;
 	};
 
 	const pushSearchHandler = async () => {
 		try {
-			if (searchFilter?.search?.locationList?.length == 0) {
-				delete searchFilter.search.locationList;
-			}
+			const params: any = {};
+			const search: any = searchFilter?.search ?? {};
 
-			if (searchFilter?.search?.typeList?.length == 0) {
-				delete searchFilter.search.typeList;
-			}
+			const bookFormat = search?.bookFormat ?? search?.locationList?.[0] ?? '';
+			const bookType = search?.bookType ?? search?.typeList?.[0] ?? '';
+			const bookCategory = search?.bookCategory ?? search?.roomsList?.[0] ?? '';
 
-			if (searchFilter?.search?.roomsList?.length == 0) {
-				delete searchFilter.search.roomsList;
-			}
+			if (bookFormat) params.format = bookFormat;
+			if (bookType) params.type = bookType;
+			if (bookCategory) params.category = bookCategory;
 
-			if (searchFilter?.search?.options?.length == 0) {
-				delete searchFilter.search.options;
-			}
+			if (bookAudience) params.audience = bookAudience;
+			if (bookLanguage) params.language = bookLanguage;
+			if (isBorrowable) params.borrowable = 'true';
+			if (isPurchasable) params.purchasable = 'true';
+			if (minRating > 0) params.minRating = minRating;
+			if (minPrice > 0) params.minPrice = minPrice;
+			if (maxPrice > 0) params.maxPrice = maxPrice;
 
-			if (searchFilter?.search?.bedsList?.length == 0) {
-				delete searchFilter.search.bedsList;
-			}
-
-			await router.push(
-				`/property?input=${JSON.stringify(searchFilter)}`,
-				`/property?input=${JSON.stringify(searchFilter)}`,
-			);
+			await router.push({
+				pathname: '/library/books',
+				query: params,
+			});
 		} catch (err: any) {
 			console.log('ERROR, pushSearchHandler:', err);
 		}
@@ -330,9 +232,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 							<ExpandMoreIcon />
 						</Box>
 						<Box className={`box ${openRooms ? 'on' : ''}`} onClick={roomStateChangeHandler}>
-							<span>
-								{searchFilter?.search?.roomsList ? `${searchFilter?.search?.roomsList[0]} rooms}` : t('Rooms')}
-							</span>
+							<span>{searchFilter?.search?.roomsList ? `${searchFilter?.search?.roomsList[0]} rooms}` : t('Rooms')}</span>
 							<ExpandMoreIcon />
 						</Box>
 					</Stack>
@@ -397,145 +297,132 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 								<CloseIcon />
 							</div>
 							<div className={'top'}>
-								<span>Find your home</span>
-								<div className={'search-input-box'}>
-									<img src="/img/icons/search.svg" alt="" />
-									<input
-										value={searchFilter?.search?.text ?? ''}
-										type="text"
-										placeholder={'What are you looking for?'}
-										onChange={(e: any) => {
-											setSearchFilter({
-												...searchFilter,
-												search: { ...searchFilter.search, text: e.target.value },
-											});
-										}}
-									/>
-								</div>
+								<span>Smart Library Advanced Filters</span>
 							</div>
 							<Divider sx={{ mt: '30px', mb: '35px' }} />
 							<div className={'middle'}>
 								<div className={'row-box'}>
-									<div className={'box'}>
-										<span>bedrooms</span>
+									<div className={'box'} style={{ width: '48%' }}>
+										<span>Reader Level / 이용 대상</span>
 										<div className={'inside'}>
-											<div
-												className={`room ${!searchFilter?.search?.bedsList ? 'active' : ''}`}
-												onClick={() => propertyBedSelectHandler(0)}
-											>
-												Any
-											</div>
-											{[1, 2, 3, 4, 5].map((bed: number) => (
-												<div
-													className={`room ${searchFilter?.search?.bedsList?.includes(bed) ? 'active' : ''}`}
-													onClick={() => propertyBedSelectHandler(bed)}
-													key={bed}
+											<FormControl fullWidth>
+												<Select
+													value={bookAudience}
+													onChange={(event) => setBookAudience(event.target.value as string)}
+													displayEmpty
+													inputProps={{ 'aria-label': 'Reader Level / 이용 대상' }}
 												>
-													{bed == 0 ? 'Any' : bed}
-												</div>
-											))}
+													<MenuItem value={''}>All Levels / 전체</MenuItem>
+													<MenuItem value={'CHILDREN'}>Children / 어린이</MenuItem>
+													<MenuItem value={'TEEN'}>Teen / 청소년</MenuItem>
+													<MenuItem value={'GENERAL'}>General / 일반</MenuItem>
+													<MenuItem value={'UNDERGRADUATE'}>Undergraduate / 학부생</MenuItem>
+													<MenuItem value={'GRADUATE'}>Graduate / 대학원생</MenuItem>
+													<MenuItem value={'PROFESSIONAL'}>Professional / 전문가</MenuItem>
+												</Select>
+											</FormControl>
 										</div>
 									</div>
-									<div className={'box'}>
-										<span>options</span>
+									<div className={'box'} style={{ width: '48%' }}>
+										<span>Language / 언어</span>
 										<div className={'inside'}>
-											<FormControl>
+											<FormControl fullWidth>
 												<Select
-													value={optionCheck}
-													onChange={propertyOptionSelectHandler}
+													value={bookLanguage}
+													onChange={(event) => setBookLanguage(event.target.value as string)}
 													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
+													inputProps={{ 'aria-label': 'Language / 언어' }}
 												>
-													<MenuItem value={'all'}>All Options</MenuItem>
-													<MenuItem value={'propertyBarter'}>Barter</MenuItem>
-													<MenuItem value={'propertyRent'}>Rent</MenuItem>
+													<MenuItem value={''}>All Languages / 전체</MenuItem>
+													<MenuItem value={'ENGLISH'}>English / 영어</MenuItem>
+													<MenuItem value={'KOREAN'}>Korean / 한국어</MenuItem>
+													<MenuItem value={'CHINESE'}>Chinese / 중국어</MenuItem>
+													<MenuItem value={'SPANISH'}>Spanish / 스페인어</MenuItem>
+													<MenuItem value={'FRENCH'}>French / 프랑스어</MenuItem>
+													<MenuItem value={'GERMAN'}>German / 독일어</MenuItem>
+													<MenuItem value={'RUSSIAN'}>Russian / 러시아어</MenuItem>
+													<MenuItem value={'ARABIC'}>Arabic / 아랍어</MenuItem>
+													<MenuItem value={'UZBEK'}>Uzbek / 우즈벡어</MenuItem>
+													<MenuItem value={'OTHER'}>Other / 기타</MenuItem>
 												</Select>
 											</FormControl>
 										</div>
 									</div>
 								</div>
-								<div className={'row-box'} style={{ marginTop: '44px' }}>
-									<div className={'box'}>
-										<span>Year Built</span>
-										<div className={'inside space-between align-center'}>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={yearCheck.start.toString()}
-													onChange={yearStartChangeHandler}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{propertyYears?.slice(0)?.map((year: number) => (
-														<MenuItem value={year} disabled={yearCheck.end <= year} key={year}>
-															{year}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
-											<div className={'minus-line'}></div>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={yearCheck.end.toString()}
-													onChange={yearEndChangeHandler}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{propertyYears
-														?.slice(0)
-														.reverse()
-														.map((year: number) => (
-															<MenuItem value={year} disabled={yearCheck.start >= year} key={year}>
-																{year}
-															</MenuItem>
-														))}
-												</Select>
-											</FormControl>
+
+								<div className={'row-box'} style={{ marginTop: '26px' }}>
+									<div className={'box'} style={{ width: '48%' }}>
+										<span>Borrowable Only / 대출 가능만</span>
+										<div className={'inside'}>
+											<Switch
+												checked={isBorrowable}
+												onChange={(event) => setIsBorrowable(event.target.checked)}
+												sx={{
+													'& .MuiSwitch-switchBase.Mui-checked': { color: '#2E86DE' },
+													'& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+														backgroundColor: '#2E86DE',
+													},
+												}}
+											/>
 										</div>
 									</div>
-									<div className={'box'}>
-										<span>square meter</span>
-										<div className={'inside space-between align-center'}>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={searchFilter?.search?.squaresRange?.start}
-													onChange={(e: any) => propertySquareHandler(e, 'start')}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{propertySquare.map((square: number) => (
-														<MenuItem
-															value={square}
-															disabled={(searchFilter?.search?.squaresRange?.end || 0) < square}
-															key={square}
-														>
-															{square}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
-											<div className={'minus-line'}></div>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={searchFilter?.search?.squaresRange?.end}
-													onChange={(e: any) => propertySquareHandler(e, 'end')}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{propertySquare.map((square: number) => (
-														<MenuItem
-															value={square}
-															disabled={(searchFilter?.search?.squaresRange?.start || 0) > square}
-															key={square}
-														>
-															{square}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
+									<div className={'box'} style={{ width: '48%' }}>
+										<span>Purchasable Only / 구매 가능만</span>
+										<div className={'inside'}>
+											<Switch
+												checked={isPurchasable}
+												onChange={(event) => setIsPurchasable(event.target.checked)}
+												sx={{
+													'& .MuiSwitch-switchBase.Mui-checked': { color: '#2E86DE' },
+													'& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+														backgroundColor: '#2E86DE',
+													},
+												}}
+											/>
+										</div>
+									</div>
+								</div>
+
+								<div className={'row-box'} style={{ marginTop: '26px' }}>
+									<div className={'box'} style={{ width: '100%' }}>
+										<span>
+											Minimum Rating / 최소 평점: {minRating > 0 ? `${minRating.toFixed(1)} ★` : 'Any / 전체'}
+										</span>
+										<div className={'inside'}>
+											<Slider
+												value={minRating}
+												onChange={(_event, value) => setMinRating(value as number)}
+												min={0}
+												max={5}
+												step={0.5}
+												sx={{ color: '#2E86DE' }}
+											/>
+										</div>
+									</div>
+								</div>
+
+								<div className={'row-box'} style={{ marginTop: '26px', opacity: isPurchasable ? 1 : 0.4, pointerEvents: isPurchasable ? 'auto' : 'none' }}>
+									<div className={'box'} style={{ width: '100%' }}>
+										<span>Price Range / 가격 범위 (구매)</span>
+										<div className={'inside space-between align-center'} style={{ gap: '16px' }}>
+											<TextField
+												fullWidth
+												type={'number'}
+												label={'Min price / 최소'}
+												value={minPrice}
+												onChange={(event) => setMinPrice(toNonNegativeNumber(event.target.value))}
+												inputProps={{ min: 0 }}
+												InputProps={{ startAdornment: <InputAdornment position={'start'}>₩</InputAdornment> }}
+											/>
+											<TextField
+												fullWidth
+												type={'number'}
+												label={'Max price / 최대'}
+												value={maxPrice}
+												onChange={(event) => setMaxPrice(toNonNegativeNumber(event.target.value))}
+												inputProps={{ min: 0 }}
+												InputProps={{ startAdornment: <InputAdornment position={'start'}>₩</InputAdornment> }}
+											/>
 										</div>
 									</div>
 								</div>
@@ -546,11 +433,7 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 									<img src="/img/icons/reset.svg" alt="" />
 									<span>Reset all filters</span>
 								</div>
-								<Button
-									startIcon={<img src={'/img/icons/search.svg'} />}
-									className={'search-btn'}
-									onClick={pushSearchHandler}
-								>
+								<Button startIcon={<img src={'/img/icons/search.svg'} />} className={'search-btn'} onClick={pushSearchHandler}>
 									Search
 								</Button>
 							</div>
