@@ -251,20 +251,23 @@ body::-webkit-scrollbar {
 							cursor: pointer;
 						}
 					}
-					.search-btn {
-						margin-left: 12px;
-						width: 62px;
-						height: 62px;
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						border-radius: 55px;
-						background: #f17742;
-						cursor: pointer;
-						svg {
-							width: 20px;
-							height: 20px;
-							color: #ffffff;
+						.search-btn {
+							margin-left: 12px;
+							width: 62px;
+							height: 62px;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							border-radius: 55px;
+							background: #2E86DE;
+							cursor: pointer;
+							&:hover {
+								background: #1a6fc4;
+							}
+							svg {
+								width: 20px;
+								height: 20px;
+								color: #ffffff;
 						}
 					}
 				}

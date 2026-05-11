@@ -45,3 +45,8 @@ next-env.d.ts
 .env.local
 .env
 !.env.example
+
+# claude code / skills
+.agents/
+.claude/skills/
+skills-lock.json
