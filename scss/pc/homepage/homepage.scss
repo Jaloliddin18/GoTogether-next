@@ -3,10 +3,10 @@
 		position: relative;
 		width: 100%;
 		height: auto;
-		.info-box {
-			width: 100%;
-			display: flex;
-			flex-direction: row;
+			.info-box {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
 			justify-content: space-between;
 			.left {
 				display: flex;
@@ -112,14 +112,15 @@
 						}
 					}
 				}
+				}
 			}
-		}
-		.trend-properties {
+			.trend-properties {
 			padding: 108px 0px 76px;
 			width: 100%;
 			height: 697px;
 			display: flex;
 			flex-direction: row;
+			background: #f6f6f6;
 			.container {
 				flex-direction: column;
 				.card-box {

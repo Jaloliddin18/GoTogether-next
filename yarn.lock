@@ -4474,15 +4474,10 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000981, caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001541:
-  version "1.0.30001561"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001561.tgz#752f21f56f96f1b1a52e97aae98c57c562d5d9da"
-  integrity sha512-NTt0DNoKe958Q0BE0j0c1V9jbUzhBxHIEJy7asmGrpE0yG63KTV7PLHPnK2E1O9RsQrQ081I3NLuXGS6zht3cw==
-
-caniuse-lite@^1.0.30001579:
-  version "1.0.30001609"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001609.tgz#fc34fad75c0c6d6d6303bdbceec2da8f203dabd6"
-  integrity sha512-JFPQs34lHKx1B5t1EpQpWH4c+29zIyn/haGsbpfq3suuV9v56enjFt23zqijxGTMwy1p/4H2tjnQMY+p1WoAyA==
+caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000981, caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001125, caniuse-lite@^1.0.30001541, caniuse-lite@^1.0.30001579:
+  version "1.0.30001792"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001792.tgz"
+  integrity sha512-hVLMUZFgR4JJ6ACt1uEESvQN1/dBVqPAKY0hgrV70eN3391K6juAfTjKZLKvOMsx8PxA7gsY1/tLMMTcfFLLpw==
 
 capture-exit@^2.0.0:
   version "2.0.0"
@@ -7279,6 +7274,15 @@ fragment-cache@^0.2.1:
   integrity sha512-GMBAbW9antB8iZRHLoGw0b3HANt57diZYFO/HL1JGIC1MjKrdmhxvrJbupnVvpys0zsz7yBApXdQyfepKly2kA==
   dependencies:
     map-cache "^0.2.2"
+
+framer-motion@^12.38.0:
+  version "12.38.0"
+  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-12.38.0.tgz#cf28e072a95942881ca4e33fd33be41192fd146b"
+  integrity sha512-rFYkY/pigbcswl1XQSb7q424kSTQ8q6eAC+YUsSKooHQYuLdzdHjrt6uxUC+PRAO++q5IS7+TamgIw1AphxR+g==
+  dependencies:
+    motion-dom "^12.38.0"
+    motion-utils "^12.36.0"
+    tslib "^2.4.0"
 
 fresh@0.5.2:
   version "0.5.2"
@@ -10260,6 +10264,18 @@ moment@^2.29.3:
   version "2.29.4"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
+
+motion-dom@^12.38.0:
+  version "12.38.0"
+  resolved "https://registry.yarnpkg.com/motion-dom/-/motion-dom-12.38.0.tgz#9ef3253ea0fb28b6757588327073848d940e9aab"
+  integrity sha512-pdkHLD8QYRp8VfiNLb8xIBJis1byQ9gPT3Jnh2jqfFtAsWUA3dEepDlsWe/xMpO8McV+VdpKVcp+E+TGJEtOoA==
+  dependencies:
+    motion-utils "^12.36.0"
+
+motion-utils@^12.36.0:
+  version "12.36.0"
+  resolved "https://registry.yarnpkg.com/motion-utils/-/motion-utils-12.36.0.tgz#cff2df2a28c3fe53a3de7e0103ba7f73ff7d77a7"
+  integrity sha512-eHWisygbiwVvf6PZ1vhaHCLamvkSbPIeAYxWUuL3a2PD/TROgE7FvfHWTIH4vMl798QLfMw15nRqIaRDXTlYRg==
 
 move-concurrently@^1.0.1:
   version "1.0.1"
