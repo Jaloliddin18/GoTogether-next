@@ -22,7 +22,7 @@
 						width: 50%;
 						height: auto;
 						.title-main {
-							color: #181a20;
+							color: #1A1A2E;
 							font-family: $font;
 							font-size: 30px;
 							font-style: normal;
@@ -39,7 +39,7 @@
 							gap: 10px;
 							margin-bottom: 17px;
 							.city {
-								color: #717171;
+								color: #64748B;
 								font-family: $font;
 								font-size: 13px;
 								font-style: normal;
@@ -49,14 +49,14 @@
 							.divider {
 								width: 1px;
 								height: 20px;
-								background: #ddd;
+								background: #E2E8F0;
 							}
 							.buy-rent-box {
 								flex-direction: row;
 								align-items: center;
 								gap: 7px;
 								.buy-rent {
-									color: #eb6753;
+									color: #2E86DE;
 									font-family: $font;
 									font-size: 15px;
 									font-style: normal;
@@ -65,7 +65,7 @@
 								}
 							}
 							.date {
-								color: #181a20;
+								color: #1A1A2E;
 								font-family: $font;
 								font-size: 15px;
 								font-style: normal;
@@ -84,7 +84,7 @@
 								flex-direction: row;
 								gap: 8px;
 								p {
-									color: #181a20;
+									color: #1A1A2E;
 									font-family: $font;
 									font-size: 15px;
 									font-style: normal;
@@ -106,7 +106,7 @@
 							gap: 11px;
 							margin: 0 10px 27px 0;
 							p {
-								color: #181a20;
+								color: #1A1A2E;
 								text-align: right;
 								font-family: $font;
 								font-size: 18px;
@@ -132,7 +132,7 @@
 							cursor: pointer;
 						}
 						p {
-							color: #181a20;
+							color: #1A1A2E;
 							text-align: right;
 							font-family: $font;
 							font-size: 26px;
@@ -143,7 +143,7 @@
 							text-transform: capitalize;
 						}
 						span {
-							color: #181a20;
+							color: #1A1A2E;
 							text-align: right;
 							font-family: $font;
 							font-size: 15px;
@@ -213,7 +213,7 @@
 								align-items: center;
 								justify-content: center;
 								border-radius: 12px;
-								border: 1px solid #ddd;
+								border: 1px solid #E2E8F0;
 								img {
 									width: 35px;
 									height: auto;
@@ -223,7 +223,7 @@
 								width: auto;
 								height: auto;
 								.title {
-									color: #181a20;
+									color: #1A1A2E;
 									font-family: $font;
 									font-size: 15px;
 									font-style: normal;
@@ -231,7 +231,7 @@
 									line-height: normal;
 								}
 								.option-data {
-									color: #181a20;
+									color: #1A1A2E;
 									font-family: $font;
 									font-size: 15px;
 									font-style: normal;
@@ -253,7 +253,7 @@
 							height: auto;
 							gap: 30px;
 							.title {
-								color: #181a20;
+								color: #1A1A2E;
 								font-family: $font;
 								font-size: 17px;
 								font-style: normal;
@@ -261,7 +261,7 @@
 								line-height: normal;
 							}
 							.desc {
-								color: #181a20;
+								color: #1A1A2E;
 								font-family: $font;
 								font-size: 14px;
 								font-style: normal;
@@ -275,7 +275,7 @@
 							height: auto;
 							gap: 30px;
 							.title {
-								color: #181a20;
+								color: #1A1A2E;
 								font-family: $font;
 								font-size: 17px;
 								font-style: normal;
@@ -297,7 +297,7 @@
 										gap: 38px;
 										.title {
 											width: 121px;
-											color: #181a20;
+											color: #1A1A2E;
 											font-family: $font;
 											font-size: 14px;
 											font-style: normal;
@@ -306,7 +306,7 @@
 										}
 										.data {
 											width: 88px;
-											color: #181a20;
+											color: #1A1A2E;
 											font-family: $font;
 											font-size: 14px;
 											font-style: normal;
@@ -326,7 +326,7 @@
 						border-radius: 12px;
 						border: 1px solid #c4c4c4;
 						.title {
-							color: #181a20;
+							color: #1A1A2E;
 							font-family: $font;
 							font-size: 17px;
 							font-style: normal;
@@ -352,7 +352,7 @@
 						border-radius: 12px;
 						border: 1px solid #c4c4c4;
 						.title {
-							color: #181a20;
+							color: #1A1A2E;
 							font-family: $font;
 							font-size: 17px;
 							font-style: normal;
@@ -387,7 +387,7 @@
 								gap: 12px;
 								.reviews {
 									width: 153.6px;
-									color: #181a20;
+									color: #1A1A2E;
 									font-family: $font;
 									font-size: 17px;
 									font-style: normal;
@@ -401,7 +401,7 @@
 								flex-direction: row;
 								gap: 10px;
 								.sort-title {
-									color: #717171;
+									color: #64748B;
 									font-family: $font;
 									font-size: 14px;
 									font-style: normal;
@@ -412,7 +412,7 @@
 									width: 140px;
 									border: none;
 									outline: none;
-									color: #181a20;
+									color: #1A1A2E;
 									font-family: $font;
 									font-size: 14px;
 									font-style: normal;
@@ -452,7 +452,7 @@
 										}
 										.name {
 											width: 100%;
-											color: #181a20;
+											color: #1A1A2E;
 											font-family: $font;
 											font-size: 15px;
 											font-style: normal;
@@ -462,7 +462,7 @@
 										}
 										.date {
 											width: 100%;
-											color: #181a20;
+											color: #1A1A2E;
 											font-family: $font;
 											font-size: 13px;
 											font-style: normal;
@@ -479,7 +479,7 @@
 									height: auto;
 									margin-top: 15px;
 									.description {
-										color: #181a20;
+										color: #1A1A2E;
 										font-family: $font;
 										font-size: 14px;
 										font-style: normal;
@@ -504,7 +504,7 @@
 						box-shadow: 0px 1px 4px 0px rgba(24, 26, 32, 0.07);
 						padding: 30px 38px;
 						.main-title {
-							color: #181a20;
+							color: #1A1A2E;
 							font-family: $font;
 							font-size: 17px;
 							font-style: normal;
@@ -513,7 +513,7 @@
 						}
 						.review-title {
 							margin-top: 20px;
-							color: #181a20;
+							color: #1A1A2E;
 							font-family: $font;
 							font-size: 14px;
 							font-style: normal;
@@ -526,8 +526,8 @@
 							margin-top: 8px;
 							padding: 20px;
 							border-radius: 8px;
-							border: 1px solid #ddd;
-							color: #717171;
+							border: 1px solid #E2E8F0;
+							color: #64748B;
 							font-family: $font;
 							font-size: 14px;
 							font-style: normal;
@@ -553,7 +553,7 @@
 								border: 1px solid #c4c4c4;
 								cursor: pointer;
 								.title {
-									color: #181a20;
+									color: #1A1A2E;
 									font-family: $font;
 									font-size: 15px;
 									font-style: normal;
@@ -578,7 +578,7 @@
 						width: 100%;
 						gap: 8px;
 						.main-title {
-							color: #181a20;
+							color: #1A1A2E;
 							font-family: $font;
 							font-size: 17px;
 							font-style: normal;
@@ -599,7 +599,7 @@
 							.name-phone-listings {
 								gap: 5px;
 								.name {
-									color: #181a20;
+									color: #1A1A2E;
 									font-family: $font;
 									font-size: 15px;
 									font-style: normal;
@@ -612,7 +612,7 @@
 									align-items: center;
 									gap: 10px;
 									.number {
-										color: #181a20;
+										color: #1A1A2E;
 										font-family: $font;
 										font-size: 15px;
 										font-style: normal;
@@ -621,7 +621,7 @@
 									}
 								}
 								.listings {
-									color: #181a20;
+									color: #1A1A2E;
 									font-family: $font;
 									font-size: 14px;
 									font-style: normal;
@@ -632,7 +632,7 @@
 							}
 						}
 						.sub-title {
-							color: #181a20;
+							color: #1A1A2E;
 							font-family: $font;
 							font-size: 14px;
 							font-style: normal;
@@ -644,11 +644,11 @@
 							height: 55px;
 							padding: 15px;
 							border-radius: 8px;
-							border: 1px solid #ddd;
+							border: 1px solid #E2E8F0;
 							background: #fff;
 							outline: none;
 							&::placeholder {
-								color: #717171;
+								color: #64748B;
 								font-family: $font;
 								font-size: 14px;
 								font-style: normal;
@@ -664,14 +664,14 @@
 							height: 120px;
 							padding: 20px;
 							border-radius: 8px;
-							border: 1px solid #ddd;
+							border: 1px solid #E2E8F0;
 							font-family: $font;
 							font-size: 14px;
 							font-style: normal;
 							font-weight: 400;
 							line-height: 26px;
 							&::placeholder {
-								color: #717171;
+								color: #64748B;
 								font-family: $font;
 								font-size: 14px;
 								font-style: normal;
@@ -690,7 +690,7 @@
 							align-items: center;
 							gap: 10px;
 							border-radius: 12px;
-							background: #eb6753;
+							background: #2E86DE;
 							.title {
 								color: #fff;
 								font-family: $font;
@@ -716,7 +716,7 @@
 					.title-box {
 						width: 30%;
 						.main-title {
-							color: #181a20;
+							color: #1A1A2E;
 							font-family: $font;
 							font-size: 30px;
 							font-style: normal;
@@ -726,7 +726,7 @@
 							text-transform: capitalize;
 						}
 						.sub-title {
-							color: #181a20;
+							color: #1A1A2E;
 							font-family: $font;
 							font-size: 14px;
 							font-style: normal;

@@ -22,7 +22,7 @@
 			display: flex;
 			align-items: center;
 			border-radius: 6px;
-			background: #eb6753;
+			background: #2E86DE;
 			img {
 				width: 14px;
 				height: 14px;
@@ -45,7 +45,7 @@
 			bottom: 20px;
 			border-radius: 6px;
 			background: #fff;
-			color: #181a20;
+			color: #1A1A2E;
 			font-family: $font;
 			font-size: 15px;
 			font-style: normal;
@@ -59,12 +59,12 @@
 		flex-direction: column;
 		box-sizing: border-box;
 		border-radius: 0px 0px 12px 12px;
-		border: 1px solid #ddd;
+		border: 1px solid #E2E8F0;
 		border-top: none;
 		background: #fff;
 		.title {
 			overflow: hidden;
-			color: #181a20;
+			color: #1A1A2E;
 			text-overflow: ellipsis;
 			white-space: nowrap;
 			font-family: $font;
@@ -78,7 +78,7 @@
 		.desc {
 			margin-top: 5px;
 			overflow: hidden;
-			color: #717171;
+			color: #64748B;
 			font-family: $font;
 			font-size: 13px;
 			font-style: normal;
@@ -101,7 +101,7 @@
 					height: 17px;
 				}
 				span {
-					color: #181a20;
+					color: #1A1A2E;
 					font-family: $font;
 					font-size: 13px;
 					font-style: normal;
@@ -123,7 +123,7 @@
 				justify-content: space-between;
 			}
 			p {
-				color: #181a20;
+				color: #1A1A2E;
 				font-family: $font;
 				font-size: 13px;
 				font-style: normal;
@@ -133,7 +133,7 @@
 			}
 			span {
 				margin-left: 6px;
-				color: rgba(143, 143, 143, 0.54);
+				color: rgba(100, 116, 139, 0.54);
 				font-family: $font;
 				font-size: 15px;
 				font-style: normal;
@@ -176,7 +176,7 @@
 			top: 12px;
 			left: 12px;
 			border-radius: 6px;
-			background: #eb6753;
+			background: #2E86DE;
 			color: #fff;
 			font-family: $font;
 			font-size: 12px;
@@ -195,7 +195,7 @@
 			display: flex;
 			flex-direction: column;
 			strong {
-				color: #181a20;
+				color: #1A1A2E;
 				font-family: $font;
 				font-size: 15px;
 				font-style: normal;
@@ -204,7 +204,7 @@
 				cursor: pointer;
 			}
 			span {
-				color: #181a20;
+				color: #1A1A2E;
 				font-family: $font;
 				font-size: 15px;
 				font-style: normal;
@@ -252,7 +252,7 @@
 		width: 100%;
 		height: 80px;
 		.title {
-			color: #717171;
+			color: #64748B;
 			font-family: $font;
 			font-size: 13px;
 			font-style: normal;
@@ -260,7 +260,7 @@
 			line-height: normal;
 		}
 		.desc {
-			color: #181a20;
+			color: #1A1A2E;
 			font-family: $font;
 			font-size: 15px;
 			font-style: normal;
@@ -294,9 +294,9 @@
 		right: 20px;
 		border-radius: 12px;
 		background: #fff;
-		box-shadow: 0px 6px 15px 0px rgba(64, 79, 104, 0.05);
+		box-shadow: 0px 6px 15px 0px rgba(27, 58, 107, 0.08);
 		.month {
-			color: #181a20;
+			color: #1A1A2E;
 			text-align: center;
 			font-family: $font;
 			font-size: 13px;
@@ -305,7 +305,7 @@
 			line-height: normal;
 		}
 		.day {
-			color: #181a20;
+			color: #1A1A2E;
 			font-family: $font;
 			font-size: 20px;
 			font-style: normal;
