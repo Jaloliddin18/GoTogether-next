@@ -1,41 +1,49 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { Stack, Box } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper';
-import TopAgentCard from './TopAgentCard';
-import { Member } from '../../types/member/member';
-import { AgentsInquiry } from '../../types/member/member.input';
-import { GET_AGENTS } from '../../../apollo/user/query';
-import { useQuery } from '@apollo/client';
-import { T } from '../../types/common';
+import TopAgentCard, { TopAgentItem } from './TopAgentCard';
 
-interface TopAgentsProps {
-	initialInput: AgentsInquiry;
-}
+const BOOK_DONORS: TopAgentItem[] = [
+	{
+		_id: '1',
+		memberNick: 'Jaloliddin K.',
+		memberType: 'SPONSOR',
+		memberImage: '/img/profile/girl.svg',
+	},
+	{
+		_id: '2',
+		memberNick: 'Akhror T.',
+		memberType: 'SPONSOR',
+		memberImage: '/img/profile/girl.svg',
+	},
+	{
+		_id: '3',
+		memberNick: 'Aziz M.',
+		memberType: 'SPONSOR',
+		memberImage: '/img/profile/girl.svg',
+	},
+	{
+		_id: '4',
+		memberNick: 'Jahongir U.',
+		memberType: 'SPONSOR',
+		memberImage: '/img/profile/girl.svg',
+	},
+	{
+		_id: '5',
+		memberNick: 'Ibohim S.',
+		memberType: 'SPONSOR',
+		memberImage: '/img/profile/girl.svg',
+	},
+];
 
-const TopAgents = (props: TopAgentsProps) => {
-	const { initialInput } = props;
+const TopAgents = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const [topAgents, setTopAgents] = useState<Member[]>([]);
 
-	/** APOLLO REQUESTS **/
-	const {
-		loading: getAgentsLoading,
-		data: getAgentsData,
-		error: getAgentsError,
-		refetch: getAgentsRefetch,
-	} = useQuery(GET_AGENTS, {
-		fetchPolicy: 'cache-and-network',
-		variables: { input: initialInput },
-		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setTopAgents(data?.getAgents?.list ?? []);
-		},
-	});
 	/** HANDLERS **/
 
 	if (device === 'mobile') {
@@ -43,7 +51,7 @@ const TopAgents = (props: TopAgentsProps) => {
 			<Stack className={'top-agents'}>
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
-						<span>Top Agents</span>
+						<span>Book Donors</span>
 					</Stack>
 					<Stack className={'wrapper'}>
 						<Swiper
@@ -53,10 +61,10 @@ const TopAgents = (props: TopAgentsProps) => {
 							spaceBetween={29}
 							modules={[Autoplay]}
 						>
-							{(topAgents ?? []).map((agent: Member) => {
+							{BOOK_DONORS.map((donor: TopAgentItem) => {
 								return (
-									<SwiperSlide className={'top-agents-slide'} key={agent?._id}>
-										<TopAgentCard agent={agent} key={agent?.memberNick} />
+									<SwiperSlide className={'top-agents-slide'} key={donor._id}>
+										<TopAgentCard agent={donor} key={donor.memberNick} />
 									</SwiperSlide>
 								);
 							})}
@@ -71,12 +79,12 @@ const TopAgents = (props: TopAgentsProps) => {
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
 						<Box component={'div'} className={'left'}>
-							<span>Top Agents</span>
-							<p>Our Top Agents always ready to serve you</p>
+							<span>Our Sponsors</span>
+							<p>Community members who donated books to our library</p>
 						</Box>
 						<Box component={'div'} className={'right'}>
 							<div className={'more-box'}>
-								<span>See All Agents</span>
+								<span>See All Sponsors</span>
 								<img src="/img/icons/rightup.svg" alt="" />
 							</div>
 						</Box>
@@ -96,10 +104,10 @@ const TopAgents = (props: TopAgentsProps) => {
 									prevEl: '.swiper-agents-prev',
 								}}
 							>
-								{(topAgents ?? []).map((agent: Member) => {
+								{BOOK_DONORS.map((donor: TopAgentItem) => {
 									return (
-										<SwiperSlide className={'top-agents-slide'} key={agent?._id}>
-											<TopAgentCard agent={agent} key={agent?.memberNick} />
+										<SwiperSlide className={'top-agents-slide'} key={donor._id}>
+											<TopAgentCard agent={donor} key={donor.memberNick} />
 										</SwiperSlide>
 									);
 								})}
@@ -113,16 +121,6 @@ const TopAgents = (props: TopAgentsProps) => {
 			</Stack>
 		);
 	}
-};
-
-TopAgents.defaultProps = {
-	initialInput: {
-		page: 1,
-		limit: 10,
-		sort: 'memberRank',
-		direction: 'DESC',
-		search: {},
-	},
 };
 
 export default TopAgents;
