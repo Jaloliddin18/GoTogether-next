@@ -2,18 +2,18 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
 	Stack,
 	Modal,
-	Divider,
 	Button,
 	FormControl,
 	Select,
 	MenuItem,
 	Switch,
 	Slider,
-	TextField,
-	InputAdornment,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SearchIcon from '@mui/icons-material/Search';
+import TuneIcon from '@mui/icons-material/Tune';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -24,10 +24,11 @@ const modalStyle: React.CSSProperties = {
 	left: '50%',
 	transform: 'translate(-50%, -50%)',
 	width: 'auto',
-	backgroundColor: '#ffffff',
-	borderRadius: '12px',
+	backgroundColor: 'var(--color-background-primary, #ffffff)',
+	borderRadius: '16px',
+	border: '0.5px solid rgba(0, 0, 0, 0.1)',
 	outline: 'none',
-	boxShadow: '0px 11px 15px -7px rgba(0,0,0,0.2), 0px 24px 38px 3px rgba(0,0,0,0.14), 0px 9px 46px 8px rgba(0,0,0,0.12)',
+	boxShadow: '0px 20px 45px rgba(15, 23, 42, 0.16)',
 };
 
 const BOOK_FORMAT_OPTIONS = [
@@ -112,6 +113,7 @@ const HeaderFilter = () => {
 
 	const [bookAudience, setBookAudience] = useState('');
 	const [bookLanguage, setBookLanguage] = useState('');
+	const [bookSearchQuery, setBookSearchQuery] = useState('');
 	const [isBorrowable, setIsBorrowable] = useState(false);
 	const [isPurchasable, setIsPurchasable] = useState(false);
 	const [minRating, setMinRating] = useState(0);
@@ -186,6 +188,7 @@ const HeaderFilter = () => {
 	const resetFilterHandler = () => {
 		setBookAudience('');
 		setBookLanguage('');
+		setBookSearchQuery('');
 		setIsBorrowable(false);
 		setIsPurchasable(false);
 		setMinRating(0);
@@ -203,6 +206,7 @@ const HeaderFilter = () => {
 		try {
 			const params: any = {};
 
+			if (bookSearchQuery.trim()) params.keyword = bookSearchQuery.trim();
 			if (bookFormat) params.format = bookFormat;
 			if (bookType) params.type = bookType;
 			if (bookCategory) params.category = bookCategory;
@@ -229,109 +233,109 @@ const HeaderFilter = () => {
 	}
 
 	return (
-			<>
-				<Stack className={'search-box'}>
-					<Stack className={'select-box'}>
-						<div className={`box ${openFormat ? 'on' : ''}`} onClick={formatStateChangeHandler}>
-							<span>{bookFormat ? BOOK_FORMAT_OPTIONS.find((option) => option.value === bookFormat)?.label : 'Book Format'}</span>
-							<ExpandMoreIcon />
-						</div>
-						<div className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
-							<span>{bookType ? BOOK_TYPE_OPTIONS.find((option) => option.value === bookType)?.label : 'Book Type'}</span>
-							<ExpandMoreIcon />
-						</div>
-						<div className={`box ${openCategory ? 'on' : ''}`} onClick={categoryStateChangeHandler}>
-							<span>{bookCategory ? BOOK_CATEGORY_OPTIONS.find((option) => option.value === bookCategory)?.label : 'Category'}</span>
-							<ExpandMoreIcon />
-						</div>
-					</Stack>
-					<Stack className={'search-box-other'}>
+		<>
+			<Stack className={'search-box'}>
+				<Stack className={'select-box'}>
+					<div className={`box ${openFormat ? 'on' : ''}`} onClick={formatStateChangeHandler}>
+						<span>{bookFormat ? BOOK_FORMAT_OPTIONS.find((option) => option.value === bookFormat)?.label : 'Book Format'}</span>
+						<ExpandMoreIcon />
+					</div>
+					<div className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
+						<span>{bookType ? BOOK_TYPE_OPTIONS.find((option) => option.value === bookType)?.label : 'Book Type'}</span>
+						<ExpandMoreIcon />
+					</div>
+					<div className={`box ${openCategory ? 'on' : ''}`} onClick={categoryStateChangeHandler}>
+						<span>{bookCategory ? BOOK_CATEGORY_OPTIONS.find((option) => option.value === bookCategory)?.label : 'Category'}</span>
+						<ExpandMoreIcon />
+					</div>
+				</Stack>
+				<Stack className={'search-box-other'}>
 					<div className={'advanced-filter'} onClick={() => advancedFilterHandler(true)}>
 						<img src="/img/icons/tune.svg" alt="" />
 						<span>{t('Advanced')}</span>
 					</div>
-						<div className={'search-btn'} onClick={pushSearchHandler}>
-							<img src="/img/icons/search_white.svg" alt="" />
-						</div>
-					</Stack>
-
-					<div className={`filter-location ${openFormat ? 'on' : ''}`} ref={formatRef}>
-						{BOOK_FORMAT_OPTIONS.map((option, index) => {
-							const cityImage = ['SEOUL', 'BUSAN', 'INCHEON'][index % 3];
-							return (
-								<div onClick={() => bookFormatSelectHandler(option.value)} key={option.value}>
-									<img src={`/img/banner/cities/${cityImage}.webp`} alt={option.label} />
-									<span>{option.label}</span>
-								</div>
-							);
-						})}
-					</div>
-
-					<div
-						className={`filter-type ${openType ? 'on' : ''}`}
-						ref={typeRef}
-						style={{ flexWrap: 'wrap', justifyContent: 'flex-start', gap: '16px' }}
-					>
-						{BOOK_TYPE_OPTIONS.map((option, index) => {
-							const typeImage = ['apartment', 'house', 'villa'][index % 3];
-							return (
-								<div
-									style={{ backgroundImage: `url(/img/banner/types/${typeImage}.webp)` }}
-									onClick={() => bookTypeSelectHandler(option.value)}
-									key={option.value}
-								>
-									<span>{option.label}</span>
-								</div>
-							);
-						})}
-					</div>
-
-					<div
-						className={`filter-rooms ${openCategory ? 'on' : ''}`}
-						ref={categoryRef}
-						style={{
-							display: 'grid',
-							gridTemplateColumns: 'repeat(5, 1fr)',
-							gap: '12px',
-							padding: '18px 22px',
-							maxHeight: '280px',
-							overflowY: 'auto',
-						}}
-					>
-						{BOOK_CATEGORY_OPTIONS.map((option) => {
-							const isSelected = bookCategory === option.value;
-							const isHovered = hoveredCategory === option.value;
-							const background = isSelected
-								? 'rgba(46, 134, 222, 0.12)'
-								: isHovered
-									? 'rgba(46, 134, 222, 0.08)'
-									: 'transparent';
-							return (
-								<span
-									onClick={() => bookCategorySelectHandler(option.value)}
-									onMouseEnter={() => setHoveredCategory(option.value)}
-									onMouseLeave={() => setHoveredCategory('')}
-									key={option.value}
-									style={{
-										textAlign: 'center',
-										cursor: 'pointer',
-										padding: '8px 4px',
-										borderRadius: '4px',
-										fontSize: '15px',
-										whiteSpace: 'nowrap',
-										overflow: 'hidden',
-										textOverflow: 'ellipsis',
-										background,
-										color: isSelected ? '#2E86DE' : undefined,
-										fontWeight: isSelected ? 600 : undefined,
-									}}
-								>
-									{option.label}
-								</span>
-							);
-						})}
+					<div className={'search-btn'} onClick={pushSearchHandler}>
+						<img src="/img/icons/search_white.svg" alt="" />
 					</div>
 				</Stack>
+
+				<div className={`filter-location ${openFormat ? 'on' : ''}`} ref={formatRef}>
+					{BOOK_FORMAT_OPTIONS.map((option, index) => {
+						const cityImage = ['SEOUL', 'BUSAN', 'INCHEON'][index % 3];
+						return (
+							<div onClick={() => bookFormatSelectHandler(option.value)} key={option.value}>
+								<img src={`/img/banner/cities/${cityImage}.webp`} alt={option.label} />
+								<span>{option.label}</span>
+							</div>
+						);
+					})}
+				</div>
+
+				<div
+					className={`filter-type ${openType ? 'on' : ''}`}
+					ref={typeRef}
+					style={{ flexWrap: 'wrap', justifyContent: 'flex-start', gap: '16px' }}
+				>
+					{BOOK_TYPE_OPTIONS.map((option, index) => {
+						const typeImage = ['apartment', 'house', 'villa'][index % 3];
+						return (
+							<div
+								style={{ backgroundImage: `url(/img/banner/types/${typeImage}.webp)` }}
+								onClick={() => bookTypeSelectHandler(option.value)}
+								key={option.value}
+							>
+								<span>{option.label}</span>
+							</div>
+						);
+					})}
+				</div>
+
+				<div
+					className={`filter-rooms ${openCategory ? 'on' : ''}`}
+					ref={categoryRef}
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(5, 1fr)',
+						gap: '12px',
+						padding: '18px 22px',
+						maxHeight: '280px',
+						overflowY: 'auto',
+					}}
+				>
+					{BOOK_CATEGORY_OPTIONS.map((option) => {
+						const isSelected = bookCategory === option.value;
+						const isHovered = hoveredCategory === option.value;
+						const background = isSelected
+							? 'rgba(46, 134, 222, 0.12)'
+							: isHovered
+								? 'rgba(46, 134, 222, 0.08)'
+								: 'transparent';
+						return (
+							<span
+								onClick={() => bookCategorySelectHandler(option.value)}
+								onMouseEnter={() => setHoveredCategory(option.value)}
+								onMouseLeave={() => setHoveredCategory('')}
+								key={option.value}
+								style={{
+									textAlign: 'center',
+									cursor: 'pointer',
+									padding: '8px 4px',
+									borderRadius: '4px',
+									fontSize: '15px',
+									whiteSpace: 'nowrap',
+									overflow: 'hidden',
+									textOverflow: 'ellipsis',
+									background,
+									color: isSelected ? '#2E86DE' : undefined,
+									fontWeight: isSelected ? 600 : undefined,
+								}}
+							>
+								{option.label}
+							</span>
+						);
+					})}
+				</div>
+			</Stack>
 
 			<Modal
 				open={openAdvancedFilter}
@@ -341,23 +345,43 @@ const HeaderFilter = () => {
 			>
 				<div style={modalStyle}>
 					<div className={'advanced-filter-modal'}>
-						<div className={'close'} onClick={() => advancedFilterHandler(false)}>
-							<CloseIcon />
+						<div className={'afm-header'}>
+							<div className={'afm-title'}>
+								<TuneIcon />
+								<span>Smart Library Advanced Filters</span>
+							</div>
+							<button className={'afm-close-btn'} onClick={() => advancedFilterHandler(false)}>
+								<CloseIcon />
+							</button>
 						</div>
-						<div className={'top'}>
-							<span>Smart Library Advanced Filters</span>
-						</div>
-						<Divider sx={{ mt: '30px', mb: '35px' }} />
-						<div className={'middle'}>
-							<div className={'row-box'}>
-								<div className={'box'} style={{ width: '48%' }}>
-									<span>Reader Level</span>
+
+						<div className={'afm-body'}>
+							<div className={'afm-search-row'}>
+								<div className={'afm-search-input-box'}>
+									<SearchIcon className={'icon'} />
+									<input
+										type="text"
+										value={bookSearchQuery}
+										onChange={(event) => setBookSearchQuery(event.target.value)}
+										onKeyDown={(event) => {
+											if (event.key === 'Enter') pushSearchHandler().then();
+										}}
+										placeholder="Search by title, author, or ISBN…"
+									/>
+									<button onClick={() => pushSearchHandler().then()}>Search</button>
+								</div>
+							</div>
+
+							<div className={'row-box select-grid'}>
+								<div className={'box'}>
+									<label>READER LEVEL</label>
 									<div className={'inside'}>
 										<FormControl fullWidth>
 											<Select
 												value={bookAudience}
 												onChange={(event) => setBookAudience(event.target.value as string)}
 												displayEmpty
+												className={'afm-select'}
 											>
 												<MenuItem value={''}>All Levels</MenuItem>
 												{BOOK_AUDIENCE_OPTIONS.map((option) => (
@@ -369,14 +393,15 @@ const HeaderFilter = () => {
 										</FormControl>
 									</div>
 								</div>
-								<div className={'box'} style={{ width: '48%' }}>
-									<span>Language</span>
+								<div className={'box'}>
+									<label>LANGUAGE</label>
 									<div className={'inside'}>
 										<FormControl fullWidth>
 											<Select
 												value={bookLanguage}
 												onChange={(event) => setBookLanguage(event.target.value as string)}
 												displayEmpty
+												className={'afm-select'}
 											>
 												<MenuItem value={''}>All Languages</MenuItem>
 												{BOOK_LANGUAGE_OPTIONS.map((option) => (
@@ -390,44 +415,43 @@ const HeaderFilter = () => {
 								</div>
 							</div>
 
-							<div className={'row-box'} style={{ marginTop: '26px' }}>
-								<div className={'box'} style={{ width: '48%' }}>
+							<div className={'row-box toggle-row'}>
+								<div className={'box toggle-pill'}>
 									<span>Borrowable Only</span>
-									<div className={'inside'}>
-										<Switch
-											checked={isBorrowable}
-											onChange={(event) => setIsBorrowable(event.target.checked)}
-											sx={{
-												'& .MuiSwitch-switchBase.Mui-checked': { color: '#2E86DE' },
-												'& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-													backgroundColor: '#2E86DE',
-												},
-											}}
-										/>
-									</div>
+									<Switch
+										checked={isBorrowable}
+										onChange={(event) => setIsBorrowable(event.target.checked)}
+										sx={{
+											'& .MuiSwitch-switchBase.Mui-checked': { color: '#2E86DE' },
+											'& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+												backgroundColor: '#2E86DE',
+											},
+										}}
+									/>
 								</div>
-								<div className={'box'} style={{ width: '48%' }}>
+								<div className={'box toggle-pill'}>
 									<span>Purchasable Only</span>
-									<div className={'inside'}>
-										<Switch
-											checked={isPurchasable}
-											onChange={(event) => setIsPurchasable(event.target.checked)}
-											sx={{
-												'& .MuiSwitch-switchBase.Mui-checked': { color: '#2E86DE' },
-												'& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-													backgroundColor: '#2E86DE',
-												},
-											}}
-										/>
-									</div>
+									<Switch
+										checked={isPurchasable}
+										onChange={(event) => setIsPurchasable(event.target.checked)}
+										sx={{
+											'& .MuiSwitch-switchBase.Mui-checked': { color: '#2E86DE' },
+											'& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+												backgroundColor: '#2E86DE',
+											},
+										}}
+									/>
 								</div>
 							</div>
 
-							<div className={'row-box'} style={{ marginTop: '26px' }}>
-								<div className={'box'} style={{ width: '100%' }}>
-									<span>Minimum Rating: {minRating > 0 ? `${minRating.toFixed(1)} ★` : 'Any'}</span>
+							<div className={'row-box rating-row'}>
+								<div className={'box'}>
+									<div className={'rating-head'}>
+										<label>MINIMUM RATING</label>
+										<span>{minRating > 0 ? `★ ${minRating.toFixed(1)}+` : 'Any'}</span>
+									</div>
 									<div className={'inside'}>
-										<Slider
+											<Slider
 											value={minRating}
 											onChange={(_event: Event | React.SyntheticEvent, value: number | number[]) =>
 												setMinRating(value as number)
@@ -435,52 +459,55 @@ const HeaderFilter = () => {
 											min={0}
 											max={5}
 											step={0.5}
-											sx={{ color: '#2E86DE' }}
-										/>
+												sx={{ color: '#1D4ED8' }}
+											/>
 									</div>
 								</div>
 							</div>
 
 							<div
-								className={'row-box'}
-								style={{ marginTop: '26px', opacity: isPurchasable ? 1 : 0.4, pointerEvents: isPurchasable ? 'auto' : 'none' }}
+								className={'row-box price-row'}
+								style={{ opacity: isPurchasable ? 1 : 0.4, pointerEvents: isPurchasable ? 'auto' : 'none' }}
 							>
-								<div className={'box'} style={{ width: '100%' }}>
-									<span>Price Range (Purchase)</span>
-									<div className={'inside space-between align-center'} style={{ gap: '16px' }}>
-										<TextField
-											fullWidth
-											type={'number'}
-											label={'Min Price'}
-											value={minPrice}
-											onChange={(event) => setMinPrice(toNonNegativeNumber(event.target.value))}
-											inputProps={{ min: 0, step: 5000 }}
-											InputProps={{
-												startAdornment: <InputAdornment position="start">₩</InputAdornment>,
-											}}
-										/>
-										<TextField
-											fullWidth
-											type={'number'}
-											label={'Max Price'}
-											value={maxPrice}
-											onChange={(event) => setMaxPrice(toNonNegativeNumber(event.target.value))}
-											inputProps={{ min: 0, step: 5000 }}
-											InputProps={{
-												startAdornment: <InputAdornment position="start">₩</InputAdornment>,
-											}}
-										/>
+								<div className={'box'}>
+									<div className={'price-grid'}>
+										<div className={'price-field'}>
+											<label>MIN PRICE</label>
+											<div className={'price-input-wrap'}>
+												<span>₩</span>
+												<input
+													type={'number'}
+													value={minPrice}
+													onChange={(event) => setMinPrice(toNonNegativeNumber(event.target.value))}
+													min={0}
+													step={5000}
+												/>
+											</div>
+										</div>
+										<div className={'price-field'}>
+											<label>MAX PRICE</label>
+											<div className={'price-input-wrap'}>
+												<span>₩</span>
+												<input
+													type={'number'}
+													value={maxPrice}
+													onChange={(event) => setMaxPrice(toNonNegativeNumber(event.target.value))}
+													min={0}
+													step={5000}
+												/>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-						<Divider sx={{ mt: '60px', mb: '18px' }} />
-						<div className={'bottom'}>
-							<div onClick={resetFilterHandler}>
-								<img src="/img/icons/reset.svg" alt="" />
+
+						<div className={'afm-footer'}>
+							<button className={'afm-reset-btn'} onClick={resetFilterHandler}>
+								<RestartAltIcon />
 								<span>Reset all filters</span>
-							</div>
-							<Button startIcon={<img src={'/img/icons/search.svg'} />} className={'search-btn'} onClick={pushSearchHandler}>
+							</button>
+							<Button startIcon={<SearchIcon />} className={'search-btn'} onClick={pushSearchHandler}>
 								Search
 							</Button>
 						</div>
