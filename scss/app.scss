@@ -5,7 +5,7 @@
 a {
 	white-space: nowrap;
 	text-decoration: none;
-	color: #212121;
+	color: #1A1A2E;
 }
 button {
 	text-transform: none;
@@ -13,7 +13,7 @@ button {
 	padding: 0;
 }
 button.outline {
-	border: 1px solid #eee;
+	border: 1px solid #E2E8F0;
 }
 button.contain {
 	color: #fff;
@@ -29,11 +29,11 @@ body {
 	}
 	&::-webkit-scrollbar-thumb {
 		height: 30%;
-		background: #bdbdbd;
+		background: #E2E8F0;
 		border-radius: 10px;
 	}
 	&::-webkit-scrollbar-track {
-		background: #eee;
+		background: #E2E8F0;
 	}
 
 	.MuiPopover-paper {
@@ -43,7 +43,7 @@ body {
 hr {
 	border-width: 0;
 	border-bottom-width: thin;
-	border-color: #eee;
+	border-color: #E2E8F0;
 	margin: auto;
 }
 

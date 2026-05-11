@@ -3,16 +3,16 @@
 		position: relative;
 		width: 100%;
 		height: auto;
-		.info-box {
-			width: 100%;
-			display: flex;
-			flex-direction: row;
+			.info-box {
+				width: 100%;
+				display: flex;
+				flex-direction: row;
 			justify-content: space-between;
 			.left {
 				display: flex;
 				flex-direction: column;
 				span {
-					color: #181a20;
+					color: #1A1A2E;
 					font-family: $font;
 					font-size: 34px;
 					font-style: normal;
@@ -25,7 +25,7 @@
 					}
 				}
 				p {
-					color: #181a20;
+					color: #1A1A2E;
 					font-family: $font;
 					font-size: 14px;
 					font-style: normal;
@@ -70,7 +70,7 @@
 					cursor: pointer;
 					align-items: center;
 					span {
-						color: #181a20;
+						color: #1A1A2E;
 						font-family: $font;
 						font-size: 15px;
 						font-style: normal;
@@ -101,9 +101,9 @@
 							margin-right: 20px;
 						}
 						&.active {
-							border: 1px solid #181a20;
+							border: 1px solid #1A1A2E;
 							background: #fff;
-							color: #181a20;
+							color: #1A1A2E;
 							font-family: $font;
 							font-size: 14px;
 							font-style: normal;
@@ -112,14 +112,15 @@
 						}
 					}
 				}
+				}
 			}
-		}
-		.trend-properties {
+			.trend-properties {
 			padding: 108px 0px 76px;
 			width: 100%;
 			height: 697px;
 			display: flex;
 			flex-direction: row;
+			background: #f6f6f6;
 			.container {
 				flex-direction: column;
 				.card-box {
@@ -171,7 +172,7 @@
 								bottom: 12px;
 								border-radius: 6px;
 								background: #fff;
-								color: #181a20;
+								color: #1A1A2E;
 								font-family: $font;
 								font-size: 15px;
 								font-style: normal;
@@ -191,7 +192,7 @@
 							box-shadow: 0px 1px 4px 0px rgba(24, 26, 32, 0.07);
 							.title {
 								overflow: hidden;
-								color: #181a20;
+								color: #1A1A2E;
 								text-overflow: ellipsis;
 								white-space: nowrap;
 								font-family: $font;
@@ -205,7 +206,7 @@
 							.desc {
 								margin-top: 5px;
 								overflow: hidden;
-								color: #717171;
+								color: #64748B;
 								font-family: $font;
 								font-size: 13px;
 								font-style: normal;
@@ -228,7 +229,7 @@
 										height: 17px;
 									}
 									span {
-										color: #181a20;
+										color: #1A1A2E;
 										font-family: $font;
 										font-size: 13px;
 										font-style: normal;
@@ -243,7 +244,7 @@
 								justify-content: space-between;
 								align-items: center;
 								p {
-									color: #181a20;
+									color: #1A1A2E;
 									font-family: $font;
 									font-size: 13px;
 									font-style: normal;
@@ -263,7 +264,7 @@
 									gap: 7px;
 									align-items: center;
 									.view-cnt {
-										color: #717171;
+										color: #64748B;
 										font-family: $font;
 										font-size: 13px;
 										font-style: normal;
@@ -333,7 +334,7 @@
 								display: flex;
 								align-items: center;
 								border-radius: 6px;
-								background: #eb6753;
+								background: #2E86DE;
 								img {
 									width: 14px;
 									height: 14px;
@@ -356,7 +357,7 @@
 								bottom: 20px;
 								border-radius: 6px;
 								background: #fff;
-								color: #181a20;
+								color: #1A1A2E;
 								font-family: $font;
 								font-size: 15px;
 								font-style: normal;
@@ -376,7 +377,7 @@
 							box-shadow: 0px 1px 4px 0px rgba(24, 26, 32, 0.07);
 							.title {
 								overflow: hidden;
-								color: #181a20;
+								color: #1A1A2E;
 								text-overflow: ellipsis;
 								white-space: nowrap;
 								font-family: $font;
@@ -390,7 +391,7 @@
 							.desc {
 								margin-top: 5px;
 								overflow: hidden;
-								color: #717171;
+								color: #64748B;
 								font-family: $font;
 								font-size: 13px;
 								font-style: normal;
@@ -413,7 +414,7 @@
 										height: 17px;
 									}
 									span {
-										color: #181a20;
+										color: #1A1A2E;
 										font-family: $font;
 										font-size: 13px;
 										font-style: normal;
@@ -428,7 +429,7 @@
 								justify-content: space-between;
 								align-items: center;
 								p {
-									color: #181a20;
+									color: #1A1A2E;
 									font-family: $font;
 									font-size: 13px;
 									font-style: normal;
@@ -448,7 +449,7 @@
 									gap: 7px;
 									align-items: center;
 									.view-cnt {
-										color: #717171;
+										color: #64748B;
 										font-family: $font;
 										font-size: 13px;
 										font-style: normal;
@@ -537,7 +538,7 @@
 								bottom: 12px;
 								border-radius: 6px;
 								background: #fff;
-								color: #181a20;
+								color: #1A1A2E;
 								font-family: $font;
 								font-size: 15px;
 								font-style: normal;
@@ -557,7 +558,7 @@
 							box-shadow: 0px 1px 4px 0px rgba(24, 26, 32, 0.07);
 							.title {
 								overflow: hidden;
-								color: #181a20;
+								color: #1A1A2E;
 								text-overflow: ellipsis;
 								white-space: nowrap;
 								font-family: $font;
@@ -571,7 +572,7 @@
 							.desc {
 								margin-top: 5px;
 								overflow: hidden;
-								color: #717171;
+								color: #64748B;
 								font-family: $font;
 								font-size: 13px;
 								font-style: normal;
@@ -594,7 +595,7 @@
 										height: 17px;
 									}
 									span {
-										color: #181a20;
+										color: #1A1A2E;
 										font-family: $font;
 										font-size: 13px;
 										font-style: normal;
@@ -609,7 +610,7 @@
 								justify-content: space-between;
 								align-items: center;
 								p {
-									color: #181a20;
+									color: #1A1A2E;
 									font-family: $font;
 									font-size: 13px;
 									font-style: normal;
@@ -629,7 +630,7 @@
 									gap: 7px;
 									align-items: center;
 									.view-cnt {
-										color: #717171;
+										color: #64748B;
 										font-family: $font;
 										font-size: 13px;
 										font-style: normal;
@@ -711,7 +712,7 @@
 							}
 							strong {
 								margin-top: 20px;
-								color: #181a20;
+								color: #1A1A2E;
 								text-align: center;
 								font-family: $font;
 								font-size: 15px;
@@ -722,7 +723,7 @@
 								cursor: pointer;
 							}
 							span {
-								color: #181a20;
+								color: #1A1A2E;
 								text-align: center;
 								font-family: $font;
 								font-size: 15px;
@@ -742,87 +743,98 @@
 			height: 810px;
 			display: flex;
 			flex-direction: row;
-			background: #181a20;
-			.container {
-				flex-direction: column;
-				align-items: center;
-				.card-wrapper {
-					position: relative;
-					margin-top: 48px;
-					width: 100%;
-					height: auto;
-					display: flex;
-					flex-direction: row;
-					justify-content: space-between;
-					.event-card {
-						position: relative;
-						width: 300px;
+			background: #1A1A2E;
+				.container {
+					flex-direction: column;
+					align-items: center;
+					.interactive-events-wrap {
+						margin-top: 48px;
+						display: flex;
+						width: 100%;
 						height: 420px;
-						border-radius: 12px;
-						opacity: 0.9;
+						overflow: hidden;
+					}
+					.interactive-events-panel {
+						position: relative;
+						flex: 1;
 						cursor: pointer;
-						transition: opacity 0.4s;
-						&:hover {
+						overflow: hidden;
+						transition: all 0.7s ease-in-out;
+						border: 2px solid #292929;
+						background-size: cover;
+						background-position: center;
+						display: flex;
+						flex-direction: column;
+						justify-content: flex-end;
+						border-radius: 0;
+						opacity: 0;
+						transform: translateX(-40px);
+						&.revealed {
 							opacity: 1;
-							scale: 1.05;
-							transition: 0.3s;
-							.more {
+							transform: translateX(0);
+						}
+						&.active {
+							flex: 7;
+							border-color: #ffffff;
+							box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+							.interactive-events-info {
 								opacity: 1;
-							}
-						}
-						.info {
-							position: absolute;
-							display: flex;
-							flex-direction: column;
-							top: 35px;
-							left: 10px;
-							right: 10px;
-							strong {
-								color: #f64747;
-								font-family: $font;
-								font-size: 25px;
-								font-style: normal;
-								font-weight: 600;
-								line-height: normal;
-								text-transform: capitalize;
-							}
-							span {
-								color: #f66767;
-								font-family: $font;
-								font-size: 20px;
-								font-style: normal;
-								font-weight: 500;
-								line-height: 28px;
-								text-transform: capitalize;
-							}
-						}
-						.more {
-							position: absolute;
-							left: 10px;
-							right: 10px;
-							bottom: 41px;
-							display: flex;
-							flex-direction: row;
-							align-items: center;
-							opacity: 0;
-							span {
-								padding: 0px 5px;
-								border-radius: 5px;
-								background: #fffdfdc4;
-								color: #9c67f6;
-								font-family: $font;
-								font-size: 16px;
-								font-style: normal;
-								font-weight: 400;
-								line-height: 26px;
-								text-align: justify;
-								cursor: pointer;
+								transform: translateX(0);
 							}
 						}
 					}
+					.interactive-events-shadow {
+						position: absolute;
+						left: 0;
+						right: 0;
+						bottom: 0;
+						height: 120px;
+						pointer-events: none;
+						background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(5, 10, 24, 0.88) 100%);
+						transition: all 0.7s ease-in-out;
+					}
+					.interactive-events-label {
+						position: absolute;
+						left: 0;
+						right: 0;
+						bottom: 20px;
+						display: flex;
+						align-items: center;
+						padding: 0 16px;
+						gap: 12px;
+						z-index: 2;
+					}
+					.interactive-events-icon {
+						min-width: 44px;
+						max-width: 44px;
+						height: 44px;
+						border-radius: 50%;
+						background: rgba(27, 58, 107, 0.85);
+						border: 2px solid rgba(255, 255, 255, 0.3);
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						flex-shrink: 0;
+					}
+					.interactive-events-info {
+						color: white;
+						opacity: 0;
+						transform: translateX(25px);
+						transition: opacity 0.7s, transform 0.7s;
+					}
+					.interactive-events-title {
+						font-weight: 700;
+						font-size: 18px;
+						transition: opacity 0.7s, transform 0.7s;
+					}
+					.interactive-events-desc {
+						margin-top: 4px;
+						font-size: 14px;
+						color: rgba(255, 255, 255, 0.85);
+						transition: opacity 0.7s, transform 0.7s;
+					}
 				}
 			}
-		}
 		.community-board {
 			position: relative;
 			padding: 124px 0px 61px;
@@ -902,7 +914,7 @@
 										font-size: 19px;
 										line-height: 36px;
 										letter-spacing: -0.015em;
-										color: #bdbdbd;
+										color: #E2E8F0;
 									}
 								}
 								strong {
@@ -953,7 +965,7 @@
 									font-weight: 500;
 									font-size: 13px;
 									letter-spacing: 0.105em;
-									color: #212121;
+									color: #1A1A2E;
 								}
 								span {
 									font-family: $font;
@@ -962,7 +974,7 @@
 									font-size: 13px;
 									line-height: 36px;
 									letter-spacing: 0.105em;
-									color: #bdbdbd;
+									color: #E2E8F0;
 								}
 							}
 						}

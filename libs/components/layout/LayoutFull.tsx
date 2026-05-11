@@ -53,7 +53,7 @@ const withLayoutFull = (Component: any) => {
 			return (
 				<>
 					<Head>
-						<title>Nestar</title>
+						<title>같이Go</title>
 						<meta name={'title'} content={`Nestar`} />
 					</Head>
 					<Stack id="pc-wrap">

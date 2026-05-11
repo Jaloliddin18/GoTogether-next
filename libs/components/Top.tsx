@@ -166,7 +166,11 @@ const Top = () => {
 					<Stack className={'container'}>
 						<Box component={'div'} className={'logo-box'}>
 							<Link href={'/'}>
-								<img src="/img/logo/logoWhite.svg" alt="" />
+								<img
+									src="/img/logo/logo_capstone.png"
+									alt="같이Go Smart Library"
+									style={{ height: '85px', width: 'auto', cursor: 'pointer' }}
+								/>
 							</Link>
 						</Box>
 						<Box component={'div'} className={'router-box'}>

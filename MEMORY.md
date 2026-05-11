@@ -39,6 +39,7 @@
 - `AGENTS.md` — 3-line redirect to CLAUDE.md and MEMORY.md
 - `.claudeignore` — ignores node_modules, .next, .env, etc.
 - `.claude/commands/update-memory.md` — /update-memory slash command
+- Build workflow note: do not run `yarn build` after every small tweak; run it for major structural changes, not text swaps, favicon edits, or minor style fixes.
 
 ---
 

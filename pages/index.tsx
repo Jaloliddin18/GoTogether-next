@@ -1,10 +1,12 @@
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import useDeviceDetect from '../libs/hooks/useDeviceDetect';
 import withLayoutMain from '../libs/components/layout/LayoutHome';
 import CommunityBoards from '../libs/components/homepage/CommunityBoards';
 import PopularProperties from '../libs/components/homepage/PopularProperties';
 import TopAgents from '../libs/components/homepage/TopAgents';
-import Events from '../libs/components/homepage/Events';
+import InteractiveEvents from '../libs/components/homepage/InteractiveEvents';
+import DicedHeroSection from '../libs/components/homepage/DicedHeroSection';
 import TrendProperties from '../libs/components/homepage/TrendProperties';
 import TopProperties from '../libs/components/homepage/TopProperties';
 import { Stack } from '@mui/material';
@@ -19,28 +21,89 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const Home: NextPage = () => {
 	const device = useDeviceDetect();
+	const router = useRouter();
 
 	if (device === 'mobile') {
-		return (
-			<Stack className={'home-page'}>
-				<TrendProperties />
-				<PopularProperties />
+			return (
+				<Stack className={'home-page'}>
+					<TrendProperties />
+					<DicedHeroSection
+						topText="Smart Library"
+						mainText="같이Go"
+						subMainText="Search any book in our catalog and have it delivered to your desk by our autonomous robot. Borrow for reading or purchase to keep - your choice, delivered instantly."
+						buttonText="Browse Books"
+						slides={[
+							{ title: 'Library Books', image: '/img/events/BUSAN.webp' },
+							{ title: 'Robot Delivery', image: '/img/events/DAEGU.webp' },
+							{ title: 'Study Space', image: '/img/events/INCHEON.webp' },
+							{ title: 'Community', image: '/img/events/SEOUL.webp' },
+						]}
+						onMainButtonClick={() => router.push('/library/books')}
+						topTextStyle={{ color: 'var(--diced-hero-section-top-text)' }}
+						mainTextStyle={{
+							fontSize: '4.5rem',
+							gradient:
+								'linear-gradient(45deg, var(--diced-hero-section-main-gradient-from), var(--diced-hero-section-main-gradient-to))',
+						}}
+						subMainTextStyle={{ color: 'var(--diced-hero-section-sub-text)' }}
+						buttonStyle={{
+							backgroundColor: 'var(--diced-hero-section-button-bg)',
+							color: 'var(--diced-hero-section-button-fg)',
+							borderRadius: '8px',
+							hoverColor: 'var(--diced-hero-section-button-hover-bg)',
+							hoverForeground: 'var(--diced-hero-section-button-hover-fg)',
+						}}
+						separatorColor="var(--diced-hero-section-separator)"
+						mobileBreakpoint={1000}
+						fontFamily="Inter, -apple-system, sans-serif"
+					/>
+					<PopularProperties />
 				<Advertisement />
 				<TopProperties />
 				<TopAgents />
 			</Stack>
 		);
 	} else {
-		return (
-			<Stack className={'home-page'}>
-				<TrendProperties />
-				<PopularProperties />
-				<Advertisement />
-				<TopProperties />
-				<TopAgents />
-				<Events />
-				<CommunityBoards />
-			</Stack>
+			return (
+				<Stack className={'home-page'}>
+					<TrendProperties />
+					<DicedHeroSection
+						topText="Smart Library"
+						mainText="같이Go"
+						subMainText="Search any book in our catalog and have it delivered to your desk by our autonomous robot. Borrow for reading or purchase to keep - your choice, delivered instantly."
+						buttonText="Browse Books"
+						slides={[
+							{ title: 'Library Books', image: '/img/events/BUSAN.webp' },
+							{ title: 'Robot Delivery', image: '/img/events/DAEGU.webp' },
+							{ title: 'Study Space', image: '/img/events/INCHEON.webp' },
+							{ title: 'Community', image: '/img/events/SEOUL.webp' },
+						]}
+						onMainButtonClick={() => router.push('/library/books')}
+						topTextStyle={{ color: 'var(--diced-hero-section-top-text)' }}
+						mainTextStyle={{
+							fontSize: '4.5rem',
+							gradient:
+								'linear-gradient(45deg, var(--diced-hero-section-main-gradient-from), var(--diced-hero-section-main-gradient-to))',
+						}}
+						subMainTextStyle={{ color: 'var(--diced-hero-section-sub-text)' }}
+						buttonStyle={{
+							backgroundColor: 'var(--diced-hero-section-button-bg)',
+							color: 'var(--diced-hero-section-button-fg)',
+							borderRadius: '8px',
+							hoverColor: 'var(--diced-hero-section-button-hover-bg)',
+							hoverForeground: 'var(--diced-hero-section-button-hover-fg)',
+						}}
+						separatorColor="var(--diced-hero-section-separator)"
+						mobileBreakpoint={1000}
+						fontFamily="Inter, -apple-system, sans-serif"
+					/>
+					<PopularProperties />
+					<Advertisement />
+					<TopProperties />
+					<TopAgents />
+					<InteractiveEvents />
+					<CommunityBoards />
+				</Stack>
 		);
 	}
 };

@@ -51,7 +51,7 @@
       background: #FDF4F4;
       color: #F54D56;
       span {
-        color: #212121;
+        color: #1A1A2E;
       }
     }
   }
@@ -154,7 +154,7 @@
         }
         hr {
           margin: 6px 10px;
-          border-color: #bdbdbd;
+          border-color: #E2E8F0;
         }
         span:first-child {
           width: 220px;
@@ -212,7 +212,7 @@
           height: 80%;
           padding: 10px;
           font-size: 14px;
-          border: 1px solid #eee;
+          border: 1px solid #E2E8F0;
           border-radius: 4px;
           resize: none;
         }
@@ -287,10 +287,10 @@
     }
     .btn-cancel {
       color: #757575;
-      border: 1px solid #eee;
+      border: 1px solid #E2E8F0;
     }
     .btn-upload {
-      border: 1px dashed #eee;
+      border: 1px dashed #E2E8F0;
     }
     .btn-text { color: #e92c28; }
     .btn-window {
@@ -319,7 +319,7 @@
           height: 48px;
           cursor: pointer;
           padding: 12px 16px;
-          color: #bdbdbd;
+          color: #E2E8F0;
           font-size: 14px;
         }
         li.on {
@@ -342,7 +342,7 @@
           font-weight: bold;
           color: #374151;
           font-size: 14px;
-          border-bottom: 1px solid #eee;
+          border-bottom: 1px solid #E2E8F0;
         }
         th:last-child {
           padding-right: 24px;
@@ -354,7 +354,7 @@
       tbody {
         color: #616161;
         tr {
-          border-bottom: 1px solid #eee;
+          border-bottom: 1px solid #E2E8F0;
         }
         tr:last-child {
           border-bottom: 0;
@@ -426,7 +426,7 @@
           }
           .notice {
             margin: 6px 0 0 30px;
-            color: #bdbdbd;
+            color: #E2E8F0;
           }
         }
         .option {
@@ -464,7 +464,7 @@
       }
       .MuiTableCell-root {
         padding: 12px 20px;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid #E2E8F0;
       }
       .MuiToolbar-root {
         align-items: center;
@@ -476,7 +476,7 @@
       button {
         height: 44px;
         background: #fff;
-        border: 1px solid #eee;
+        border: 1px solid #E2E8F0;
         color: #757575;
         margin-right: 8px;
       }

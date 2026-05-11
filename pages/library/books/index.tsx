@@ -27,6 +27,16 @@ const BOOKS_PER_PAGE = 12;
 
 interface BookSearchInput {
 	keyword?: string;
+	bookFormat?: string;
+	bookType?: string;
+	bookCategory?: string;
+	bookAudience?: string;
+	bookLanguage?: string;
+	isBorrowable?: boolean;
+	isPurchasable?: boolean;
+	minRating?: number;
+	minPrice?: number;
+	maxPrice?: number;
 }
 
 interface BooksInquiryInput {
@@ -93,13 +103,43 @@ const LibraryBooksPage: NextPage = () => {
 		search: {},
 	});
 
+	const getSingleQueryValue = (value: string | string[] | undefined): string => {
+		if (Array.isArray(value)) return value[0] ?? '';
+		return value ?? '';
+	};
+
 	useEffect(() => {
 		if (!router.isReady) return;
 
-		const queryPage = Array.isArray(router.query.page) ? router.query.page[0] : router.query.page;
+		const queryPage = getSingleQueryValue(router.query.page);
 		const parsedPage = queryPage ? Math.max(1, Number(queryPage) || 1) : 1;
-		const queryKeyword = Array.isArray(router.query.keyword) ? router.query.keyword[0] : router.query.keyword;
-		const keyword = queryKeyword?.trim() ?? '';
+		const keyword = getSingleQueryValue(router.query.keyword).trim();
+		const format = getSingleQueryValue(router.query.format).trim();
+		const type = getSingleQueryValue(router.query.type).trim();
+		const category = getSingleQueryValue(router.query.category).trim();
+		const audience = getSingleQueryValue(router.query.audience).trim();
+		const language = getSingleQueryValue(router.query.language).trim();
+		const borrowable = getSingleQueryValue(router.query.borrowable).trim();
+		const purchasable = getSingleQueryValue(router.query.purchasable).trim();
+		const minRatingRaw = getSingleQueryValue(router.query.minRating).trim();
+		const minPriceRaw = getSingleQueryValue(router.query.minPrice).trim();
+		const maxPriceRaw = getSingleQueryValue(router.query.maxPrice).trim();
+		const parsedMinRating = minRatingRaw ? Number(minRatingRaw) : 0;
+		const parsedMinPrice = minPriceRaw ? Number(minPriceRaw) : 0;
+		const parsedMaxPrice = maxPriceRaw ? Number(maxPriceRaw) : 0;
+
+		const search: BookSearchInput = {};
+		if (keyword) search.keyword = keyword;
+		if (format) search.bookFormat = format;
+		if (type) search.bookType = type;
+		if (category) search.bookCategory = category;
+		if (audience) search.bookAudience = audience;
+		if (language) search.bookLanguage = language;
+		if (borrowable === 'true') search.isBorrowable = true;
+		if (purchasable === 'true') search.isPurchasable = true;
+		if (!Number.isNaN(parsedMinRating) && parsedMinRating > 0) search.minRating = parsedMinRating;
+		if (!Number.isNaN(parsedMinPrice) && parsedMinPrice > 0) search.minPrice = parsedMinPrice;
+		if (!Number.isNaN(parsedMaxPrice) && parsedMaxPrice > 0) search.maxPrice = parsedMaxPrice;
 
 		setSearchInput(keyword);
 		setInquiry({
@@ -107,9 +147,9 @@ const LibraryBooksPage: NextPage = () => {
 			limit: BOOKS_PER_PAGE,
 			sort: 'createdAt',
 			direction: Direction.DESC,
-			search: keyword ? { keyword } : {},
+			search,
 		});
-	}, [router.isReady, router.query.page, router.query.keyword]);
+	}, [router.isReady, router.query]);
 
 	const { loading, error, data } = useQuery<GetBooksData, GetBooksVariables>(GET_BOOKS, {
 		fetchPolicy: 'network-only',
@@ -127,13 +167,18 @@ const LibraryBooksPage: NextPage = () => {
 
 	const searchHandler = async () => {
 		const keyword = searchInput.trim();
-		const query = { ...(keyword ? { keyword } : {}), page: 1 };
+		const query = { ...router.query, ...(keyword ? { keyword } : {}), ...(keyword ? {} : { keyword: undefined }), page: 1 };
 		await router.push({ pathname: '/library/books', query }, undefined, { shallow: true });
 	};
 
 	const paginationHandler = async (_event: ChangeEvent<unknown>, value: number) => {
 		const currentKeyword = searchInput.trim();
-		const query = { ...(currentKeyword ? { keyword: currentKeyword } : {}), page: value };
+		const query = {
+			...router.query,
+			...(currentKeyword ? { keyword: currentKeyword } : {}),
+			...(currentKeyword ? {} : { keyword: undefined }),
+			page: value,
+		};
 		await router.push({ pathname: '/library/books', query }, undefined, { shallow: true });
 	};
 

@@ -1,314 +1,228 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Stack, Box, Modal, Divider, Button } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+	Stack,
+	Modal,
+	Button,
+	FormControl,
+	Select,
+	MenuItem,
+	Switch,
+	Slider,
+} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import { propertySquare, propertyYears } from '../../config';
-import { PropertyLocation, PropertyType } from '../../enums/property.enum';
-import { PropertiesInquiry } from '../../types/property/property.input';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SearchIcon from '@mui/icons-material/Search';
+import TuneIcon from '@mui/icons-material/Tune';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 
-const style = {
-	position: 'absolute' as 'absolute',
+const modalStyle: React.CSSProperties = {
+	position: 'absolute',
 	top: '50%',
 	left: '50%',
 	transform: 'translate(-50%, -50%)',
 	width: 'auto',
-	bgcolor: 'background.paper',
-	borderRadius: '12px',
+	backgroundColor: 'var(--color-background-primary, #ffffff)',
+	borderRadius: '16px',
+	border: '0.5px solid rgba(0, 0, 0, 0.1)',
 	outline: 'none',
-	boxShadow: 24,
+	boxShadow: '0px 20px 45px rgba(15, 23, 42, 0.16)',
 };
 
-const MenuProps = {
-	PaperProps: {
-		style: {
-			maxHeight: '200px',
-		},
-	},
-};
+const BOOK_FORMAT_OPTIONS = [
+	{ value: 'PAPERBACK', label: 'Paperback' },
+	{ value: 'EBOOK', label: 'E-Book' },
+	{ value: 'AUDIOBOOK', label: 'Audiobook' },
+];
 
-const thisYear = new Date().getFullYear();
+const BOOK_TYPE_OPTIONS = [
+	{ value: 'TEXTBOOK', label: 'Textbook' },
+	{ value: 'REFERENCE', label: 'Reference' },
+	{ value: 'RESEARCH', label: 'Research' },
+	{ value: 'NOVEL', label: 'Novel' },
+	{ value: 'COMIC', label: 'Comic' },
+	{ value: 'MAGAZINE', label: 'Magazine' },
+	{ value: 'JOURNAL', label: 'Journal' },
+	{ value: 'WORKBOOK', label: 'Workbook' },
+	{ value: 'MANUAL', label: 'Manual' },
+	{ value: 'DICTIONARY', label: 'Dictionary' },
+	{ value: 'ENCYCLOPEDIA', label: 'Encyclopedia' },
+	{ value: 'OTHER', label: 'Other' },
+];
 
-interface HeaderFilterProps {
-	initialInput: PropertiesInquiry;
-}
+const BOOK_CATEGORY_OPTIONS = [
+	{ value: 'COMPUTER_SCIENCE', label: 'Computer Science' },
+	{ value: 'ENGINEERING', label: 'Engineering' },
+	{ value: 'SCIENCE_AND_MATH', label: 'Science & Math' },
+	{ value: 'BUSINESS', label: 'Business' },
+	{ value: 'LITERATURE', label: 'Literature' },
+	{ value: 'NOVEL', label: 'Novel' },
+	{ value: 'SELF_IMPROVEMENT', label: 'Self Improvement' },
+	{ value: 'TEXTBOOKS', label: 'Textbooks' },
+	{ value: 'KOREAN_LANGUAGE', label: 'Korean Language' },
+	{ value: 'TOPIK_PREPARATION', label: 'TOPIK' },
+	{ value: 'ROMANCE', label: 'Romance' },
+	{ value: 'SCIENCE_FICTION', label: 'Science Fiction' },
+	{ value: 'MYSTERY_THRILLER', label: 'Mystery & Thriller' },
+	{ value: 'HEALTH_FITNESS', label: 'Health & Fitness' },
+	{ value: 'LAW', label: 'Law' },
+	{ value: 'DESIGN', label: 'Design' },
+	{ value: 'OTHER', label: 'Other' },
+];
 
-const HeaderFilter = (props: HeaderFilterProps) => {
-	const { initialInput } = props;
+const BOOK_AUDIENCE_OPTIONS = [
+	{ value: 'CHILDREN', label: 'Children' },
+	{ value: 'TEEN', label: 'Teen' },
+	{ value: 'GENERAL', label: 'General' },
+	{ value: 'UNDERGRADUATE', label: 'Undergraduate' },
+	{ value: 'GRADUATE', label: 'Graduate' },
+	{ value: 'PROFESSIONAL', label: 'Professional' },
+];
+
+const BOOK_LANGUAGE_OPTIONS = [
+	{ value: 'ENGLISH', label: 'English' },
+	{ value: 'KOREAN', label: 'Korean' },
+	{ value: 'CHINESE', label: 'Chinese' },
+	{ value: 'SPANISH', label: 'Spanish' },
+	{ value: 'FRENCH', label: 'French' },
+	{ value: 'GERMAN', label: 'German' },
+	{ value: 'RUSSIAN', label: 'Russian' },
+	{ value: 'ARABIC', label: 'Arabic' },
+	{ value: 'UZBEK', label: 'Uzbek' },
+	{ value: 'OTHER', label: 'Other' },
+];
+
+const HeaderFilter = () => {
 	const device = useDeviceDetect();
-	const { t, i18n } = useTranslation('common');
-	const [searchFilter, setSearchFilter] = useState<PropertiesInquiry>(initialInput);
-	const locationRef: any = useRef();
-	const typeRef: any = useRef();
-	const roomsRef: any = useRef();
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [openAdvancedFilter, setOpenAdvancedFilter] = useState(false);
-	const [openLocation, setOpenLocation] = useState(false);
+	const formatRef: any = useRef();
+	const typeRef: any = useRef();
+	const categoryRef: any = useRef();
+	const [openFormat, setOpenFormat] = useState(false);
 	const [openType, setOpenType] = useState(false);
-	const [openRooms, setOpenRooms] = useState(false);
-	const [propertyLocation, setPropertyLocation] = useState<PropertyLocation[]>(Object.values(PropertyLocation));
-	const [propertyType, setPropertyType] = useState<PropertyType[]>(Object.values(PropertyType));
-	const [yearCheck, setYearCheck] = useState({ start: 1970, end: thisYear });
-	const [optionCheck, setOptionCheck] = useState('all');
+	const [openCategory, setOpenCategory] = useState(false);
 
-	/** LIFECYCLES **/
+	const [bookFormat, setBookFormat] = useState('');
+	const [bookType, setBookType] = useState('');
+	const [bookCategory, setBookCategory] = useState('');
+	const [hoveredCategory, setHoveredCategory] = useState('');
+
+	const [bookAudience, setBookAudience] = useState('');
+	const [bookLanguage, setBookLanguage] = useState('');
+	const [bookSearchQuery, setBookSearchQuery] = useState('');
+	const [isBorrowable, setIsBorrowable] = useState(false);
+	const [isPurchasable, setIsPurchasable] = useState(false);
+	const [minRating, setMinRating] = useState(0);
+	const [minPrice, setMinPrice] = useState(0);
+	const [maxPrice, setMaxPrice] = useState(0);
+
 	useEffect(() => {
 		const clickHandler = (event: MouseEvent) => {
-			if (!locationRef?.current?.contains(event.target)) {
-				setOpenLocation(false);
+			if (!formatRef?.current?.contains(event.target)) {
+				setOpenFormat(false);
 			}
 
 			if (!typeRef?.current?.contains(event.target)) {
 				setOpenType(false);
 			}
 
-			if (!roomsRef?.current?.contains(event.target)) {
-				setOpenRooms(false);
+			if (!categoryRef?.current?.contains(event.target)) {
+				setOpenCategory(false);
 			}
 		};
 
 		document.addEventListener('mousedown', clickHandler);
-
-		return () => {
-			document.removeEventListener('mousedown', clickHandler);
-		};
+		return () => document.removeEventListener('mousedown', clickHandler);
 	}, []);
 
-	/** HANDLERS **/
 	const advancedFilterHandler = (status: boolean) => {
-		setOpenLocation(false);
-		setOpenRooms(false);
+		setOpenFormat(false);
 		setOpenType(false);
+		setOpenCategory(false);
 		setOpenAdvancedFilter(status);
 	};
 
-	const locationStateChangeHandler = () => {
-		setOpenLocation((prev) => !prev);
-		setOpenRooms(false);
+	const formatStateChangeHandler = () => {
+		setOpenFormat((prev) => !prev);
 		setOpenType(false);
+		setOpenCategory(false);
 	};
 
 	const typeStateChangeHandler = () => {
 		setOpenType((prev) => !prev);
-		setOpenLocation(false);
-		setOpenRooms(false);
+		setOpenFormat(false);
+		setOpenCategory(false);
 	};
 
-	const roomStateChangeHandler = () => {
-		setOpenRooms((prev) => !prev);
+	const categoryStateChangeHandler = () => {
+		setOpenCategory((prev) => !prev);
 		setOpenType(false);
-		setOpenLocation(false);
+		setOpenFormat(false);
 	};
 
 	const disableAllStateHandler = () => {
-		setOpenRooms(false);
+		setOpenCategory(false);
 		setOpenType(false);
-		setOpenLocation(false);
+		setOpenFormat(false);
 	};
 
-	const propertyLocationSelectHandler = useCallback(
-		async (value: any) => {
-			try {
-				setSearchFilter({
-					...searchFilter,
-					search: {
-						...searchFilter.search,
-						locationList: [value],
-					},
-				});
-				typeStateChangeHandler();
-			} catch (err: any) {
-				console.log('ERROR, propertyLocationSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const propertyTypeSelectHandler = useCallback(
-		async (value: any) => {
-			try {
-				setSearchFilter({
-					...searchFilter,
-					search: {
-						...searchFilter.search,
-						typeList: [value],
-					},
-				});
-				roomStateChangeHandler();
-			} catch (err: any) {
-				console.log('ERROR, propertyTypeSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const propertyRoomSelectHandler = useCallback(
-		async (value: any) => {
-			try {
-				setSearchFilter({
-					...searchFilter,
-					search: {
-						...searchFilter.search,
-						roomsList: [value],
-					},
-				});
-				disableAllStateHandler();
-			} catch (err: any) {
-				console.log('ERROR, propertyRoomSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const propertyBedSelectHandler = useCallback(
-		async (number: Number) => {
-			try {
-				if (number != 0) {
-					if (searchFilter?.search?.bedsList?.includes(number)) {
-						setSearchFilter({
-							...searchFilter,
-							search: {
-								...searchFilter.search,
-								bedsList: searchFilter?.search?.bedsList?.filter((item: Number) => item !== number),
-							},
-						});
-					} else {
-						setSearchFilter({
-							...searchFilter,
-							search: { ...searchFilter.search, bedsList: [...(searchFilter?.search?.bedsList || []), number] },
-						});
-					}
-				} else {
-					delete searchFilter?.search.bedsList;
-					setSearchFilter({ ...searchFilter });
-				}
-
-				console.log('propertyBedSelectHandler:', number);
-			} catch (err: any) {
-				console.log('ERROR, propertyBedSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const propertyOptionSelectHandler = useCallback(
-		async (e: any) => {
-			try {
-				const value = e.target.value;
-				setOptionCheck(value);
-
-				if (value !== 'all') {
-					setSearchFilter({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-							options: [value],
-						},
-					});
-				} else {
-					delete searchFilter.search.options;
-					setSearchFilter({
-						...searchFilter,
-						search: {
-							...searchFilter.search,
-						},
-					});
-				}
-			} catch (err: any) {
-				console.log('ERROR, propertyOptionSelectHandler:', err);
-			}
-		},
-		[searchFilter],
-	);
-
-	const propertySquareHandler = useCallback(
-		async (e: any, type: string) => {
-			const value = e.target.value;
-
-			if (type == 'start') {
-				setSearchFilter({
-					...searchFilter,
-					search: {
-						...searchFilter.search,
-						// @ts-ignore
-						squaresRange: { ...searchFilter.search.squaresRange, start: parseInt(value) },
-					},
-				});
-			} else {
-				setSearchFilter({
-					...searchFilter,
-					search: {
-						...searchFilter.search,
-						// @ts-ignore
-						squaresRange: { ...searchFilter.search.squaresRange, end: parseInt(value) },
-					},
-				});
-			}
-		},
-		[searchFilter],
-	);
-
-	const yearStartChangeHandler = async (event: any) => {
-		setYearCheck({ ...yearCheck, start: Number(event.target.value) });
-
-		setSearchFilter({
-			...searchFilter,
-			search: {
-				...searchFilter.search,
-				periodsRange: { start: Number(event.target.value), end: yearCheck.end },
-			},
-		});
+	const bookFormatSelectHandler = (value: string) => {
+		setBookFormat(value);
+		typeStateChangeHandler();
 	};
 
-	const yearEndChangeHandler = async (event: any) => {
-		setYearCheck({ ...yearCheck, end: Number(event.target.value) });
+	const bookTypeSelectHandler = (value: string) => {
+		setBookType(value);
+		categoryStateChangeHandler();
+	};
 
-		setSearchFilter({
-			...searchFilter,
-			search: {
-				...searchFilter.search,
-				periodsRange: { start: yearCheck.start, end: Number(event.target.value) },
-			},
-		});
+	const bookCategorySelectHandler = (value: string) => {
+		setBookCategory(value);
+		disableAllStateHandler();
 	};
 
 	const resetFilterHandler = () => {
-		setSearchFilter(initialInput);
-		setOptionCheck('all');
-		setYearCheck({ start: 1970, end: thisYear });
+		setBookAudience('');
+		setBookLanguage('');
+		setBookSearchQuery('');
+		setIsBorrowable(false);
+		setIsPurchasable(false);
+		setMinRating(0);
+		setMinPrice(0);
+		setMaxPrice(0);
+	};
+
+	const toNonNegativeNumber = (value: string): number => {
+		const parsed = Number(value);
+		if (Number.isNaN(parsed) || parsed < 0) return 0;
+		return parsed;
 	};
 
 	const pushSearchHandler = async () => {
 		try {
-			if (searchFilter?.search?.locationList?.length == 0) {
-				delete searchFilter.search.locationList;
-			}
+			const params: any = {};
 
-			if (searchFilter?.search?.typeList?.length == 0) {
-				delete searchFilter.search.typeList;
-			}
+			if (bookSearchQuery.trim()) params.keyword = bookSearchQuery.trim();
+			if (bookFormat) params.format = bookFormat;
+			if (bookType) params.type = bookType;
+			if (bookCategory) params.category = bookCategory;
 
-			if (searchFilter?.search?.roomsList?.length == 0) {
-				delete searchFilter.search.roomsList;
-			}
+			if (bookAudience) params.audience = bookAudience;
+			if (bookLanguage) params.language = bookLanguage;
+			if (isBorrowable) params.borrowable = 'true';
+			if (isPurchasable) params.purchasable = 'true';
+			if (minRating > 0) params.minRating = minRating;
+			if (minPrice > 0) params.minPrice = minPrice;
+			if (maxPrice > 0) params.maxPrice = maxPrice;
 
-			if (searchFilter?.search?.options?.length == 0) {
-				delete searchFilter.search.options;
-			}
-
-			if (searchFilter?.search?.bedsList?.length == 0) {
-				delete searchFilter.search.bedsList;
-			}
-
-			await router.push(
-				`/property?input=${JSON.stringify(searchFilter)}`,
-				`/property?input=${JSON.stringify(searchFilter)}`,
-			);
+			await router.push({
+				pathname: '/library/books',
+				query: params,
+			});
 		} catch (err: any) {
 			console.log('ERROR, pushSearchHandler:', err);
 		}
@@ -316,267 +230,292 @@ const HeaderFilter = (props: HeaderFilterProps) => {
 
 	if (device === 'mobile') {
 		return <div>HEADER FILTER MOBILE</div>;
-	} else {
-		return (
-			<>
-				<Stack className={'search-box'}>
-					<Stack className={'select-box'}>
-						<Box component={'div'} className={`box ${openLocation ? 'on' : ''}`} onClick={locationStateChangeHandler}>
-							<span>{searchFilter?.search?.locationList ? searchFilter?.search?.locationList[0] : t('Location')} </span>
-							<ExpandMoreIcon />
-						</Box>
-						<Box className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
-							<span> {searchFilter?.search?.typeList ? searchFilter?.search?.typeList[0] : t('Property type')} </span>
-							<ExpandMoreIcon />
-						</Box>
-						<Box className={`box ${openRooms ? 'on' : ''}`} onClick={roomStateChangeHandler}>
-							<span>
-								{searchFilter?.search?.roomsList ? `${searchFilter?.search?.roomsList[0]} rooms}` : t('Rooms')}
-							</span>
-							<ExpandMoreIcon />
-						</Box>
-					</Stack>
-					<Stack className={'search-box-other'}>
-						<Box className={'advanced-filter'} onClick={() => advancedFilterHandler(true)}>
-							<img src="/img/icons/tune.svg" alt="" />
-							<span>{t('Advanced')}</span>
-						</Box>
-						<Box className={'search-btn'} onClick={pushSearchHandler}>
-							<img src="/img/icons/search_white.svg" alt="" />
-						</Box>
-					</Stack>
+	}
 
-					{/*MENU */}
-					<div className={`filter-location ${openLocation ? 'on' : ''}`} ref={locationRef}>
-						{propertyLocation.map((location: string) => {
-							return (
-								<div onClick={() => propertyLocationSelectHandler(location)} key={location}>
-									<img src={`img/banner/cities/${location}.webp`} alt="" />
-									<span>{location}</span>
-								</div>
-							);
-						})}
+	return (
+		<>
+			<Stack className={'search-box'}>
+				<Stack className={'select-box'}>
+					<div className={`box ${openFormat ? 'on' : ''}`} onClick={formatStateChangeHandler}>
+						<span>{bookFormat ? BOOK_FORMAT_OPTIONS.find((option) => option.value === bookFormat)?.label : 'Book Format'}</span>
+						<ExpandMoreIcon />
 					</div>
-
-					<div className={`filter-type ${openType ? 'on' : ''}`} ref={typeRef}>
-						{propertyType.map((type: string) => {
-							return (
-								<div
-									style={{ backgroundImage: `url(/img/banner/types/${type.toLowerCase()}.webp)` }}
-									onClick={() => propertyTypeSelectHandler(type)}
-									key={type}
-								>
-									<span>{type}</span>
-								</div>
-							);
-						})}
+					<div className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
+						<span>{bookType ? BOOK_TYPE_OPTIONS.find((option) => option.value === bookType)?.label : 'Book Type'}</span>
+						<ExpandMoreIcon />
 					</div>
-
-					<div className={`filter-rooms ${openRooms ? 'on' : ''}`} ref={roomsRef}>
-						{[1, 2, 3, 4, 5].map((room: number) => {
-							return (
-								<span onClick={() => propertyRoomSelectHandler(room)} key={room}>
-									{room} room{room > 1 ? 's' : ''}
-								</span>
-							);
-						})}
+					<div className={`box ${openCategory ? 'on' : ''}`} onClick={categoryStateChangeHandler}>
+						<span>{bookCategory ? BOOK_CATEGORY_OPTIONS.find((option) => option.value === bookCategory)?.label : 'Category'}</span>
+						<ExpandMoreIcon />
+					</div>
+				</Stack>
+				<Stack className={'search-box-other'}>
+					<div className={'advanced-filter'} onClick={() => advancedFilterHandler(true)}>
+						<img src="/img/icons/tune.svg" alt="" />
+						<span>{t('Advanced')}</span>
+					</div>
+					<div className={'search-btn'} onClick={pushSearchHandler}>
+						<img src="/img/icons/search_white.svg" alt="" />
 					</div>
 				</Stack>
 
-				{/* ADVANCED FILTER MODAL */}
-				<Modal
-					open={openAdvancedFilter}
-					onClose={() => advancedFilterHandler(false)}
-					aria-labelledby="modal-modal-title"
-					aria-describedby="modal-modal-description"
-				>
-					{/* @ts-ignore */}
-					<Box sx={style}>
-						<Box className={'advanced-filter-modal'}>
-							<div className={'close'} onClick={() => advancedFilterHandler(false)}>
-								<CloseIcon />
+				<div className={`filter-location ${openFormat ? 'on' : ''}`} ref={formatRef}>
+					{BOOK_FORMAT_OPTIONS.map((option, index) => {
+						const cityImage = ['SEOUL', 'BUSAN', 'INCHEON'][index % 3];
+						return (
+							<div onClick={() => bookFormatSelectHandler(option.value)} key={option.value}>
+								<img src={`/img/banner/cities/${cityImage}.webp`} alt={option.label} />
+								<span>{option.label}</span>
 							</div>
-							<div className={'top'}>
-								<span>Find your home</span>
-								<div className={'search-input-box'}>
-									<img src="/img/icons/search.svg" alt="" />
+						);
+					})}
+				</div>
+
+				<div
+					className={`filter-type ${openType ? 'on' : ''}`}
+					ref={typeRef}
+					style={{ flexWrap: 'wrap', justifyContent: 'flex-start', gap: '16px' }}
+				>
+					{BOOK_TYPE_OPTIONS.map((option, index) => {
+						const typeImage = ['apartment', 'house', 'villa'][index % 3];
+						return (
+							<div
+								style={{ backgroundImage: `url(/img/banner/types/${typeImage}.webp)` }}
+								onClick={() => bookTypeSelectHandler(option.value)}
+								key={option.value}
+							>
+								<span>{option.label}</span>
+							</div>
+						);
+					})}
+				</div>
+
+				<div
+					className={`filter-rooms ${openCategory ? 'on' : ''}`}
+					ref={categoryRef}
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(5, 1fr)',
+						gap: '12px',
+						padding: '18px 22px',
+						maxHeight: '280px',
+						overflowY: 'auto',
+					}}
+				>
+					{BOOK_CATEGORY_OPTIONS.map((option) => {
+						const isSelected = bookCategory === option.value;
+						const isHovered = hoveredCategory === option.value;
+						const background = isSelected
+							? 'rgba(46, 134, 222, 0.12)'
+							: isHovered
+								? 'rgba(46, 134, 222, 0.08)'
+								: 'transparent';
+						return (
+							<span
+								onClick={() => bookCategorySelectHandler(option.value)}
+								onMouseEnter={() => setHoveredCategory(option.value)}
+								onMouseLeave={() => setHoveredCategory('')}
+								key={option.value}
+								style={{
+									textAlign: 'center',
+									cursor: 'pointer',
+									padding: '8px 4px',
+									borderRadius: '4px',
+									fontSize: '15px',
+									whiteSpace: 'nowrap',
+									overflow: 'hidden',
+									textOverflow: 'ellipsis',
+									background,
+									color: isSelected ? '#2E86DE' : undefined,
+									fontWeight: isSelected ? 600 : undefined,
+								}}
+							>
+								{option.label}
+							</span>
+						);
+					})}
+				</div>
+			</Stack>
+
+			<Modal
+				open={openAdvancedFilter}
+				onClose={() => advancedFilterHandler(false)}
+				aria-labelledby="modal-modal-title"
+				aria-describedby="modal-modal-description"
+			>
+				<div style={modalStyle}>
+					<div className={'advanced-filter-modal'}>
+						<div className={'afm-header'}>
+							<div className={'afm-title'}>
+								<TuneIcon />
+								<span>Smart Library Advanced Filters</span>
+							</div>
+							<button className={'afm-close-btn'} onClick={() => advancedFilterHandler(false)}>
+								<CloseIcon />
+							</button>
+						</div>
+
+						<div className={'afm-body'}>
+							<div className={'afm-search-row'}>
+								<div className={'afm-search-input-box'}>
+									<SearchIcon className={'icon'} />
 									<input
-										value={searchFilter?.search?.text ?? ''}
 										type="text"
-										placeholder={'What are you looking for?'}
-										onChange={(e: any) => {
-											setSearchFilter({
-												...searchFilter,
-												search: { ...searchFilter.search, text: e.target.value },
-											});
+										value={bookSearchQuery}
+										onChange={(event) => setBookSearchQuery(event.target.value)}
+										onKeyDown={(event) => {
+											if (event.key === 'Enter') pushSearchHandler().then();
+										}}
+										placeholder="Search by title, author, or ISBN…"
+									/>
+									<button onClick={() => pushSearchHandler().then()}>Search</button>
+								</div>
+							</div>
+
+							<div className={'row-box select-grid'}>
+								<div className={'box'}>
+									<label>READER LEVEL</label>
+									<div className={'inside'}>
+										<FormControl fullWidth>
+											<Select
+												value={bookAudience}
+												onChange={(event) => setBookAudience(event.target.value as string)}
+												displayEmpty
+												className={'afm-select'}
+											>
+												<MenuItem value={''}>All Levels</MenuItem>
+												{BOOK_AUDIENCE_OPTIONS.map((option) => (
+													<MenuItem key={option.value} value={option.value}>
+														{option.label}
+													</MenuItem>
+												))}
+											</Select>
+										</FormControl>
+									</div>
+								</div>
+								<div className={'box'}>
+									<label>LANGUAGE</label>
+									<div className={'inside'}>
+										<FormControl fullWidth>
+											<Select
+												value={bookLanguage}
+												onChange={(event) => setBookLanguage(event.target.value as string)}
+												displayEmpty
+												className={'afm-select'}
+											>
+												<MenuItem value={''}>All Languages</MenuItem>
+												{BOOK_LANGUAGE_OPTIONS.map((option) => (
+													<MenuItem key={option.value} value={option.value}>
+														{option.label}
+													</MenuItem>
+												))}
+											</Select>
+										</FormControl>
+									</div>
+								</div>
+							</div>
+
+							<div className={'row-box toggle-row'}>
+								<div className={'box toggle-pill'}>
+									<span>Borrowable Only</span>
+									<Switch
+										checked={isBorrowable}
+										onChange={(event) => setIsBorrowable(event.target.checked)}
+										sx={{
+											'& .MuiSwitch-switchBase.Mui-checked': { color: '#2E86DE' },
+											'& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+												backgroundColor: '#2E86DE',
+											},
+										}}
+									/>
+								</div>
+								<div className={'box toggle-pill'}>
+									<span>Purchasable Only</span>
+									<Switch
+										checked={isPurchasable}
+										onChange={(event) => setIsPurchasable(event.target.checked)}
+										sx={{
+											'& .MuiSwitch-switchBase.Mui-checked': { color: '#2E86DE' },
+											'& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+												backgroundColor: '#2E86DE',
+											},
 										}}
 									/>
 								</div>
 							</div>
-							<Divider sx={{ mt: '30px', mb: '35px' }} />
-							<div className={'middle'}>
-								<div className={'row-box'}>
-									<div className={'box'}>
-										<span>bedrooms</span>
-										<div className={'inside'}>
-											<div
-												className={`room ${!searchFilter?.search?.bedsList ? 'active' : ''}`}
-												onClick={() => propertyBedSelectHandler(0)}
-											>
-												Any
-											</div>
-											{[1, 2, 3, 4, 5].map((bed: number) => (
-												<div
-													className={`room ${searchFilter?.search?.bedsList?.includes(bed) ? 'active' : ''}`}
-													onClick={() => propertyBedSelectHandler(bed)}
-													key={bed}
-												>
-													{bed == 0 ? 'Any' : bed}
-												</div>
-											))}
-										</div>
-									</div>
-									<div className={'box'}>
-										<span>options</span>
-										<div className={'inside'}>
-											<FormControl>
-												<Select
-													value={optionCheck}
-													onChange={propertyOptionSelectHandler}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-												>
-													<MenuItem value={'all'}>All Options</MenuItem>
-													<MenuItem value={'propertyBarter'}>Barter</MenuItem>
-													<MenuItem value={'propertyRent'}>Rent</MenuItem>
-												</Select>
-											</FormControl>
-										</div>
-									</div>
-								</div>
-								<div className={'row-box'} style={{ marginTop: '44px' }}>
-									<div className={'box'}>
-										<span>Year Built</span>
-										<div className={'inside space-between align-center'}>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={yearCheck.start.toString()}
-													onChange={yearStartChangeHandler}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{propertyYears?.slice(0)?.map((year: number) => (
-														<MenuItem value={year} disabled={yearCheck.end <= year} key={year}>
-															{year}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
-											<div className={'minus-line'}></div>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={yearCheck.end.toString()}
-													onChange={yearEndChangeHandler}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{propertyYears
-														?.slice(0)
-														.reverse()
-														.map((year: number) => (
-															<MenuItem value={year} disabled={yearCheck.start >= year} key={year}>
-																{year}
-															</MenuItem>
-														))}
-												</Select>
-											</FormControl>
-										</div>
-									</div>
-									<div className={'box'}>
-										<span>square meter</span>
-										<div className={'inside space-between align-center'}>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={searchFilter?.search?.squaresRange?.start}
-													onChange={(e: any) => propertySquareHandler(e, 'start')}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{propertySquare.map((square: number) => (
-														<MenuItem
-															value={square}
-															disabled={(searchFilter?.search?.squaresRange?.end || 0) < square}
-															key={square}
-														>
-															{square}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
-											<div className={'minus-line'}></div>
-											<FormControl sx={{ width: '122px' }}>
-												<Select
-													value={searchFilter?.search?.squaresRange?.end}
-													onChange={(e: any) => propertySquareHandler(e, 'end')}
-													displayEmpty
-													inputProps={{ 'aria-label': 'Without label' }}
-													MenuProps={MenuProps}
-												>
-													{propertySquare.map((square: number) => (
-														<MenuItem
-															value={square}
-															disabled={(searchFilter?.search?.squaresRange?.start || 0) > square}
-															key={square}
-														>
-															{square}
-														</MenuItem>
-													))}
-												</Select>
-											</FormControl>
-										</div>
-									</div>
-								</div>
-							</div>
-							<Divider sx={{ mt: '60px', mb: '18px' }} />
-							<div className={'bottom'}>
-								<div onClick={resetFilterHandler}>
-									<img src="/img/icons/reset.svg" alt="" />
-									<span>Reset all filters</span>
-								</div>
-								<Button
-									startIcon={<img src={'/img/icons/search.svg'} />}
-									className={'search-btn'}
-									onClick={pushSearchHandler}
-								>
-									Search
-								</Button>
-							</div>
-						</Box>
-					</Box>
-				</Modal>
-			</>
-		);
-	}
-};
 
-HeaderFilter.defaultProps = {
-	initialInput: {
-		page: 1,
-		limit: 9,
-		search: {
-			squaresRange: {
-				start: 0,
-				end: 500,
-			},
-			pricesRange: {
-				start: 0,
-				end: 2000000,
-			},
-		},
-	},
+							<div className={'row-box rating-row'}>
+								<div className={'box'}>
+									<div className={'rating-head'}>
+										<label>MINIMUM RATING</label>
+										<span>{minRating > 0 ? `★ ${minRating.toFixed(1)}+` : 'Any'}</span>
+									</div>
+									<div className={'inside'}>
+											<Slider
+											value={minRating}
+											onChange={(_event: Event | React.SyntheticEvent, value: number | number[]) =>
+												setMinRating(value as number)
+											}
+											min={0}
+											max={5}
+											step={0.5}
+												sx={{ color: '#1D4ED8' }}
+											/>
+									</div>
+								</div>
+							</div>
+
+							<div
+								className={'row-box price-row'}
+								style={{ opacity: isPurchasable ? 1 : 0.4, pointerEvents: isPurchasable ? 'auto' : 'none' }}
+							>
+								<div className={'box'}>
+									<div className={'price-grid'}>
+										<div className={'price-field'}>
+											<label>MIN PRICE</label>
+											<div className={'price-input-wrap'}>
+												<span>₩</span>
+												<input
+													type={'number'}
+													value={minPrice}
+													onChange={(event) => setMinPrice(toNonNegativeNumber(event.target.value))}
+													min={0}
+													step={5000}
+												/>
+											</div>
+										</div>
+										<div className={'price-field'}>
+											<label>MAX PRICE</label>
+											<div className={'price-input-wrap'}>
+												<span>₩</span>
+												<input
+													type={'number'}
+													value={maxPrice}
+													onChange={(event) => setMaxPrice(toNonNegativeNumber(event.target.value))}
+													min={0}
+													step={5000}
+												/>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div className={'afm-footer'}>
+							<button className={'afm-reset-btn'} onClick={resetFilterHandler}>
+								<RestartAltIcon />
+								<span>Reset all filters</span>
+							</button>
+							<Button startIcon={<SearchIcon />} className={'search-btn'} onClick={pushSearchHandler}>
+								Search
+							</Button>
+						</div>
+					</div>
+				</div>
+			</Modal>
+		</>
+	);
 };
 
 export default HeaderFilter;
