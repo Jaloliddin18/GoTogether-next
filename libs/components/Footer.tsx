@@ -15,16 +15,20 @@ const Footer = () => {
 				<Stack className={'main'}>
 					<Stack className={'left'}>
 						<Box component={'div'} className={'footer-box'}>
-							<img src="/img/logo/logoWhite.svg" alt="" className={'logo'} />
+							<img
+								src="/img/logo/logo_capstone.png"
+								alt="같이Go Smart Library"
+								style={{ height: '70px', width: 'auto', objectFit: 'contain', cursor: 'pointer' }}
+							/>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>total free customer care</span>
-							<p>+82 10 4867 2909</p>
+							<span>Library Help Desk</span>
+							<p>INHA University Library</p>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>nee live</span>
-							<p>+82 10 4867 2909</p>
-							<span>Support?</span>
+							<span>Robot Support</span>
+							<p>24/7 Autonomous Service</p>
+							<span>같이Go is always on duty.</span>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
 							<p>follow us on social media</p>
@@ -40,30 +44,31 @@ const Footer = () => {
 						<Box component={'div'} className={'bottom'}>
 							<div>
 								<strong>Popular Search</strong>
-								<span>Property for Rent</span>
-								<span>Property Low to hide</span>
+								<span>Search Book Catalog</span>
+								<span>Request Book Delivery</span>
+								<span>Track My Delivery</span>
 							</div>
 							<div>
 								<strong>Quick Links</strong>
 								<span>Terms of Use</span>
 								<span>Privacy Policy</span>
-								<span>Pricing Plans</span>
-								<span>Our Services</span>
+								<span>How It Works</span>
+								<span>About 같이Go</span>
 								<span>Contact Support</span>
 								<span>FAQs</span>
 							</div>
 							<div>
 								<strong>Discover</strong>
-								<span>Seoul</span>
-								<span>Gyeongido</span>
-								<span>Busan</span>
-								<span>Jejudo</span>
+								<span>1F — General Collection</span>
+								<span>2F — Reference & Journals</span>
+								<span>3F — Digital Media</span>
+								<span>4F — Study Rooms</span>
 							</div>
 						</Box>
 					</Stack>
 				</Stack>
 				<Stack className={'second'}>
-					<span>© Nestar - All rights reserved. Nestar {moment().year()}</span>
+					<span>© 같이Go — INHA University Smart Library. 2026</span>
 				</Stack>
 			</Stack>
 		);
@@ -73,16 +78,20 @@ const Footer = () => {
 				<Stack className={'main'}>
 					<Stack className={'left'}>
 						<Box component={'div'} className={'footer-box'}>
-							<img src="/img/logo/logoWhite.svg" alt="" className={'logo'} />
+							<img
+								src="/img/logo/logo_capstone.png"
+								alt="같이Go Smart Library"
+								style={{ height: '70px', width: 'auto', objectFit: 'contain', cursor: 'pointer' }}
+							/>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>total free customer care</span>
-							<p>+82 10 4867 2909</p>
+							<span>Library Help Desk</span>
+							<p>INHA University Library</p>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>nee live</span>
-							<p>+82 10 4867 2909</p>
-							<span>Support?</span>
+							<span>Robot Support</span>
+							<p>24/7 Autonomous Service</p>
+							<span>같이Go is always on duty.</span>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
 							<p>follow us on social media</p>
@@ -96,39 +105,50 @@ const Footer = () => {
 					</Stack>
 					<Stack className={'right'}>
 						<Box component={'div'} className={'top'}>
-							<strong>keep yourself up to date</strong>
-							<div>
-								<input type="text" placeholder={'Your Email'} />
-								<span>Subscribe</span>
+							<strong>Stay Updated with 같이Go</strong>
+							<div style={{ backgroundColor: '#fff' }}>
+								<input type="text" placeholder={'Your Email'} style={{ backgroundColor: '#fff', color: '#000' }} />
+								<span
+									style={{
+										color: '#fff',
+										backgroundColor: '#2E86DE',
+										padding: '10px 14px',
+										borderRadius: '8px',
+										fontWeight: 600,
+									}}
+								>
+									Subscribe
+								</span>
 							</div>
 						</Box>
 						<Box component={'div'} className={'bottom'}>
 							<div>
 								<strong>Popular Search</strong>
-								<span>Property for Rent</span>
-								<span>Property Low to hide</span>
+								<span>Search Book Catalog</span>
+								<span>Request Book Delivery</span>
+								<span>Track My Delivery</span>
 							</div>
 							<div>
 								<strong>Quick Links</strong>
 								<span>Terms of Use</span>
 								<span>Privacy Policy</span>
-								<span>Pricing Plans</span>
-								<span>Our Services</span>
+								<span>How It Works</span>
+								<span>About 같이Go</span>
 								<span>Contact Support</span>
 								<span>FAQs</span>
 							</div>
 							<div>
 								<strong>Discover</strong>
-								<span>Seoul</span>
-								<span>Gyeongido</span>
-								<span>Busan</span>
-								<span>Jejudo</span>
+								<span>1F — General Collection</span>
+								<span>2F — Reference & Journals</span>
+								<span>3F — Digital Media</span>
+								<span>4F — Study Rooms</span>
 							</div>
 						</Box>
 					</Stack>
 				</Stack>
 				<Stack className={'second'}>
-					<span>© Nestar - All rights reserved. Nestar {moment().year()}</span>
+					<span>© 같이Go — INHA University Smart Library. 2026</span>
 					<span>Privacy · Terms · Sitemap</span>
 				</Stack>
 			</Stack>
