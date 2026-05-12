@@ -2,7 +2,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useDeviceDetect from '../libs/hooks/useDeviceDetect';
 import withLayoutMain from '../libs/components/layout/LayoutHome';
-import LibraryNoticesAndCommunity from '../libs/components/homepage/LibraryNoticesAndCommunity';
+import LibraryFeatures from '../libs/components/homepage/LibraryFeatures';
 import MostBorrowed from '../libs/components/homepage/MostBorrowed';
 import OrbitingAvatarsCTA from '../libs/components/homepage/OrbitingAvatarsCTA';
 import InteractiveEvents from '../libs/components/homepage/InteractiveEvents';
@@ -106,7 +106,7 @@ const Home: NextPage = () => {
 						<OrbitingAvatarsCTA />
 					</div>
 					<InteractiveEvents />
-					<LibraryNoticesAndCommunity />
+					<LibraryFeatures />
 				</Stack>
 		);
 	}
