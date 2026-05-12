@@ -2,9 +2,9 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useDeviceDetect from '../libs/hooks/useDeviceDetect';
 import withLayoutMain from '../libs/components/layout/LayoutHome';
-import CommunityBoards from '../libs/components/homepage/CommunityBoards';
+import LibraryNoticesAndCommunity from '../libs/components/homepage/LibraryNoticesAndCommunity';
 import MostBorrowed from '../libs/components/homepage/MostBorrowed';
-import TopAgents from '../libs/components/homepage/TopAgents';
+import OrbitingAvatarsCTA from '../libs/components/homepage/OrbitingAvatarsCTA';
 import InteractiveEvents from '../libs/components/homepage/InteractiveEvents';
 import DicedHeroSection from '../libs/components/homepage/DicedHeroSection';
 import NewArrivals from '../libs/components/homepage/NewArrivals';
@@ -60,7 +60,9 @@ const Home: NextPage = () => {
 					<MostBorrowed />
 				<Advertisement />
 				<FeaturedBooks />
-				<TopAgents />
+				<div style={{ height: 'auto', overflow: 'visible' }}>
+					<OrbitingAvatarsCTA />
+				</div>
 			</Stack>
 		);
 	} else {
@@ -100,9 +102,11 @@ const Home: NextPage = () => {
 					<MostBorrowed />
 					<Advertisement />
 					<FeaturedBooks />
-					<TopAgents />
+					<div style={{ height: 'auto', overflow: 'visible' }}>
+						<OrbitingAvatarsCTA />
+					</div>
 					<InteractiveEvents />
-					<CommunityBoards />
+					<LibraryNoticesAndCommunity />
 				</Stack>
 		);
 	}
