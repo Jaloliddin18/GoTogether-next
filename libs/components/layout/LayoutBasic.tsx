@@ -25,13 +25,16 @@ const withLayoutBasic = (Component: any) => {
 		const memoizedValues = useMemo(() => {
 			let title = '',
 				desc = '',
-				bgImage = '';
+				bgImage = '',
+				heroOverlay = '';
 
 			switch (router.pathname) {
 				case '/books':
 					title = 'Books';
 					desc = 'Browse and discover books';
-					bgImage = '/img/banner/properties.png';
+					bgImage = '/img/banner/books_hero.png';
+					heroOverlay =
+						'linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.25) 45%, rgba(0, 0, 0, 0.1) 100%), ';
 					break;
 				case '/about':
 					title = 'About';
@@ -78,7 +81,7 @@ const withLayoutBasic = (Component: any) => {
 					break;
 			}
 
-			return { title, desc, bgImage };
+			return { title, desc, bgImage, heroOverlay };
 		}, [router.pathname]);
 
 		/** LIFECYCLES **/
@@ -126,7 +129,7 @@ const withLayoutBasic = (Component: any) => {
 						<Stack
 							className={`header-basic ${authHeader && 'auth'}`}
 							style={{
-								backgroundImage: `url(${memoizedValues.bgImage})`,
+								backgroundImage: `${memoizedValues.heroOverlay}url(${memoizedValues.bgImage})`,
 								backgroundSize: 'cover',
 								boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
 							}}
