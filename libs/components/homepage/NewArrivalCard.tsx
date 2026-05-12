@@ -8,11 +8,11 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { REACT_APP_API_URL } from '../../config';
 import { useRouter } from 'next/router';
 
-interface TopPropertyCardProps {
+interface NewArrivalCardProps {
 	book: Book;
 }
 
-const TopPropertyCard = (props: TopPropertyCardProps) => {
+const NewArrivalCard = (props: NewArrivalCardProps) => {
 	const { book } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
@@ -26,12 +26,11 @@ const TopPropertyCard = (props: TopPropertyCardProps) => {
 		? `${REACT_APP_API_URL}/${book.bookImages[0]}`
 		: '/img/banner/header1.svg';
 
-	const ratingText = `★ ${(book?.bookRating?.average ?? 0).toFixed(1)}`;
-	const priceText = `₩${book?.bookPrice?.amount ?? 0}`;
+	const priceLabel = `${book?.bookPrice?.amount ?? 0} ${book?.bookPrice?.currency ?? 'KRW'}`;
 
 	if (device === 'mobile') {
 		return (
-			<Stack className="top-card-box">
+			<Stack className="trend-card-box" key={book._id}>
 				<Box
 					component={'div'}
 					className={'card-img'}
@@ -40,26 +39,31 @@ const TopPropertyCard = (props: TopPropertyCardProps) => {
 						pushDetailHandler(book._id);
 					}}
 				>
-					<div>{book.isPurchasable ? priceText : 'Borrow Only'}</div>
+					<div>{priceLabel}</div>
 				</Box>
 				<Box component={'div'} className={'info'}>
 					<strong
+						className={'title'}
 						onClick={() => {
 							pushDetailHandler(book._id);
 						}}
-						className={'title'}
 					>
 						{book.bookTitle}
 					</strong>
 					<p className={'desc'}>{book.bookAuthor}</p>
 					<div className={'options'}>
 						<div>
-							<span>{ratingText}</span>
+							<span>{book.bookCategory}</span>
 						</div>
+						{book.isBorrowable && (
+							<div>
+								<span style={{ color: '#2E7D32', fontWeight: 600 }}>Borrowable</span>
+							</div>
+						)}
 					</div>
 					<Divider sx={{ mt: '15px', mb: '17px' }} />
 					<div className={'bott'}>
-						<p>{book.isPurchasable ? priceText : 'Borrow Only'}</p>
+						<p>{book.bookLanguage}</p>
 						<div className="view-like-box">
 							<IconButton color={'default'}>
 								<RemoveRedEyeIcon />
@@ -76,7 +80,7 @@ const TopPropertyCard = (props: TopPropertyCardProps) => {
 		);
 	} else {
 		return (
-			<Stack className="top-card-box">
+			<Stack className="trend-card-box" key={book._id}>
 				<Box
 					component={'div'}
 					className={'card-img'}
@@ -85,7 +89,7 @@ const TopPropertyCard = (props: TopPropertyCardProps) => {
 						pushDetailHandler(book._id);
 					}}
 				>
-					<div>{book.isPurchasable ? priceText : 'Borrow Only'}</div>
+					<div>{priceLabel}</div>
 				</Box>
 				<Box component={'div'} className={'info'}>
 					<strong
@@ -99,12 +103,17 @@ const TopPropertyCard = (props: TopPropertyCardProps) => {
 					<p className={'desc'}>{book.bookAuthor}</p>
 					<div className={'options'}>
 						<div>
-							<span>{ratingText}</span>
+							<span>{book.bookCategory}</span>
 						</div>
+						{book.isBorrowable && (
+							<div>
+								<span style={{ color: '#2E7D32', fontWeight: 600 }}>Borrowable</span>
+							</div>
+						)}
 					</div>
 					<Divider sx={{ mt: '15px', mb: '17px' }} />
 					<div className={'bott'}>
-						<p>{book.isPurchasable ? priceText : 'Borrow Only'}</p>
+						<p>{book.bookLanguage}</p>
 						<div className="view-like-box">
 							<IconButton color={'default'}>
 								<RemoveRedEyeIcon />
@@ -122,4 +131,4 @@ const TopPropertyCard = (props: TopPropertyCardProps) => {
 	}
 };
 
-export default TopPropertyCard;
+export default NewArrivalCard;

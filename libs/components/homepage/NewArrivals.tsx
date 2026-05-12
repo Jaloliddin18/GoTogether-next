@@ -7,16 +7,16 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper';
 import { Book } from '../../types/book/book';
 import { BooksInquiry } from '../../types/book/book.input';
-import TrendPropertyCard from './TrendPropertyCard';
+import NewArrivalCard from './NewArrivalCard';
 import { useQuery } from '@apollo/client';
 import { GET_BOOKS } from '../../../apollo/user/query';
 import { T } from '../../types/common';
 
-interface TrendPropertiesProps {
+interface NewArrivalsProps {
 	initialInput: BooksInquiry;
 }
 
-const TrendProperties = (props: TrendPropertiesProps) => {
+const NewArrivals = (props: NewArrivalsProps) => {
 	const { initialInput } = props;
 	const device = useDeviceDetect();
 	const [newArrivals, setNewArrivals] = useState<Book[]>([]);
@@ -56,7 +56,7 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 								{(newArrivals ?? []).map((book: Book) => {
 									return (
 										<SwiperSlide key={book._id} className={'trend-property-slide'}>
-											<TrendPropertyCard book={book} />
+											<NewArrivalCard book={book} />
 										</SwiperSlide>
 									);
 								})}
@@ -105,7 +105,7 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 								{(newArrivals ?? []).map((book: Book) => {
 									return (
 										<SwiperSlide key={book._id} className={'trend-property-slide'}>
-											<TrendPropertyCard book={book} />
+											<NewArrivalCard book={book} />
 										</SwiperSlide>
 									);
 								})}
@@ -118,7 +118,7 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 	}
 };
 
-TrendProperties.defaultProps = {
+NewArrivals.defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 8,
@@ -128,4 +128,4 @@ TrendProperties.defaultProps = {
 	},
 };
 
-export default TrendProperties;
+export default NewArrivals;

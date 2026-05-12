@@ -7,11 +7,11 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { REACT_APP_API_URL, topPropertyRank } from '../../config';
 import { useRouter } from 'next/router';
 
-interface PopularPropertyCardProps {
+interface MostBorrowedCardProps {
 	book: Book;
 }
 
-const PopularPropertyCard = (props: PopularPropertyCardProps) => {
+const MostBorrowedCard = (props: MostBorrowedCardProps) => {
 	const { book } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
@@ -140,4 +140,4 @@ const PopularPropertyCard = (props: PopularPropertyCardProps) => {
 	}
 };
 
-export default PopularPropertyCard;
+export default MostBorrowedCard;

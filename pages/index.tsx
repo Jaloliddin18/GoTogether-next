@@ -3,12 +3,12 @@ import { useRouter } from 'next/router';
 import useDeviceDetect from '../libs/hooks/useDeviceDetect';
 import withLayoutMain from '../libs/components/layout/LayoutHome';
 import CommunityBoards from '../libs/components/homepage/CommunityBoards';
-import PopularProperties from '../libs/components/homepage/PopularProperties';
+import MostBorrowed from '../libs/components/homepage/MostBorrowed';
 import TopAgents from '../libs/components/homepage/TopAgents';
 import InteractiveEvents from '../libs/components/homepage/InteractiveEvents';
 import DicedHeroSection from '../libs/components/homepage/DicedHeroSection';
-import TrendProperties from '../libs/components/homepage/TrendProperties';
-import TopProperties from '../libs/components/homepage/TopProperties';
+import NewArrivals from '../libs/components/homepage/NewArrivals';
+import FeaturedBooks from '../libs/components/homepage/FeaturedBooks';
 import { Stack } from '@mui/material';
 import Advertisement from '../libs/components/homepage/Advertisement';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -26,7 +26,7 @@ const Home: NextPage = () => {
 	if (device === 'mobile') {
 			return (
 				<Stack className={'home-page'}>
-					<TrendProperties />
+					<NewArrivals />
 					<DicedHeroSection
 						topText="Smart Library"
 						mainText="같이Go"
@@ -57,16 +57,16 @@ const Home: NextPage = () => {
 						mobileBreakpoint={1000}
 						fontFamily="Inter, -apple-system, sans-serif"
 					/>
-					<PopularProperties />
+					<MostBorrowed />
 				<Advertisement />
-				<TopProperties />
+				<FeaturedBooks />
 				<TopAgents />
 			</Stack>
 		);
 	} else {
 			return (
 				<Stack className={'home-page'}>
-					<TrendProperties />
+					<NewArrivals />
 					<DicedHeroSection
 						topText="Smart Library"
 						mainText="같이Go"
@@ -97,9 +97,9 @@ const Home: NextPage = () => {
 						mobileBreakpoint={1000}
 						fontFamily="Inter, -apple-system, sans-serif"
 					/>
-					<PopularProperties />
+					<MostBorrowed />
 					<Advertisement />
-					<TopProperties />
+					<FeaturedBooks />
 					<TopAgents />
 					<InteractiveEvents />
 					<CommunityBoards />

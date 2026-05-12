@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper';
 import WestIcon from '@mui/icons-material/West';
 import EastIcon from '@mui/icons-material/East';
-import PopularPropertyCard from './PopularPropertyCard';
+import MostBorrowedCard from './MostBorrowedCard';
 import { Book } from '../../types/book/book';
 import Link from 'next/link';
 import { BooksInquiry } from '../../types/book/book.input';
@@ -13,11 +13,11 @@ import { GET_BOOKS } from '../../../apollo/user/query';
 import { useQuery } from '@apollo/client';
 import { T } from '../../types/common';
 
-interface PopularPropertiesProps {
+interface MostBorrowedProps {
 	initialInput: BooksInquiry;
 }
 
-const PopularProperties = (props: PopularPropertiesProps) => {
+const MostBorrowed = (props: MostBorrowedProps) => {
 	const { initialInput } = props;
 	const device = useDeviceDetect();
 	const [popularBooks, setPopularBooks] = useState<Book[]>([]);
@@ -53,7 +53,7 @@ const PopularProperties = (props: PopularPropertiesProps) => {
 							{(popularBooks ?? []).map((book: Book) => {
 								return (
 									<SwiperSlide key={book._id} className={'popular-property-slide'}>
-										<PopularPropertyCard book={book} />
+										<MostBorrowedCard book={book} />
 									</SwiperSlide>
 								);
 							})}
@@ -97,7 +97,7 @@ const PopularProperties = (props: PopularPropertiesProps) => {
 							{(popularBooks ?? []).map((book: Book) => {
 								return (
 									<SwiperSlide key={book._id} className={'popular-property-slide'}>
-										<PopularPropertyCard book={book} />
+										<MostBorrowedCard book={book} />
 									</SwiperSlide>
 								);
 							})}
@@ -114,7 +114,7 @@ const PopularProperties = (props: PopularPropertiesProps) => {
 	}
 };
 
-PopularProperties.defaultProps = {
+MostBorrowed.defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 7,
@@ -124,4 +124,4 @@ PopularProperties.defaultProps = {
 	},
 };
 
-export default PopularProperties;
+export default MostBorrowed;

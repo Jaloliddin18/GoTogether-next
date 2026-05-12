@@ -5,18 +5,18 @@ import WestIcon from '@mui/icons-material/West';
 import EastIcon from '@mui/icons-material/East';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper';
-import TopPropertyCard from './TopPropertyCard';
+import FeaturedBookCard from './FeaturedBookCard';
 import { BooksInquiry } from '../../types/book/book.input';
 import { Book } from '../../types/book/book';
 import { useQuery } from '@apollo/client';
 import { GET_BOOKS } from '../../../apollo/user/query';
 import { T } from '../../types/common';
 
-interface TopPropertiesProps {
+interface FeaturedBooksProps {
 	initialInput: BooksInquiry;
 }
 
-const TopProperties = (props: TopPropertiesProps) => {
+const FeaturedBooks = (props: FeaturedBooksProps) => {
 	const { initialInput } = props;
 	const device = useDeviceDetect();
 	const [featuredBooks, setFeaturedBooks] = useState<Book[]>([]);
@@ -49,7 +49,7 @@ const TopProperties = (props: TopPropertiesProps) => {
 							{(featuredBooks ?? []).map((book: Book) => {
 								return (
 									<SwiperSlide className={'top-property-slide'} key={book?._id}>
-										<TopPropertyCard book={book} />
+										<FeaturedBookCard book={book} />
 									</SwiperSlide>
 								);
 							})}
@@ -92,7 +92,7 @@ const TopProperties = (props: TopPropertiesProps) => {
 							{(featuredBooks ?? []).map((book: Book) => {
 								return (
 									<SwiperSlide className={'top-property-slide'} key={book?._id}>
-										<TopPropertyCard book={book} />
+										<FeaturedBookCard book={book} />
 									</SwiperSlide>
 								);
 							})}
@@ -104,7 +104,7 @@ const TopProperties = (props: TopPropertiesProps) => {
 	}
 };
 
-TopProperties.defaultProps = {
+FeaturedBooks.defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 8,
@@ -114,4 +114,4 @@ TopProperties.defaultProps = {
 	},
 };
 
-export default TopProperties;
+export default FeaturedBooks;
