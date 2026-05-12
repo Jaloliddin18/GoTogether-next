@@ -60,7 +60,7 @@ const Home: NextPage = () => {
 					<MostBorrowed />
 				<Advertisement />
 				<FeaturedBooks />
-				<div style={{ height: 'auto', overflow: 'visible' }}>
+				<div style={{ overflow: 'visible' }}>
 					<OrbitingAvatarsCTA />
 				</div>
 			</Stack>
@@ -102,7 +102,7 @@ const Home: NextPage = () => {
 					<MostBorrowed />
 					<Advertisement />
 					<FeaturedBooks />
-					<div style={{ height: 'auto', overflow: 'visible' }}>
+					<div style={{ overflow: 'visible' }}>
 						<OrbitingAvatarsCTA />
 					</div>
 					<InteractiveEvents />
