@@ -30,8 +30,7 @@ const AgentCard = (props: AgentCardProps) => {
 			<Stack className="agent-general-card">
 				<Link
 					href={{
-						pathname: '/agent/detail',
-						query: { agentId: agent?._id },
+						pathname: '/about',
 					}}
 				>
 					<Box
@@ -52,8 +51,7 @@ const AgentCard = (props: AgentCardProps) => {
 					<Box component={'div'} className={'agent-info'}>
 						<Link
 							href={{
-								pathname: '/agent/detail',
-								query: { agentId: 'id' },
+								pathname: '/about',
 							}}
 						>
 							<strong>{agent?.memberFullName ?? agent?.memberNick}</strong>

@@ -11,7 +11,7 @@ interface CommunityCardProps {
 	index: number;
 }
 
-const CommunityCard = (props: CommunityCardProps) => {
+const CommunityHighlightCard = (props: CommunityCardProps) => {
 	const { vertical, article, index } = props;
 	const device = useDeviceDetect();
 	const articleImage = article?.articleImage
@@ -53,4 +53,4 @@ const CommunityCard = (props: CommunityCardProps) => {
 	}
 };
 
-export default CommunityCard;
+export default CommunityHighlightCard;

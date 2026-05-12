@@ -57,47 +57,25 @@ export const GET_BOOKS = gql`
 				_id
 				bookTitle
 				bookAuthor
-				bookIsbn
-				bookCallNumber
 				bookImages
-				bookType
 				bookCategory
-				bookAudience
-				bookFormat
 				bookLanguage
-				bookPublishedYear
-				bookPages
-				bookDescription
-				isBorrowable
-				isPurchasable
-				bookLikes
 				bookViews
-				bookComments
+				bookLikes
 				bookRank
-				bookStatus
-				deletedAt
-				createdAt
-				updatedAt
-				bookPrice {
-					amount
-					currency
-					discountPercent
-					isDiscounted
-				}
-				bookDimensions {
-					widthCm
-					heightCm
-					weightGrams
-				}
 				bookRating {
 					average
 					count
 				}
-				meLiked {
-					memberId
-					likeRefId
-					myFavorite
+				bookPrice {
+					amount
+					currency
+					isDiscounted
+					discountPercent
 				}
+				isBorrowable
+				isPurchasable
+				bookStatus
 			}
 			metaCounter {
 				total
