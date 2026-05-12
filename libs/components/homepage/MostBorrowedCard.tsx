@@ -4,8 +4,9 @@ import IconButton from '@mui/material/IconButton';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Book } from '../../types/book/book';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { REACT_APP_API_URL, topPropertyRank } from '../../config';
+import { topPropertyRank } from '../../config';
 import { useRouter } from 'next/router';
+import { resolveMediaUrl } from '../../utils';
 
 interface MostBorrowedCardProps {
 	book: Book;
@@ -21,9 +22,7 @@ const MostBorrowedCard = (props: MostBorrowedCardProps) => {
 		await router.push(`/library/books/${bookId}`);
 	};
 
-	const imageUrl = book?.bookImages?.[0]
-		? `${REACT_APP_API_URL}/${book.bookImages[0]}`
-		: '/img/banner/header1.svg';
+	const imageUrl = resolveMediaUrl(book?.bookImages?.[0], '/img/banner/header1.svg');
 
 	const ratingText = `★ ${(book?.bookRating?.average ?? 0).toFixed(1)}`;
 

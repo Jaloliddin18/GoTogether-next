@@ -20,7 +20,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import withLayoutBasic from '../../../libs/components/layout/LayoutBasic';
 import useDeviceDetect from '../../../libs/hooks/useDeviceDetect';
 import { Direction } from '../../../libs/enums/common.enum';
-import { REACT_APP_API_URL } from '../../../libs/config';
+import { resolveMediaUrl } from '../../../libs/utils';
 import { GET_BOOKS } from '../../../apollo/library/query';
 
 const BOOKS_PER_PAGE = 12;
@@ -234,7 +234,7 @@ const LibraryBooksPage: NextPage = () => {
 								}}
 							>
 								{books.map((book) => {
-									const imagePath = book.bookImages?.[0] ? `${REACT_APP_API_URL}/${book.bookImages[0]}` : '/img/logo/logoText.svg';
+									const imagePath = resolveMediaUrl(book.bookImages?.[0], '/img/logo/logoText.svg');
 
 									return (
 										<Link href={`/library/books/${book._id}`} key={book._id}>
