@@ -157,12 +157,12 @@ export const PropertyPanelList = (props: PropertyPanelListType) => {
 										<TableCell align="left" className={'name'}>
 											{property.propertyStatus === PropertyStatus.ACTIVE ? (
 												<Stack direction={'row'}>
-													<Link href={`/property/detail?id=${property?._id}`}>
+													<Link href={`/books/detail?id=${property?._id}`}>
 														<div>
 															<Avatar alt="Remy Sharp" src={propertyImage} sx={{ ml: '2px', mr: '10px' }} />
 														</div>
 													</Link>
-													<Link href={`/property/detail?id=${property?._id}`}>
+													<Link href={`/books/detail?id=${property?._id}`}>
 														<div>{property.propertyTitle}</div>
 													</Link>
 												</Stack>
