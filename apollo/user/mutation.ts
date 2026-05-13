@@ -169,6 +169,8 @@ export const LIKE_TARGET_BOOK = gql`
 	}
 `;
 
+export const LIKE_BOOK = LIKE_TARGET_BOOK;
+
 /**************************
  *      REQUEST     *
  *************************/

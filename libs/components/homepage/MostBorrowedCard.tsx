@@ -1,5 +1,6 @@
-import React from 'react';
-import { Box, Divider, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Divider, IconButton, Typography } from '@mui/material';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Book } from '../../types/book/book';
@@ -8,6 +9,10 @@ import LanguageIcon from '@mui/icons-material/Language';
 import StarIcon from '@mui/icons-material/Star';
 import { REACT_APP_API_URL } from '../../config';
 import { useRouter } from 'next/router';
+import { LIKE_BOOK } from '../../../apollo/user/mutation';
+import { userVar } from '../../../apollo/store';
+import { sweetMixinErrorAlert } from '../../../libs/sweetAlert';
+import { Message } from '../../../libs/enums/common.enum';
 
 const MuiBox: any = Box;
 const MuiTypography: any = Typography;
@@ -21,10 +26,37 @@ const MostBorrowedCard = (props: MostBorrowedCardProps) => {
 	const { book } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const [likeBook] = useMutation(LIKE_BOOK);
+	const [liked, setLiked] = useState<boolean>(book?.meLiked?.[0]?.myFavorite ?? false);
+	const [likeCount, setLikeCount] = useState<number>(book?.bookLikes ?? 0);
+	const user = useReactiveVar(userVar);
+
+	useEffect(() => {
+		setLiked(book?.meLiked?.[0]?.myFavorite ?? false);
+		setLikeCount(book?.bookLikes ?? 0);
+	}, [book?._id, book?.bookLikes, book?.meLiked]);
 
 	/** HANDLERS **/
 	const pushDetailHandler = async (bookId: string) => {
 		await router.push(`/books/detail?id=${bookId}`);
+	};
+
+	const likeHandler = async (e: React.MouseEvent) => {
+		e.stopPropagation();
+		try {
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+			await likeBook({
+				variables: { input: { likeRefId: book._id, likeGroup: 'BOOK' } },
+			});
+			if (liked) {
+				setLikeCount((prev) => prev - 1);
+			} else {
+				setLikeCount((prev) => prev + 1);
+			}
+			setLiked((prev) => !prev);
+		} catch (err: any) {
+			sweetMixinErrorAlert(err.message);
+		}
 	};
 
 	const imageUrl = book?.bookImages?.[0]
@@ -185,8 +217,16 @@ const MostBorrowedCard = (props: MostBorrowedCardProps) => {
 							</MuiBox>
 						) : (
 							<MuiBox sx={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-									<FavoriteIcon sx={{ fontSize: 20, color: '#9ca3af' }} />
-								<MuiTypography sx={{ fontSize: '12px', color: '#9ca3af' }}>{book?.bookLikes ?? 0}</MuiTypography>
+								<IconButton onClick={likeHandler} sx={{ padding: '2px' }}>
+									<FavoriteIcon
+										sx={{
+											fontSize: 20,
+											color: liked ? '#ef4444' : '#9ca3af',
+											transition: 'color 0.2s ease',
+										}}
+									/>
+								</IconButton>
+								<MuiTypography sx={{ fontSize: '12px', color: '#9ca3af' }}>{likeCount}</MuiTypography>
 							</MuiBox>
 						)}
 					</MuiBox>
