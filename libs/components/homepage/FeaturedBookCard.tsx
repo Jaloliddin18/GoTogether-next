@@ -131,11 +131,11 @@ const FeaturedBookCard = (props: FeaturedBookCardProps) => {
 					</MuiTypography>
 					<MuiBox sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						<MuiBox sx={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-							<RemoveRedEyeIcon sx={{ fontSize: 13, color: '#9ca3af' }} />
+								<RemoveRedEyeIcon sx={{ fontSize: 20, color: '#9ca3af' }} />
 							<MuiTypography sx={{ fontSize: '12px', color: '#9ca3af' }}>{book?.bookViews ?? 0}</MuiTypography>
 						</MuiBox>
 						<MuiBox sx={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-							<FavoriteIcon sx={{ fontSize: 13, color: '#9ca3af' }} />
+								<FavoriteIcon sx={{ fontSize: 20, color: '#9ca3af' }} />
 							<MuiTypography sx={{ fontSize: '12px', color: '#9ca3af' }}>{book?.bookLikes ?? 0}</MuiTypography>
 						</MuiBox>
 					</MuiBox>

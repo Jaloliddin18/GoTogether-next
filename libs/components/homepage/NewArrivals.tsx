@@ -40,7 +40,7 @@ const NewArrivals = (props: NewArrivalsProps) => {
 					<Stack className={'info-box'}>
 						<span>New Arrivals</span>
 					</Stack>
-					<Stack className={'card-box'}>
+					<Stack className={'card-box'} sx={{ mt: '18px' }}>
 						{newArrivals.length === 0 ? (
 							<Box component={'div'} className={'empty-list'}>
 								No books found
@@ -83,7 +83,7 @@ const NewArrivals = (props: NewArrivalsProps) => {
 							</div>
 						</Box>
 					</Stack>
-					<Stack className={'card-box'}>
+					<Stack className={'card-box'} sx={{ mt: '18px' }}>
 						{newArrivals.length === 0 ? (
 							<Box component={'div'} className={'empty-list'}>
 								No books found

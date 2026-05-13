@@ -125,7 +125,7 @@
 				flex-direction: column;
 				.card-box {
 					position: relative;
-					margin-top: 64px;
+					margin-top: 18px;
 					display: flex;
 					flex-direction: row;
 					.empty-list {
@@ -137,6 +137,9 @@
 					}
 					.trend-property-swiper {
 						width: 100%;
+						margin-top: 0;
+						overflow: visible;
+						padding: 10px 0 20px 0;
 						height: auto;
 						display: flex;
 						flex-direction: row;
@@ -146,7 +149,7 @@
 							height: auto;
 							display: flex;
 							align-self: flex-start;
-							margin: 10px 0 0 10px;
+							margin: 0 0 0 10px;
 						}
 					}
 						.trend-card-box {
@@ -292,7 +295,7 @@
 				flex-direction: column;
 				align-items: center;
 				.card-box {
-					margin-top: 34px;
+					margin-top: 18px;
 					width: 100%;
 					height: auto;
 					display: flex;
@@ -300,6 +303,9 @@
 					justify-content: space-between;
 					.popular-property-swiper {
 						width: 100%;
+						margin-top: 0;
+						overflow: visible;
+						padding: 10px 0 20px 0;
 						height: auto;
 						display: flex;
 						flex-direction: row;
@@ -309,7 +315,7 @@
 							height: auto;
 							display: flex;
 							align-self: flex-start;
-							margin: 10px 0 10px 10px;
+							margin: 0 0 10px 10px;
 						}
 					}
 						.popular-card-box {
@@ -502,11 +508,14 @@
 				flex-direction: column;
 				.card-box {
 					position: relative;
-					margin-top: 64px;
+					margin-top: 18px;
 					display: flex;
 					flex-direction: row;
 					.top-property-swiper {
 						width: 100%;
+						margin-top: 0;
+						overflow: visible;
+						padding: 10px 0 20px 0;
 						height: auto;
 						display: flex;
 						flex-direction: row;
@@ -516,7 +525,7 @@
 							height: auto;
 							display: flex;
 							align-self: flex-start;
-							margin: 10px 0 0 10px;
+							margin: 0 0 0 10px;
 						}
 					}
 						.top-card-box {

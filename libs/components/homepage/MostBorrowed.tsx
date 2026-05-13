@@ -42,7 +42,7 @@ const MostBorrowed = (props: MostBorrowedProps) => {
 					<Stack className={'info-box'}>
 						<span>Most Borrowed</span>
 					</Stack>
-					<Stack className={'card-box'}>
+					<Stack className={'card-box'} sx={{ mt: '18px' }}>
 						<Swiper
 							className={'popular-property-swiper'}
 							slidesPerView={'auto'}
@@ -80,7 +80,7 @@ const MostBorrowed = (props: MostBorrowedProps) => {
 							</div>
 						</Box>
 					</Stack>
-					<Stack className={'card-box'}>
+					<Stack className={'card-box'} sx={{ mt: '18px' }}>
 						<Swiper
 							className={'popular-property-swiper'}
 							slidesPerView={'auto'}

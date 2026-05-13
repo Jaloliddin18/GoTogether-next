@@ -38,7 +38,7 @@ const FeaturedBooks = (props: FeaturedBooksProps) => {
 					<Stack className={'info-box'}>
 						<span>Featured Books</span>
 					</Stack>
-					<Stack className={'card-box'}>
+					<Stack className={'card-box'} sx={{ mt: '18px' }}>
 						<Swiper
 							className={'top-property-swiper'}
 							slidesPerView={'auto'}
@@ -75,7 +75,7 @@ const FeaturedBooks = (props: FeaturedBooksProps) => {
 							</div>
 						</Box>
 					</Stack>
-					<Stack className={'card-box'}>
+					<Stack className={'card-box'} sx={{ mt: '18px' }}>
 						<Swiper
 							className={'top-property-swiper'}
 							slidesPerView={'auto'}
