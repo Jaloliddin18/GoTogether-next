@@ -19,7 +19,7 @@ const NewArrivalCard = (props: NewArrivalCardProps) => {
 
 	/** HANDLERS **/
 	const pushDetailHandler = async (bookId: string) => {
-		await router.push(`/books/${bookId}`);
+		await router.push(`/books/detail?id=${bookId}`);
 	};
 
 	const imageUrl = book?.bookImages?.[0]
