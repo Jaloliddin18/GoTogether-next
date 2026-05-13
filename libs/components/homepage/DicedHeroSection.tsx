@@ -11,6 +11,7 @@ interface SlideItem {
 interface MainTextStyle {
 	fontSize?: string;
 	gradient?: string;
+	color?: string;
 }
 
 interface ButtonStyle {
@@ -134,6 +135,7 @@ const DicedHeroSection = ({
 		lineHeight: 1,
 		margin: 0,
 		fontFamily,
+		color: mainTextStyle?.color || '#1A1A2E',
 		background: mainTextStyle?.gradient,
 		WebkitBackgroundClip: mainTextStyle?.gradient ? 'text' : undefined,
 		WebkitTextFillColor: mainTextStyle?.gradient ? 'transparent' : undefined,

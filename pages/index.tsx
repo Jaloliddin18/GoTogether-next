@@ -40,11 +40,10 @@ const Home: NextPage = () => {
 						]}
 						onMainButtonClick={() => router.push('/books')}
 						topTextStyle={{ color: 'var(--diced-hero-section-top-text)' }}
-						mainTextStyle={{
-							fontSize: '4.5rem',
-							gradient:
-								'linear-gradient(45deg, var(--diced-hero-section-main-gradient-from), var(--diced-hero-section-main-gradient-to))',
-						}}
+							mainTextStyle={{
+								fontSize: '4.5rem',
+								color: 'var(--diced-hero-section-sub-text)',
+							}}
 						subMainTextStyle={{ color: 'var(--diced-hero-section-sub-text)' }}
 						buttonStyle={{
 							backgroundColor: 'var(--diced-hero-section-button-bg)',
@@ -82,11 +81,10 @@ const Home: NextPage = () => {
 						]}
 						onMainButtonClick={() => router.push('/books')}
 						topTextStyle={{ color: 'var(--diced-hero-section-top-text)' }}
-						mainTextStyle={{
-							fontSize: '4.5rem',
-							gradient:
-								'linear-gradient(45deg, var(--diced-hero-section-main-gradient-from), var(--diced-hero-section-main-gradient-to))',
-						}}
+							mainTextStyle={{
+								fontSize: '4.5rem',
+								color: 'var(--diced-hero-section-sub-text)',
+							}}
 						subMainTextStyle={{ color: 'var(--diced-hero-section-sub-text)' }}
 						buttonStyle={{
 							backgroundColor: 'var(--diced-hero-section-button-bg)',
