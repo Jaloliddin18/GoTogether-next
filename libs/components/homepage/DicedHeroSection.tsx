@@ -221,6 +221,7 @@ const DicedHeroSection = ({
 						}}
 					>
 						{warpedSlides.map(({ slide, className }, index) => {
+							const isRightAlignedTitle = slide.title === 'Library Books' || slide.title === 'Robot Delivery';
 							return (
 								<motion.div
 									key={`${slide.title}-${index}`}
@@ -251,13 +252,14 @@ const DicedHeroSection = ({
 									<div
 										style={{
 											position: 'absolute',
-											left: '14px',
+											left: isRightAlignedTitle ? 'auto' : '14px',
 											right: '14px',
 											bottom: '12px',
 											color: '#ffffff',
 											fontSize: '15px',
 											fontWeight: 700,
 											textShadow: '0 2px 8px rgba(0,0,0,0.35)',
+											textAlign: isRightAlignedTitle ? 'right' : 'left',
 											zIndex: 2,
 										}}
 									>

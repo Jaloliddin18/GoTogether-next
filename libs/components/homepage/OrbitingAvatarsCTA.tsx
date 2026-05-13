@@ -135,8 +135,8 @@ const OrbitingAvatarsCTA = () => {
 					>
 						{BOOK_DONORS.map((donor, i) => {
 							const angle = (i / BOOK_DONORS.length) * 2 * Math.PI;
-							const x = Math.cos(angle) * ORBIT_RADIUS;
-							const y = Math.sin(angle) * ORBIT_RADIUS;
+							const x = Math.round(Math.cos(angle) * ORBIT_RADIUS * 100) / 100;
+							const y = Math.round(Math.sin(angle) * ORBIT_RADIUS * 100) / 100;
 
 							return (
 								<div
