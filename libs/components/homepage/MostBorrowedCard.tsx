@@ -18,7 +18,7 @@ const MostBorrowedCard = (props: MostBorrowedCardProps) => {
 
 	/** HANDLERS **/
 	const pushDetailHandler = async (bookId: string) => {
-		await router.push(`/library/books/${bookId}`);
+		await router.push(`/books/${bookId}`);
 	};
 
 	const imageUrl = book?.bookImages?.[0]

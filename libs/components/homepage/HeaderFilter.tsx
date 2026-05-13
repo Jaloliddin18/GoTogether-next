@@ -220,7 +220,7 @@ const HeaderFilter = () => {
 			if (maxPrice > 0) params.maxPrice = maxPrice;
 
 			await router.push({
-				pathname: '/library/books',
+				pathname: '/books',
 				query: params,
 			});
 		} catch (err: any) {

@@ -38,7 +38,7 @@ const Home: NextPage = () => {
 							{ title: 'Study Space', image: '/img/events/INCHEON.webp' },
 							{ title: 'Community', image: '/img/events/SEOUL.webp' },
 						]}
-						onMainButtonClick={() => router.push('/library/books')}
+						onMainButtonClick={() => router.push('/books')}
 						topTextStyle={{ color: 'var(--diced-hero-section-top-text)' }}
 						mainTextStyle={{
 							fontSize: '4.5rem',
@@ -80,7 +80,7 @@ const Home: NextPage = () => {
 							{ title: 'Study Space', image: '/img/events/INCHEON.webp' },
 							{ title: 'Community', image: '/img/events/SEOUL.webp' },
 						]}
-						onMainButtonClick={() => router.push('/library/books')}
+						onMainButtonClick={() => router.push('/books')}
 						topTextStyle={{ color: 'var(--diced-hero-section-top-text)' }}
 						mainTextStyle={{
 							fontSize: '4.5rem',

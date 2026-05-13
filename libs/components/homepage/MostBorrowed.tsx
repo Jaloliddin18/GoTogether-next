@@ -73,7 +73,7 @@ const MostBorrowed = (props: MostBorrowedProps) => {
 						</Box>
 						<Box component={'div'} className={'right'}>
 							<div className={'more-box'}>
-								<Link href={'/library/books'}>
+								<Link href={'/books'}>
 									<span>Browse All Books</span>
 								</Link>
 								<img src="/img/icons/rightup.svg" alt="" />
