@@ -14,12 +14,14 @@ const ORBIT_RADIUS = 260;
 const OrbitingAvatarsCTA = () => {
 	return (
 		<section
-				style={{
-					width: '100%',
-					minHeight: '760px',
-					background: '#ffffff',
-					position: 'relative',
-					overflow: 'visible',
+					style={{
+						width: '100%',
+						minHeight: '680px',
+						paddingTop: '0px',
+						paddingBottom: '0px',
+						background: '#ffffff',
+						position: 'relative',
+						overflow: 'hidden',
 					display: 'flex',
 					alignItems: 'center',
 				justifyContent: 'center',
@@ -64,8 +66,9 @@ const OrbitingAvatarsCTA = () => {
 						viewBox="0 0 160 160"
 						style={{
 							position: 'absolute',
-							bottom: 24,
-							right: 24,
+							bottom: 0,
+							right: 0,
+							overflow: 'hidden',
 							opacity: 0.5,
 							pointerEvents: 'none',
 							zIndex: 0,

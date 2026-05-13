@@ -58,8 +58,10 @@ const Home: NextPage = () => {
 				/>
 				<MostBorrowed />
 				<Advertisement />
-				<FeaturedBooks />
-				<div style={{ overflow: 'visible' }}>
+				<div style={{ overflow: 'hidden' }}>
+					<FeaturedBooks />
+				</div>
+				<div style={{ width: '100%' }}>
 					<OrbitingAvatarsCTA />
 				</div>
 			</Stack>
@@ -99,8 +101,10 @@ const Home: NextPage = () => {
 				/>
 				<MostBorrowed />
 				<Advertisement />
-				<FeaturedBooks />
-				<div style={{ overflow: 'visible' }}>
+				<div style={{ overflow: 'hidden' }}>
+					<FeaturedBooks />
+				</div>
+				<div style={{ width: '100%' }}>
 					<OrbitingAvatarsCTA />
 				</div>
 				<InteractiveEvents />
