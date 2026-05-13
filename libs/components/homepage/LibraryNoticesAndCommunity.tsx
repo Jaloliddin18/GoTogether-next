@@ -63,7 +63,14 @@ const LibraryNoticesAndCommunity = () => {
 		notifyOnNetworkStatusChange: true,
 	});
 
-	const announcements = LIBRARY_ANNOUNCEMENTS as BoardArticle[];
+	const announcements: BoardArticle[] = LIBRARY_ANNOUNCEMENTS.map((announcement) => ({
+		...announcement,
+		articleStatus: 'ACTIVE',
+		articleViews: 0,
+		articleLikes: 0,
+		articleContent: announcement.articleTitle,
+		createdAt: new Date(announcement.createdAt),
+	}));
 	const communityTwits: BoardArticle[] = (getTwitsData?.getTwits?.list ?? []).map((twit: any) => ({
 		_id: twit?._id,
 		articleCategory: 'TWIT',
