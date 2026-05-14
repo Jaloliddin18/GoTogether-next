@@ -1,5 +1,4 @@
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
 import useDeviceDetect from '../libs/hooks/useDeviceDetect';
 import withLayoutMain from '../libs/components/layout/LayoutHome';
 import LibraryFeatures from '../libs/components/homepage/LibraryFeatures';
@@ -21,41 +20,12 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const Home: NextPage = () => {
 	const device = useDeviceDetect();
-	const router = useRouter();
 
 	if (device === 'mobile') {
 		return (
 			<Stack className={'home-page'}>
 				<NewArrivals />
-				<DicedHeroSection
-					topText="Smart Library"
-					mainText="같이Go"
-					subMainText="Search any book in our catalog and have it delivered to your desk by our autonomous robot. Borrow for reading or purchase to keep - your choice, delivered instantly."
-					buttonText="Browse Books"
-					slides={[
-						{ title: 'Library Books', image: '/img/section1.png' },
-						{ title: 'Robot Delivery', image: '/img/section3.png' },
-						{ title: 'Study Space', image: '/img/section3.png' },
-						{ title: 'Community', image: '/img/section1.png' },
-					]}
-					onMainButtonClick={() => router.push('/books')}
-					topTextStyle={{ color: 'var(--diced-hero-section-top-text)' }}
-					mainTextStyle={{
-						fontSize: '4.5rem',
-						color: 'var(--diced-hero-section-sub-text)',
-					}}
-					subMainTextStyle={{ color: 'var(--diced-hero-section-sub-text)' }}
-					buttonStyle={{
-						backgroundColor: 'var(--diced-hero-section-button-bg)',
-						color: 'var(--diced-hero-section-button-fg)',
-						borderRadius: '8px',
-						hoverColor: 'var(--diced-hero-section-button-hover-bg)',
-						hoverForeground: 'var(--diced-hero-section-button-hover-fg)',
-					}}
-					separatorColor="var(--diced-hero-section-separator)"
-					mobileBreakpoint={1000}
-					fontFamily="Inter, -apple-system, sans-serif"
-				/>
+				<DicedHeroSection />
 				<MostBorrowed />
 				<Advertisement />
 				<div style={{ overflow: 'hidden' }}>
@@ -70,35 +40,7 @@ const Home: NextPage = () => {
 		return (
 			<Stack className={'home-page'}>
 				<NewArrivals />
-				<DicedHeroSection
-					topText="Smart Library"
-					mainText="같이Go"
-					subMainText="Search any book in our catalog and have it delivered to your desk by our autonomous robot. Borrow for reading or purchase to keep - your choice, delivered instantly."
-					buttonText="Browse Books"
-					slides={[
-						{ title: 'Library Books', image: '/img/homepage/library_books1.jpg' },
-						{ title: 'Community', image: '/img/homepage/community2.jpg' },
-						{ title: 'Robot Delivery', image: '/img/homepage/robot_delivery.webp' },
-						{ title: 'Study Space', image: '/img/homepage/study_space.jpg' },
-					]}
-					onMainButtonClick={() => router.push('/books')}
-					topTextStyle={{ color: 'var(--diced-hero-section-top-text)' }}
-					mainTextStyle={{
-						fontSize: '4.5rem',
-						color: 'var(--diced-hero-section-sub-text)',
-					}}
-					subMainTextStyle={{ color: 'var(--diced-hero-section-sub-text)' }}
-					buttonStyle={{
-						backgroundColor: 'var(--diced-hero-section-button-bg)',
-						color: 'var(--diced-hero-section-button-fg)',
-						borderRadius: '8px',
-						hoverColor: 'var(--diced-hero-section-button-hover-bg)',
-						hoverForeground: 'var(--diced-hero-section-button-hover-fg)',
-					}}
-					separatorColor="var(--diced-hero-section-separator)"
-					mobileBreakpoint={1000}
-					fontFamily="Inter, -apple-system, sans-serif"
-				/>
+				<DicedHeroSection />
 				<MostBorrowed />
 				<Advertisement />
 				<div style={{ overflow: 'hidden' }}>
