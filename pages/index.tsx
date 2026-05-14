@@ -76,10 +76,10 @@ const Home: NextPage = () => {
 					subMainText="Search any book in our catalog and have it delivered to your desk by our autonomous robot. Borrow for reading or purchase to keep - your choice, delivered instantly."
 					buttonText="Browse Books"
 					slides={[
-						{ title: 'Library Books', image: '/img/section1.png' },
-						{ title: 'Community', image: '/img/section2.png' },
-						{ title: 'Robot Delivery', image: '/img/section3.png' },
-						{ title: 'Study Space', image: '/img/section4.png' },
+						{ title: 'Library Books', image: '/img/homepage/library_books1.jpg' },
+						{ title: 'Community', image: '/img/homepage/community2.jpg' },
+						{ title: 'Robot Delivery', image: '/img/homepage/robot_delivery.webp' },
+						{ title: 'Study Space', image: '/img/homepage/study_space.jpg' },
 					]}
 					onMainButtonClick={() => router.push('/books')}
 					topTextStyle={{ color: 'var(--diced-hero-section-top-text)' }}
