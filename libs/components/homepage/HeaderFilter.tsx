@@ -14,6 +14,20 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
+import TabletMacOutlinedIcon from '@mui/icons-material/TabletMacOutlined';
+import HeadphonesOutlinedIcon from '@mui/icons-material/HeadphonesOutlined';
+import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined';
+import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
+import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined';
+import TheaterComedyOutlinedIcon from '@mui/icons-material/TheaterComedyOutlined';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import HistoryEduOutlinedIcon from '@mui/icons-material/HistoryEduOutlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
+import TranslateOutlinedIcon from '@mui/icons-material/TranslateOutlined';
+import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
+import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -31,25 +45,107 @@ const modalStyle: React.CSSProperties = {
 	boxShadow: '0px 20px 45px rgba(15, 23, 42, 0.16)',
 };
 
-const BOOK_FORMAT_OPTIONS = [
-	{ value: 'PAPERBACK', label: 'Paperback' },
-	{ value: 'EBOOK', label: 'E-Book' },
-	{ value: 'AUDIOBOOK', label: 'Audiobook' },
+type IconFilterOption = {
+	value: string;
+	label: string;
+	description: string;
+	Icon: React.ElementType;
+};
+
+const BOOK_FORMAT_OPTIONS: IconFilterOption[] = [
+	{
+		value: 'PAPERBACK',
+		label: 'Printed Books',
+		description: 'Physical books available for robot delivery.',
+		Icon: MenuBookOutlinedIcon,
+	},
+	{
+		value: 'EBOOK',
+		label: 'E-Books',
+		description: 'Digital reading resources for quick access.',
+		Icon: TabletMacOutlinedIcon,
+	},
+	{
+		value: 'AUDIOBOOK',
+		label: 'Audio Books',
+		description: 'Listen and learn anywhere.',
+		Icon: HeadphonesOutlinedIcon,
+	},
 ];
 
-const BOOK_TYPE_OPTIONS = [
-	{ value: 'TEXTBOOK', label: 'Textbook' },
-	{ value: 'REFERENCE', label: 'Reference' },
-	{ value: 'RESEARCH', label: 'Research' },
-	{ value: 'NOVEL', label: 'Novel' },
-	{ value: 'COMIC', label: 'Comic' },
-	{ value: 'MAGAZINE', label: 'Magazine' },
-	{ value: 'JOURNAL', label: 'Journal' },
-	{ value: 'WORKBOOK', label: 'Workbook' },
-	{ value: 'MANUAL', label: 'Manual' },
-	{ value: 'DICTIONARY', label: 'Dictionary' },
-	{ value: 'ENCYCLOPEDIA', label: 'Encyclopedia' },
-	{ value: 'OTHER', label: 'Other' },
+const BOOK_TYPE_OPTIONS: IconFilterOption[] = [
+	{
+		value: 'TEXTBOOK',
+		label: 'Textbook',
+		description: 'Course learning materials.',
+		Icon: MenuBookOutlinedIcon,
+	},
+	{
+		value: 'REFERENCE',
+		label: 'Reference',
+		description: 'Quick lookup resources.',
+		Icon: LibraryBooksOutlinedIcon,
+	},
+	{
+		value: 'RESEARCH',
+		label: 'Research',
+		description: 'Academic research titles.',
+		Icon: ScienceOutlinedIcon,
+	},
+	{
+		value: 'NOVEL',
+		label: 'Novel',
+		description: 'Fiction and literature.',
+		Icon: AutoStoriesOutlinedIcon,
+	},
+	{
+		value: 'COMIC',
+		label: 'Comic',
+		description: 'Graphic stories.',
+		Icon: TheaterComedyOutlinedIcon,
+	},
+	{
+		value: 'MAGAZINE',
+		label: 'Magazine',
+		description: 'Periodicals and issues.',
+		Icon: ArticleOutlinedIcon,
+	},
+	{
+		value: 'JOURNAL',
+		label: 'Journal',
+		description: 'Scholarly publications.',
+		Icon: HistoryEduOutlinedIcon,
+	},
+	{
+		value: 'WORKBOOK',
+		label: 'Workbook',
+		description: 'Practice and exercises.',
+		Icon: AssignmentOutlinedIcon,
+	},
+	{
+		value: 'MANUAL',
+		label: 'Manual',
+		description: 'Guides and instructions.',
+		Icon: BuildOutlinedIcon,
+	},
+	{
+		value: 'DICTIONARY',
+		label: 'Dictionary',
+		description: 'Word and language reference.',
+		Icon: TranslateOutlinedIcon,
+	},
+	{
+		value: 'ENCYCLOPEDIA',
+		label: 'Encyclopedia',
+		description: 'General knowledge collections.',
+		Icon: PublicOutlinedIcon,
+	},
+	{
+		value: 'OTHER',
+		label: 'Other',
+		description: 'More library materials.',
+		Icon: CategoryOutlinedIcon,
+	},
 ];
 
 const BOOK_CATEGORY_OPTIONS = [
@@ -250,30 +346,49 @@ const HeaderFilter = () => {
 				</Stack>
 
 				<div className={`filter-location ${openFormat ? 'on' : ''}`}>
-					{BOOK_FORMAT_OPTIONS.map((option, index) => {
-						const cityImage = ['SEOUL', 'BUSAN', 'INCHEON'][index % 3];
-						return (
-							<div onClick={() => bookFormatSelectHandler(option.value)} key={option.value}>
-								<img src={`/img/banner/cities/${cityImage}.webp`} alt={option.label} />
-								<span>{option.label}</span>
-							</div>
-						);
-					})}
+					<div className={'icon-card-grid format-grid'}>
+						{BOOK_FORMAT_OPTIONS.map((option) => {
+							const Icon = option.Icon;
+							const isSelected = bookFormat === option.value;
+							return (
+								<button
+									type="button"
+									className={`filter-option-card ${isSelected ? 'selected' : ''}`}
+									onClick={() => bookFormatSelectHandler(option.value)}
+									key={option.value}
+								>
+									<span className={'filter-option-card-icon'}>
+										<Icon />
+									</span>
+									<span className={'filter-option-card-title'}>{option.label}</span>
+									<span className={'filter-option-card-description'}>{option.description}</span>
+								</button>
+							);
+						})}
+					</div>
 				</div>
 
-				<div className={`filter-type ${openType ? 'on' : ''}`} style={{ flexWrap: 'wrap', justifyContent: 'flex-start', gap: '16px' }}>
-					{BOOK_TYPE_OPTIONS.map((option, index) => {
-						const typeImage = ['apartment', 'house', 'villa'][index % 3];
-						return (
-							<div
-								style={{ backgroundImage: `url(/img/banner/types/${typeImage}.webp)` }}
-								onClick={() => bookTypeSelectHandler(option.value)}
-								key={option.value}
-							>
-								<span>{option.label}</span>
-							</div>
-						);
-					})}
+				<div className={`filter-type ${openType ? 'on' : ''}`}>
+					<div className={'icon-card-grid type-grid'}>
+						{BOOK_TYPE_OPTIONS.map((option) => {
+							const Icon = option.Icon;
+							const isSelected = bookType === option.value;
+							return (
+								<button
+									type="button"
+									className={`filter-option-card ${isSelected ? 'selected' : ''}`}
+									onClick={() => bookTypeSelectHandler(option.value)}
+									key={option.value}
+								>
+									<span className={'filter-option-card-icon'}>
+										<Icon />
+									</span>
+									<span className={'filter-option-card-title'}>{option.label}</span>
+									<span className={'filter-option-card-description'}>{option.description}</span>
+								</button>
+							);
+						})}
+					</div>
 				</div>
 
 				<div
