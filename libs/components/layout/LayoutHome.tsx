@@ -4,7 +4,6 @@ import Head from 'next/head';
 import Top from '../Top';
 import Footer from '../Footer';
 import { Stack } from '@mui/material';
-import FiberContainer from '../common/FiberContainer';
 import HeaderFilter from '../homepage/HeaderFilter';
 import { userVar } from '../../../apollo/store';
 import { useReactiveVar } from '@apollo/client';
@@ -62,7 +61,17 @@ const withLayoutMain = (Component: any) => {
 						</Stack>
 
 						<Stack className={'header-main'}>
-							<FiberContainer />
+							<div className="hero-visual-spacer" style={{ marginTop: '100px', width: '100%', height: '512px' }} />
+							<div className={'hero-sky-copy'}>
+								<h2>
+									Read More,
+									<br />
+									<span className={'walk-less-line'}>Walk Less</span>
+								</h2>
+								<p>
+									Books delivered across campus by <strong>같이Go</strong>.
+								</p>
+							</div>
 							<Stack className={'container'}>
 								<HeaderFilter />
 							</Stack>
