@@ -76,6 +76,11 @@ export const GET_BOOKS = gql`
 				isBorrowable
 				isPurchasable
 				bookStatus
+				meLiked {
+					memberId
+					likeRefId
+					myFavorite
+				}
 			}
 			metaCounter {
 				total

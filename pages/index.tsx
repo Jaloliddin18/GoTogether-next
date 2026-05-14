@@ -1,5 +1,4 @@
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
 import useDeviceDetect from '../libs/hooks/useDeviceDetect';
 import withLayoutMain from '../libs/components/layout/LayoutHome';
 import LibraryFeatures from '../libs/components/homepage/LibraryFeatures';
@@ -12,6 +11,7 @@ import FeaturedBooks from '../libs/components/homepage/FeaturedBooks';
 import { Stack } from '@mui/material';
 import Advertisement from '../libs/components/homepage/Advertisement';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useState } from 'react';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -21,93 +21,43 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const Home: NextPage = () => {
 	const device = useDeviceDetect();
-	const router = useRouter();
+	const [bookLikeSyncTick, setBookLikeSyncTick] = useState<number>(0);
+
+	const handleBookLikeToggled = () => {
+		setBookLikeSyncTick((prev) => prev + 1);
+	};
 
 	if (device === 'mobile') {
-			return (
-				<Stack className={'home-page'}>
-					<NewArrivals />
-					<DicedHeroSection
-						topText="Smart Library"
-						mainText="같이Go"
-						subMainText="Search any book in our catalog and have it delivered to your desk by our autonomous robot. Borrow for reading or purchase to keep - your choice, delivered instantly."
-						buttonText="Browse Books"
-						slides={[
-							{ title: 'Library Books', image: '/img/events/BUSAN.webp' },
-							{ title: 'Robot Delivery', image: '/img/events/DAEGU.webp' },
-							{ title: 'Study Space', image: '/img/events/INCHEON.webp' },
-							{ title: 'Community', image: '/img/events/SEOUL.webp' },
-						]}
-						onMainButtonClick={() => router.push('/library/books')}
-						topTextStyle={{ color: 'var(--diced-hero-section-top-text)' }}
-						mainTextStyle={{
-							fontSize: '4.5rem',
-							gradient:
-								'linear-gradient(45deg, var(--diced-hero-section-main-gradient-from), var(--diced-hero-section-main-gradient-to))',
-						}}
-						subMainTextStyle={{ color: 'var(--diced-hero-section-sub-text)' }}
-						buttonStyle={{
-							backgroundColor: 'var(--diced-hero-section-button-bg)',
-							color: 'var(--diced-hero-section-button-fg)',
-							borderRadius: '8px',
-							hoverColor: 'var(--diced-hero-section-button-hover-bg)',
-							hoverForeground: 'var(--diced-hero-section-button-hover-fg)',
-						}}
-						separatorColor="var(--diced-hero-section-separator)"
-						mobileBreakpoint={1000}
-						fontFamily="Inter, -apple-system, sans-serif"
-					/>
-					<MostBorrowed />
+		return (
+			<Stack className={'home-page'}>
+				<NewArrivals likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
+				<DicedHeroSection />
+				<MostBorrowed likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
 				<Advertisement />
-				<FeaturedBooks />
-				<div style={{ overflow: 'visible' }}>
+				<div style={{ overflow: 'hidden' }}>
+					<FeaturedBooks likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
+				</div>
+				<div style={{ width: '100%' }}>
 					<OrbitingAvatarsCTA />
 				</div>
 			</Stack>
 		);
 	} else {
-			return (
-				<Stack className={'home-page'}>
-					<NewArrivals />
-					<DicedHeroSection
-						topText="Smart Library"
-						mainText="같이Go"
-						subMainText="Search any book in our catalog and have it delivered to your desk by our autonomous robot. Borrow for reading or purchase to keep - your choice, delivered instantly."
-						buttonText="Browse Books"
-						slides={[
-							{ title: 'Library Books', image: '/img/events/BUSAN.webp' },
-							{ title: 'Robot Delivery', image: '/img/events/DAEGU.webp' },
-							{ title: 'Study Space', image: '/img/events/INCHEON.webp' },
-							{ title: 'Community', image: '/img/events/SEOUL.webp' },
-						]}
-						onMainButtonClick={() => router.push('/library/books')}
-						topTextStyle={{ color: 'var(--diced-hero-section-top-text)' }}
-						mainTextStyle={{
-							fontSize: '4.5rem',
-							gradient:
-								'linear-gradient(45deg, var(--diced-hero-section-main-gradient-from), var(--diced-hero-section-main-gradient-to))',
-						}}
-						subMainTextStyle={{ color: 'var(--diced-hero-section-sub-text)' }}
-						buttonStyle={{
-							backgroundColor: 'var(--diced-hero-section-button-bg)',
-							color: 'var(--diced-hero-section-button-fg)',
-							borderRadius: '8px',
-							hoverColor: 'var(--diced-hero-section-button-hover-bg)',
-							hoverForeground: 'var(--diced-hero-section-button-hover-fg)',
-						}}
-						separatorColor="var(--diced-hero-section-separator)"
-						mobileBreakpoint={1000}
-						fontFamily="Inter, -apple-system, sans-serif"
-					/>
-					<MostBorrowed />
-					<Advertisement />
-					<FeaturedBooks />
-					<div style={{ overflow: 'visible' }}>
-						<OrbitingAvatarsCTA />
-					</div>
-					<InteractiveEvents />
-					<LibraryFeatures />
-				</Stack>
+		return (
+			<Stack className={'home-page'}>
+				<NewArrivals likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
+				<DicedHeroSection />
+				<MostBorrowed likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
+				<Advertisement />
+				<div style={{ overflow: 'hidden' }}>
+					<FeaturedBooks likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
+				</div>
+				<div style={{ width: '100%' }}>
+					<OrbitingAvatarsCTA />
+				</div>
+				<InteractiveEvents />
+				<LibraryFeatures />
+			</Stack>
 		);
 	}
 };

@@ -72,14 +72,9 @@ const withLayoutBasic = (Component: any) => {
 					desc = 'Home / For Rent';
 					bgImage = '/img/banner/header1.svg';
 					break;
-				case '/library/books':
-					title = 'Library Books';
-					desc = 'Browse and discover Smart Library books';
-					bgImage = '/img/banner/header2.svg';
-					break;
 				default:
 					break;
-			}
+				}
 
 			return { title, desc, bgImage, heroOverlay };
 		}, [router.pathname]);

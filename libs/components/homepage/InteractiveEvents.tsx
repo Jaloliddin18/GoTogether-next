@@ -10,14 +10,15 @@ interface EventOption {
 	title: string;
 	description: string;
 	image: string;
+	imagePosition?: string;
 	icon: React.ReactNode;
 }
 
 const EVENT_IMAGES: string[] = [
-	'/img/events/BUSAN.webp',
-	'/img/events/DAEGU.webp',
-	'/img/events/INCHEON.webp',
-	'/img/events/SEOUL.webp',
+	'/img/homepage/book_fair.jpg',
+	'/img/homepage/reading_marathon.jpg',
+	'/img/homepage/author_meet_greet.jpg',
+	'/img/homepage/robot_demo_day.webp',
 ];
 
 const InteractiveEvents = () => {
@@ -37,18 +38,21 @@ const InteractiveEvents = () => {
 				title: 'Reading Marathon',
 				description: 'Join our 24-hour reading challenge and win exciting library rewards',
 				image: EVENT_IMAGES[1] ?? EVENT_IMAGES[0] ?? '/img/events/BUSAN.webp',
+				imagePosition: 'center 28%',
 				icon: <EmojiEventsIcon sx={{ color: '#fff', fontSize: 22 }} />,
 			},
 			{
 				title: 'Author Meet & Greet',
 				description: 'Meet your favorite authors in person and get your books signed',
 				image: EVENT_IMAGES[2] ?? EVENT_IMAGES[0] ?? '/img/events/BUSAN.webp',
+				imagePosition: 'center 25%',
 				icon: <RecordVoiceOverIcon sx={{ color: '#fff', fontSize: 22 }} />,
 			},
 			{
 				title: 'Robot Demo Day',
 				description: 'Watch our autonomous delivery robot in action and learn how it works',
 				image: EVENT_IMAGES[3] ?? EVENT_IMAGES[0] ?? '/img/events/BUSAN.webp',
+				imagePosition: 'center 20%',
 				icon: <SmartToyIcon sx={{ color: '#fff', fontSize: 22 }} />,
 			},
 		],
@@ -92,7 +96,7 @@ const InteractiveEvents = () => {
 							<div
 								key={event.title}
 								className={`interactive-events-panel ${isActive ? 'active' : ''} ${isRevealed ? 'revealed' : ''}`}
-								style={{ backgroundImage: `url(${event.image})` }}
+								style={{ backgroundImage: `url(${event.image})`, backgroundPosition: event.imagePosition ?? 'center' }}
 								onClick={() => setActiveIndex(index)}
 							>
 								<div className={'interactive-events-shadow'} />
