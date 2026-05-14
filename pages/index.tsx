@@ -11,6 +11,7 @@ import FeaturedBooks from '../libs/components/homepage/FeaturedBooks';
 import { Stack } from '@mui/material';
 import Advertisement from '../libs/components/homepage/Advertisement';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useState } from 'react';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -20,16 +21,21 @@ export const getStaticProps = async ({ locale }: any) => ({
 
 const Home: NextPage = () => {
 	const device = useDeviceDetect();
+	const [bookLikeSyncTick, setBookLikeSyncTick] = useState<number>(0);
+
+	const handleBookLikeToggled = () => {
+		setBookLikeSyncTick((prev) => prev + 1);
+	};
 
 	if (device === 'mobile') {
 		return (
 			<Stack className={'home-page'}>
-				<NewArrivals />
+				<NewArrivals likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
 				<DicedHeroSection />
-				<MostBorrowed />
+				<MostBorrowed likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
 				<Advertisement />
 				<div style={{ overflow: 'hidden' }}>
-					<FeaturedBooks />
+					<FeaturedBooks likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
 				</div>
 				<div style={{ width: '100%' }}>
 					<OrbitingAvatarsCTA />
@@ -39,12 +45,12 @@ const Home: NextPage = () => {
 	} else {
 		return (
 			<Stack className={'home-page'}>
-				<NewArrivals />
+				<NewArrivals likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
 				<DicedHeroSection />
-				<MostBorrowed />
+				<MostBorrowed likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
 				<Advertisement />
 				<div style={{ overflow: 'hidden' }}>
-					<FeaturedBooks />
+					<FeaturedBooks likeSyncTick={bookLikeSyncTick} onBookLikeToggled={handleBookLikeToggled} />
 				</div>
 				<div style={{ width: '100%' }}>
 					<OrbitingAvatarsCTA />
