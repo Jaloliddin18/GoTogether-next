@@ -125,7 +125,7 @@
 				flex-direction: column;
 				.card-box {
 					position: relative;
-					margin-top: 64px;
+					margin-top: 18px;
 					display: flex;
 					flex-direction: row;
 					.empty-list {
@@ -137,32 +137,37 @@
 					}
 					.trend-property-swiper {
 						width: 100%;
-						height: 400px;
+						margin-top: 0;
+						overflow: hidden;
+						padding: 10px 0 24px 0;
+						height: auto;
 						display: flex;
 						flex-direction: row;
+						align-items: flex-start;
 						.trend-property-slide {
 							width: auto;
 							height: auto;
 							display: flex;
-							margin: 10px 0 0 10px;
+							align-self: flex-start;
+							margin: 0 0 0 10px;
 						}
 					}
-					.trend-card-box {
-						position: relative;
-						width: 300px;
-						height: 375px;
-						display: flex;
+						.trend-card-box {
+							position: relative;
+							width: 300px;
+							height: auto;
+							display: flex;
 						flex-direction: column;
 						transition: transform 0.3s;
 						&:hover {
 							opacity: 1;
 							transform: scale(1.05);
 						}
-						.card-img {
-							position: relative;
-							width: 100%;
-							height: 203px;
-							background-size: cover;
+							.card-img {
+								position: relative;
+								width: 100%;
+								height: 170px;
+								background-size: cover;
 							border-radius: 12px 12px 0px 0px;
 							cursor: pointer;
 							div {
@@ -290,7 +295,7 @@
 				flex-direction: column;
 				align-items: center;
 				.card-box {
-					margin-top: 34px;
+					margin-top: 18px;
 					width: 100%;
 					height: auto;
 					display: flex;
@@ -298,32 +303,37 @@
 					justify-content: space-between;
 					.popular-property-swiper {
 						width: 100%;
-						height: 425px;
+						margin-top: 0;
+						overflow: hidden;
+						padding: 10px 0 24px 0;
+						height: auto;
 						display: flex;
 						flex-direction: row;
+						align-items: flex-start;
 						.popular-property-slide {
 							width: auto;
 							height: auto;
 							display: flex;
-							margin: 10px 0 10px 10px;
+							align-self: flex-start;
+							margin: 0 0 10px 10px;
 						}
 					}
-					.popular-card-box {
-						position: relative;
-						width: 400px;
-						height: 425px;
-						display: flex;
+						.popular-card-box {
+							position: relative;
+							width: 400px;
+							height: auto;
+							display: flex;
 						flex-direction: column;
 						transition: transform 0.3s, opacity 0.3s;
 						&:hover {
 							opacity: 1;
 							transform: scale(1.05);
 						}
-						.card-img {
-							position: relative;
-							width: 100%;
-							height: 203px;
-							background-size: cover;
+							.card-img {
+								position: relative;
+								width: 100%;
+								height: 190px;
+								background-size: cover;
 							border-radius: 12px 12px 0px 0px;
 							cursor: pointer;
 							div.status {
@@ -498,37 +508,42 @@
 				flex-direction: column;
 				.card-box {
 					position: relative;
-					margin-top: 64px;
+					margin-top: 18px;
 					display: flex;
 					flex-direction: row;
 					.top-property-swiper {
 						width: 100%;
-						height: 400px;
+						margin-top: 0;
+						overflow: hidden;
+						padding: 10px 0 24px 0;
+						height: auto;
 						display: flex;
 						flex-direction: row;
+						align-items: flex-start;
 						.top-property-slide {
 							width: auto;
 							height: auto;
 							display: flex;
-							margin: 10px 0 0 10px;
+							align-self: flex-start;
+							margin: 0 0 0 10px;
 						}
 					}
-					.top-card-box {
-						position: relative;
-						width: 300px;
-						height: 375px;
-						display: flex;
+						.top-card-box {
+							position: relative;
+							width: 300px;
+							height: auto;
+							display: flex;
 						flex-direction: column;
 						transition: transform 0.3s;
 						&:hover {
 							opacity: 1;
 							transform: scale(1.05);
 						}
-						.card-img {
-							position: relative;
-							width: 100%;
-							height: 203px;
-							background-size: cover;
+							.card-img {
+								position: relative;
+								width: 100%;
+								height: 170px;
+								background-size: cover;
 							border-radius: 12px 12px 0px 0px;
 							cursor: pointer;
 							div {
@@ -645,97 +660,6 @@
 				}
 			}
 		}
-		.top-agents {
-			position: relative;
-			padding: 153px 0px 135px;
-			width: 100%;
-			height: 722px;
-			display: flex;
-			flex-direction: row;
-			background: #f6f6f6;
-			.container {
-				position: relative;
-				flex-direction: column;
-				align-items: center;
-				.wrapper {
-					width: 100%;
-					margin-top: 83px;
-					display: flex;
-					flex-direction: row;
-					align-items: center;
-					justify-content: space-between;
-					.switch-btn {
-						width: 53px;
-						height: 53px;
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						border-radius: 50%;
-						background: #ffffff;
-						filter: drop-shadow(0px 10px 35px rgba(5, 16, 54, 0.1));
-						cursor: pointer;
-						svg {
-							width: 14px;
-							height: 14px;
-						}
-						&.swiper-agents-next {
-							transform: rotate(180deg);
-						}
-					}
-					.card-wrapper {
-						width: 1174px;
-						height: 280px;
-						display: flex;
-						flex-direction: row;
-						.top-agents-swiper {
-							width: 99.7%;
-							height: 280px;
-							display: flex;
-							flex-direction: row;
-							.top-agents-slide {
-								width: auto;
-								height: auto;
-								display: flex;
-							}
-						}
-						.top-agent-card {
-							width: 205px;
-							height: 280px;
-							display: flex;
-							flex-direction: column;
-							img {
-								width: 209px;
-								height: 209px;
-								border-radius: 50%;
-								cursor: pointer;
-								object-fit: cover;
-							}
-							strong {
-								margin-top: 20px;
-								color: #1A1A2E;
-								text-align: center;
-								font-family: $font;
-								font-size: 15px;
-								font-style: normal;
-								font-weight: 600;
-								line-height: normal;
-								text-transform: capitalize;
-								cursor: pointer;
-							}
-							span {
-								color: #1A1A2E;
-								text-align: center;
-								font-family: $font;
-								font-size: 15px;
-								font-style: normal;
-								font-weight: 400;
-								line-height: 28px;
-							}
-						}
-					}
-				}
-			}
-		}
 		.events {
 			position: relative;
 			padding: 100px 0px 92px;
@@ -835,152 +759,5 @@
 					}
 				}
 			}
-		.community-board {
-			position: relative;
-			padding: 124px 0px 61px;
-			width: 100%;
-			height: 860px;
-			display: flex;
-			flex-direction: row;
-			.container {
-				flex-direction: column;
-				align-items: center;
-				.community-main {
-					width: 100%;
-					margin-top: 60px;
-					display: flex;
-					flex-direction: row;
-					justify-content: space-between;
-					.center-line {
-						height: 90%;
-						align-self: end;
-					}
-					.content-top {
-						margin-bottom: 26px;
-						width: 100%;
-						height: 30px;
-						display: flex;
-						flex-direction: row;
-						justify-content: flex-end;
-						align-items: center;
-						span {
-							font-family: $font;
-							font-style: normal;
-							font-weight: 500;
-							font-size: 16px;
-							line-height: 36px;
-							color: #616161;
-							cursor: pointer;
-						}
-						img {
-							margin-left: 10px;
-							width: 12px;
-							height: 12px;
-						}
-					}
-					.community-left {
-						width: 642px;
-						height: auto;
-						display: flex;
-						flex-direction: column;
-						.card-wrap {
-							display: flex;
-							flex-direction: row;
-							flex-wrap: wrap;
-							.vertical-card {
-								margin-right: 12px;
-								margin-bottom: 18px;
-								width: 202px;
-								display: flex;
-								flex-direction: column;
-								cursor: pointer;
-								.community-img {
-									width: 100%;
-									height: 141px;
-									background-size: cover;
-									background-repeat: round;
-									border-radius: 5px;
-									div {
-										width: 32px;
-										height: 32px;
-										display: flex;
-										justify-content: center;
-										align-items: center;
-										background: #f54d56;
-										border-radius: 5px 0px;
-										font-family: $font;
-										font-style: normal;
-										font-weight: 400;
-										font-size: 19px;
-										line-height: 36px;
-										letter-spacing: -0.015em;
-										color: #E2E8F0;
-									}
-								}
-								strong {
-									margin-top: 10px;
-									font-family: $font;
-									font-style: normal;
-									font-weight: 700;
-									font-size: 18px;
-									line-height: 36px;
-									letter-spacing: 0.105em;
-									color: #000000;
-								}
-								span {
-									font-family: $font;
-									font-style: normal;
-									font-weight: 400;
-									font-size: 16px;
-									line-height: 19px;
-									letter-spacing: -0.015em;
-									color: #d3d3d3;
-								}
-							}
-						}
-					}
-					.community-right {
-						width: 590px;
-						height: auto;
-						display: flex;
-						flex-direction: column;
-						.horizontal-card {
-							display: flex;
-							flex-direction: row;
-							cursor: pointer;
-							margin-bottom: 34px;
-							img {
-								width: 180px;
-								height: 111px;
-								border-radius: 7px;
-							}
-							div {
-								margin-left: 25px;
-								display: flex;
-								flex-direction: column;
-								strong {
-									margin-top: 15px;
-									font-family: $font;
-									font-style: normal;
-									font-weight: 500;
-									font-size: 13px;
-									letter-spacing: 0.105em;
-									color: #1A1A2E;
-								}
-								span {
-									font-family: $font;
-									font-style: normal;
-									font-weight: 500;
-									font-size: 13px;
-									line-height: 36px;
-									letter-spacing: 0.105em;
-									color: #E2E8F0;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
 	}
 }

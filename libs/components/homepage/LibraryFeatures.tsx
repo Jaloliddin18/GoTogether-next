@@ -79,8 +79,6 @@ const itemVariants = {
 };
 
 const headingText = 'Connect your ~favorite~ tools';
-const bannerSrc = '/img/banner/types/apartment.webp';
-
 const renderHeading = () => {
 	const [before = '', highlighted = '', after = ''] = headingText.split('~');
 

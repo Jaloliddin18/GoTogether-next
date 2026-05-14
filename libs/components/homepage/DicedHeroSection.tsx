@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { Stack } from '@mui/material';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/router';
 import { ChronicleButton } from '../common/ChronicleButton';
+import useDeviceDetect from '../../hooks/useDeviceDetect';
 
 interface SlideItem {
 	title: string;
@@ -11,6 +13,7 @@ interface SlideItem {
 interface MainTextStyle {
 	fontSize?: string;
 	gradient?: string;
+	color?: string;
 }
 
 interface ButtonStyle {
@@ -22,11 +25,11 @@ interface ButtonStyle {
 }
 
 interface DicedHeroSectionProps {
-	topText: string;
-	mainText: string;
-	subMainText: string;
-	buttonText: string;
-	slides: SlideItem[];
+	topText?: string;
+	mainText?: string;
+	subMainText?: string;
+	buttonText?: string;
+	slides?: SlideItem[];
 	onMainButtonClick?: () => void;
 	topTextStyle?: React.CSSProperties;
 	mainTextStyle?: MainTextStyle;
@@ -37,21 +40,47 @@ interface DicedHeroSectionProps {
 	fontFamily?: string;
 }
 
+const DEFAULT_DESKTOP_SLIDES: SlideItem[] = [
+	{ title: 'Library Books', image: '/img/homepage/library_books1.jpg' },
+	{ title: 'Community', image: '/img/homepage/community2.jpg' },
+	{ title: 'Robot Delivery', image: '/img/homepage/robot_delivery.webp' },
+	{ title: 'Study Space', image: '/img/homepage/study_space.jpg' },
+];
+
+const DEFAULT_MOBILE_SLIDES: SlideItem[] = [
+	{ title: 'Library Books', image: '/img/section1.png' },
+	{ title: 'Robot Delivery', image: '/img/section3.png' },
+	{ title: 'Study Space', image: '/img/section3.png' },
+	{ title: 'Community', image: '/img/section1.png' },
+];
+
 const DicedHeroSection = ({
-	topText,
-	mainText,
-	subMainText,
-	buttonText,
+	topText = 'Smart Library',
+	mainText = '같이Go',
+	subMainText = 'Search any book in our catalog and have it delivered to your desk by our autonomous robot. Borrow for reading or purchase to keep - your choice, delivered instantly.',
+	buttonText = 'Browse Books',
 	slides,
 	onMainButtonClick,
-	topTextStyle,
-	mainTextStyle,
-	subMainTextStyle,
-	buttonStyle,
-	separatorColor = '#2E86DE',
+	topTextStyle = { color: 'var(--diced-hero-section-top-text)' },
+	mainTextStyle = {
+		fontSize: '4.5rem',
+		color: 'var(--diced-hero-section-sub-text)',
+	},
+	subMainTextStyle = { color: 'var(--diced-hero-section-sub-text)' },
+	buttonStyle = {
+		backgroundColor: 'var(--diced-hero-section-button-bg)',
+		color: 'var(--diced-hero-section-button-fg)',
+		borderRadius: '8px',
+		hoverColor: 'var(--diced-hero-section-button-hover-bg)',
+		hoverForeground: 'var(--diced-hero-section-button-hover-fg)',
+	},
+	separatorColor = 'var(--diced-hero-section-separator)',
 	mobileBreakpoint = 1000,
 	fontFamily = 'Inter, -apple-system, sans-serif',
 }: DicedHeroSectionProps) => {
+	const device = useDeviceDetect();
+	const router = useRouter();
+
 	useEffect(() => {
 		if (typeof window === 'undefined') return;
 		const styleId = 'diced-hero-styles';
@@ -117,8 +146,11 @@ const DicedHeroSection = ({
 		document.head.appendChild(style);
 	}, []);
 
+	const fallbackSlides = device === 'mobile' ? DEFAULT_MOBILE_SLIDES : DEFAULT_DESKTOP_SLIDES;
+	const effectiveSlides = slides && slides.length > 0 ? slides : fallbackSlides;
+
 	const normalizedSlides = Array.from({ length: 4 }).map((_, index) => {
-		const source = slides[index] || slides[index % slides.length];
+		const source = effectiveSlides[index] || effectiveSlides[index % effectiveSlides.length];
 		return source;
 	});
 	const warpedSlides = [
@@ -134,16 +166,18 @@ const DicedHeroSection = ({
 		lineHeight: 1,
 		margin: 0,
 		fontFamily,
+		color: mainTextStyle?.color || '#1A1A2E',
 		background: mainTextStyle?.gradient,
 		WebkitBackgroundClip: mainTextStyle?.gradient ? 'text' : undefined,
 		WebkitTextFillColor: mainTextStyle?.gradient ? 'transparent' : undefined,
 	};
+	const handleMainButtonClick = onMainButtonClick ?? (() => router.push('/books'));
 
 	return (
 		<div
 			style={{
 				width: '100%',
-				maxWidth: '1200px',
+				maxWidth: '1320px',
 				margin: '0 auto',
 				padding: '0 40px',
 				paddingTop: '60px',
@@ -198,7 +232,7 @@ const DicedHeroSection = ({
 					<div style={{ marginTop: '28px' }}>
 						<ChronicleButton
 							text={buttonText}
-							onClick={onMainButtonClick}
+							onClick={handleMainButtonClick}
 							style={{
 								backgroundColor: buttonStyle?.backgroundColor || '#1B3A6B',
 								color: buttonStyle?.color || '#ffffff',
@@ -219,6 +253,7 @@ const DicedHeroSection = ({
 						}}
 					>
 						{warpedSlides.map(({ slide, className }, index) => {
+							const isRightAlignedTitle = slide.title === 'Library Books' || slide.title === 'Robot Delivery';
 							return (
 								<motion.div
 									key={`${slide.title}-${index}`}
@@ -228,7 +263,7 @@ const DicedHeroSection = ({
 									className={className}
 									style={{
 										position: 'relative',
-										height: '220px',
+										height: 'clamp(220px, 24vw, 260px)',
 										borderRadius: '32px',
 										backgroundImage: `url(${slide.image})`,
 										backgroundSize: 'cover',
@@ -249,13 +284,14 @@ const DicedHeroSection = ({
 									<div
 										style={{
 											position: 'absolute',
-											left: '14px',
+											left: isRightAlignedTitle ? 'auto' : '14px',
 											right: '14px',
 											bottom: '12px',
 											color: '#ffffff',
 											fontSize: '15px',
 											fontWeight: 700,
 											textShadow: '0 2px 8px rgba(0,0,0,0.35)',
+											textAlign: isRightAlignedTitle ? 'right' : 'left',
 											zIndex: 2,
 										}}
 									>

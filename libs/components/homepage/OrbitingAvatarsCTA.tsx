@@ -14,12 +14,14 @@ const ORBIT_RADIUS = 260;
 const OrbitingAvatarsCTA = () => {
 	return (
 		<section
-				style={{
-					width: '100%',
-					minHeight: '760px',
-					background: '#ffffff',
-					position: 'relative',
-					overflow: 'visible',
+					style={{
+						width: '100%',
+						minHeight: '680px',
+						paddingTop: '0px',
+						paddingBottom: '0px',
+						background: '#ffffff',
+						position: 'relative',
+						overflow: 'hidden',
 					display: 'flex',
 					alignItems: 'center',
 				justifyContent: 'center',
@@ -64,8 +66,9 @@ const OrbitingAvatarsCTA = () => {
 						viewBox="0 0 160 160"
 						style={{
 							position: 'absolute',
-							bottom: 24,
-							right: 24,
+							bottom: 0,
+							right: 0,
+							overflow: 'hidden',
 							opacity: 0.5,
 							pointerEvents: 'none',
 							zIndex: 0,
@@ -135,8 +138,8 @@ const OrbitingAvatarsCTA = () => {
 					>
 						{BOOK_DONORS.map((donor, i) => {
 							const angle = (i / BOOK_DONORS.length) * 2 * Math.PI;
-							const x = Math.cos(angle) * ORBIT_RADIUS;
-							const y = Math.sin(angle) * ORBIT_RADIUS;
+							const x = Math.round(Math.cos(angle) * ORBIT_RADIUS * 100) / 100;
+							const y = Math.round(Math.sin(angle) * ORBIT_RADIUS * 100) / 100;
 
 							return (
 								<div

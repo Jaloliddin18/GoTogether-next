@@ -14,6 +14,32 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
+import TabletMacOutlinedIcon from '@mui/icons-material/TabletMacOutlined';
+import HeadphonesOutlinedIcon from '@mui/icons-material/HeadphonesOutlined';
+import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined';
+import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
+import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined';
+import TheaterComedyOutlinedIcon from '@mui/icons-material/TheaterComedyOutlined';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import HistoryEduOutlinedIcon from '@mui/icons-material/HistoryEduOutlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
+import TranslateOutlinedIcon from '@mui/icons-material/TranslateOutlined';
+import PublicOutlinedIcon from '@mui/icons-material/PublicOutlined';
+import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
+import ComputerOutlinedIcon from '@mui/icons-material/ComputerOutlined';
+import EngineeringOutlinedIcon from '@mui/icons-material/EngineeringOutlined';
+import FunctionsOutlinedIcon from '@mui/icons-material/FunctionsOutlined';
+import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined';
+import SelfImprovementOutlinedIcon from '@mui/icons-material/SelfImprovementOutlined';
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
+import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
+import RocketLaunchOutlinedIcon from '@mui/icons-material/RocketLaunchOutlined';
+import ManageSearchOutlinedIcon from '@mui/icons-material/ManageSearchOutlined';
+import FitnessCenterOutlinedIcon from '@mui/icons-material/FitnessCenterOutlined';
+import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
+import DesignServicesOutlinedIcon from '@mui/icons-material/DesignServicesOutlined';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -31,45 +57,127 @@ const modalStyle: React.CSSProperties = {
 	boxShadow: '0px 20px 45px rgba(15, 23, 42, 0.16)',
 };
 
-const BOOK_FORMAT_OPTIONS = [
-	{ value: 'PAPERBACK', label: 'Paperback' },
-	{ value: 'EBOOK', label: 'E-Book' },
-	{ value: 'AUDIOBOOK', label: 'Audiobook' },
+type IconFilterOption = {
+	value: string;
+	label: string;
+	description?: string;
+	Icon: React.ElementType;
+};
+
+const BOOK_FORMAT_OPTIONS: IconFilterOption[] = [
+	{
+		value: 'PAPERBACK',
+		label: 'Printed Books',
+		description: 'Physical books available for robot delivery.',
+		Icon: MenuBookOutlinedIcon,
+	},
+	{
+		value: 'EBOOK',
+		label: 'E-Books',
+		description: 'Digital reading resources for quick access.',
+		Icon: TabletMacOutlinedIcon,
+	},
+	{
+		value: 'AUDIOBOOK',
+		label: 'Audio Books',
+		description: 'Listen and learn anywhere.',
+		Icon: HeadphonesOutlinedIcon,
+	},
 ];
 
-const BOOK_TYPE_OPTIONS = [
-	{ value: 'TEXTBOOK', label: 'Textbook' },
-	{ value: 'REFERENCE', label: 'Reference' },
-	{ value: 'RESEARCH', label: 'Research' },
-	{ value: 'NOVEL', label: 'Novel' },
-	{ value: 'COMIC', label: 'Comic' },
-	{ value: 'MAGAZINE', label: 'Magazine' },
-	{ value: 'JOURNAL', label: 'Journal' },
-	{ value: 'WORKBOOK', label: 'Workbook' },
-	{ value: 'MANUAL', label: 'Manual' },
-	{ value: 'DICTIONARY', label: 'Dictionary' },
-	{ value: 'ENCYCLOPEDIA', label: 'Encyclopedia' },
-	{ value: 'OTHER', label: 'Other' },
+const BOOK_TYPE_OPTIONS: IconFilterOption[] = [
+	{
+		value: 'TEXTBOOK',
+		label: 'Textbook',
+		description: 'Course learning materials.',
+		Icon: MenuBookOutlinedIcon,
+	},
+	{
+		value: 'REFERENCE',
+		label: 'Reference',
+		description: 'Quick lookup resources.',
+		Icon: LibraryBooksOutlinedIcon,
+	},
+	{
+		value: 'RESEARCH',
+		label: 'Research',
+		description: 'Academic research titles.',
+		Icon: ScienceOutlinedIcon,
+	},
+	{
+		value: 'NOVEL',
+		label: 'Novel',
+		description: 'Fiction and literature.',
+		Icon: AutoStoriesOutlinedIcon,
+	},
+	{
+		value: 'COMIC',
+		label: 'Comic',
+		description: 'Graphic stories.',
+		Icon: TheaterComedyOutlinedIcon,
+	},
+	{
+		value: 'MAGAZINE',
+		label: 'Magazine',
+		description: 'Periodicals and issues.',
+		Icon: ArticleOutlinedIcon,
+	},
+	{
+		value: 'JOURNAL',
+		label: 'Journal',
+		description: 'Scholarly publications.',
+		Icon: HistoryEduOutlinedIcon,
+	},
+	{
+		value: 'WORKBOOK',
+		label: 'Workbook',
+		description: 'Practice and exercises.',
+		Icon: AssignmentOutlinedIcon,
+	},
+	{
+		value: 'MANUAL',
+		label: 'Manual',
+		description: 'Guides and instructions.',
+		Icon: BuildOutlinedIcon,
+	},
+	{
+		value: 'DICTIONARY',
+		label: 'Dictionary',
+		description: 'Word and language reference.',
+		Icon: TranslateOutlinedIcon,
+	},
+	{
+		value: 'ENCYCLOPEDIA',
+		label: 'Encyclopedia',
+		description: 'General knowledge collections.',
+		Icon: PublicOutlinedIcon,
+	},
+	{
+		value: 'OTHER',
+		label: 'Other',
+		description: 'More library materials.',
+		Icon: CategoryOutlinedIcon,
+	},
 ];
 
-const BOOK_CATEGORY_OPTIONS = [
-	{ value: 'COMPUTER_SCIENCE', label: 'Computer Science' },
-	{ value: 'ENGINEERING', label: 'Engineering' },
-	{ value: 'SCIENCE_AND_MATH', label: 'Science & Math' },
-	{ value: 'BUSINESS', label: 'Business' },
-	{ value: 'LITERATURE', label: 'Literature' },
-	{ value: 'NOVEL', label: 'Novel' },
-	{ value: 'SELF_IMPROVEMENT', label: 'Self Improvement' },
-	{ value: 'TEXTBOOKS', label: 'Textbooks' },
-	{ value: 'KOREAN_LANGUAGE', label: 'Korean Language' },
-	{ value: 'TOPIK_PREPARATION', label: 'TOPIK' },
-	{ value: 'ROMANCE', label: 'Romance' },
-	{ value: 'SCIENCE_FICTION', label: 'Science Fiction' },
-	{ value: 'MYSTERY_THRILLER', label: 'Mystery & Thriller' },
-	{ value: 'HEALTH_FITNESS', label: 'Health & Fitness' },
-	{ value: 'LAW', label: 'Law' },
-	{ value: 'DESIGN', label: 'Design' },
-	{ value: 'OTHER', label: 'Other' },
+const BOOK_CATEGORY_OPTIONS: IconFilterOption[] = [
+	{ value: 'COMPUTER_SCIENCE', label: 'Computer Science', Icon: ComputerOutlinedIcon },
+	{ value: 'ENGINEERING', label: 'Engineering', Icon: EngineeringOutlinedIcon },
+	{ value: 'SCIENCE_AND_MATH', label: 'Science & Math', Icon: FunctionsOutlinedIcon },
+	{ value: 'BUSINESS', label: 'Business', Icon: BusinessCenterOutlinedIcon },
+	{ value: 'LITERATURE', label: 'Literature', Icon: AutoStoriesOutlinedIcon },
+	{ value: 'NOVEL', label: 'Novel', Icon: AutoStoriesOutlinedIcon },
+	{ value: 'SELF_IMPROVEMENT', label: 'Self Improvement', Icon: SelfImprovementOutlinedIcon },
+	{ value: 'TEXTBOOKS', label: 'Textbooks', Icon: MenuBookOutlinedIcon },
+	{ value: 'KOREAN_LANGUAGE', label: 'Korean Language', Icon: TranslateOutlinedIcon },
+	{ value: 'TOPIK_PREPARATION', label: 'TOPIK', Icon: SchoolOutlinedIcon },
+	{ value: 'ROMANCE', label: 'Romance', Icon: FavoriteBorderOutlinedIcon },
+	{ value: 'SCIENCE_FICTION', label: 'Science Fiction', Icon: RocketLaunchOutlinedIcon },
+	{ value: 'MYSTERY_THRILLER', label: 'Mystery & Thriller', Icon: ManageSearchOutlinedIcon },
+	{ value: 'HEALTH_FITNESS', label: 'Health & Fitness', Icon: FitnessCenterOutlinedIcon },
+	{ value: 'LAW', label: 'Law', Icon: GavelOutlinedIcon },
+	{ value: 'DESIGN', label: 'Design', Icon: DesignServicesOutlinedIcon },
+	{ value: 'OTHER', label: 'Other', Icon: CategoryOutlinedIcon },
 ];
 
 const BOOK_AUDIENCE_OPTIONS = [
@@ -99,9 +207,7 @@ const HeaderFilter = () => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [openAdvancedFilter, setOpenAdvancedFilter] = useState(false);
-	const formatRef: any = useRef();
-	const typeRef: any = useRef();
-	const categoryRef: any = useRef();
+	const searchBoxRef: any = useRef();
 	const [openFormat, setOpenFormat] = useState(false);
 	const [openType, setOpenType] = useState(false);
 	const [openCategory, setOpenCategory] = useState(false);
@@ -109,7 +215,6 @@ const HeaderFilter = () => {
 	const [bookFormat, setBookFormat] = useState('');
 	const [bookType, setBookType] = useState('');
 	const [bookCategory, setBookCategory] = useState('');
-	const [hoveredCategory, setHoveredCategory] = useState('');
 
 	const [bookAudience, setBookAudience] = useState('');
 	const [bookLanguage, setBookLanguage] = useState('');
@@ -122,16 +227,8 @@ const HeaderFilter = () => {
 
 	useEffect(() => {
 		const clickHandler = (event: MouseEvent) => {
-			if (!formatRef?.current?.contains(event.target)) {
-				setOpenFormat(false);
-			}
-
-			if (!typeRef?.current?.contains(event.target)) {
-				setOpenType(false);
-			}
-
-			if (!categoryRef?.current?.contains(event.target)) {
-				setOpenCategory(false);
+			if (!searchBoxRef?.current?.contains(event.target as Node)) {
+				disableAllStateHandler();
 			}
 		};
 
@@ -220,7 +317,7 @@ const HeaderFilter = () => {
 			if (maxPrice > 0) params.maxPrice = maxPrice;
 
 			await router.push({
-				pathname: '/library/books',
+				pathname: '/books',
 				query: params,
 			});
 		} catch (err: any) {
@@ -234,19 +331,19 @@ const HeaderFilter = () => {
 
 	return (
 		<>
-			<Stack className={'search-box'}>
+			<Stack className={'search-box'} ref={searchBoxRef}>
 				<Stack className={'select-box'}>
 					<div className={`box ${openFormat ? 'on' : ''}`} onClick={formatStateChangeHandler}>
 						<span>{bookFormat ? BOOK_FORMAT_OPTIONS.find((option) => option.value === bookFormat)?.label : 'Book Format'}</span>
-						<ExpandMoreIcon />
+						<ExpandMoreIcon sx={{ transform: openFormat ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s ease' }} />
 					</div>
 					<div className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
 						<span>{bookType ? BOOK_TYPE_OPTIONS.find((option) => option.value === bookType)?.label : 'Book Type'}</span>
-						<ExpandMoreIcon />
+						<ExpandMoreIcon sx={{ transform: openType ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s ease' }} />
 					</div>
 					<div className={`box ${openCategory ? 'on' : ''}`} onClick={categoryStateChangeHandler}>
 						<span>{bookCategory ? BOOK_CATEGORY_OPTIONS.find((option) => option.value === bookCategory)?.label : 'Category'}</span>
-						<ExpandMoreIcon />
+						<ExpandMoreIcon sx={{ transform: openCategory ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s ease' }} />
 					</div>
 				</Stack>
 				<Stack className={'search-box-other'}>
@@ -259,81 +356,79 @@ const HeaderFilter = () => {
 					</div>
 				</Stack>
 
-				<div className={`filter-location ${openFormat ? 'on' : ''}`} ref={formatRef}>
-					{BOOK_FORMAT_OPTIONS.map((option, index) => {
-						const cityImage = ['SEOUL', 'BUSAN', 'INCHEON'][index % 3];
-						return (
-							<div onClick={() => bookFormatSelectHandler(option.value)} key={option.value}>
-								<img src={`/img/banner/cities/${cityImage}.webp`} alt={option.label} />
-								<span>{option.label}</span>
-							</div>
-						);
-					})}
+				<div className={`filter-location ${openFormat ? 'on' : ''}`}>
+					<div className={'icon-card-grid format-grid'}>
+						{BOOK_FORMAT_OPTIONS.map((option) => {
+							const Icon = option.Icon;
+							const isSelected = bookFormat === option.value;
+							return (
+								<button
+									type="button"
+									className={`filter-option-card ${isSelected ? 'selected' : ''}`}
+									onClick={() => bookFormatSelectHandler(option.value)}
+									key={option.value}
+								>
+									<span className={'filter-option-card-icon'}>
+										<Icon />
+									</span>
+									<span className={'filter-option-card-title'}>{option.label}</span>
+									<span className={'filter-option-card-description'}>{option.description}</span>
+								</button>
+							);
+						})}
+					</div>
 				</div>
 
-				<div
-					className={`filter-type ${openType ? 'on' : ''}`}
-					ref={typeRef}
-					style={{ flexWrap: 'wrap', justifyContent: 'flex-start', gap: '16px' }}
-				>
-					{BOOK_TYPE_OPTIONS.map((option, index) => {
-						const typeImage = ['apartment', 'house', 'villa'][index % 3];
-						return (
-							<div
-								style={{ backgroundImage: `url(/img/banner/types/${typeImage}.webp)` }}
-								onClick={() => bookTypeSelectHandler(option.value)}
-								key={option.value}
-							>
-								<span>{option.label}</span>
-							</div>
-						);
-					})}
+				<div className={`filter-type ${openType ? 'on' : ''}`}>
+					<div className={'icon-card-grid type-grid'}>
+						{BOOK_TYPE_OPTIONS.map((option) => {
+							const Icon = option.Icon;
+							const isSelected = bookType === option.value;
+							return (
+								<button
+									type="button"
+									className={`filter-option-card ${isSelected ? 'selected' : ''}`}
+									onClick={() => bookTypeSelectHandler(option.value)}
+									key={option.value}
+								>
+									<span className={'filter-option-card-icon'}>
+										<Icon />
+									</span>
+									<span className={'filter-option-card-title'}>{option.label}</span>
+									<span className={'filter-option-card-description'}>{option.description}</span>
+								</button>
+							);
+						})}
+					</div>
 				</div>
 
-				<div
-					className={`filter-rooms ${openCategory ? 'on' : ''}`}
-					ref={categoryRef}
-					style={{
-						display: 'grid',
-						gridTemplateColumns: 'repeat(5, 1fr)',
-						gap: '12px',
-						padding: '18px 22px',
-						maxHeight: '280px',
-						overflowY: 'auto',
-					}}
-				>
-					{BOOK_CATEGORY_OPTIONS.map((option) => {
-						const isSelected = bookCategory === option.value;
-						const isHovered = hoveredCategory === option.value;
-						const background = isSelected
-							? 'rgba(46, 134, 222, 0.12)'
-							: isHovered
-								? 'rgba(46, 134, 222, 0.08)'
-								: 'transparent';
-						return (
-							<span
-								onClick={() => bookCategorySelectHandler(option.value)}
-								onMouseEnter={() => setHoveredCategory(option.value)}
-								onMouseLeave={() => setHoveredCategory('')}
-								key={option.value}
-								style={{
-									textAlign: 'center',
-									cursor: 'pointer',
-									padding: '8px 4px',
-									borderRadius: '4px',
-									fontSize: '15px',
-									whiteSpace: 'nowrap',
-									overflow: 'hidden',
-									textOverflow: 'ellipsis',
-									background,
-									color: isSelected ? '#2E86DE' : undefined,
-									fontWeight: isSelected ? 600 : undefined,
-								}}
-							>
-								{option.label}
-							</span>
-						);
-					})}
+					<div
+						className={`filter-rooms ${openCategory ? 'on' : ''}`}
+						style={{
+							padding: '18px 22px',
+							maxHeight: 'min(520px, calc(100vh - 180px))',
+							overflowY: 'auto',
+						}}
+					>
+					<div className={'icon-card-grid category-grid'}>
+						{BOOK_CATEGORY_OPTIONS.map((option) => {
+							const Icon = option.Icon;
+							const isSelected = bookCategory === option.value;
+							return (
+								<button
+									type="button"
+									className={`filter-option-card category-option ${isSelected ? 'selected' : ''}`}
+									onClick={() => bookCategorySelectHandler(option.value)}
+									key={option.value}
+								>
+									<span className={'filter-option-card-icon'}>
+										<Icon />
+									</span>
+									<span className={'filter-option-card-title'}>{option.label}</span>
+								</button>
+							);
+						})}
+					</div>
 				</div>
 			</Stack>
 

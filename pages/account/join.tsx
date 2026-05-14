@@ -17,22 +17,12 @@ export const getStaticProps = async ({ locale }: any) => ({
 const Join: NextPage = () => {
 	const router = useRouter();
 	const device = useDeviceDetect();
-	const [input, setInput] = useState({ nick: '', password: '', phone: '', type: 'USER' });
+	const [input, setInput] = useState({ nick: '', password: '', phone: '' });
 	const [loginView, setLoginView] = useState<boolean>(true);
 
 	/** HANDLERS **/
 	const viewChangeHandler = (state: boolean) => {
 		setLoginView(state);
-	};
-
-	const checkUserTypeHandler = (e: any) => {
-		const checked = e.target.checked;
-		if (checked) {
-			const value = e.target.name;
-			handleInput('type', value);
-		} else {
-			handleInput('type', 'USER');
-		}
 	};
 
 	const handleInput = useCallback((name: any, value: any) => {
@@ -42,24 +32,40 @@ const Join: NextPage = () => {
 	}, []);
 
 	const doLogin = useCallback(async () => {
-		console.warn(input);
-		try {
-			await logIn(input.nick, input.password);
-			await router.push(`${router.query.referrer ?? '/'}`);
-		} catch (err: any) {
-			await sweetMixinErrorAlert(err.message);
+		if (input.nick.length < 3 || input.nick.length > 12) {
+			await sweetMixinErrorAlert('Nickname must be 3-12 characters');
+			return;
 		}
-	}, [input]);
+		if (input.password.length < 5 || input.password.length > 12) {
+			await sweetMixinErrorAlert('Password must be 5-12 characters');
+			return;
+		}
+
+		const success = await logIn(input.nick, input.password);
+		if (success) {
+			await router.push(`${router.query.referrer ?? '/'}`);
+		}
+	}, [input, router]);
 
 	const doSignUp = useCallback(async () => {
-		console.warn(input);
-		try {
-			await signUp(input.nick, input.password, input.phone, input.type);
-			await router.push(`${router.query.referrer ?? '/'}`);
-		} catch (err: any) {
-			await sweetMixinErrorAlert(err.message);
+		if (input.nick.length < 3 || input.nick.length > 12) {
+			await sweetMixinErrorAlert('Nickname must be 3-12 characters');
+			return;
 		}
-	}, [input]);
+		if (input.password.length < 5 || input.password.length > 12) {
+			await sweetMixinErrorAlert('Password must be 5-12 characters');
+			return;
+		}
+		if (!input.phone) {
+			await sweetMixinErrorAlert('Phone number is required');
+			return;
+		}
+
+		const success = await signUp(input.nick, input.password, input.phone);
+		if (success) {
+			await router.push(`${router.query.referrer ?? '/'}`);
+		}
+	}, [input, router]);
 
 	console.log('+input: ', input);
 
@@ -97,7 +103,7 @@ const Join: NextPage = () => {
 								<div className={'input-box'}>
 									<span>Password</span>
 									<input
-										type="text"
+										type="password"
 										placeholder={'Enter Password'}
 										onChange={(e) => handleInput('password', e.target.value)}
 										required={true}
@@ -123,40 +129,6 @@ const Join: NextPage = () => {
 								)}
 							</Box>
 							<Box className={'register'}>
-								{!loginView && (
-									<div className={'type-option'}>
-										<span className={'text'}>I want to be registered as:</span>
-										<div>
-											<FormGroup>
-												<FormControlLabel
-													control={
-														<Checkbox
-															size="small"
-															name={'USER'}
-															onChange={checkUserTypeHandler}
-															checked={input?.type == 'USER'}
-														/>
-													}
-													label="User"
-												/>
-											</FormGroup>
-											<FormGroup>
-												<FormControlLabel
-													control={
-														<Checkbox
-															size="small"
-															name={'AGENT'}
-															onChange={checkUserTypeHandler}
-															checked={input?.type == 'AGENT'}
-														/>
-													}
-													label="Agent"
-												/>
-											</FormGroup>
-										</div>
-									</div>
-								)}
-
 								{loginView && (
 									<div className={'remember-info'}>
 										<FormGroup>
@@ -178,7 +150,7 @@ const Join: NextPage = () => {
 								) : (
 									<Button
 										variant="contained"
-										disabled={input.nick == '' || input.password == '' || input.phone == '' || input.type == ''}
+										disabled={input.nick == '' || input.password == '' || input.phone == ''}
 										onClick={doSignUp}
 										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
 									>
