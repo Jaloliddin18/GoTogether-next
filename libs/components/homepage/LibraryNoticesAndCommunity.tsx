@@ -46,7 +46,7 @@ const LIBRARY_ANNOUNCEMENTS = [
 	{
 		_id: 'ann6',
 		articleCategory: 'ANNOUNCEMENT',
-		articleImage: '/img/fiber/img8.jpg',
+		articleImage: '/img/fiber/fiber8.jpg',
 		articleTitle: 'Book Donation Drive: Support Your Fellow Students',
 		createdAt: new Date('2026-04-05').toISOString(),
 	},
@@ -74,7 +74,7 @@ const LibraryNoticesAndCommunity = () => {
 	const communityTwits: BoardArticle[] = (getTwitsData?.getTwits?.list ?? []).map((twit: any) => ({
 		_id: twit?._id,
 		articleCategory: 'TWIT',
-		articleImage: twit?.image ?? '/img/fiber/img5.jpg',
+		articleImage: twit?.image ?? '/img/fiber/fiber5.jpeg',
 		articleTitle: twit?.text ?? '',
 		createdAt: twit?.createdAt,
 		articleStatus: 'ACTIVE',
