@@ -50,3 +50,7 @@ next-env.d.ts
 .agents/
 .claude/skills/
 skills-lock.json
+
+# local agent/session context
+AGENTS.md
+MEMORY.md
