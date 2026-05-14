@@ -145,7 +145,7 @@ const DicedHeroSection = ({
 		<div
 			style={{
 				width: '100%',
-				maxWidth: '1200px',
+				maxWidth: '1320px',
 				margin: '0 auto',
 				padding: '0 40px',
 				paddingTop: '60px',
@@ -231,7 +231,7 @@ const DicedHeroSection = ({
 									className={className}
 									style={{
 										position: 'relative',
-										height: '220px',
+										height: 'clamp(220px, 24vw, 260px)',
 										borderRadius: '32px',
 										backgroundImage: `url(${slide.image})`,
 										backgroundSize: 'cover',
