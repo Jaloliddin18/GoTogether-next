@@ -99,9 +99,7 @@ const HeaderFilter = () => {
 	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [openAdvancedFilter, setOpenAdvancedFilter] = useState(false);
-	const formatRef: any = useRef();
-	const typeRef: any = useRef();
-	const categoryRef: any = useRef();
+	const searchBoxRef: any = useRef();
 	const [openFormat, setOpenFormat] = useState(false);
 	const [openType, setOpenType] = useState(false);
 	const [openCategory, setOpenCategory] = useState(false);
@@ -122,16 +120,8 @@ const HeaderFilter = () => {
 
 	useEffect(() => {
 		const clickHandler = (event: MouseEvent) => {
-			if (!formatRef?.current?.contains(event.target)) {
-				setOpenFormat(false);
-			}
-
-			if (!typeRef?.current?.contains(event.target)) {
-				setOpenType(false);
-			}
-
-			if (!categoryRef?.current?.contains(event.target)) {
-				setOpenCategory(false);
+			if (!searchBoxRef?.current?.contains(event.target as Node)) {
+				disableAllStateHandler();
 			}
 		};
 
@@ -234,19 +224,19 @@ const HeaderFilter = () => {
 
 	return (
 		<>
-			<Stack className={'search-box'}>
+			<Stack className={'search-box'} ref={searchBoxRef}>
 				<Stack className={'select-box'}>
 					<div className={`box ${openFormat ? 'on' : ''}`} onClick={formatStateChangeHandler}>
 						<span>{bookFormat ? BOOK_FORMAT_OPTIONS.find((option) => option.value === bookFormat)?.label : 'Book Format'}</span>
-						<ExpandMoreIcon />
+						<ExpandMoreIcon sx={{ transform: openFormat ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s ease' }} />
 					</div>
 					<div className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
 						<span>{bookType ? BOOK_TYPE_OPTIONS.find((option) => option.value === bookType)?.label : 'Book Type'}</span>
-						<ExpandMoreIcon />
+						<ExpandMoreIcon sx={{ transform: openType ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s ease' }} />
 					</div>
 					<div className={`box ${openCategory ? 'on' : ''}`} onClick={categoryStateChangeHandler}>
 						<span>{bookCategory ? BOOK_CATEGORY_OPTIONS.find((option) => option.value === bookCategory)?.label : 'Category'}</span>
-						<ExpandMoreIcon />
+						<ExpandMoreIcon sx={{ transform: openCategory ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s ease' }} />
 					</div>
 				</Stack>
 				<Stack className={'search-box-other'}>
@@ -259,7 +249,7 @@ const HeaderFilter = () => {
 					</div>
 				</Stack>
 
-				<div className={`filter-location ${openFormat ? 'on' : ''}`} ref={formatRef}>
+				<div className={`filter-location ${openFormat ? 'on' : ''}`}>
 					{BOOK_FORMAT_OPTIONS.map((option, index) => {
 						const cityImage = ['SEOUL', 'BUSAN', 'INCHEON'][index % 3];
 						return (
@@ -271,11 +261,7 @@ const HeaderFilter = () => {
 					})}
 				</div>
 
-				<div
-					className={`filter-type ${openType ? 'on' : ''}`}
-					ref={typeRef}
-					style={{ flexWrap: 'wrap', justifyContent: 'flex-start', gap: '16px' }}
-				>
+				<div className={`filter-type ${openType ? 'on' : ''}`} style={{ flexWrap: 'wrap', justifyContent: 'flex-start', gap: '16px' }}>
 					{BOOK_TYPE_OPTIONS.map((option, index) => {
 						const typeImage = ['apartment', 'house', 'villa'][index % 3];
 						return (
@@ -292,7 +278,6 @@ const HeaderFilter = () => {
 
 				<div
 					className={`filter-rooms ${openCategory ? 'on' : ''}`}
-					ref={categoryRef}
 					style={{
 						display: 'grid',
 						gridTemplateColumns: 'repeat(5, 1fr)',

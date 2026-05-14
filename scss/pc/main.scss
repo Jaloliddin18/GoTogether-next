@@ -56,9 +56,16 @@ body::-webkit-scrollbar {
 				box-sizing: border-box;
 				z-index: 99;
 				align-items: center;
-				border-top: 1px solid rgba(255, 255, 255, 0.07);
+				border-top: 1px solid rgba(255, 255, 255, 0.16);
+				background-color: rgba(13, 24, 45, 0.36);
+				transition:
+					background-color 0.28s ease,
+					border-color 0.28s ease,
+					box-shadow 0.28s ease;
 				&.transparent {
-					background-color: #1A1A2E9e;
+					background-color: rgba(13, 24, 45, 0.62);
+					border-top: 1px solid rgba(255, 255, 255, 0.22);
+					box-shadow: 0 10px 28px rgba(4, 12, 31, 0.28);
 				}
 				.container {
 					flex-direction: row;
@@ -173,17 +180,40 @@ body::-webkit-scrollbar {
 
 	.header-main {
 		position: relative;
+		z-index: 12;
 		width: 100%;
 		height: 860px;
-		background-image: url('/img/banner/header1.svg');
+		background-image: url('/img/homepage/inha_hero.jpg');
 		background-size: cover;
+		background-position: center top;
+		overflow: visible;
+		&::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(
+				180deg,
+				rgba(8, 18, 40, 0.72) 0%,
+				rgba(10, 24, 52, 0.5) 24%,
+				rgba(10, 24, 52, 0.18) 62%,
+				rgba(10, 24, 52, 0.08) 100%
+			);
+			pointer-events: none;
+			z-index: 0;
+		}
+		.threeJSContainer {
+			position: relative;
+			z-index: 1;
+		}
 		.container {
 			position: relative;
+			z-index: 2;
 			margin-top: 20px;
 			flex-direction: column;
 			align-items: center;
 			.search-box {
 				position: relative;
+				z-index: 40;
 				margin-top: 56px;
 				padding: 16px 29px;
 				width: 1094px;
@@ -191,7 +221,11 @@ body::-webkit-scrollbar {
 				display: flex;
 				flex-direction: row;
 				justify-content: space-between;
-				background: rgba(255, 255, 255, 0.28);
+				background: rgba(26, 26, 46, 0.62);
+				backdrop-filter: blur(2px);
+				-webkit-backdrop-filter: blur(2px);
+				border: 1px solid rgba(255, 255, 255, 0.2);
+				box-shadow: 0 14px 34px rgba(7, 18, 46, 0.2);
 				border-radius: 12px;
 				.select-box {
 					width: 712px;
@@ -207,23 +241,25 @@ body::-webkit-scrollbar {
 						align-items: center;
 						justify-content: space-between;
 						border-radius: 12px;
-						background: rgba(255, 255, 255, 0.575);
+						background: rgba(255, 255, 255, 0.76);
+						border: 1px solid rgba(30, 63, 113, 0.18);
 						box-sizing: border-box;
 						cursor: pointer;
 						&.on {
 							background: #ffffff;
 							border: 1px solid #000;
-							color: #1A1A2E;
+							color: #1a1a2e;
 						}
 						span {
-							color: #1A1A2E;
+							color: #11203b;
 							font-family: $font;
 							font-size: 14px;
 							font-style: normal;
-							font-weight: 400;
+							font-weight: 500;
 							line-height: 26px;
 						}
 						svg {
+							color: #1e3359;
 						}
 					}
 				}
@@ -242,32 +278,33 @@ body::-webkit-scrollbar {
 							cursor: pointer;
 						}
 						span {
-							color: #fff;
+							color: #f7faff;
 							font-family: $font;
 							font-size: 20px;
 							font-style: normal;
 							font-weight: 600;
 							line-height: normal;
 							cursor: pointer;
+							text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 						}
 					}
-						.search-btn {
-							margin-left: 12px;
-							width: 62px;
-							height: 62px;
-							display: flex;
-							align-items: center;
-							justify-content: center;
-							border-radius: 55px;
-							background: #2E86DE;
-							cursor: pointer;
-							&:hover {
-								background: #1a6fc4;
-							}
-							svg {
-								width: 20px;
-								height: 20px;
-								color: #ffffff;
+					.search-btn {
+						margin-left: 12px;
+						width: 62px;
+						height: 62px;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						border-radius: 55px;
+						background: #2e86de;
+						cursor: pointer;
+						&:hover {
+							background: #1a6fc4;
+						}
+						svg {
+							width: 20px;
+							height: 20px;
+							color: #ffffff;
 						}
 					}
 				}
@@ -288,7 +325,7 @@ body::-webkit-scrollbar {
 					background: #ffffff;
 					box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 					box-sizing: border-box;
-					z-index: 2;
+					z-index: 41;
 					&.on {
 						visibility: visible;
 						transition: 0.2s ease-out;
@@ -307,7 +344,7 @@ body::-webkit-scrollbar {
 						}
 						span {
 							margin-left: 22px;
-							color: #1A1A2E;
+							color: #1a1a2e;
 							font-family: $font;
 							font-size: 20px;
 							font-style: normal;
@@ -337,7 +374,7 @@ body::-webkit-scrollbar {
 					background: #fff;
 					box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 					box-sizing: border-box;
-					z-index: 1;
+					z-index: 41;
 					&.on {
 						visibility: visible;
 						transition: 0.2s ease-out;
@@ -385,7 +422,7 @@ body::-webkit-scrollbar {
 					background: #fff;
 					box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 					box-sizing: border-box;
-					z-index: 1;
+					z-index: 41;
 					&.on {
 						visibility: visible;
 						transition: 0.2s ease-out;
@@ -396,7 +433,7 @@ body::-webkit-scrollbar {
 						align-items: center;
 						padding: 10px 30px;
 						border: 1px solid #fffdfd;
-						color: #1A1A2E;
+						color: #1a1a2e;
 						font-family: $font;
 						font-size: 20px;
 						font-style: normal;
@@ -412,6 +449,11 @@ body::-webkit-scrollbar {
 				}
 			}
 		}
+	}
+
+	#main {
+		position: relative;
+		z-index: 1;
 	}
 
 	.header-basic {
@@ -469,7 +511,7 @@ body::-webkit-scrollbar {
 					display: flex;
 					flex-direction: column;
 					strong {
-						color: #1A1A2E;
+						color: #1a1a2e;
 						font-family: $font;
 						font-size: 15px;
 						font-style: normal;
@@ -478,7 +520,7 @@ body::-webkit-scrollbar {
 					}
 					span {
 						margin-top: 4px;
-						color: #1A1A2E;
+						color: #1a1a2e;
 						font-family: $font;
 						font-size: 13px;
 						font-style: normal;
@@ -497,7 +539,7 @@ body::-webkit-scrollbar {
 		}
 		p {
 			margin-top: 10px;
-			color: #1A1A2E;
+			color: #1a1a2e;
 			font-family: $font;
 			font-size: 14px;
 			font-style: normal;
@@ -510,10 +552,10 @@ body::-webkit-scrollbar {
 			flex-direction: row;
 			gap: 10px;
 			align-items: center;
-			border-bottom: 1px solid #E2E8F0;
+			border-bottom: 1px solid #e2e8f0;
 			.reply-text {
 				padding-bottom: 10px;
-				color: #1A1A2E;
+				color: #1a1a2e;
 				font-family: $font;
 				font-size: 14px;
 				font-style: normal;
@@ -664,7 +706,7 @@ body::-webkit-scrollbar {
 		height: auto;
 		display: flex;
 		flex-direction: row;
-		background: #1A1A2E;
+		background: #1a1a2e;
 		.footer-container {
 			width: 1300px;
 			height: auto;
@@ -826,8 +868,8 @@ body::-webkit-scrollbar {
 }
 
 .advanced-filter-modal {
-	--afm-accent: #2E86DE;
-	--afm-accent-hover: #1A6FC4;
+	--afm-accent: #2e86de;
+	--afm-accent-hover: #1a6fc4;
 	--afm-divider: rgba(29, 78, 216, 0.24);
 	padding: 0;
 	position: relative;
@@ -1086,7 +1128,7 @@ body::-webkit-scrollbar {
 		margin-bottom: 2px;
 	}
 	p {
-		color: #E2E8F0;
+		color: #e2e8f0;
 		text-align: center;
 	}
 }
