@@ -6,6 +6,7 @@ import CommunityLeftNav from './CommunityLeftNav';
 interface CommunityShellProps {
 	children: React.ReactNode;
 	totalCount: number;
+	onTabChange?: (tabIndex: number) => void;
 }
 
 const TABS = ['For you', 'Following', 'Library'];
@@ -23,8 +24,13 @@ const WHO_TO_FOLLOW = [
 	{ name: 'Study Hub', nick: '@studyhub_inha', image: '/img/profile/defaultUser.svg' },
 ];
 
-const CommunityShell = ({ children, totalCount: _totalCount }: CommunityShellProps) => {
+const CommunityShell = ({ children, totalCount: _totalCount, onTabChange }: CommunityShellProps) => {
 	const [activeTab, setActiveTab] = useState(0);
+
+	const handleTabClick = (i: number) => {
+		setActiveTab(i);
+		onTabChange?.(i);
+	};
 
 	return (
 		<Stack className="community-shell">
@@ -38,7 +44,7 @@ const CommunityShell = ({ children, totalCount: _totalCount }: CommunityShellPro
 							<Stack
 								key={tab}
 								className={`community-tab${activeTab === i ? ' active' : ''}`}
-								onClick={() => setActiveTab(i)}
+								onClick={() => handleTabClick(i)}
 							>
 								<Typography>{tab}</Typography>
 							</Stack>

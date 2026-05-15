@@ -11,7 +11,7 @@ import CommunityFeed from '../../libs/components/community/CommunityFeed';
 import { T } from '../../libs/types/common';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Twit } from '../../libs/types/twit/twit';
-import { CreateTwitInput, TwitsInquiry } from '../../libs/types/twit/twit.input';
+import { CreateTwitInput, TwitFeedType, TwitsInquiry } from '../../libs/types/twit/twit.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { CREATE_TWIT, DELETE_TWIT, LIKE_TWIT } from '../../apollo/user/mutation';
 import { GET_TWITS } from '../../apollo/user/query';
@@ -119,6 +119,18 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 		}
 	};
 
+	const tabChangeHandler = async (tabIndex: number) => {
+		// tab 1 = Following requires auth
+		if (tabIndex === 1 && !user?._id) {
+			goLoginPage();
+			return;
+		}
+		const feedType = tabIndex === 1 ? TwitFeedType.FOLLOWING : TwitFeedType.FOR_YOU;
+		const nextInquiry = { ...searchCommunity, page: 1, feedType };
+		setSearchCommunity(nextInquiry);
+		await twitsRefetch({ input: nextInquiry });
+	};
+
 	const paginationHandler = async (e: T, value: number) => {
 		const nextInquiry = { ...searchCommunity, page: value };
 		setSearchCommunity(nextInquiry);
@@ -132,7 +144,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	return (
 		<div id="community-list-page" className={`community-device-${device}`}>
 			<div className="container">
-				<CommunityShell totalCount={totalCount}>
+				<CommunityShell totalCount={totalCount} onTabChange={tabChangeHandler}>
 					<CommunityComposer user={user} loading={createTwitLoading} onSubmit={createTwitHandler} onLogin={goLoginPage} />
 					<CommunityFeed
 						twits={twits}
@@ -173,6 +185,7 @@ Community.defaultProps = {
 		sort: 'createdAt',
 		direction: Direction.DESC,
 		search: {},
+		feedType: TwitFeedType.FOR_YOU,
 	},
 };
 
