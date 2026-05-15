@@ -453,7 +453,7 @@ export const GET_TWITS = gql`
 				_id
 				memberId
 				text
-				image
+				images
 				meLiked
 				likeCount
 				viewCount
@@ -501,7 +501,7 @@ export const GET_TWIT = gql`
 			_id
 			memberId
 			text
-			image
+			images
 			meLiked
 			likeCount
 			viewCount
@@ -524,7 +524,7 @@ export const GET_MEMBER_TWITS = gql`
 				_id
 				memberId
 				text
-				image
+				images
 				meLiked
 				likeCount
 				deletedAt
@@ -575,7 +575,6 @@ export const GET_TWIT_COMMENTS = gql`
 				text
 				parentCommentId
 				depth
-				likes
 				likeCount
 				deletedAt
 				createdAt

@@ -56,7 +56,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 				variables: {
 					input: {
 						text: input.text.trim(),
-						image: input.image,
+						images: input.images,
 					},
 				},
 			});

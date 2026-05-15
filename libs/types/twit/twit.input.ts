@@ -7,7 +7,7 @@ export enum TwitFeedType {
 
 export interface CreateTwitInput {
 	text: string;
-	image?: string;
+	images?: string[];
 }
 
 export interface TwitInquiry {

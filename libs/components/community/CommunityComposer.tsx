@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button, IconButton, Stack, TextField, Typography } from '@mui/material';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import CloseIcon from '@mui/icons-material/Close';
 import { CustomJwtPayload } from '../../types/customJwtPayload';
 import { CreateTwitInput } from '../../types/twit/twit.input';
 import { REACT_APP_API_URL } from '../../config';
 import { getJwtToken } from '../../auth';
 import axios from 'axios';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
+
+const MAX_IMAGES = 3;
 
 interface CommunityComposerProps {
 	user: CustomJwtPayload;
@@ -19,9 +22,10 @@ interface CommunityComposerProps {
 
 const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityComposerProps) => {
 	const [text, setText] = useState<string>('');
-	const [imagePath, setImagePath] = useState<string>('');
+	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 	const [uploading, setUploading] = useState<boolean>(false);
 	const [submitting, setSubmitting] = useState<boolean>(false);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 	const token = getJwtToken();
 
 	const getMemberImage = (imageUrl: string | undefined) => {
@@ -30,65 +34,76 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 		return `${REACT_APP_API_URL}/${imageUrl}`;
 	};
 
+	const fileChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const files = Array.from(event.target.files ?? []);
+		if (!files.length) return;
+		const combined = [...selectedFiles, ...files];
+		if (combined.length > MAX_IMAGES) {
+			sweetMixinErrorAlert(`You can attach up to ${MAX_IMAGES} images.`).then();
+			setSelectedFiles(combined.slice(0, MAX_IMAGES));
+		} else {
+			setSelectedFiles(combined);
+		}
+		event.target.value = '';
+	};
+
+	const removeFile = (index: number) => {
+		setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+	};
+
+	const uploadFiles = async (files: File[]): Promise<string[]> => {
+		const formData = new FormData();
+		const nulls = files.map(() => null);
+		const mapObj: Record<string, string[]> = {};
+		formData.append(
+			'operations',
+			JSON.stringify({
+				query: `mutation ImagesUploader($files: [Upload!]!, $target: String!) {
+					imagesUploader(files: $files, target: $target)
+				}`,
+				variables: { files: nulls, target: 'twits' },
+			}),
+		);
+		files.forEach((file, i) => {
+			mapObj[String(i)] = [`variables.files.${i}`];
+		});
+		formData.append('map', JSON.stringify(mapObj));
+		files.forEach((file, i) => formData.append(String(i), file));
+
+		const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
+			headers: {
+				'Content-Type': 'multipart/form-data',
+				'apollo-require-preflight': true,
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		const uploaded: string[] = response?.data?.data?.imagesUploader ?? [];
+		if (!uploaded.length) throw new Error('Image upload failed');
+		return uploaded;
+	};
+
 	const submitHandler = async () => {
 		if (loading || submitting || uploading || !text.trim() || text.length > 500) return;
 		setSubmitting(true);
 		try {
-			const isSuccess = await onSubmit({ text, image: imagePath || undefined });
+			let images: string[] | undefined;
+			if (selectedFiles.length) {
+				setUploading(true);
+				try {
+					images = await uploadFiles(selectedFiles);
+				} finally {
+					setUploading(false);
+				}
+			}
+			const isSuccess = await onSubmit({ text, images });
 			if (!isSuccess) return;
 			setText('');
-			setImagePath('');
+			setSelectedFiles([]);
+		} catch (err: any) {
+			sweetMixinErrorAlert(err.message).then();
 		} finally {
 			setSubmitting(false);
 		}
-	};
-
-	const normalizeImagePath = (path: string) => {
-		if (path.startsWith('http') || path.startsWith('/')) return path;
-		return `/${path}`;
-	};
-
-	const uploadImage = async (file: File) => {
-		try {
-			if (!file) return;
-			setUploading(true);
-			const formData = new FormData();
-			formData.append(
-				'operations',
-				JSON.stringify({
-					query: `mutation ImagesUploader($files: [Upload!]!, $target: String!) {
-						imagesUploader(files: $files, target: $target)
-					}`,
-					variables: { files: [null], target: 'twits' },
-				}),
-			);
-			formData.append('map', JSON.stringify({ '0': ['variables.files.0'] }));
-			formData.append('0', file);
-
-			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-					'apollo-require-preflight': true,
-					Authorization: `Bearer ${token}`,
-				},
-			});
-
-			const uploadedImages = response?.data?.data?.imagesUploader ?? [];
-			if (!uploadedImages?.length) throw new Error('Image upload failed');
-			setImagePath(uploadedImages[0]);
-		} catch (err: any) {
-			console.log('ERROR, uploadImage:', err.message);
-			sweetMixinErrorAlert(err.message).then();
-		} finally {
-			setUploading(false);
-		}
-	};
-
-	const imageChangeHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		const selectedFile = event.target.files?.[0];
-		if (!selectedFile) return;
-		await uploadImage(selectedFile);
-		event.target.value = '';
 	};
 
 	if (!user?._id) {
@@ -117,21 +132,40 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 					InputProps={{ disableUnderline: true }}
 					className="composer-input"
 				/>
+				{selectedFiles.length > 0 && (
+					<Stack className="composer-preview-grid" direction="row" flexWrap="wrap" gap="6px" pt="8px">
+						{selectedFiles.map((file, i) => (
+							<Stack key={i} className="composer-preview-thumb" position="relative">
+								<img src={URL.createObjectURL(file)} alt="" />
+								<IconButton
+									className="composer-preview-remove"
+									size="small"
+									onClick={() => removeFile(i)}
+									aria-label="Remove image"
+								>
+									<CloseIcon fontSize="small" />
+								</IconButton>
+							</Stack>
+						))}
+					</Stack>
+				)}
 				<Stack className="composer-footer">
 					<Typography className="composer-hint">{text.length}/500</Typography>
 					<Stack className="composer-tools">
 						<input
+							ref={fileInputRef}
 							type="file"
 							id="community-twit-image"
 							accept="image/*"
-							onChange={imageChangeHandler}
+							multiple
+							onChange={fileChangeHandler}
 							hidden
 						/>
 						<IconButton
 							className="composer-icon-btn"
 							aria-label="Add image"
-							disabled={uploading || loading || submitting}
-							onClick={() => document.getElementById('community-twit-image')?.click()}
+							disabled={uploading || loading || submitting || selectedFiles.length >= MAX_IMAGES}
+							onClick={() => fileInputRef.current?.click()}
 						>
 							<ImageOutlinedIcon />
 						</IconButton>
@@ -150,14 +184,6 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 						</Button>
 					</Stack>
 				</Stack>
-				{imagePath && (
-					<Stack className="composer-preview">
-						<img src={normalizeImagePath(imagePath)} alt="" />
-						<Button className="composer-remove-image" onClick={() => setImagePath('')}>
-							Remove
-						</Button>
-					</Stack>
-				)}
 			</Stack>
 		</Stack>
 	);

@@ -4,7 +4,7 @@ import TwitMedia from './TwitMedia';
 
 interface TwitBodyProps {
 	text: string;
-	image?: string;
+	images?: string[];
 }
 
 const parseHashtags = (text: string): React.ReactNode[] => {
@@ -20,13 +20,13 @@ const parseHashtags = (text: string): React.ReactNode[] => {
 	);
 };
 
-const TwitBody = ({ text, image }: TwitBodyProps) => {
+const TwitBody = ({ text, images }: TwitBodyProps) => {
 	return (
 		<Stack className="twit-body">
 			<Typography className="twit-text" component="p">
 				{parseHashtags(text)}
 			</Typography>
-			{image && <TwitMedia image={image} />}
+			{images && images.length > 0 && <TwitMedia images={images} />}
 		</Stack>
 	);
 };

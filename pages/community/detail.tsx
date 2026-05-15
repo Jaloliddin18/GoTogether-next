@@ -156,7 +156,7 @@ const CommunityDetail: NextPage = () => {
 						<>
 							<Stack className="twit-detail-card">
 								<TwitAuthorRow twit={twit} />
-								<TwitBody text={twit.text} image={twit.image} />
+								<TwitBody text={twit.text} images={twit.images} />
 
 								<Typography className="detail-timestamp">
 									<Moment format="h:mm A · MMM D, YYYY">{twit.createdAt}</Moment>

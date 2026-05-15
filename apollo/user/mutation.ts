@@ -257,8 +257,8 @@ export const CREATE_TWIT = gql`
 			_id
 			memberId
 			text
-			image
-			likes
+			images
+			meLiked
 			likeCount
 			deletedAt
 			createdAt
@@ -273,7 +273,7 @@ export const LIKE_TWIT = gql`
 			_id
 			memberId
 			text
-			image
+			images
 			meLiked
 			likeCount
 			viewCount
@@ -291,7 +291,7 @@ export const DELETE_TWIT = gql`
 			memberId
 			text
 			image
-			likes
+			meLiked
 			likeCount
 			deletedAt
 			createdAt
@@ -309,7 +309,6 @@ export const CREATE_TWIT_COMMENT = gql`
 			text
 			parentCommentId
 			depth
-			likes
 			likeCount
 			deletedAt
 			createdAt
@@ -328,7 +327,6 @@ export const UPDATE_TWIT_COMMENT = gql`
 			text
 			parentCommentId
 			depth
-			likes
 			likeCount
 			deletedAt
 			createdAt
@@ -347,7 +345,6 @@ export const DELETE_TWIT_COMMENT = gql`
 			text
 			parentCommentId
 			depth
-			likes
 			likeCount
 			deletedAt
 			createdAt
@@ -366,7 +363,6 @@ export const LIKE_TWIT_COMMENT = gql`
 			text
 			parentCommentId
 			depth
-			likes
 			likeCount
 			deletedAt
 			createdAt

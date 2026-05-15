@@ -26,7 +26,7 @@ const TwitCard = ({ twit, currentUserId, onDelete }: TwitCardProps) => {
 	return (
 		<Stack className="twit-card" onClick={goDetailPage}>
 			<TwitAuthorRow twit={twit} />
-			<TwitBody text={twit?.text} image={twit?.image} />
+			<TwitBody text={twit?.text} images={twit?.images} />
 			<TwitActionRow
 				twit={twit}
 				viewCount={twit?.viewCount ?? 0}
