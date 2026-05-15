@@ -9,7 +9,7 @@ interface CommunityShellProps {
 	onTabChange?: (tabIndex: number) => void;
 }
 
-const TABS = ['For you', 'Following', 'Library'];
+const TABS = ['For you', 'Following'];
 
 const TRENDING = [
 	{ label: '#BookDrop', count: '142 posts' },
