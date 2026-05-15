@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { Button, Stack, TextField, Typography } from '@mui/material';
+import { Button, IconButton, Stack, TextField, Typography } from '@mui/material';
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
+import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import { CustomJwtPayload } from '../../types/customJwtPayload';
 import { CreateTwitInput } from '../../types/twit/twit.input';
 import { REACT_APP_API_URL } from '../../config';
@@ -29,7 +32,6 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 
 	const submitHandler = async () => {
 		if (loading || submitting || uploading || !text.trim() || text.length > 500) return;
-
 		setSubmitting(true);
 		try {
 			const isSuccess = await onSubmit({ text, image: imagePath || undefined });
@@ -49,7 +51,6 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 	const uploadImage = async (file: File) => {
 		try {
 			if (!file) return;
-
 			setUploading(true);
 			const formData = new FormData();
 			formData.append(
@@ -58,10 +59,7 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 					query: `mutation ImagesUploader($files: [Upload!]!, $target: String!) {
 						imagesUploader(files: $files, target: $target)
 					}`,
-					variables: {
-						files: [null],
-						target: 'twits',
-					},
+					variables: { files: [null], target: 'twits' },
 				}),
 			);
 			formData.append('map', JSON.stringify({ '0': ['variables.files.0'] }));
@@ -111,33 +109,44 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 			<Stack className="composer-body">
 				<TextField
 					value={text}
-					onChange={(event) => setText(event.target.value)}
+					onChange={(e) => setText(e.target.value)}
 					multiline
-					minRows={3}
+					minRows={2}
 					placeholder="Share a library update..."
 					variant="standard"
-					InputProps={{
-						disableUnderline: true,
-					}}
+					InputProps={{ disableUnderline: true }}
 					className="composer-input"
 				/>
 				<Stack className="composer-footer">
 					<Typography className="composer-hint">{text.length}/500</Typography>
 					<Stack className="composer-tools">
-						<input type="file" id="community-twit-image" accept="image/*" onChange={imageChangeHandler} hidden />
-						<Button
-							className="composer-upload"
+						<input
+							type="file"
+							id="community-twit-image"
+							accept="image/*"
+							onChange={imageChangeHandler}
+							hidden
+						/>
+						<IconButton
+							className="composer-icon-btn"
+							aria-label="Add image"
 							disabled={uploading || loading || submitting}
 							onClick={() => document.getElementById('community-twit-image')?.click()}
 						>
-							{uploading ? 'Uploading...' : 'Image'}
-						</Button>
+							<ImageOutlinedIcon />
+						</IconButton>
+						<IconButton className="composer-icon-btn" aria-label="Add emoji" disabled>
+							<EmojiEmotionsOutlinedIcon />
+						</IconButton>
+						<IconButton className="composer-icon-btn" aria-label="Add location" disabled>
+							<LocationOnOutlinedIcon />
+						</IconButton>
 						<Button
 							className="composer-submit"
 							disabled={loading || submitting || uploading || !text.trim() || text.length > 500}
 							onClick={submitHandler}
 						>
-							{loading || submitting ? 'Posting...' : 'Post'}
+							{loading || submitting ? 'Posting...' : uploading ? 'Uploading...' : 'Post'}
 						</Button>
 					</Stack>
 				</Stack>

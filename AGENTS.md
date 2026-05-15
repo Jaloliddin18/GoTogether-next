@@ -8,14 +8,20 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 
 ## Session Update (2026-05-15)
 
-- `/community` was refactored from legacy board/article UI into a Twit feed structure.
-- `/community/detail` now uses Twit detail query data (`GET_TWIT`) with route pattern `/community/detail?id=<twitId>`.
-- New Twit community components were added under `libs/components/community/` (`CommunityShell`, `CommunityComposer`, `CommunityFeed`, `TwitCard`, `TwitAuthorRow`, `TwitBody`, `TwitMedia`, `TwitActionRow`).
-- Twit image flow now follows old Nestar upload style:
-  - `imagesUploader` with target `twits`
-  - store returned relative path directly in `createTwit.image`
-  - normalize only at render time (`http` keep, `/` keep, otherwise prefix `/`)
-- Board/article code still exists in the repo for now and is not deleted yet; only live `/community` and `/community/detail` are migrated.
+### Community pages — X platform UI structure (completed)
+
+- `/community` and `/community/detail` are fully migrated. Both are done pages.
+- **Layout:** 3-column shell — left nav (68px) + feed (max 600px) + right rail (300px).
+- **New component:** `CommunityLeftNav.tsx` — icon-only sticky nav (MUI icons).
+- **CommunityShell.tsx rewritten:** "Community" heading + ruled tab bar (For you / Following / Library), right rail with search input + 4 trending items + 3 who-to-follow rows.
+- **TwitActionRow.tsx:** Repost, Views, Share actions added; all text labels removed; icon + count only.
+- **TwitBody.tsx:** Hashtag parser — `#word` wrapped in `.twit-hashtag` with `color: #2e86de`.
+- **CommunityComposer.tsx:** Text "Image" button replaced with `ImageOutlinedIcon`; emoji and location icon buttons added (disabled, future use).
+- **detail.tsx:** Sticky back-arrow header, full timestamp line, stats row (Likes/Reposts/Replies), reply composer wired to `CREATE_TWIT_COMMENT`, live replies thread from `GET_TWIT_COMMENTS`.
+- **Dead code removed:** `Teditor.tsx`, `TViewer.tsx`, `write.scss` deleted; `WriteArticle.tsx` import stubbed.
+- **Palette aligned** to global site tokens (`#f6f6f6` bg, `#1a1a2e` text, `#64748b` muted, `#e2e8f0` borders, `#2e86de` accent).
+- **Font aligned:** Crimson Pro + Atkinson Hyperlegible `@import` removed; all community SCSS uses `$font`.
+- Twit image flow (from previous session): `imagesUploader` target `twits`; normalize at render time (`http` as-is, `uploads/` prefixed with `REACT_APP_API_URL`, `/img/` local).
 
 ## Frontend Audit (2026-05-14)
 
@@ -72,8 +78,8 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - `/`: homepage using `withLayoutMain`; shows New Arrivals, Diced Hero, Most Borrowed, Advertisement, Featured Books, Orbiting Avatars CTA, plus desktop-only Interactive Events and Library Features. Homepage book likes are wired through `LIKE_BOOK` and synchronize by `bookLikeSyncTick`.
 - `/books`: legacy-named `PropertyList` under `pages/books/index.tsx`; currently imports property types/components and uses stubbed `GET_PROPERTIES`/`LIKE_TARGET_PROPERTY`. Treat as legacy/incomplete for Smart Library until refactored to book queries.
 - `/books/detail`: legacy property detail page using `PropertyDetail`, property components, map/contact form, comments, and stubbed property queries. Needs Smart Library refactor before treating as a book detail page.
-- `/community`: legacy board-article community list. It uses `GET_BOARD_ARTICLES` and `LIKE_TARGET_BOARD_ARTICLE`, which are currently stubbed in `apollo/user/query.ts`/`mutation.ts`; needs verification/refactor toward Twit if community work resumes.
-- `/community/detail`: legacy board-article detail/comment page. Contains duplicated nested `updateButtonHandler` code in the current file; inspect carefully before editing.
+- `/community`: ✅ **Done.** X-platform 3-column feed using `GET_TWITS`, `CREATE_TWIT`, `LIKE_TWIT`, `DELETE_TWIT`. Components: `CommunityShell`, `CommunityLeftNav`, `CommunityComposer`, `CommunityFeed`, `TwitCard`, `TwitAuthorRow`, `TwitBody`, `TwitMedia`, `TwitActionRow`. Next: wire "Following" tab filter, real "Who to follow" data from `GET_MEMBERS`.
+- `/community/detail`: ✅ **Done.** Sticky header, full timestamp, stats row, reply composer (`CREATE_TWIT_COMMENT`), live replies thread (`GET_TWIT_COMMENTS`). Route pattern: `/community/detail?id=<twitId>`.
 - `/account/join`: login/signup page wired to `logIn` and `signUp`; signup sends `memberType: 'USER'`.
 - `/mypage`: authenticated user dashboard with category query routing. Uses MyProfile, MyProperties, MyFavorites, RecentlyVisited, MyArticles, WriteArticle, followers, and followings. Several children are still property/article legacy surfaces.
 - `/member`: public member page with properties, followers, followings, and articles tabs. Follow and member-like handlers are wired with current follow/member operations.
@@ -90,7 +96,7 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - Layout components: `LayoutHome`, `LayoutBasic`, `LayoutFull`, `LayoutAdmin`, `Top`, `Footer`, `Chat`.
 - Homepage components: `HeaderFilter`, `NewArrivals`, `NewArrivalCard`, `MostBorrowed`, `MostBorrowedCard`, `FeaturedBooks`, `FeaturedBookCard`, `DicedHeroSection`, `Advertisement`, `InteractiveEvents`, `LibraryFeatures`, `OrbitingAvatarsCTA`.
 - Book-related active homepage components use `Book` types and `GET_BOOKS`. The `/books` route still uses legacy property components and should not be assumed to be a completed book module.
-- Community components: `CommunityCard`, `Teditor`, `TViewer`, plus legacy board-article pages. Twit API contracts exist, but current pages still reference board-article names.
+- Community components: `CommunityShell`, `CommunityLeftNav`, `CommunityComposer`, `CommunityFeed`, `TwitCard`, `TwitAuthorRow`, `TwitBody`, `TwitMedia`, `TwitActionRow`. All fully migrated to Twit API. `Teditor`, `TViewer`, and `write.scss` deleted. `CommunityCard` is legacy/unused.
 - Member/mypage components: `MemberMenu`, `MemberFollowers`, `MemberFollowings`, `MemberProperties`, `MemberArticles`, `MyMenu`, `MyProfile`, `MyProperties`, `MyFavorites`, `RecentlyVisited`, `WriteArticle`, `AddNewProperty`.
 - Admin components: member list, property list, community article list, CS lists, and admin menu. Some admin CS components are static placeholders.
 - Request/robot frontend components are not present yet; only request/robot types and GraphQL admin/user operations exist.
@@ -281,7 +287,7 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - Book detail integration: use `getBook(bookId)`, preserve `meLiked`, and expose BORROW/PURCHASE actions based on `isBorrowable` and `isPurchasable`.
 - Borrow/purchase flow: call `createDeliveryRequest` with correct `requestType`, desk destination for BORROW, and guest/member session handling.
 - Request history/status: use `getSessionRequests` for student/guest-facing history and hide admin-only update controls.
-- Community feed: migrate new community UI to `getTwits`, `createTwit`, `likeTwit`, and `deleteTwit`.
+- Community feed: ✅ **Done.** X-platform UI live. Remaining: "Following" tab filter, real "Who to follow" from `GET_MEMBERS`, twit-comment like/nested-reply UI.
 - Profile page: use `getMember`, `getMemberTwits`, `getMemberFollowers`, and `getMemberFollowings`.
 - Followers/following tabs: use `subscribe`, `unsubscribe`, and `meFollowed`.
 - Twit comments/replies: use `getTwitComments`, build a nested tree client-side, and enforce UI depth to match backend max depth `2`.

@@ -1,7 +1,37 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-15 | Commit: `318f377`
+**Last Updated:** 2026-05-15 | Commit: `99aa9c4`
 **Current Branch:** `community`
+
+---
+
+## Today's Session Update (2026-05-15, Twit Upload URL Resolution)
+
+### Completed today
+- Fixed Twit media URL resolution so backend upload paths are resolved against API base URL (`REACT_APP_API_URL`) instead of frontend origin.
+- Updated shared `TwitMedia` rendering rule used by both feed cards and detail view via `TwitBody`.
+- Applied explicit handling:
+  - `http...` -> use as-is
+  - `uploads/...` -> `${REACT_APP_API_URL}/uploads/...`
+  - `/uploads/...` -> `${REACT_APP_API_URL}/uploads/...`
+  - other `/...` -> use as-is
+- Committed all current community changes:
+  - `99aa9c4` feat: finalize twit community updates and image url resolution
+
+### Build/verification result
+- Ran `npm run build`.
+- Build failed due local Node version mismatch: current `18.16.1`, Next.js requires `>=18.17.0`.
+
+### Current stopping point
+- Twit image path resolution is now backend-aware for relative upload paths and remains unchanged in stored `createTwit.image`.
+- Working tree is clean after commit `99aa9c4`.
+
+### Exact next task
+- Upgrade local Node runtime to `>=18.17.0` (recommended Node 20 LTS) and rerun `npm run build` for full structural verification.
+- Then continue scoped Twit UX QA and planned member/mypage Twit-surface migration.
+
+### Uncommitted/untracked files
+- None (`git status`: working tree clean).
 
 ---
 

@@ -2,7 +2,7 @@
 #mobile-wrap {
 	#community-detail-page {
 		position: relative;
-		background: #f6f8fb;
+		background: #f6f6f6;
 		.container {
 			padding-top: 86px;
 			padding-bottom: 70px;
@@ -11,75 +11,54 @@
 
 		.community-detail-shell {
 			width: 100%;
-			max-width: 760px;
+			max-width: 680px;
 			margin: 0 auto;
-			gap: 16px;
-		}
-
-		.community-detail-header {
-			padding: 20px 22px;
-			gap: 12px;
-			border: 1px solid #d8e0ea;
-			border-radius: 14px;
-			background: #fff;
-			box-shadow: 0 18px 42px rgba(23, 42, 76, 0.08);
-
-			.back-button {
-				width: fit-content;
-				min-width: 112px;
-				height: 34px;
-				padding: 0 14px;
-				border-radius: 17px;
-				border: 1px solid #c8d8ea;
-				color: #2e86de;
-				font-family: $font;
-				font-size: 12px;
-				font-weight: 700;
-				text-transform: none;
-
-				&:hover {
-					border-color: #2e86de;
-					background: rgba(46, 134, 222, 0.08);
-				}
-			}
-
-			.header-copy {
-				gap: 4px;
-			}
-
-			.header-kicker {
-				color: #2e86de;
-				font-family: $font;
-				font-size: 13px;
-				font-weight: 700;
-				line-height: 18px;
-			}
-
-			.header-title {
-				color: #162033;
-				font-family: $font;
-				font-size: 30px;
-				font-weight: 800;
-				line-height: 38px;
-			}
-
-			.header-subtitle {
-				color: #6c7888;
-				font-family: $font;
-				font-size: 14px;
-				font-weight: 500;
-				line-height: 22px;
-			}
-		}
-
-		.community-detail-content {
-			border: 1px solid #d8e0ea;
-			border-radius: 14px;
+			flex-direction: column;
+			gap: 0;
+			border: 1px solid #e2e8f0;
+			border-radius: 4px;
 			background: #fff;
 			overflow: hidden;
-			box-shadow: 0 18px 42px rgba(23, 42, 76, 0.08);
 		}
 
+		// Sticky back-arrow header
+		.detail-sticky-header {
+			width: 100%;
+			flex-direction: row;
+			align-items: center;
+			gap: 18px;
+			padding: 0 18px;
+			height: 52px;
+			position: sticky;
+			top: 86px;
+			z-index: 10;
+			background: rgba(255, 255, 255, 0.95);
+			border-bottom: 1px solid #e2e8f0;
+			backdrop-filter: blur(6px);
+		}
+		.detail-back-btn {
+			width: 36px;
+			height: 36px;
+			border-radius: 50%;
+			color: #1a1a2e;
+			flex-shrink: 0;
+			&:hover {
+				background: rgba(46, 134, 222, 0.08);
+				color: #2e86de;
+			}
+			svg {
+				font-size: 22px;
+			}
+		}
+		.detail-header-title {
+			color: #1a1a2e;
+			font-family: $font;
+			font-size: 20px;
+			font-weight: 700;
+			line-height: 26px;
+		}
+
+		// State boxes
 		.detail-state-box {
 			min-height: 280px;
 			align-items: center;
@@ -87,157 +66,190 @@
 			gap: 12px;
 			padding: 34px;
 			text-align: center;
-
 			p {
-				color: #718092;
+				color: #64748b;
 				font-family: $font;
 				font-size: 14px;
-				font-weight: 500;
+				font-weight: 400;
 				line-height: 22px;
 			}
-
 			.state-title {
-				color: #162033;
+				color: #1a1a2e;
+				font-family: $font;
 				font-size: 19px;
 				font-weight: 700;
 				line-height: 24px;
 			}
 		}
 
+		// Main twit detail card
 		.twit-detail-card {
 			width: 100%;
-			gap: 16px;
-			padding: 22px 26px 18px;
-			border-bottom: 1px solid #e5edf5;
+			flex-direction: column;
+			gap: 14px;
+			padding: 20px 24px 0;
+			border-bottom: 1px solid #e2e8f0;
 
 			.twit-author-row {
 				width: 100%;
 				flex-direction: row;
 				align-items: flex-start;
 				gap: 12px;
-
 				.twit-avatar {
-					width: 48px;
-					height: 48px;
+					width: 46px;
+					height: 46px;
 					flex-shrink: 0;
 					border-radius: 50%;
 					object-fit: cover;
-					border: 1px solid #dde6ef;
+					border: 1px solid #e2e8f0;
 					cursor: pointer;
 				}
-
 				.twit-author-main {
 					width: 100%;
 					min-width: 0;
 				}
-
 				.twit-author-line {
 					width: 100%;
 					min-width: 0;
 					flex-direction: row;
 					align-items: center;
-					gap: 7px;
+					gap: 6px;
 					flex-wrap: wrap;
 				}
-
 				.twit-author-name {
 					max-width: 280px;
-					color: #172033;
+					color: #1a1a2e;
 					font-family: $font;
 					font-size: 16px;
-					font-weight: 800;
+					font-weight: 700;
 					line-height: 21px;
 					cursor: pointer;
 					overflow: hidden;
 					text-overflow: ellipsis;
 					white-space: nowrap;
 				}
-
 				.twit-author-nick,
 				.twit-dot,
 				.twit-time {
-					color: #738296;
+					color: #64748b;
 					font-family: $font;
-					font-size: 13px;
-					font-weight: 500;
+					font-size: 14px;
+					font-weight: 400;
 					line-height: 20px;
 				}
 			}
 
 			.twit-body {
-				padding-left: 60px;
+				padding-left: 0;
 				gap: 14px;
-
 				.twit-text {
-					color: #1f2937;
+					color: #1a1a2e;
 					font-family: $font;
-					font-size: 16px;
-					font-weight: 500;
-					line-height: 25px;
+					font-size: 20px;
+					font-weight: 400;
+					line-height: 1.6;
 					white-space: pre-wrap;
 					overflow-wrap: anywhere;
 				}
-
+				.twit-hashtag {
+					color: #2e86de;
+					cursor: pointer;
+					&:hover {
+						text-decoration: underline;
+					}
+				}
 				.twit-media {
 					width: 100%;
 					max-height: 560px;
-					border-radius: 12px;
-					border: 1px solid #dbe5ef;
+					border-radius: 4px;
+					border: 1px solid #e2e8f0;
 					object-fit: cover;
-					background: #eef3f8;
+					background: #f6f6f6;
 				}
 			}
 
+			// Full timestamp line
+			.detail-timestamp {
+				color: #64748b;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 20px;
+				padding-bottom: 16px;
+			}
+
+			// Stats row
+			.detail-stats-row {
+				flex-direction: row;
+				gap: 20px;
+				padding: 14px 0;
+				border-top: 1px solid #e2e8f0;
+				border-bottom: 1px solid #e2e8f0;
+			}
+			.detail-stat-item {
+				flex-direction: row;
+				gap: 4px;
+				align-items: baseline;
+			}
+			.stat-count {
+				color: #1a1a2e;
+				font-family: $font;
+				font-size: 16px;
+				font-weight: 700;
+				line-height: 20px;
+			}
+			.stat-label {
+				color: #64748b;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 400;
+				line-height: 20px;
+			}
+
+			// Action icon row inside detail card
 			.twit-action-row {
-				padding-left: 54px;
+				padding: 4px 0 16px;
 				flex-direction: row;
 				align-items: center;
-				gap: 26px;
-
+				gap: 2px;
 				.twit-action {
 					flex-direction: row;
 					align-items: center;
-					gap: 2px;
-					color: #6f7f91;
-
+					gap: 1px;
+					color: #64748b;
 					.MuiIconButton-root {
-						width: 34px;
-						height: 34px;
-						color: #6f7f91;
+						width: 36px;
+						height: 36px;
+						color: #64748b;
 					}
-
 					svg {
-						width: 19px;
-						height: 19px;
+						font-size: 20px;
 					}
-
 					p {
 						color: inherit;
 						font-family: $font;
-						font-size: 12px;
-						font-weight: 700;
+						font-size: 13px;
+						font-weight: 400;
 						line-height: 18px;
+						min-width: 14px;
 					}
-
 					&:hover {
 						color: #2e86de;
 						.MuiIconButton-root {
-							background: rgba(46, 134, 222, 0.1);
+							background: rgba(46, 134, 222, 0.08);
 							color: #2e86de;
 						}
 					}
-
 					&.like-action.active {
 						color: #e92c28;
 						.MuiIconButton-root {
 							color: #e92c28;
 						}
 					}
-
 					&.delete-action:hover {
 						color: #e92c28;
 						.MuiIconButton-root {
-							background: rgba(233, 44, 40, 0.1);
+							background: rgba(233, 44, 40, 0.08);
 							color: #e92c28;
 						}
 					}
@@ -245,25 +257,110 @@
 			}
 		}
 
+		// Reply compose box
+		.detail-reply-composer {
+			width: 100%;
+			flex-direction: row;
+			gap: 12px;
+			padding: 14px 24px;
+			border-bottom: 1px solid #e2e8f0;
+			background: #fff;
+			.reply-avatar {
+				width: 38px;
+				height: 38px;
+				flex-shrink: 0;
+				border-radius: 50%;
+				object-fit: cover;
+				border: 1px solid #e2e8f0;
+			}
+			.reply-input-wrap {
+				flex: 1;
+				flex-direction: column;
+				gap: 8px;
+			}
+			.reply-input {
+				width: 100%;
+				textarea {
+					color: #1a1a2e;
+					font-family: $font;
+					font-size: 15px;
+					font-weight: 400;
+					line-height: 1.6;
+					overflow-wrap: anywhere;
+				}
+				.MuiInputBase-root {
+					padding: 0;
+				}
+			}
+			.reply-submit-row {
+				flex-direction: row;
+				align-items: center;
+				justify-content: flex-end;
+				padding-top: 8px;
+				border-top: 1px solid #e2e8f0;
+			}
+			.reply-submit-btn {
+				min-width: 76px;
+				height: 32px;
+				border-radius: 16px;
+				background: #2e86de;
+				color: #fff;
+				font-family: $font;
+				font-size: 13px;
+				font-weight: 600;
+				text-transform: none;
+				&:hover {
+					background: #1a6fc4;
+				}
+				&.Mui-disabled {
+					background: #cbd5e1;
+					color: #fff;
+				}
+			}
+		}
+
+		// Replies thread section header
+		.replies-section-header {
+			padding: 14px 24px 10px;
+			border-bottom: 1px solid #e2e8f0;
+			p {
+				color: #1a1a2e;
+				font-family: $font;
+				font-size: 15px;
+				font-weight: 700;
+				line-height: 20px;
+			}
+		}
+
+		// Reply cards
+		.reply-card {
+			width: 100%;
+			gap: 10px;
+			padding: 14px 24px 12px;
+			border-bottom: 1px solid #e2e8f0;
+			&:last-child {
+				border-bottom: none;
+			}
+		}
+
+		// Empty replies placeholder
 		.community-comments-placeholder {
 			width: 100%;
 			gap: 6px;
-			padding: 20px 26px 24px;
-			background: #f8fbff;
-
+			padding: 24px;
+			background: #f6f6f6;
 			.placeholder-title {
-				color: #162033;
+				color: #1a1a2e;
 				font-family: $font;
-				font-size: 16px;
+				font-size: 15px;
 				font-weight: 700;
-				line-height: 22px;
+				line-height: 20px;
 			}
-
 			.placeholder-copy {
-				color: #6f7f91;
+				color: #64748b;
 				font-family: $font;
 				font-size: 14px;
-				font-weight: 500;
+				font-weight: 400;
 				line-height: 22px;
 			}
 		}
@@ -276,47 +373,47 @@
 			width: 100%;
 			padding: 24px 14px 40px;
 		}
-
 		.community-detail-shell {
 			max-width: 100%;
-			gap: 14px;
 		}
-
-		.community-detail-header {
-			padding: 16px;
-			.header-title {
-				font-size: 24px;
-				line-height: 32px;
-			}
+		.detail-sticky-header {
+			top: 0;
+			height: 48px;
+			padding: 0 14px;
 		}
-
 		.twit-detail-card {
-			padding: 16px;
-			gap: 14px;
-
+			padding: 16px 16px 0;
+			gap: 12px;
 			.twit-author-row {
 				.twit-avatar {
 					width: 40px;
 					height: 40px;
 				}
 				.twit-author-name {
-					max-width: 170px;
+					max-width: 180px;
 				}
 			}
-
 			.twit-body {
-				padding-left: 52px;
+				.twit-text {
+					font-size: 17px;
+				}
 				.twit-media {
 					max-height: 360px;
 				}
 			}
-
 			.twit-action-row {
-				padding-left: 46px;
-				gap: 14px;
+				padding-bottom: 14px;
 			}
 		}
-
+		.detail-reply-composer {
+			padding: 12px 16px;
+		}
+		.replies-section-header {
+			padding: 12px 16px 8px;
+		}
+		.reply-card {
+			padding: 12px 16px 10px;
+		}
 		.community-comments-placeholder {
 			padding: 16px;
 		}

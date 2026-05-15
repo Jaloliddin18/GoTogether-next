@@ -2,7 +2,7 @@
 #mobile-wrap {
 	#community-list-page {
 		position: relative;
-		background: #f6f8fb;
+		background: #f6f6f6;
 		.container {
 			padding-top: 86px;
 			padding-bottom: 70px;
@@ -15,57 +15,111 @@
 			justify-content: center;
 			gap: 24px;
 		}
+
+		// Left nav column
+		.community-left-nav {
+			width: 68px;
+			flex-shrink: 0;
+			flex-direction: column;
+			align-items: center;
+			gap: 4px;
+			position: sticky;
+			top: 105px;
+			padding: 8px 0;
+		}
+		.community-nav-btn {
+			width: 44px;
+			height: 44px;
+			border-radius: 50%;
+			color: #64748b;
+			transition: background 0.15s ease, color 0.15s ease;
+			&:hover {
+				background: rgba(46, 134, 222, 0.08);
+				color: #2e86de;
+			}
+			&.active {
+				color: #2e86de;
+				background: rgba(46, 134, 222, 0.1);
+			}
+			svg {
+				font-size: 22px;
+			}
+		}
+
+		// Main feed column
 		.community-feed-column {
-			width: 760px;
+			flex: 1;
+			max-width: 600px;
 			min-height: 640px;
-			border: 1px solid #d8e0ea;
-			border-radius: 14px;
+			border: 1px solid #e2e8f0;
+			border-radius: 4px;
 			background: #fff;
 			overflow: hidden;
-			box-shadow: 0 18px 42px rgba(23, 42, 76, 0.08);
 		}
 		.community-feed-header {
-			padding: 26px 28px 22px;
-			border-bottom: 1px solid #e5edf5;
-			background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
-			.community-kicker {
-				color: #2E86DE;
-				font-family: $font;
-				font-size: 13px;
-				font-weight: 700;
-				line-height: 18px;
-			}
+			padding: 0;
+			border-bottom: 1px solid #e2e8f0;
+			background: #fff;
 			.community-title {
-				margin-top: 4px;
-				color: #162033;
+				padding: 18px 24px 14px;
+				color: #1a1a2e;
 				font-family: $font;
-				font-size: 28px;
+				font-size: 22px;
 				font-weight: 700;
-				line-height: 36px;
-			}
-			.community-subtitle {
-				margin-top: 4px;
-				color: #6c7888;
-				font-family: $font;
-				font-size: 14px;
-				font-weight: 500;
-				line-height: 22px;
+				line-height: 28px;
 			}
 		}
+
+		// Tab bar
+		.community-tabs {
+			width: 100%;
+			flex-direction: row;
+			border-top: 1px solid #e2e8f0;
+		}
+		.community-tab {
+			flex: 1;
+			height: 48px;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			border-bottom: 2px solid transparent;
+			transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+			p {
+				color: #64748b;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 700;
+				line-height: 20px;
+			}
+			&:hover {
+				background: #f6f6f6;
+				p {
+					color: #1a1a2e;
+				}
+			}
+			&.active {
+				border-bottom: 2px solid #2e86de;
+				p {
+					color: #1a1a2e;
+				}
+			}
+		}
+
+		// Composer
 		.community-composer {
 			width: 100%;
 			flex-direction: row;
 			gap: 14px;
-			padding: 20px 24px;
-			border-bottom: 1px solid #e5edf5;
+			padding: 16px 24px;
+			border-bottom: 1px solid #e2e8f0;
 			background: #fff;
 			.composer-avatar {
-				width: 46px;
-				height: 46px;
+				width: 44px;
+				height: 44px;
 				flex-shrink: 0;
 				border-radius: 50%;
 				object-fit: cover;
-				border: 1px solid #dde6ef;
+				border: 1px solid #e2e8f0;
 			}
 			.composer-body {
 				width: 100%;
@@ -75,11 +129,11 @@
 				width: 100%;
 				padding: 4px 0;
 				textarea {
-					color: #1f2937;
+					color: #1a1a2e;
 					font-family: $font;
 					font-size: 16px;
-					font-weight: 500;
-					line-height: 24px;
+					font-weight: 400;
+					line-height: 1.6;
 					overflow-wrap: anywhere;
 				}
 				.MuiInputBase-root {
@@ -91,49 +145,54 @@
 				align-items: center;
 				justify-content: space-between;
 				padding-top: 10px;
-				border-top: 1px solid #f0f4f8;
+				border-top: 1px solid #e2e8f0;
 			}
 			.composer-tools {
 				flex-direction: row;
 				align-items: center;
-				gap: 8px;
+				gap: 2px;
 			}
-			.composer-hint {
-				color: #8a96a6;
-				font-family: $font;
-				font-size: 12px;
-				font-weight: 600;
-			}
-			.composer-upload {
-				min-width: 84px;
+			.composer-icon-btn {
+				min-width: 36px;
+				width: 36px;
 				height: 36px;
-				border-radius: 18px;
-				border: 1px solid #c8d8ea;
-				color: #2E86DE;
-				font-family: $font;
-				font-size: 13px;
-				font-weight: 700;
-				text-transform: none;
+				border-radius: 50%;
+				color: #64748b;
+				padding: 0;
+				border: none;
 				&:hover {
-					border-color: #2E86DE;
 					background: rgba(46, 134, 222, 0.08);
-				}
-			}
-			.composer-submit {
-				min-width: 92px;
-				height: 36px;
-				border-radius: 18px;
-				background: #2E86DE;
-				color: #fff;
-				font-family: $font;
-				font-size: 13px;
-				font-weight: 700;
-				text-transform: none;
-				&:hover {
-					background: #1f6fbd;
+					color: #2e86de;
 				}
 				&.Mui-disabled {
-					background: #b7c9dc;
+					color: #cbd5e1;
+				}
+				svg {
+					font-size: 20px;
+				}
+			}
+			.composer-hint {
+				color: #64748b;
+				font-family: $font;
+				font-size: 12px;
+				font-weight: 400;
+			}
+			.composer-submit {
+				min-width: 76px;
+				height: 36px;
+				border-radius: 20px;
+				background: #2e86de;
+				color: #fff;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 600;
+				text-transform: none;
+				margin-left: 6px;
+				&:hover {
+					background: #1a6fc4;
+				}
+				&.Mui-disabled {
+					background: #cbd5e1;
 					color: #fff;
 				}
 			}
@@ -142,19 +201,20 @@
 				gap: 8px;
 				align-items: flex-start;
 				.composer-title {
-					color: #162033;
+					color: #1a1a2e;
 					font-family: $font;
 					font-size: 18px;
 					font-weight: 700;
 				}
 				.composer-copy {
-					color: #6c7888;
+					color: #64748b;
 					font-family: $font;
 					font-size: 14px;
-					font-weight: 500;
+					font-weight: 400;
 				}
 				.composer-submit {
 					margin-top: 6px;
+					margin-left: 0;
 				}
 			}
 			.composer-preview {
@@ -165,25 +225,27 @@
 					width: 100%;
 					max-height: 280px;
 					object-fit: cover;
-					border-radius: 8px;
-					border: 1px solid #dbe5ef;
-					background: #eef3f8;
+					border-radius: 4px;
+					border: 1px solid #e2e8f0;
+					background: #f6f6f6;
 				}
 				.composer-remove-image {
 					width: fit-content;
 					min-width: 72px;
 					height: 30px;
 					padding: 0 10px;
-					border: 1px solid #f1c8c7;
+					border: 1px solid #e92c28;
 					border-radius: 15px;
-					color: #C13E3B;
+					color: #e92c28;
 					font-family: $font;
 					font-size: 12px;
-					font-weight: 700;
+					font-weight: 600;
 					text-transform: none;
 				}
 			}
 		}
+
+		// Feed
 		.community-feed {
 			width: 100%;
 			background: #fff;
@@ -196,43 +258,43 @@
 				padding: 34px;
 				text-align: center;
 				.empty-title {
-					color: #162033;
+					color: #1a1a2e;
 					font-family: $font;
 					font-size: 18px;
 					font-weight: 700;
 				}
 				.empty-copy {
 					max-width: 420px;
-					color: #718092;
+					color: #64748b;
 					font-family: $font;
 					font-size: 14px;
-					font-weight: 500;
-					line-height: 22px;
+					font-weight: 400;
+					line-height: 1.6;
 				}
 				.empty-action {
 					min-width: 92px;
 					height: 36px;
-					border-radius: 18px;
-					background: #2E86DE;
+					border-radius: 20px;
+					background: #2e86de;
 					color: #fff;
 					font-family: $font;
-					font-size: 13px;
-					font-weight: 700;
+					font-size: 14px;
+					font-weight: 600;
 					text-transform: none;
 				}
 			}
 		}
+
+		// Twit card
 		.twit-card {
 			width: 100%;
-			gap: 12px;
-			padding: 18px 24px 14px;
-			border-bottom: 1px solid #e5edf5;
+			gap: 10px;
+			padding: 16px 24px 12px;
+			border-bottom: 1px solid #e2e8f0;
 			cursor: pointer;
-			transition:
-				background 0.18s ease,
-				box-shadow 0.18s ease;
+			transition: background 0.15s ease;
 			&:hover {
-				background: #f7fbff;
+				background: #f6f6f6;
 			}
 		}
 		.twit-author-row {
@@ -246,7 +308,7 @@
 				flex-shrink: 0;
 				border-radius: 50%;
 				object-fit: cover;
-				border: 1px solid #dde6ef;
+				border: 1px solid #e2e8f0;
 				cursor: pointer;
 			}
 			.twit-author-main {
@@ -258,15 +320,15 @@
 				min-width: 0;
 				flex-direction: row;
 				align-items: center;
-				gap: 7px;
+				gap: 6px;
 				flex-wrap: wrap;
 			}
 			.twit-author-name {
 				max-width: 220px;
-				color: #172033;
+				color: #1a1a2e;
 				font-family: $font;
 				font-size: 15px;
-				font-weight: 800;
+				font-weight: 700;
 				line-height: 20px;
 				cursor: pointer;
 				overflow: hidden;
@@ -276,128 +338,241 @@
 			.twit-author-nick,
 			.twit-dot,
 			.twit-time {
-				color: #738296;
+				color: #64748b;
 				font-family: $font;
 				font-size: 13px;
-				font-weight: 500;
+				font-weight: 400;
 				line-height: 20px;
 			}
 		}
 		.twit-body {
 			padding-left: 56px;
-			gap: 14px;
+			gap: 12px;
 			min-width: 0;
 			.twit-text {
-				color: #1f2937;
+				color: #1a1a2e;
 				font-family: $font;
 				font-size: 15px;
-				font-weight: 500;
-				line-height: 24px;
+				font-weight: 400;
+				line-height: 1.6;
 				white-space: pre-wrap;
 				overflow-wrap: anywhere;
+			}
+			.twit-hashtag {
+				color: #2e86de;
+				cursor: pointer;
+				&:hover {
+					text-decoration: underline;
+				}
 			}
 			.twit-media {
 				display: block;
 				width: 100%;
 				max-height: 420px;
-				border-radius: 12px;
-				border: 1px solid #dbe5ef;
+				border-radius: 4px;
+				border: 1px solid #e2e8f0;
 				object-fit: cover;
-				background: #eef3f8;
+				background: #f6f6f6;
 			}
 		}
 		.twit-action-row {
 			padding-left: 50px;
 			flex-direction: row;
 			align-items: center;
-			gap: 26px;
+			gap: 2px;
 			.twit-action {
 				flex-direction: row;
 				align-items: center;
-				gap: 2px;
-				color: #6f7f91;
+				gap: 1px;
+				color: #64748b;
 				.MuiIconButton-root {
 					width: 34px;
 					height: 34px;
-					color: #6f7f91;
+					color: #64748b;
 				}
 				svg {
-					width: 19px;
-					height: 19px;
+					font-size: 18px;
 				}
 				p {
 					color: inherit;
 					font-family: $font;
-					font-size: 12px;
-					font-weight: 700;
+					font-size: 13px;
+					font-weight: 400;
 					line-height: 18px;
+					min-width: 14px;
 				}
 				&:hover {
-					color: #2E86DE;
+					color: #2e86de;
 					.MuiIconButton-root {
-						background: rgba(46, 134, 222, 0.1);
-						color: #2E86DE;
+						background: rgba(46, 134, 222, 0.08);
+						color: #2e86de;
 					}
 				}
 				&.like-action.active {
-					color: #E92C28;
+					color: #e92c28;
 					.MuiIconButton-root {
-						color: #E92C28;
+						color: #e92c28;
 					}
 				}
 				&.delete-action:hover {
-					color: #E92C28;
+					color: #e92c28;
 					.MuiIconButton-root {
-						background: rgba(233, 44, 40, 0.1);
-						color: #E92C28;
+						background: rgba(233, 44, 40, 0.08);
+						color: #e92c28;
 					}
 				}
 			}
 		}
+
+		// Right rail
 		.community-right-rail {
 			width: 300px;
-			gap: 16px;
+			flex-shrink: 0;
+			flex-direction: column;
 			position: sticky;
 			top: 105px;
-			.community-rail-box {
-				width: 100%;
-				gap: 6px;
-				padding: 20px;
-				border: 1px solid #d8e0ea;
-				border-radius: 8px;
-				background: #fff;
-				box-shadow: 0 12px 30px rgba(23, 42, 76, 0.06);
-			}
-			.rail-title {
-				color: #162033;
-				font-family: $font;
-				font-size: 15px;
-				font-weight: 800;
-				line-height: 22px;
-			}
-			.rail-count {
-				color: #2E86DE;
-				font-family: $font;
-				font-size: 34px;
-				font-weight: 800;
-				line-height: 42px;
-			}
-			.rail-label,
-			.rail-text {
-				color: #718092;
-				font-family: $font;
-				font-size: 13px;
-				font-weight: 500;
-				line-height: 21px;
+			border: 1px solid #e2e8f0;
+			border-radius: 4px;
+			background: #fff;
+			overflow: hidden;
+		}
+		.rail-section {
+			width: 100%;
+			flex-direction: column;
+			padding: 18px 20px;
+			border-bottom: 1px solid #e2e8f0;
+			gap: 12px;
+			&:last-child {
+				border-bottom: none;
 			}
 		}
+		.rail-section-title {
+			color: #1a1a2e;
+			font-family: $font;
+			font-size: 15px;
+			font-weight: 700;
+			line-height: 20px;
+		}
+		.rail-search-bar {
+			width: 100%;
+			.MuiInputBase-root {
+				width: 100%;
+				background: #f6f6f6;
+				border-radius: 20px;
+				font-family: $font;
+				font-size: 14px;
+				padding: 8px 14px;
+			}
+			.MuiOutlinedInput-notchedOutline {
+				border-color: #e2e8f0;
+				border-radius: 20px;
+			}
+			input {
+				padding: 0;
+				color: #1a1a2e;
+				&::placeholder {
+					color: #64748b;
+				}
+			}
+		}
+		.rail-trend-item {
+			width: 100%;
+			flex-direction: column;
+			gap: 2px;
+			padding: 8px 0;
+			border-bottom: 1px solid #e2e8f0;
+			cursor: pointer;
+			&:last-child {
+				border-bottom: none;
+				padding-bottom: 0;
+			}
+			&:first-child {
+				padding-top: 0;
+			}
+			&:hover .trend-label {
+				color: #2e86de;
+			}
+		}
+		.trend-label {
+			color: #1a1a2e;
+			font-family: $font;
+			font-size: 14px;
+			font-weight: 600;
+			line-height: 18px;
+			transition: color 0.15s ease;
+		}
+		.trend-count {
+			color: #64748b;
+			font-family: $font;
+			font-size: 12px;
+			font-weight: 400;
+			line-height: 16px;
+		}
+		.rail-follow-item {
+			width: 100%;
+			flex-direction: row;
+			align-items: center;
+			gap: 10px;
+			padding: 6px 0;
+		}
+		.rail-follow-avatar {
+			width: 38px;
+			height: 38px;
+			flex-shrink: 0;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 1px solid #e2e8f0;
+			cursor: pointer;
+		}
+		.rail-follow-info {
+			flex: 1;
+			flex-direction: column;
+			gap: 2px;
+			min-width: 0;
+		}
+		.rail-follow-name {
+			color: #1a1a2e;
+			font-family: $font;
+			font-size: 14px;
+			font-weight: 600;
+			line-height: 18px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+		.rail-follow-nick {
+			color: #64748b;
+			font-family: $font;
+			font-size: 12px;
+			font-weight: 400;
+			line-height: 16px;
+		}
+		.rail-follow-btn {
+			flex-shrink: 0;
+			min-width: 72px;
+			height: 30px;
+			border-radius: 15px;
+			border: 1.5px solid #1a1a2e;
+			color: #1a1a2e;
+			font-family: $font;
+			font-size: 13px;
+			font-weight: 600;
+			text-transform: none;
+			padding: 0 14px;
+			&:hover {
+				background: #1a1a2e;
+				color: #fff;
+			}
+		}
+
+		// Pagination
 		.pagination-config {
 			width: 100%;
 			align-items: center;
 			justify-content: center;
 			gap: 14px;
 			padding: 24px;
-			border-top: 1px solid #e5edf5;
+			border-top: 1px solid #e2e8f0;
 			background: #fff;
 			.pagination-box {
 				align-items: center;
@@ -405,11 +580,11 @@
 			}
 			.total-result {
 				p {
-					color: #6f7f91;
+					color: #64748b;
 					text-align: center;
 					font-family: $font;
 					font-size: 13px;
-					font-weight: 600;
+					font-weight: 400;
 					line-height: 20px;
 				}
 			}
@@ -427,42 +602,45 @@
 			flex-direction: column;
 			gap: 16px;
 		}
+		.community-left-nav {
+			display: none;
+		}
 		.community-feed-column {
 			width: 100%;
-			border-radius: 8px;
+			max-width: 100%;
+			border-radius: 4px;
 		}
 		.community-feed-header {
-			padding: 22px 18px 18px;
 			.community-title {
-				font-size: 24px;
-				line-height: 32px;
+				padding: 16px 18px 12px;
+				font-size: 20px;
+				line-height: 26px;
 			}
 		}
 		.community-composer {
-			padding: 16px;
+			padding: 14px 16px;
 			.composer-avatar {
-				width: 40px;
-				height: 40px;
+				width: 38px;
+				height: 38px;
 			}
 		}
 		.twit-card {
-			padding: 16px 16px 10px;
+			padding: 14px 16px 10px;
 		}
 		.twit-author-row {
 			.twit-avatar {
-				width: 40px;
-				height: 40px;
+				width: 38px;
+				height: 38px;
 			}
 			.twit-author-name {
-				max-width: 170px;
+				max-width: 160px;
 			}
 		}
 		.twit-body {
-			padding-left: 52px;
+			padding-left: 50px;
 		}
 		.twit-action-row {
-			padding-left: 46px;
-			gap: 14px;
+			padding-left: 44px;
 		}
 		.community-right-rail {
 			display: none;
