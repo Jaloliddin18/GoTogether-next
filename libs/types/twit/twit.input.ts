@@ -11,6 +11,7 @@ export interface TwitInquiry {
 
 interface TwitSearch {
 	text?: string;
+	memberId?: string;
 }
 
 export interface TwitsInquiry {

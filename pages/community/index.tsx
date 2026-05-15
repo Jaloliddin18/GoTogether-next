@@ -43,7 +43,6 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	} = useQuery(GET_TWITS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: searchCommunity },
-		skip: !user?._id,
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
 			setTwits(data?.getTwits?.list ?? []);
@@ -81,7 +80,10 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	const likeTwitHandler = async (id: string) => {
 		try {
 			if (!id) return;
-			if (!user?._id) throw new Error(Message.NOT_AUTHENTICATED);
+			if (!user?._id) {
+				goLoginPage();
+				return;
+			}
 
 			await likeTwit({
 				variables: { input: id },
@@ -97,7 +99,10 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	const deleteTwitHandler = async (id: string) => {
 		try {
 			if (!id) return;
-			if (!user?._id) throw new Error(Message.NOT_AUTHENTICATED);
+			if (!user?._id) {
+				goLoginPage();
+				return;
+			}
 
 			const confirmation = await sweetConfirmAlert('Delete this post?');
 			if (!confirmation) return;
@@ -133,13 +138,11 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 						twits={twits}
 						loading={twitsLoading}
 						error={getTwitsError}
-						isAuthenticated={!!user?._id}
 						currentUserId={user?._id}
-						onLogin={goLoginPage}
 						onLike={likeTwitHandler}
 						onDelete={deleteTwitHandler}
 					/>
-					{user?._id && totalCount > searchCommunity.limit && (
+					{totalCount > searchCommunity.limit && (
 						<Stack className="pagination-config">
 							<Stack className="pagination-box">
 								<Pagination

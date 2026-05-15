@@ -45,12 +45,12 @@ const withLayoutBasic = (Component: any) => {
 					break;
 				case '/community':
 					title = 'Community';
-					desc = 'Home / For Rent';
+					desc = 'Home / Community';
 					bgImage = '/img/banner/header2.svg';
 					break;
 				case '/community/detail':
 					title = 'Community Detail';
-					desc = 'Home / For Rent';
+					desc = 'Home / Community';
 					bgImage = '/img/banner/header2.svg';
 					break;
 				case '/cs':

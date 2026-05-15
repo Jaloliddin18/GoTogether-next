@@ -13,7 +13,6 @@ import { Twit } from '../../libs/types/twit/twit';
 import TwitAuthorRow from '../../libs/components/community/TwitAuthorRow';
 import TwitBody from '../../libs/components/community/TwitBody';
 import TwitActionRow from '../../libs/components/community/TwitActionRow';
-import { Message } from '../../libs/enums/common.enum';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -57,7 +56,10 @@ const CommunityDetail: NextPage = () => {
 	const likeTwitHandler = async (id: string) => {
 		try {
 			if (!id) return;
-			if (!user?._id) throw new Error(Message.NOT_AUTHENTICATED);
+			if (!user?._id) {
+				await router.push('/account/join');
+				return;
+			}
 
 			await likeTwit({
 				variables: { input: id },
@@ -72,7 +74,10 @@ const CommunityDetail: NextPage = () => {
 	const deleteTwitHandler = async (id: string) => {
 		try {
 			if (!id) return;
-			if (!user?._id) throw new Error(Message.NOT_AUTHENTICATED);
+			if (!user?._id) {
+				await router.push('/account/join');
+				return;
+			}
 
 			const confirmation = await sweetConfirmAlert('Delete this post?');
 			if (!confirmation) return;
@@ -136,9 +141,7 @@ const CommunityDetail: NextPage = () => {
 
 								<Stack id="community-comments-placeholder" className="community-comments-placeholder">
 									<Typography className="placeholder-title">Replies</Typography>
-									<Typography className="placeholder-copy">
-										Comment threads will be enabled in the next community iteration.
-									</Typography>
+									<Typography className="placeholder-copy">Replies will be available soon.</Typography>
 								</Stack>
 							</>
 						)}
