@@ -5,6 +5,10 @@ export interface CreateTwitInput {
 	image?: string;
 }
 
+export interface TwitInquiry {
+	_id: string;
+}
+
 interface TwitSearch {
 	text?: string;
 }

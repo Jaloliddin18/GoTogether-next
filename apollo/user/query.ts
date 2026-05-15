@@ -494,6 +494,27 @@ export const GET_TWITS = gql`
 	}
 `;
 
+export const GET_TWIT = gql`
+	query GetTwit($input: TwitInquiry!) {
+		getTwit(input: $input) {
+			_id
+			memberId
+			text
+			image
+			likes
+			likeCount
+			createdAt
+			updatedAt
+			memberData {
+				_id
+				memberNick
+				memberFullName
+				memberImage
+			}
+		}
+	}
+`;
+
 export const GET_MEMBER_TWITS = gql`
 	query GetMemberTwits($input: TwitsInquiry!) {
 		getMemberTwits(input: $input) {
