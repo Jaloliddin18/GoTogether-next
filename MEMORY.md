@@ -1,7 +1,28 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-14 | Commit: `07a76fa`
-**Current Branch:** `homepage`
+**Last Updated:** 2026-05-15 | Commit: `9e5d71c`
+**Current Branch:** `community`
+
+---
+
+## Today's Session Update (2026-05-15)
+
+### Completed today
+- Audited the current board/article/community/twit/member frontend structure without editing application source.
+- Saved the community audit snapshot and future implementation plan into `docs/SMART_LIBRARY_FRONTEND_PAGES.md`.
+
+### Current audit result
+- Current live community UI is `/community`, and it is still old board/article-based.
+- Board/article GraphQL operations are stub `__typename` operations and should be treated as legacy/broken until replaced.
+- Twit operations and types already exist in `apollo/user/*` and `libs/types/twit*`, but no live page uses them yet.
+- No `pages/library/community`, `pages/twit*`, dynamic `/community/[id]`, or dynamic `/member/[memberId]` route exists in the current checkout.
+
+### Exact next task
+- Convert `/community` into a Smart Library Twit feed using the audit notes in `docs/SMART_LIBRARY_FRONTEND_PAGES.md`.
+- Keep the route stable at `/community` initially, replace internals with Twit feed components, and defer deleting board/article files until the Twit flow is stable.
+
+### Uncommitted/untracked files
+- Documentation changes only: `docs/SMART_LIBRARY_FRONTEND_PAGES.md` and `MEMORY.md`.
 
 ---
 
