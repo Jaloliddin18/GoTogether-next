@@ -1,5 +1,7 @@
 import React from 'react';
 import { IconButton, Stack, Typography } from '@mui/material';
+import { useMutation, useReactiveVar } from '@apollo/client';
+import { useRouter } from 'next/router';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import RepeatOutlinedIcon from '@mui/icons-material/RepeatOutlined';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -7,39 +9,71 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { LIKE_TWIT } from '../../../apollo/user/mutation';
+import { userVar } from '../../../apollo/store';
+import { sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { Twit } from '../../types/twit/twit';
 
 interface TwitActionRowProps {
-	twitId: string;
-	likeCount: number;
-	liked: boolean;
+	twit: Twit;
 	isOwner: boolean;
 	repostCount?: number;
 	viewCount?: number;
 	onComment: () => void;
-	onLike: (id: string) => Promise<void>;
 	onDelete: (id: string) => Promise<void>;
 }
 
 const TwitActionRow = ({
-	twitId,
-	likeCount,
-	liked,
+	twit,
 	isOwner,
 	repostCount = 0,
 	viewCount = 0,
 	onComment,
-	onLike,
 	onDelete,
 }: TwitActionRowProps) => {
+	const router = useRouter();
+	const user = useReactiveVar(userVar);
+	const twitId = twit?._id;
+	const isLiked = twit?.meLiked ?? false;
+	const currentLikeCount = twit?.likeCount ?? 0;
+	const [likeTwit] = useMutation(LIKE_TWIT, {
+		onCompleted: () => {
+			sweetTopSmallSuccessAlert('Success!', 750).then();
+		},
+		onError: (err) => {
+			console.error(err);
+		},
+	});
+
 	const commentHandler = (e: React.SyntheticEvent) => {
+		e.preventDefault();
 		e.stopPropagation();
 		onComment();
 	};
-	const likeHandler = (e: React.SyntheticEvent) => {
+	const likeHandler = async (e: React.SyntheticEvent) => {
+		e.preventDefault();
 		e.stopPropagation();
-		onLike(twitId);
+		if (!twitId) return;
+		if (!user?._id) {
+			await router.push('/account/join');
+			return;
+		}
+		const nextLiked = !isLiked;
+		const nextLikeCount = nextLiked ? currentLikeCount + 1 : Math.max(0, currentLikeCount - 1);
+		await likeTwit({
+			variables: { twitId },
+			optimisticResponse: {
+				likeTwit: {
+					__typename: 'Twit',
+					_id: twitId,
+					meLiked: nextLiked,
+					likeCount: nextLikeCount,
+				},
+			},
+		});
 	};
 	const deleteHandler = (e: React.SyntheticEvent) => {
+		e.preventDefault();
 		e.stopPropagation();
 		onDelete(twitId);
 	};
@@ -55,7 +89,10 @@ const TwitActionRow = ({
 
 			<Stack className="twit-action">
 				<IconButton
-					onClick={(e) => e.stopPropagation()}
+					onClick={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+					}}
 					aria-label="Repost"
 				>
 					<RepeatOutlinedIcon />
@@ -63,16 +100,19 @@ const TwitActionRow = ({
 				<Typography>{repostCount}</Typography>
 			</Stack>
 
-			<Stack className={`twit-action like-action${liked ? ' active' : ''}`}>
+			<Stack className={`twit-action like-action${isLiked ? ' active' : ''}`}>
 				<IconButton onClick={likeHandler} aria-label="Like">
-					{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+					{isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
 				</IconButton>
-				<Typography>{likeCount}</Typography>
+				<Typography>{currentLikeCount}</Typography>
 			</Stack>
 
 			<Stack className="twit-action">
 				<IconButton
-					onClick={(e) => e.stopPropagation()}
+					onClick={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+					}}
 					aria-label="Views"
 				>
 					<VisibilityOutlinedIcon />
@@ -82,7 +122,10 @@ const TwitActionRow = ({
 
 			<Stack className="twit-action">
 				<IconButton
-					onClick={(e) => e.stopPropagation()}
+					onClick={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+					}}
 					aria-label="Share"
 				>
 					<IosShareOutlinedIcon />

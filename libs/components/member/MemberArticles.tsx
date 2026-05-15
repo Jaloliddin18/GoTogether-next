@@ -5,7 +5,7 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { T } from '../../types/common';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import { DELETE_TWIT, LIKE_TWIT } from '../../../apollo/user/mutation';
+import { DELETE_TWIT } from '../../../apollo/user/mutation';
 import { GET_MEMBER_TWITS } from '../../../apollo/user/query';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 import { Twit } from '../../types/twit/twit';
@@ -19,22 +19,17 @@ const MemberArticles: NextPage = ({ initialInput }: any) => {
 	const router = useRouter();
 	const { memberId } = router.query;
 	const user = useReactiveVar(userVar);
-	const [total, setTotal] = useState<number>(0);
 	const [searchFilter, setSearchFilter] = useState<TwitsInquiry>(initialInput);
-	const [memberTwits, setMemberTwits] = useState<Twit[]>([]);
 
-	const [likeTwit] = useMutation(LIKE_TWIT);
 	const [deleteTwit] = useMutation(DELETE_TWIT);
-	const { loading: twitsLoading, error: getMemberTwitsError, refetch: memberTwitsRefetch } = useQuery(GET_MEMBER_TWITS, {
+	const { loading: twitsLoading, error: getMemberTwitsError, data, refetch: memberTwitsRefetch } = useQuery(GET_MEMBER_TWITS, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchFilter },
 		skip: !memberId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setMemberTwits(data?.getMemberTwits?.list ?? []);
-			setTotal(data?.getMemberTwits?.metaCounter[0]?.total ?? 0);
-		},
 	});
+	const memberTwits: Twit[] = data?.getMemberTwits?.list ?? [];
+	const total: number = data?.getMemberTwits?.metaCounter?.[0]?.total ?? 0;
 
 	useEffect(() => {
 		if (!memberId) return;
@@ -49,23 +44,6 @@ const MemberArticles: NextPage = ({ initialInput }: any) => {
 		const nextInquiry = { ...searchFilter, page: value };
 		setSearchFilter(nextInquiry);
 		await memberTwitsRefetch({ input: nextInquiry });
-	};
-
-	const likeTwitHandler = async (id: string) => {
-		try {
-			if (!id) return;
-			if (!user?._id) {
-				await router.push('/account/join');
-				return;
-			}
-
-			await likeTwit({ variables: { input: id } });
-			await memberTwitsRefetch({ input: searchFilter });
-			await sweetTopSmallSuccessAlert('Success!', 750);
-		} catch (err: any) {
-			console.log('ERROR, likeTwitHandler:', err.message);
-			sweetMixinErrorAlert(err.message).then();
-		}
 	};
 
 	const deleteTwitHandler = async (id: string) => {
@@ -125,7 +103,6 @@ const MemberArticles: NextPage = ({ initialInput }: any) => {
 							key={twit._id}
 							twit={twit}
 							currentUserId={user?._id}
-							onLike={likeTwitHandler}
 							onDelete={deleteTwitHandler}
 						/>
 					))}

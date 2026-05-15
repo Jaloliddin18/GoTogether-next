@@ -9,13 +9,11 @@ import { Twit } from '../../types/twit/twit';
 interface TwitCardProps {
 	twit: Twit;
 	currentUserId?: string;
-	onLike: (id: string) => Promise<void>;
 	onDelete: (id: string) => Promise<void>;
 }
 
-const TwitCard = ({ twit, currentUserId, onLike, onDelete }: TwitCardProps) => {
+const TwitCard = ({ twit, currentUserId, onDelete }: TwitCardProps) => {
 	const router = useRouter();
-	const liked = !!currentUserId && !!twit?.likes?.includes(currentUserId);
 	const isOwner = !!currentUserId && currentUserId === twit?.memberId;
 
 	const goDetailPage = () => {
@@ -30,12 +28,10 @@ const TwitCard = ({ twit, currentUserId, onLike, onDelete }: TwitCardProps) => {
 			<TwitAuthorRow twit={twit} />
 			<TwitBody text={twit?.text} image={twit?.image} />
 			<TwitActionRow
-				twitId={twit?._id}
-				likeCount={twit?.likeCount ?? 0}
-				liked={liked}
+				twit={twit}
+				viewCount={twit?.viewCount ?? 0}
 				isOwner={isOwner}
 				onComment={goDetailPage}
-				onLike={onLike}
 				onDelete={onDelete}
 			/>
 		</Stack>

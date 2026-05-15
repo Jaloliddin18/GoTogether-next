@@ -8,7 +8,7 @@ import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GET_TWIT, GET_TWIT_COMMENTS } from '../../apollo/user/query';
-import { CREATE_TWIT_COMMENT, DELETE_TWIT, LIKE_TWIT } from '../../apollo/user/mutation';
+import { CREATE_TWIT_COMMENT, DELETE_TWIT } from '../../apollo/user/mutation';
 import { TwitComment } from '../../libs/types/twit-comment/twit-comment';
 import TwitAuthorRow from '../../libs/components/community/TwitAuthorRow';
 import TwitBody from '../../libs/components/community/TwitBody';
@@ -33,7 +33,6 @@ const CommunityDetail: NextPage = () => {
 	const [replyText, setReplyText] = useState('');
 	const [replySubmitting, setReplySubmitting] = useState(false);
 
-	const [likeTwit] = useMutation(LIKE_TWIT);
 	const [deleteTwit] = useMutation(DELETE_TWIT);
 	const [createTwitComment] = useMutation(CREATE_TWIT_COMMENT);
 
@@ -41,7 +40,6 @@ const CommunityDetail: NextPage = () => {
 		loading: getTwitLoading,
 		error: getTwitError,
 		data,
-		refetch: twitRefetch,
 	} = useQuery(GET_TWIT, {
 		fetchPolicy: 'network-only',
 		variables: { input: { _id: twitId } },
@@ -70,25 +68,10 @@ const CommunityDetail: NextPage = () => {
 
 	const twit = data?.getTwit;
 	const comments: TwitComment[] = commentsData?.getTwitComments?.list ?? [];
-	const liked = !!user?._id && !!twit?.likes?.includes(user._id);
 	const isOwner = !!user?._id && user._id === twit?.memberId;
 
 	const goCommunityPage = async () => {
 		await router.push('/community');
-	};
-
-	const likeTwitHandler = async (id: string) => {
-		try {
-			if (!id) return;
-			if (!user?._id) {
-				await router.push('/account/join');
-				return;
-			}
-			await likeTwit({ variables: { input: id } });
-			await twitRefetch();
-		} catch (err: any) {
-			sweetMixinErrorAlert(err.message).then();
-		}
 	};
 
 	const deleteTwitHandler = async (id: string) => {
@@ -199,13 +182,10 @@ const CommunityDetail: NextPage = () => {
 								</Stack>
 
 								<TwitActionRow
-									twitId={twit._id}
-									likeCount={twit.likeCount ?? 0}
+									twit={twit}
 									viewCount={twit?.viewCount ?? 0}
-									liked={liked}
 									isOwner={isOwner}
 									onComment={() => document.getElementById('reply-input')?.focus()}
-									onLike={likeTwitHandler}
 									onDelete={deleteTwitHandler}
 								/>
 							</Stack>

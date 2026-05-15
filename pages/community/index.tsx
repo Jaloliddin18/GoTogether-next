@@ -13,7 +13,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Twit } from '../../libs/types/twit/twit';
 import { CreateTwitInput, TwitFeedType, TwitsInquiry } from '../../libs/types/twit/twit.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { CREATE_TWIT, DELETE_TWIT, LIKE_TWIT } from '../../apollo/user/mutation';
+import { CREATE_TWIT, DELETE_TWIT } from '../../apollo/user/mutation';
 import { GET_TWITS } from '../../apollo/user/query';
 import { userVar } from '../../apollo/store';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
@@ -29,26 +29,22 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const [searchCommunity, setSearchCommunity] = useState<TwitsInquiry>(initialInput);
-	const [twits, setTwits] = useState<Twit[]>([]);
-	const [totalCount, setTotalCount] = useState<number>(0);
 
 	/** APOLLO REQUESTS **/
 	const [createTwit, { loading: createTwitLoading }] = useMutation(CREATE_TWIT);
-	const [likeTwit] = useMutation(LIKE_TWIT);
 	const [deleteTwit] = useMutation(DELETE_TWIT);
 	const {
 		loading: twitsLoading,
 		error: getTwitsError,
+		data: twitsData,
 		refetch: twitsRefetch,
 	} = useQuery(GET_TWITS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: searchCommunity },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setTwits(data?.getTwits?.list ?? []);
-			setTotalCount(data?.getTwits?.metaCounter[0]?.total ?? 0);
-		},
 	});
+	const twits: Twit[] = twitsData?.getTwits?.list ?? [];
+	const totalCount: number = twitsData?.getTwits?.metaCounter?.[0]?.total ?? 0;
 
 	/** HANDLERS **/
 	const createTwitHandler = async (input: CreateTwitInput): Promise<boolean> => {
@@ -74,25 +70,6 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 			console.log('ERROR, createTwitHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
 			return false;
-		}
-	};
-
-	const likeTwitHandler = async (id: string) => {
-		try {
-			if (!id) return;
-			if (!user?._id) {
-				goLoginPage();
-				return;
-			}
-
-			await likeTwit({
-				variables: { input: id },
-			});
-
-			await twitsRefetch({ input: searchCommunity });
-		} catch (err: any) {
-			console.log('ERROR, likeTwitHandler:', err.message);
-			sweetMixinErrorAlert(err.message).then();
 		}
 	};
 
@@ -151,7 +128,6 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 						loading={twitsLoading}
 						error={getTwitsError}
 						currentUserId={user?._id}
-						onLike={likeTwitHandler}
 						onDelete={deleteTwitHandler}
 					/>
 					{totalCount > searchCommunity.limit && (

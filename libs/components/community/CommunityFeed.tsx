@@ -9,7 +9,6 @@ interface CommunityFeedProps {
 	loading: boolean;
 	error?: ApolloError;
 	currentUserId?: string;
-	onLike: (id: string) => Promise<void>;
 	onDelete: (id: string) => Promise<void>;
 }
 
@@ -18,7 +17,6 @@ const CommunityFeed = ({
 	loading,
 	error,
 	currentUserId,
-	onLike,
 	onDelete,
 }: CommunityFeedProps) => {
 	if (loading) {
@@ -55,7 +53,6 @@ const CommunityFeed = ({
 					key={twit._id}
 					twit={twit}
 					currentUserId={currentUserId}
-					onLike={onLike}
 					onDelete={onDelete}
 				/>
 			))}

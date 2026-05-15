@@ -268,14 +268,15 @@ export const CREATE_TWIT = gql`
 `;
 
 export const LIKE_TWIT = gql`
-	mutation LikeTwit($input: String!) {
-		likeTwit(twitId: $input) {
+	mutation LikeTwit($twitId: String!) {
+		likeTwit(twitId: $twitId) {
 			_id
 			memberId
 			text
 			image
-			likes
+			meLiked
 			likeCount
+			viewCount
 			deletedAt
 			createdAt
 			updatedAt
