@@ -6,9 +6,18 @@ Do not run `yarn build` after every small change; reserve it for major structura
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
-## Session Update (2026-05-15)
+## Session Update (2026-05-15) — Like toggle fix and cleanup
 
-### Community pages — X platform UI structure (completed)
+### Twit like toggle (completed)
+
+- `LIKE_TWIT` mutation fixed: argument was `$input: String! / likeTwit(input: $input)` — corrected to `$twitId: String! / likeTwit(twitId: $twitId)`. Variable call site in `TwitActionRow.tsx` updated to `variables: { twitId }`.
+- `LIKE_TWIT` return fields aligned to exactly match `GET_TWITS` list item scalars: `_id · memberId · text · image · meLiked · likeCount · viewCount · deletedAt · createdAt · updatedAt`. Previously missing `viewCount` caused Apollo cache warnings.
+- Cache strategy confirmed: `optimisticResponse` only. No `cache.modify`, no `refetchQueries`. Apollo merges by `_id + __typename`; server response overwrites optimistic values automatically.
+- `meLiked` and `likeCount` now update instantly on click and are confirmed by server response.
+- Debug `console.log` statements (`BEFORE LIKE:`, `SERVER RESPONSE:`) removed from `TwitActionRow.tsx`.
+- Committed: `668399d feat: twit like toggle fully working — cleanup debug logs`
+
+## Session Update (2026-05-15) — Community pages — X platform UI structure (completed)
 
 - `/community` and `/community/detail` are fully migrated. Both are done pages.
 - **Layout:** 3-column shell — left nav (68px) + feed (max 600px) + right rail (300px).
@@ -220,7 +229,7 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - `deleteTwit(twitId: String): Twit`: authenticated owner soft delete.
 - Admin moderation APIs exist for all twits through admin resolver paths.
 - `CreateTwitInput` supports `text` and optional `image`.
-- Important `Twit` fields: `_id`, `memberId`, `text`, `image`, `likes`, `likeCount`, `deletedAt`, `createdAt`, `updatedAt`, and `memberData`.
+- Important `Twit` fields: `_id`, `memberId`, `text`, `image`, `meLiked`, `likeCount`, `viewCount`, `likes`, `deletedAt`, `createdAt`, `updatedAt`, and `memberData`. `meLiked` and `viewCount` are required for like toggle and view display; always include them in twit query/mutation return sets.
 - Frontend community pages should use Twit/TwitComment APIs for new community work. Existing board-article frontend pages are legacy and should not be mixed into new Twit work without a scoped migration.
 
 ### Follow API Contract
