@@ -38,6 +38,12 @@ const CommentCard = ({ comment, replies, depth2 = [], onReply, onDelete }: Comme
 	const currentCount = comment.likeCount ?? 0;
 	const isOwner = !!user?._id && user._id === comment.memberId;
 
+	const goToAuthor = (e: React.SyntheticEvent) => {
+		e.stopPropagation();
+		if (!comment.memberId) return;
+		router.push(`/member/${comment.memberId}`);
+	};
+
 	const [isEditing, setIsEditing] = useState(false);
 	const [editText, setEditText] = useState(comment.text);
 	const [displayText, setDisplayText] = useState(comment.text);
@@ -117,6 +123,7 @@ const CommentCard = ({ comment, replies, depth2 = [], onReply, onDelete }: Comme
 				<img
 					src={resolveAvatar(comment.memberData?.memberImage)}
 					alt=""
+					onClick={goToAuthor}
 					style={{
 						width: avatarSize,
 						height: avatarSize,
@@ -124,28 +131,35 @@ const CommentCard = ({ comment, replies, depth2 = [], onReply, onDelete }: Comme
 						objectFit: 'cover',
 						border: '1px solid #ddd8cf',
 						flexShrink: 0,
+						cursor: 'pointer',
 					}}
 				/>
 				<Stack gap="4px" minWidth={0} flex={1}>
 					<Stack flexDirection="row" alignItems="center" gap="6px" flexWrap="wrap">
 						<Typography
+							onClick={goToAuthor}
 							sx={{
 								color: '#1a1814',
 								fontFamily: 'Atkinson Hyperlegible, system-ui, sans-serif',
 								fontSize: 14,
 								fontWeight: 700,
 								lineHeight: '18px',
+								cursor: 'pointer',
+								'&:hover': { textDecoration: 'underline' },
 							}}
 						>
 							{comment.memberData?.memberFullName || nick || 'Community member'}
 						</Typography>
 						{nick && (
 							<Typography
+								onClick={goToAuthor}
 								sx={{
 									color: '#8a8077',
 									fontFamily: 'Atkinson Hyperlegible, system-ui, sans-serif',
 									fontSize: 13,
 									lineHeight: '18px',
+									cursor: 'pointer',
+									'&:hover': { textDecoration: 'underline' },
 								}}
 							>
 								@{nick}

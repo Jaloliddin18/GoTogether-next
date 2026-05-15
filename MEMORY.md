@@ -1,7 +1,41 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-15 | Commit: `99aa9c4`
+**Last Updated:** 2026-05-16 | Commit: `d3c5270`
 **Current Branch:** `community`
+
+---
+
+## Today's Session Update (2026-05-16, Comment Threading + Edit/Delete/Like)
+
+### Completed today
+- Removed stale `likes: string[]` field from all GraphQL queries and mutations across `apollo/user/`, `apollo/admin/`, and `libs/types/twit-comment/twit-comment.ts`. Replaced with `meLiked` / `likeCount` throughout.
+- Migrated single `image: String` to multi-image `images: String[]` across twit types, queries, mutations, components (`TwitMedia`, `TwitBody`, `TwitCard`, `CommunityComposer`).
+- Rewrote `CommunityComposer` to support batch image upload (max 3) via axios multipart with thumbnail strip and remove buttons.
+- Fixed TwitMedia 3-image CSS grid on detail page — `display: grid` was scoped to `#community-list-page` and never reached `#community-detail-page`. Added explicit grid rules with `px` row tracks to `detail.scss`.
+- Created `libs/components/community/CommentCard.tsx` — handles 3-depth comment threading (depth 0/1/2), per-comment like (optimisticResponse), inline edit, and soft delete.
+- Extended `pages/community/detail.tsx` comment grouping from 2 buckets to 3 (`depth0` / `depth1` / `depth2`) and passed `depth2` pool to depth-0 CommentCards so depth-1 children can render their own replies.
+- Fixed `UPDATE_TWIT_COMMENT` call: backend input field is `commentId`, not `_id`.
+- Reply button hidden when `comment.depth >= 2` (backend returns `BAD_REQUEST` above depth 2).
+
+### Key gotchas recorded
+- `UPDATE_TWIT_COMMENT` input: `{ commentId: string, text: string }` — `_id` is rejected by backend.
+- `display: grid` must be declared in each page's own SCSS scope — it does not inherit across sibling page selectors.
+- `grid-template-rows: 1fr 1fr` collapses to 0 without an explicit container height — use explicit `px` row tracks.
+
+### Commits
+- `a80f766` fix: community page UI fixes and image grid improvements
+- `d3c5270` feat: add comment threading, edit, delete, and like functionality
+
+### Current stopping point
+- Working tree is clean after commit `d3c5270`.
+- Comment like, edit, delete, and 3-depth threading are all live.
+
+### Exact next task
+- QA comment threading in browser (reply at depth 0 → 1 → 2; verify Reply button hidden at depth 2; verify edit/delete owner guard).
+- Continue with remaining pages per implementation order below.
+
+### Uncommitted/untracked files
+- None (`git status`: working tree clean).
 
 ---
 
@@ -213,12 +247,12 @@ Per CLAUDE.md implementation order:
 ## Recent Commits
 
 ```
-bdb7e2b feat: define admin related queries
-f6910da feat: define admin mutations
-258736f feat: sync frontend twit interfaces with backend admin operations
-d2fab3a feat: add claude code agent setup for frontend
-f2abf8a fix: convert library dto files to frontend ts interfaces
-f03ea5e fix: modify frontend enums matching the backend
-3684ce3 fix: deduplicate library member contracts by reusing shared frontend enums and helper types
-bae3913 feat: add smart library frontend contract enums and types boundary
+d3c5270 feat: add comment threading, edit, delete, and like functionality
+a80f766 fix: community page UI fixes and image grid improvements
+ce808b4 fix: update agents.md
+668399d feat: twit like toggle fully working — cleanup debug logs
+d5af3e3 fix: wire twit detail viewCount into stats and action row
+b711118 fix: remove Library tab from community feed
+38481a8 feat: community feed tabs wired to getTwits feedType (FOR_YOU / FOLLOWING)
+99aa9c4 feat: finalize twit community updates and image url resolution
 ```

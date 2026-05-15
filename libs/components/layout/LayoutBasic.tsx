@@ -69,6 +69,8 @@ const withLayoutBasic = (Component: any) => {
 					desc = 'Home / For Rent';
 					bgImage = '/img/banner/header1.svg';
 					break;
+				case '/member/[memberId]':
+					break;
 				default:
 					break;
 				}
@@ -118,19 +120,21 @@ const withLayoutBasic = (Component: any) => {
 							<Top />
 						</Stack>
 
-						<Stack
-							className={`header-basic ${authHeader && 'auth'}`}
-							style={{
-								backgroundImage: `url(${memoizedValues.bgImage})`,
-								backgroundSize: 'cover',
-								boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
-							}}
-						>
-							<Stack className={'container'}>
-								<strong>{t(memoizedValues.title)}</strong>
-								<span>{t(memoizedValues.desc)}</span>
+						{memoizedValues.bgImage && (
+							<Stack
+								className={`header-basic ${authHeader && 'auth'}`}
+								style={{
+									backgroundImage: `url(${memoizedValues.bgImage})`,
+									backgroundSize: 'cover',
+									boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
+								}}
+							>
+								<Stack className={'container'}>
+									<strong>{t(memoizedValues.title)}</strong>
+									<span>{t(memoizedValues.desc)}</span>
+								</Stack>
 							</Stack>
-						</Stack>
+						)}
 
 						<Stack id={'main'}>
 							<Component {...props} />

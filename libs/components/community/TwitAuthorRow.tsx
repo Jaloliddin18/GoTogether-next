@@ -22,7 +22,7 @@ const TwitAuthorRow = ({ twit }: TwitAuthorRowProps) => {
 	const goMemberPage = (event: React.SyntheticEvent) => {
 		event.stopPropagation();
 		if (!member?._id) return;
-		router.push(`/member?memberId=${member?._id}`);
+		router.push(`/member/${member?._id}`);
 	};
 
 	return (
@@ -33,7 +33,7 @@ const TwitAuthorRow = ({ twit }: TwitAuthorRowProps) => {
 					<Typography className="twit-author-name" onClick={goMemberPage}>
 						{member?.memberFullName || member?.memberNick || 'Community member'}
 					</Typography>
-					{member?.memberNick && <Typography className="twit-author-nick">@{member.memberNick}</Typography>}
+					{member?.memberNick && <Typography className="twit-author-nick" onClick={goMemberPage}>@{member.memberNick}</Typography>}
 					<Typography className="twit-dot">·</Typography>
 					<Moment className="twit-time" fromNow>
 						{twit?.createdAt}

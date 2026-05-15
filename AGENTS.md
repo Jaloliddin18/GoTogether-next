@@ -6,6 +6,26 @@ Do not run `yarn build` after every small change; reserve it for major structura
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-16) — Comment threading, edit/delete/like, multi-image upload
+
+### Completed
+- Removed stale `likes: string[]` from all twit and twit-comment queries, mutations, and types. Replaced with `meLiked` / `likeCount` throughout `apollo/user/`, `apollo/admin/`, and `libs/types/`.
+- Migrated `image: String` → `images: String[]` across `CreateTwitInput`, all twit queries/mutations, `TwitMedia`, `TwitBody`, `TwitCard`, and `CommunityComposer`. Composer supports up to 3 images with thumbnail strip and remove buttons (axios multipart upload).
+- Fixed TwitMedia 3-image CSS grid on detail page: `display: grid` was scoped to `#community-list-page` and never applied to `#community-detail-page`. Added full grid declaration with explicit `px` row tracks in `detail.scss`.
+- Created `libs/components/community/CommentCard.tsx`: 3-depth threading (depth 0/1/2), per-comment like with `optimisticResponse`, inline edit, and soft delete.
+- Extended `detail.tsx` comment grouping to 3 buckets (`depth0` / `depth1` / `depth2`); `depth2` pool passed as prop so depth-1 cards render their own grandchildren.
+- Reply button hidden when `comment.depth >= 2` (backend enforces max depth 2; deeper replies return `BAD_REQUEST`).
+- Fixed `UPDATE_TWIT_COMMENT` call: input field is `commentId`, not `_id`.
+- Commits: `a80f766`, `d3c5270`.
+
+### Key rules from this session
+- `UPDATE_TWIT_COMMENT` input: `{ commentId: string, text: string }` — `_id` is rejected.
+- `display: grid` must be declared in each page's own SCSS scope; it does not propagate across sibling page selectors.
+- `grid-template-rows: 1fr 1fr` collapses to zero without an explicit container height — use `px` row tracks.
+- `CommentCard` no longer uses an `isReply` boolean; all depth logic reads `comment.depth` directly.
+
+---
+
 ## Session Update (2026-05-15) — Like toggle fix and cleanup
 
 ### Twit like toggle (completed)
@@ -228,8 +248,8 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - `likeTwit(twitId: String): Twit`: authenticated like toggle.
 - `deleteTwit(twitId: String): Twit`: authenticated owner soft delete.
 - Admin moderation APIs exist for all twits through admin resolver paths.
-- `CreateTwitInput` supports `text` and optional `image`.
-- Important `Twit` fields: `_id`, `memberId`, `text`, `image`, `meLiked`, `likeCount`, `viewCount`, `likes`, `deletedAt`, `createdAt`, `updatedAt`, and `memberData`. `meLiked` and `viewCount` are required for like toggle and view display; always include them in twit query/mutation return sets.
+- `CreateTwitInput` supports `text` and optional `images: String[]` (multi-image, max 3 via `imagesUploader`).
+- Important `Twit` fields: `_id`, `memberId`, `text`, `images`, `meLiked`, `likeCount`, `viewCount`, `deletedAt`, `createdAt`, `updatedAt`, and `memberData`. `meLiked` and `viewCount` are required for like toggle and view display; always include them in twit query/mutation return sets. Do not request `likes` or `image` — those fields are removed.
 - Frontend community pages should use Twit/TwitComment APIs for new community work. Existing board-article frontend pages are legacy and should not be mixed into new Twit work without a scoped migration.
 
 ### Follow API Contract
@@ -250,14 +270,14 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 ### Twit Nested Comment API Contract
 - `createTwitComment(input: CreateTwitCommentInput): TwitComment`: authenticated comment/reply creation.
 - `getTwitComments(input: TwitCommentsInquiry): TwitComments`: optional-auth flat comment list for a twit.
-- `updateTwitComment(input: UpdateTwitCommentInput): TwitComment`: authenticated owner/admin edit.
+- `updateTwitComment(input: UpdateTwitCommentInput): TwitComment`: authenticated owner/admin edit. Input fields: `{ commentId: String!, text: String! }` — use `commentId`, NOT `_id`.
 - `deleteTwitComment(commentId: String): TwitComment`: authenticated owner/admin soft delete.
-- `likeTwitComment(commentId: String): TwitComment`: authenticated like toggle.
+- `likeTwitComment(commentId: String): TwitComment`: authenticated like toggle. Uses `optimisticResponse` pattern — no `cache.modify`, no `refetchQueries`.
 - `removeTwitCommentByAdmin(commentId: String): TwitComment`: ADMIN-only moderation.
-- Backend enforces max depth `2`.
-- `parentCommentId` and `depth` are used for nested replies. Backend returns a flat list; frontend builds the nested tree.
+- Backend enforces max depth `2`. Attempting depth > 2 returns `BAD_REQUEST`. Frontend hides Reply button when `comment.depth >= 2`.
+- `parentCommentId` and `depth` are used for nested replies. Backend returns a flat list; frontend splits into `depth0` / `depth1` / `depth2` buckets and builds the tree client-side.
 - `getTwitComments` filters soft-deleted comments and returns `memberData` plus `meLiked` when viewer context is available.
-- Important fields: `_id`, `twitId`, `memberId`, `parentCommentId`, `depth`, `text`, `likes`, `likeCount`, `deletedAt`, `createdAt`, `updatedAt`, `memberData`, and `meLiked`.
+- Important fields: `_id`, `twitId`, `memberId`, `parentCommentId`, `depth`, `text`, `likeCount`, `deletedAt`, `createdAt`, `updatedAt`, `memberData`, and `meLiked`. Do not request `likes` — that field is removed.
 
 ### Upload/Image Integration
 - Upload mutations live in `member.resolver.ts`: `imageUploader(file, target)` and `imagesUploader(files, target)`.
@@ -296,7 +316,8 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - Book detail integration: use `getBook(bookId)`, preserve `meLiked`, and expose BORROW/PURCHASE actions based on `isBorrowable` and `isPurchasable`.
 - Borrow/purchase flow: call `createDeliveryRequest` with correct `requestType`, desk destination for BORROW, and guest/member session handling.
 - Request history/status: use `getSessionRequests` for student/guest-facing history and hide admin-only update controls.
-- Community feed: ✅ **Done.** X-platform UI live. Remaining: "Following" tab filter, real "Who to follow" from `GET_MEMBERS`, twit-comment like/nested-reply UI.
+- Community feed: ✅ **Done.** X-platform UI live. Remaining: "Following" tab filter, real "Who to follow" data from `GET_MEMBERS`.
+- Community detail comments: ✅ **Done.** 3-depth threading, per-comment like/edit/delete with owner guard all live.
 - Profile page: use `getMember`, `getMemberTwits`, `getMemberFollowers`, and `getMemberFollowings`.
 - Followers/following tabs: use `subscribe`, `unsubscribe`, and `meFollowed`.
 - Twit comments/replies: use `getTwitComments`, build a nested tree client-side, and enforce UI depth to match backend max depth `2`.

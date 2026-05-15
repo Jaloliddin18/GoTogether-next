@@ -126,7 +126,18 @@ function createApolloClient() {
 	return new ApolloClient({
 		ssrMode: typeof window === 'undefined',
 		link: createIsomorphicLink(),
-		cache: new InMemoryCache(), //  Creates empty cache, then auto-stores query results
+		cache: new InMemoryCache({
+			// MongoDB ObjectIds arrive as objects in some NestJS setups — coerce to string
+			dataIdFromObject(obj) {
+				const raw = (obj as any)._id ?? (obj as any).id;
+				if (raw == null) return undefined;
+				const strId =
+					typeof raw === 'string' || typeof raw === 'number'
+						? String(raw)
+						: (raw as any)?._id?.toString?.() ?? raw?.toString?.() ?? JSON.stringify(raw);
+				return `${obj.__typename}:${strId}`;
+			},
+		}), //  Creates empty cache, then auto-stores query results
 		resolvers: {},
 	});
 }

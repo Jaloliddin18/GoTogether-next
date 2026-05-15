@@ -1,6 +1,7 @@
 #pc-wrap,
 #mobile-wrap {
-	#community-list-page {
+	#community-list-page,
+	#member-page {
 		position: relative;
 		background: #f6f6f6;
 		.container {
@@ -348,6 +349,10 @@
 				font-size: 13px;
 				font-weight: 400;
 				line-height: 20px;
+			}
+			.twit-author-nick {
+				cursor: pointer;
+				&:hover { text-decoration: underline; }
 			}
 		}
 		.twit-body {

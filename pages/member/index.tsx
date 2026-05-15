@@ -58,7 +58,7 @@ const MemberPage: NextPage = () => {
 
 			await subscribe({
 				variables: {
-					input: id,
+					memberId: id,
 				},
 			});
 			await refetch({ input: query });
@@ -76,7 +76,7 @@ const MemberPage: NextPage = () => {
 
 			await unsubscribe({
 				variables: {
-					input: id,
+					memberId: id,
 				},
 			});
 			await refetch({ input: query });
@@ -105,7 +105,7 @@ const MemberPage: NextPage = () => {
 	const redirectToMemberPageHandler = async (memberId: string) => {
 		try {
 			if (memberId === user?._id) await router.push(`/mypage?memberId=${memberId}`);
-			else await router.push(`/member?memberId=${memberId}`);
+			else await router.push(`/member/${memberId}`);
 		} catch (error) {
 			await sweetErrorHandling(error);
 		}

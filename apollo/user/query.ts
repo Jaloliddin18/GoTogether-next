@@ -356,29 +356,14 @@ export const GET_MEMBER_FOLLOWERS = gql`
 				followerData {
 					_id
 					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
 					memberNick
 					memberFullName
 					memberImage
 					memberAddress
-					memberDesc
-					memberBooks
-					memberTwits
 					memberFollowers
 					memberFollowings
-					memberPoints
 					memberLikes
-					memberViews
-					memberComments
-					memberRank
-					memberWarnings
-					memberBlocks
-					deletedAt
 					createdAt
-					updatedAt
-					accessToken
 				}
 			}
 			metaCounter {
@@ -410,29 +395,14 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 				followingData {
 					_id
 					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
 					memberNick
 					memberFullName
 					memberImage
 					memberAddress
-					memberDesc
-					memberBooks
-					memberTwits
 					memberFollowers
 					memberFollowings
-					memberPoints
 					memberLikes
-					memberViews
-					memberComments
-					memberRank
-					memberWarnings
-					memberBlocks
-					deletedAt
 					createdAt
-					updatedAt
-					accessToken
 				}
 			}
 			metaCounter {
