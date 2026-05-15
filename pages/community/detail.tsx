@@ -9,7 +9,6 @@ import { userVar } from '../../apollo/store';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GET_TWIT, GET_TWIT_COMMENTS } from '../../apollo/user/query';
 import { CREATE_TWIT_COMMENT, DELETE_TWIT, LIKE_TWIT } from '../../apollo/user/mutation';
-import { Twit } from '../../libs/types/twit/twit';
 import { TwitComment } from '../../libs/types/twit-comment/twit-comment';
 import TwitAuthorRow from '../../libs/components/community/TwitAuthorRow';
 import TwitBody from '../../libs/components/community/TwitBody';
@@ -69,7 +68,7 @@ const CommunityDetail: NextPage = () => {
 		notifyOnNetworkStatusChange: true,
 	});
 
-	const twit: Twit | undefined = data?.getTwit;
+	const twit = data?.getTwit;
 	const comments: TwitComment[] = commentsData?.getTwitComments?.list ?? [];
 	const liked = !!user?._id && !!twit?.likes?.includes(user._id);
 	const isOwner = !!user?._id && user._id === twit?.memberId;
@@ -193,11 +192,16 @@ const CommunityDetail: NextPage = () => {
 										<Typography className="stat-count">{comments.length}</Typography>
 										<Typography className="stat-label">Replies</Typography>
 									</Stack>
+									<Stack className="detail-stat-item">
+										<Typography className="stat-count">{twit?.viewCount ?? 0}</Typography>
+										<Typography className="stat-label">Views</Typography>
+									</Stack>
 								</Stack>
 
 								<TwitActionRow
 									twitId={twit._id}
 									likeCount={twit.likeCount ?? 0}
+									viewCount={twit?.viewCount ?? 0}
 									liked={liked}
 									isOwner={isOwner}
 									onComment={() => document.getElementById('reply-input')?.focus()}

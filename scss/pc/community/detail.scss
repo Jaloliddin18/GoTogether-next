@@ -21,7 +21,7 @@
 			overflow: hidden;
 		}
 
-		// Sticky back-arrow header
+		// Static back-arrow header
 		.detail-sticky-header {
 			width: 100%;
 			flex-direction: row;
@@ -29,12 +29,8 @@
 			gap: 18px;
 			padding: 0 18px;
 			height: 52px;
-			position: sticky;
-			top: 86px;
-			z-index: 10;
-			background: rgba(255, 255, 255, 0.95);
+			background: #fff;
 			border-bottom: 1px solid #e2e8f0;
-			backdrop-filter: blur(6px);
 		}
 		.detail-back-btn {
 			width: 36px;
@@ -42,6 +38,7 @@
 			border-radius: 50%;
 			color: #1a1a2e;
 			flex-shrink: 0;
+			cursor: pointer;
 			&:hover {
 				background: rgba(46, 134, 222, 0.08);
 				color: #2e86de;
@@ -377,7 +374,6 @@
 			max-width: 100%;
 		}
 		.detail-sticky-header {
-			top: 0;
 			height: 48px;
 			padding: 0 14px;
 		}

@@ -503,6 +503,7 @@ export const GET_TWIT = gql`
 			image
 			likes
 			likeCount
+			viewCount
 			createdAt
 			updatedAt
 			memberData {
