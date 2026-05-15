@@ -1,441 +1,324 @@
-#pc-wrap {
+#pc-wrap,
+#mobile-wrap {
 	#community-detail-page {
 		position: relative;
-		padding-bottom: 135px;
+		background: #f6f8fb;
 		.container {
-			padding-top: 100px;
+			padding-top: 86px;
+			padding-bottom: 70px;
 			flex-direction: column;
-			gap: 64px;
-			.main-box {
-				flex-direction: row;
-				gap: 31px;
-				.left-config {
-					width: 266px;
-					height: fit-content;
-					gap: 30px;
-					padding: 30px 15px 57px 21px;
-					margin-top: 100px;
-					border-radius: 12px;
-					border: 1px solid rgba(196, 196, 196, 0.79);
-					background: #fff;
-					box-shadow: 0px 1px 4px 0px rgba(24, 26, 32, 0.07);
-					.image-info {
-						width: 100%;
-						flex-direction: row;
-						gap: 11px;
-						img {
-							width: 80px;
-							height: 80px;
-							border-radius: 50%;
-							object-fit: cover;
-						}
-						.community-name {
-							.name {
-								margin-top: 15px;
-								color: #1A1A2E;
-								font-family: $font;
-								font-size: 15px;
-								font-style: normal;
-								font-weight: 600;
-								line-height: normal;
-							}
-						}
-					}
-					.tab-button {
-						width: 216.612px;
-						height: 36px;
-						padding: 0;
-						justify-content: center;
-						align-items: center;
-						border-radius: 6px;
-						border: 1px solid #1A1A2E;
-						margin-bottom: 10px;
-						color: #1A1A2E;
-						font-family: $font;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 150%;
-						letter-spacing: -0.266px;
-					}
-					.tab-button.active {
-						width: 216.612px;
-						height: 36px;
-						padding: 0;
-						justify-content: center;
-						align-items: center;
-						background-color: #000000;
-						color: #ffffff;
-						border-radius: 6px;
-						margin-bottom: 10px;
-						font-family: $font;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 150%;
-						letter-spacing: -0.266px;
-					}
-				}
-				.community-detail-config {
-					.title-box {
-						width: 100%;
-						height: auto;
-						flex-direction: row;
-						justify-content: space-between;
-						align-items: center;
-						margin-bottom: 45px;
-						.left {
-							width: 60%;
-							height: auto;
-							.title {
-								color: #000;
-								font-family: $font;
-								font-size: 24px;
-								font-style: normal;
-								font-weight: 600;
-								line-height: normal;
-								letter-spacing: 0.24px;
-							}
-							.sub-title {
-								color: #757575;
-								font-family: $font;
-								font-size: 13px;
-								font-style: normal;
-								font-weight: 700;
-								line-height: normal;
-								letter-spacing: 0.325px;
-							}
-						}
-						.right {
-							width: 91px;
-							height: 32px;
-							border-radius: 4px;
-							background: #2E86DE;
-							color: #fff;
-							font-family: $font;
-							font-size: 13px;
-							font-style: normal;
-							font-weight: 500;
-							line-height: normal;
-							letter-spacing: 0.39px;
-						}
-					}
-					.config {
-						.first-box-config {
-							width: 1012px;
-							min-height: 500px;
-							border-radius: 8px 8px 0px 0px;
-							border: 1px solid #E2E8F0;
-							box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-							.content-and-info {
-								width: 100%;
-								height: 126px;
-								padding: 35px 25px;
-								flex-direction: row;
-								justify-content: space-between;
-								border-bottom: 1px solid #E2E8F0;
-								.content {
-									gap: 12px;
-									.content-data {
-										color: #000;
-										font-family: $font;
-										font-size: 18px;
-										font-style: normal;
-										font-weight: 700;
-										line-height: normal;
-									}
-									.member-info {
-										width: auto;
-										height: auto;
-										flex-direction: row;
-										align-items: center;
-										gap: 5px;
-										.member-img {
-											width: 30.023px;
-											height: 30px;
-											cursor: pointer;
-										}
-										.member-nick {
-											color: #000;
-											font-family: $font;
-											font-size: 13px;
-											font-style: normal;
-											font-weight: 400;
-											line-height: normal;
-											letter-spacing: 0.13px;
-											cursor: pointer;
-										}
-										.divider {
-											width: 1px;
-											height: 16px;
-											background: #E2E8F0;
-										}
-										.time-added {
-											color: #E2E8F0;
-											font-family: $font;
-											font-size: 12px;
-											font-style: normal;
-											font-weight: 400;
-											line-height: normal;
-											letter-spacing: 0.12px;
-										}
-									}
-								}
-								.info {
-									width: auto;
-									height: auto;
-									gap: 15px;
-									flex-direction: row;
-									align-items: flex-end;
-									.icon-info {
-										flex-direction: row;
-										align-items: center;
-										justify-content: center;
-										gap: 4px;
-										img {
-											width: 18.714px;
-											height: 16.15px;
-										}
-										.text {
-											padding-top: 2 px;
-											color: #000;
-											font-family: $font;
-											font-size: 11px;
-											font-style: normal;
-											font-weight: 400;
-											line-height: normal;
-											letter-spacing: -0.22px;
-										}
-									}
-									.divider {
-										width: 1px;
-										height: 21px;
-										background: #eeeeee;
-									}
-								}
-							}
-							.like-and-dislike {
-								width: 100%;
-								height: 100%;
-								align-items: center;
-								justify-content: flex-end;
-								gap: 60px;
-								padding: 25px 25px;
-								.top {
-									width: 100%;
-									height: auto;
-									flex-direction: row;
-									align-items: center;
-									justify-content: center;
-									gap: 17px;
-									button {
-										width: 105.081px;
-										height: 45px;
-										gap: 5px;
-										border-radius: 2px;
-										border: 1px solid #E2E8F0;
-										background: #2E86DE;
-										p {
-											color: #fff;
-											font-family: $font;
-											font-size: 13px;
-											font-style: normal;
-											font-weight: 700;
-											line-height: normal;
-											letter-spacing: -0.26px;
-										}
-									}
-								}
-							}
-						}
-						.second-box-config {
-							width: 1012px;
-							height: auto;
-							padding: 30px 24px;
-							gap: 11px;
-							.title-text {
-								align-self: flex-start;
-								color: #000;
-								text-align: center;
-								font-family: $font;
-								font-size: 17px;
-								font-style: normal;
-								font-weight: 700;
-								line-height: normal;
-								letter-spacing: -0.34px;
-							}
-							.leave-comment {
-								input {
-									width: 100%;
-									height: 61px;
-									outline: none;
-									padding: 22px 17px;
-									border: 1px solid #E2E8F0;
-									::placeholder {
-										color: #c0c0c0;
-										font-family: $font;
-										font-size: 14px;
-										font-style: normal;
-										font-weight: 500;
-										line-height: normal;
-										letter-spacing: -0.56px;
-									}
-								}
-								.button-box {
-									width: 100%;
-									height: 42px;
-									flex-direction: row;
-									justify-content: space-between;
-									align-items: center;
-									padding-left: 17px;
-									border: 1px solid #E2E8F0;
-									border-top: none;
-									p {
-										color: #000;
-										font-family: $font;
-										font-size: 14px;
-										font-style: normal;
-										font-weight: 400;
-										line-height: normal;
-										letter-spacing: 0.56px;
-									}
-									button {
-										width: 100.077px;
-										height: 100%;
-										border-radius: 0;
-										background: #2E86DE;
-										color: #fff;
-										font-family: $font;
-										font-size: 14px;
-										font-style: normal;
-										font-weight: 400;
-										line-height: normal;
-										letter-spacing: 0.56px;
-									}
-								}
-							}
-						}
-						.comments {
-							width: 100%;
-							height: auto;
-							border: 1px solid #efefef;
-							border-top: none;
-							.comments-title {
-								width: 112.087px;
-								display: flex;
-								align-items: center;
-								justify-content: center;
-								padding: 16px 15px;
-								border-bottom: 2px solid #2E86DE;
-								color: #2E86DE;
-								font-family: $font;
-								font-size: 14px;
-								font-style: normal;
-								font-weight: 700;
-								line-height: normal;
-								letter-spacing: 0.56px;
-							}
-						}
-						.pagination-box {
-							width: 100%;
-							height: auto;
-							margin-top: 30px;
-							align-items: center;
-							justify-content: center;
-						}
-						.comments-box {
-							.main-comment {
-								width: 100%;
-								height: auto;
-								padding: 20px 24px;
-								gap: 17px;
-								border: 1px solid #efefef;
-								border-top: none;
-								.member-info {
-									width: 100%;
-									height: auto;
-									flex-direction: row;
-									justify-content: space-between;
-									.name-date {
-										width: auto;
-										height: auto;
-										flex-direction: row;
-										gap: 8px;
-										cursor: pointer;
-										img {
-											width: 45.035px;
-											height: 45px;
-											border-radius: 50%;
-											cursor: pointer;
-											object-fit: cover;
-										}
-										.name-date-column {
-											.name {
-												color: #000;
-												font-family: $font;
-												font-size: 16px;
-												font-style: normal;
-												font-weight: 700;
-												line-height: normal;
-												cursor: pointer;
-											}
-											.date {
-												color: #757575;
-												font-family: $font;
-												font-size: 13px;
-												font-style: normal;
-												font-weight: 400;
-												line-height: normal;
-												letter-spacing: -0.39px;
-												cursor: pointer;
-											}
-										}
-									}
-									.buttons {
-										flex-direction: row;
-									}
-								}
-								.content {
-									width: 100%;
-									height: auto;
-									p {
-										color: #000;
-										font-family: $font;
-										font-size: 16px;
-										font-style: normal;
-										font-weight: 400;
-										line-height: normal;
-										letter-spacing: -0.48px;
-									}
-								}
-							}
-						}
-					}
+		}
+
+		.community-detail-shell {
+			width: 100%;
+			max-width: 760px;
+			margin: 0 auto;
+			gap: 16px;
+		}
+
+		.community-detail-header {
+			padding: 20px 22px;
+			gap: 12px;
+			border: 1px solid #d8e0ea;
+			border-radius: 14px;
+			background: #fff;
+			box-shadow: 0 18px 42px rgba(23, 42, 76, 0.08);
+
+			.back-button {
+				width: fit-content;
+				min-width: 112px;
+				height: 34px;
+				padding: 0 14px;
+				border-radius: 17px;
+				border: 1px solid #c8d8ea;
+				color: #2e86de;
+				font-family: $font;
+				font-size: 12px;
+				font-weight: 700;
+				text-transform: none;
+
+				&:hover {
+					border-color: #2e86de;
+					background: rgba(46, 134, 222, 0.08);
 				}
 			}
-			.similar-articles-config {
+
+			.header-copy {
+				gap: 4px;
+			}
+
+			.header-kicker {
+				color: #2e86de;
+				font-family: $font;
+				font-size: 13px;
+				font-weight: 700;
+				line-height: 18px;
+			}
+
+			.header-title {
+				color: #162033;
+				font-family: $font;
+				font-size: 30px;
+				font-weight: 800;
+				line-height: 38px;
+			}
+
+			.header-subtitle {
+				color: #6c7888;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 22px;
+			}
+		}
+
+		.community-detail-content {
+			border: 1px solid #d8e0ea;
+			border-radius: 14px;
+			background: #fff;
+			overflow: hidden;
+			box-shadow: 0 18px 42px rgba(23, 42, 76, 0.08);
+		}
+
+		.detail-state-box {
+			min-height: 280px;
+			align-items: center;
+			justify-content: center;
+			gap: 12px;
+			padding: 34px;
+			text-align: center;
+
+			p {
+				color: #718092;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 22px;
+			}
+
+			.state-title {
+				color: #162033;
+				font-size: 19px;
+				font-weight: 700;
+				line-height: 24px;
+			}
+		}
+
+		.twit-detail-card {
+			width: 100%;
+			gap: 16px;
+			padding: 22px 26px 18px;
+			border-bottom: 1px solid #e5edf5;
+
+			.twit-author-row {
 				width: 100%;
-				height: auto;
-				gap: 75px;
-				padding: 30px 9px 28px 9px;
-				border-radius: 10px;
-				border: 1px solid #c4c4c4;
-				.similar-articles-title {
-					padding-left: 56px;
-					color: #000;
-					font-family: $font;
-					font-size: 30px;
-					font-style: normal;
-					font-weight: 600;
-					line-height: normal;
+				flex-direction: row;
+				align-items: flex-start;
+				gap: 12px;
+
+				.twit-avatar {
+					width: 48px;
+					height: 48px;
+					flex-shrink: 0;
+					border-radius: 50%;
+					object-fit: cover;
+					border: 1px solid #dde6ef;
+					cursor: pointer;
 				}
-				.articles-box-row {
+
+				.twit-author-main {
 					width: 100%;
-					height: auto;
+					min-width: 0;
+				}
+
+				.twit-author-line {
+					width: 100%;
+					min-width: 0;
 					flex-direction: row;
-					gap: 5px;
+					align-items: center;
+					gap: 7px;
+					flex-wrap: wrap;
+				}
+
+				.twit-author-name {
+					max-width: 280px;
+					color: #172033;
+					font-family: $font;
+					font-size: 16px;
+					font-weight: 800;
+					line-height: 21px;
+					cursor: pointer;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					white-space: nowrap;
+				}
+
+				.twit-author-nick,
+				.twit-dot,
+				.twit-time {
+					color: #738296;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 500;
+					line-height: 20px;
 				}
 			}
+
+			.twit-body {
+				padding-left: 60px;
+				gap: 14px;
+
+				.twit-text {
+					color: #1f2937;
+					font-family: $font;
+					font-size: 16px;
+					font-weight: 500;
+					line-height: 25px;
+					white-space: pre-wrap;
+					overflow-wrap: anywhere;
+				}
+
+				.twit-media {
+					width: 100%;
+					max-height: 560px;
+					border-radius: 12px;
+					border: 1px solid #dbe5ef;
+					object-fit: cover;
+					background: #eef3f8;
+				}
+			}
+
+			.twit-action-row {
+				padding-left: 54px;
+				flex-direction: row;
+				align-items: center;
+				gap: 26px;
+
+				.twit-action {
+					flex-direction: row;
+					align-items: center;
+					gap: 2px;
+					color: #6f7f91;
+
+					.MuiIconButton-root {
+						width: 34px;
+						height: 34px;
+						color: #6f7f91;
+					}
+
+					svg {
+						width: 19px;
+						height: 19px;
+					}
+
+					p {
+						color: inherit;
+						font-family: $font;
+						font-size: 12px;
+						font-weight: 700;
+						line-height: 18px;
+					}
+
+					&:hover {
+						color: #2e86de;
+						.MuiIconButton-root {
+							background: rgba(46, 134, 222, 0.1);
+							color: #2e86de;
+						}
+					}
+
+					&.like-action.active {
+						color: #e92c28;
+						.MuiIconButton-root {
+							color: #e92c28;
+						}
+					}
+
+					&.delete-action:hover {
+						color: #e92c28;
+						.MuiIconButton-root {
+							background: rgba(233, 44, 40, 0.1);
+							color: #e92c28;
+						}
+					}
+				}
+			}
+		}
+
+		.community-comments-placeholder {
+			width: 100%;
+			gap: 6px;
+			padding: 20px 26px 24px;
+			background: #f8fbff;
+
+			.placeholder-title {
+				color: #162033;
+				font-family: $font;
+				font-size: 16px;
+				font-weight: 700;
+				line-height: 22px;
+			}
+
+			.placeholder-copy {
+				color: #6f7f91;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 22px;
+			}
+		}
+	}
+}
+
+#mobile-wrap {
+	#community-detail-page {
+		.container {
+			width: 100%;
+			padding: 24px 14px 40px;
+		}
+
+		.community-detail-shell {
+			max-width: 100%;
+			gap: 14px;
+		}
+
+		.community-detail-header {
+			padding: 16px;
+			.header-title {
+				font-size: 24px;
+				line-height: 32px;
+			}
+		}
+
+		.twit-detail-card {
+			padding: 16px;
+			gap: 14px;
+
+			.twit-author-row {
+				.twit-avatar {
+					width: 40px;
+					height: 40px;
+				}
+				.twit-author-name {
+					max-width: 170px;
+				}
+			}
+
+			.twit-body {
+				padding-left: 52px;
+				.twit-media {
+					max-height: 360px;
+				}
+			}
+
+			.twit-action-row {
+				padding-left: 46px;
+				gap: 14px;
+			}
+		}
+
+		.community-comments-placeholder {
+			padding: 16px;
 		}
 	}
 }

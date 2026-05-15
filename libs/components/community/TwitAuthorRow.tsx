@@ -7,10 +7,9 @@ import { REACT_APP_API_URL } from '../../config';
 
 interface TwitAuthorRowProps {
 	twit: Twit;
-	currentUserId?: string;
 }
 
-const TwitAuthorRow = ({ twit, currentUserId }: TwitAuthorRowProps) => {
+const TwitAuthorRow = ({ twit }: TwitAuthorRowProps) => {
 	const router = useRouter();
 	const member = twit?.memberData;
 
@@ -23,8 +22,7 @@ const TwitAuthorRow = ({ twit, currentUserId }: TwitAuthorRowProps) => {
 	const goMemberPage = (event: React.SyntheticEvent) => {
 		event.stopPropagation();
 		if (!member?._id) return;
-		if (member?._id === currentUserId) router.push('/mypage');
-		else router.push(`/member?memberId=${member?._id}`);
+		router.push(`/member?memberId=${member?._id}`);
 	};
 
 	return (

@@ -41,6 +41,7 @@ const CommunityFeed = ({
 		return (
 			<Stack className="community-feed state-box">
 				<CircularProgress />
+				<Typography className="empty-copy">Loading your community feed...</Typography>
 			</Stack>
 		);
 	}

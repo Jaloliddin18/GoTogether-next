@@ -27,7 +27,7 @@ const TwitCard = ({ twit, currentUserId, onLike, onDelete }: TwitCardProps) => {
 
 	return (
 		<Stack className="twit-card" onClick={goDetailPage}>
-			<TwitAuthorRow twit={twit} currentUserId={currentUserId} />
+			<TwitAuthorRow twit={twit} />
 			<TwitBody text={twit?.text} image={twit?.image} />
 			<TwitActionRow
 				twitId={twit?._id}

@@ -10,7 +10,7 @@ import { sweetMixinErrorAlert } from '../../sweetAlert';
 interface CommunityComposerProps {
 	user: CustomJwtPayload;
 	loading: boolean;
-	onSubmit: (input: CreateTwitInput) => Promise<void>;
+	onSubmit: (input: CreateTwitInput) => Promise<boolean>;
 	onLogin: () => void;
 }
 
@@ -18,6 +18,7 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 	const [text, setText] = useState<string>('');
 	const [imagePath, setImagePath] = useState<string>('');
 	const [uploading, setUploading] = useState<boolean>(false);
+	const [submitting, setSubmitting] = useState<boolean>(false);
 	const token = getJwtToken();
 
 	const getMemberImage = (imageUrl: string | undefined) => {
@@ -27,9 +28,17 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 	};
 
 	const submitHandler = async () => {
-		await onSubmit({ text, image: imagePath || undefined });
-		setText('');
-		setImagePath('');
+		if (loading || submitting || uploading || !text.trim() || text.length > 500) return;
+
+		setSubmitting(true);
+		try {
+			const isSuccess = await onSubmit({ text, image: imagePath || undefined });
+			if (!isSuccess) return;
+			setText('');
+			setImagePath('');
+		} finally {
+			setSubmitting(false);
+		}
 	};
 
 	const normalizeImagePath = (path: string) => {
@@ -116,15 +125,19 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 					<Typography className="composer-hint">{text.length}/500</Typography>
 					<Stack className="composer-tools">
 						<input type="file" id="community-twit-image" accept="image/*" onChange={imageChangeHandler} hidden />
-						<Button className="composer-upload" disabled={uploading} onClick={() => document.getElementById('community-twit-image')?.click()}>
+						<Button
+							className="composer-upload"
+							disabled={uploading || loading || submitting}
+							onClick={() => document.getElementById('community-twit-image')?.click()}
+						>
 							{uploading ? 'Uploading...' : 'Image'}
 						</Button>
 						<Button
 							className="composer-submit"
-							disabled={loading || uploading || !text.trim() || text.length > 500}
+							disabled={loading || submitting || uploading || !text.trim() || text.length > 500}
 							onClick={submitHandler}
 						>
-							Post
+							{loading || submitting ? 'Posting...' : 'Post'}
 						</Button>
 					</Stack>
 				</Stack>

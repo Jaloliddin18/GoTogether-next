@@ -52,7 +52,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	});
 
 	/** HANDLERS **/
-	const createTwitHandler = async (input: CreateTwitInput) => {
+	const createTwitHandler = async (input: CreateTwitInput): Promise<boolean> => {
 		try {
 			if (!user?._id) throw new Error(Message.NOT_AUTHENTICATED);
 			if (!input?.text?.trim()) throw new Error(Message.INSERT_ALL_INPUTS);
@@ -70,9 +70,11 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 			setSearchCommunity(nextInquiry);
 			await twitsRefetch({ input: nextInquiry });
 			await sweetTopSmallSuccessAlert('Posted', 800);
+			return true;
 		} catch (err: any) {
 			console.log('ERROR, createTwitHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
+			return false;
 		}
 	};
 
@@ -97,7 +99,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 			if (!id) return;
 			if (!user?._id) throw new Error(Message.NOT_AUTHENTICATED);
 
-			const confirmation = await sweetConfirmAlert('Delete this community post?');
+			const confirmation = await sweetConfirmAlert('Delete this post?');
 			if (!confirmation) return;
 
 			await deleteTwit({
