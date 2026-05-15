@@ -1,7 +1,58 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-15 | Commit: `9e5d71c`
+**Last Updated:** 2026-05-15 | Commit: `318f377`
 **Current Branch:** `community`
+
+---
+
+## Today's Session Update (2026-05-15, Community Twit Refactor)
+
+### Completed today
+- Added frontend `GET_TWIT` query integration and converted `/community/detail?id=<twitId>` to Twit detail data.
+- Replaced legacy `/community` board/article list UI with Twit feed UI powered by:
+  - `GET_TWITS`
+  - `CREATE_TWIT`
+  - `LIKE_TWIT`
+  - `DELETE_TWIT`
+- Added reusable community feed components:
+  - `CommunityShell`
+  - `CommunityComposer`
+  - `CommunityFeed`
+  - `TwitCard`
+  - `TwitAuthorRow`
+  - `TwitBody`
+  - `TwitMedia`
+  - `TwitActionRow`
+- Added Twit composer image upload using old Nestar upload pattern:
+  - `imagesUploader(files, target: "twits")`
+  - Store returned relative path directly in `createTwit.image`
+- Applied Twit image display normalization rule:
+  - if starts with `http`, use as-is
+  - if starts with `/`, use as-is
+  - otherwise prefix `/` (e.g. `uploads/twits/...` -> `/uploads/twits/...`)
+- Ran `npm run build` successfully after refactor and upload-rule wiring.
+
+### Current stopping point
+- Live `/community` now uses Twit feed structure (no live board/article tabs).
+- `/community/detail` remains query-route based and uses `GET_TWIT`.
+- Twit comments remain deferred (current `TwitCommentsInquiry` does not include twit target search fields).
+
+### Exact next task
+- Stabilize/QA Twit community UX details (compose, like, delete, empty/error states) and then migrate member/mypage article tabs to Twit-based surfaces in a separate scoped task.
+
+### Uncommitted/untracked files
+- In-progress community frontend changes:
+  - `pages/community/index.tsx`
+  - `pages/community/detail.tsx`
+  - `scss/pc/community/community.scss`
+  - `libs/components/community/CommunityComposer.tsx`
+  - `libs/components/community/CommunityFeed.tsx`
+  - `libs/components/community/CommunityShell.tsx`
+  - `libs/components/community/TwitActionRow.tsx`
+  - `libs/components/community/TwitAuthorRow.tsx`
+  - `libs/components/community/TwitBody.tsx`
+  - `libs/components/community/TwitCard.tsx`
+  - `libs/components/community/TwitMedia.tsx`
 
 ---
 

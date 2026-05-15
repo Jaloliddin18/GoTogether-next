@@ -48,8 +48,9 @@ const CommunityDetail: NextPage = () => {
 
 	const getTwitImage = (imageUrl: string | undefined) => {
 		if (!imageUrl) return '';
-		if (imageUrl.startsWith('/img') || imageUrl.startsWith('http')) return imageUrl;
-		return `${REACT_APP_API_URL}/${imageUrl}`;
+		if (imageUrl.startsWith('http')) return imageUrl;
+		if (imageUrl.startsWith('/')) return imageUrl;
+		return `/${imageUrl}`;
 	};
 
 	const goMemberPage = (id: any) => {

@@ -6,6 +6,17 @@ Do not run `yarn build` after every small change; reserve it for major structura
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-15)
+
+- `/community` was refactored from legacy board/article UI into a Twit feed structure.
+- `/community/detail` now uses Twit detail query data (`GET_TWIT`) with route pattern `/community/detail?id=<twitId>`.
+- New Twit community components were added under `libs/components/community/` (`CommunityShell`, `CommunityComposer`, `CommunityFeed`, `TwitCard`, `TwitAuthorRow`, `TwitBody`, `TwitMedia`, `TwitActionRow`).
+- Twit image flow now follows old Nestar upload style:
+  - `imagesUploader` with target `twits`
+  - store returned relative path directly in `createTwit.image`
+  - normalize only at render time (`http` keep, `/` keep, otherwise prefix `/`)
+- Board/article code still exists in the repo for now and is not deleted yet; only live `/community` and `/community/detail` are migrated.
+
 ## Frontend Audit (2026-05-14)
 
 ### Project Overview

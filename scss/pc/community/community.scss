@@ -1,186 +1,464 @@
-#pc-wrap {
+#pc-wrap,
+#mobile-wrap {
 	#community-list-page {
 		position: relative;
+		background: #f6f8fb;
 		.container {
-			padding-top: 100px;
+			padding-top: 86px;
+			padding-bottom: 70px;
 			flex-direction: column;
-			gap: 64px;
-			.main-box {
-				flex-direction: row;
-				gap: 31px;
-				.left-config {
-					width: 266px;
-					height: fit-content;
-					gap: 30px;
-					padding: 30px 15px 57px 21px;
-					margin-top: 100px;
-					margin-bottom: 50px;
-					border-radius: 12px;
-					border: 1px solid rgba(196, 196, 196, 0.79);
-					background: #fff;
-					box-shadow: 0px 1px 4px 0px rgba(24, 26, 32, 0.07);
-					.image-info {
-						width: 100%;
-						flex-direction: row;
-						gap: 11px;
-						img {
-							width: 80px;
-							height: 80px;
-							border-radius: 50%;
-							object-fit: cover;
-						}
-						.community-name {
-							.name {
-								margin-top: 15px;
-								color: #1A1A2E;
-								font-family: $font;
-								font-size: 15px;
-								font-style: normal;
-								font-weight: 600;
-								line-height: normal;
-							}
-						}
-					}
-					.tab-button {
-						width: 216.612px;
-						height: 36px;
-						padding: 0;
-						justify-content: center;
-						align-items: center;
-						border-radius: 6px;
-						border: 1px solid #1A1A2E;
-						margin-bottom: 10px;
-						color: #1A1A2E;
-						font-family: $font;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 150%;
-						letter-spacing: -0.266px;
-					}
-					.tab-button.active {
-						width: 216.612px;
-						height: 36px;
-						padding: 0;
-						justify-content: center;
-						align-items: center;
-						background-color: #000000;
-						color: #ffffff;
-						border-radius: 6px;
-						margin-bottom: 10px;
-						font-family: $font;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 500;
-						line-height: 150%;
-						letter-spacing: -0.266px;
-					}
-				}
-				.right-config {
-					width: 100%;
-					height: auto;
-					.panel-config {
-						width: 100%;
-						height: auto;
-						.title-box {
-							width: 100%;
-							height: auto;
-							flex-direction: row;
-							justify-content: space-between;
-							align-items: center;
-							margin-bottom: 45px;
-							.left {
-								width: 60%;
-								height: auto;
-								.title {
-									color: #000;
-									font-family: $font;
-									font-size: 24px;
-									font-style: normal;
-									font-weight: 600;
-									line-height: normal;
-									letter-spacing: 0.24px;
-								}
-								.sub-title {
-									color: #757575;
-									font-family: $font;
-									font-size: 13px;
-									font-style: normal;
-									font-weight: 700;
-									line-height: normal;
-									letter-spacing: 0.325px;
-								}
-							}
-							.right {
-								width: 91px;
-								height: 32px;
-								border-radius: 4px;
-								background: #2E86DE;
-								color: #fff;
-								font-family: $font;
-								font-size: 13px;
-								font-style: normal;
-								font-weight: 500;
-								line-height: normal;
-								letter-spacing: 0.39px;
-							}
-						}
-						.list-box {
-							width: 100%;
-							height: auto;
-							flex-direction: row;
-							flex-wrap: wrap;
-							gap: 30px;
-						}
-					}
-				}
+		}
+		.community-shell {
+			width: 100%;
+			flex-direction: row;
+			align-items: flex-start;
+			justify-content: center;
+			gap: 24px;
+		}
+		.community-feed-column {
+			width: 720px;
+			min-height: 640px;
+			border: 1px solid #d8e0ea;
+			border-radius: 8px;
+			background: #fff;
+			overflow: hidden;
+			box-shadow: 0 18px 42px rgba(23, 42, 76, 0.08);
+		}
+		.community-feed-header {
+			padding: 26px 28px 22px;
+			border-bottom: 1px solid #e5edf5;
+			background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+			.community-kicker {
+				color: #2E86DE;
+				font-family: $font;
+				font-size: 13px;
+				font-weight: 700;
+				line-height: 18px;
 			}
-			.similar-articles-config {
+			.community-title {
+				margin-top: 4px;
+				color: #162033;
+				font-family: $font;
+				font-size: 28px;
+				font-weight: 700;
+				line-height: 36px;
+			}
+			.community-subtitle {
+				margin-top: 4px;
+				color: #6c7888;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 22px;
+			}
+		}
+		.community-composer {
+			width: 100%;
+			flex-direction: row;
+			gap: 14px;
+			padding: 20px 24px;
+			border-bottom: 1px solid #e5edf5;
+			background: #fff;
+			.composer-avatar {
+				width: 46px;
+				height: 46px;
+				flex-shrink: 0;
+				border-radius: 50%;
+				object-fit: cover;
+				border: 1px solid #dde6ef;
+			}
+			.composer-body {
 				width: 100%;
-				height: auto;
-				gap: 75px;
-				padding: 30px 9px 28px 9px;
-				border-radius: 10px;
-				border: 1px solid #c4c4c4;
-				.similar-articles-title {
-					padding-left: 56px;
-					color: #000;
+				gap: 10px;
+			}
+			.composer-input {
+				width: 100%;
+				textarea {
+					color: #1f2937;
 					font-family: $font;
-					font-size: 30px;
-					font-style: normal;
-					font-weight: 600;
-					line-height: normal;
-				}
-				.articles-box-row {
-					width: 100%;
-					height: auto;
-					flex-direction: row;
-					gap: 5px;
+					font-size: 16px;
+					font-weight: 500;
+					line-height: 24px;
 				}
 			}
-			.pagination-config {
+			.composer-footer {
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+				padding-top: 10px;
+				border-top: 1px solid #f0f4f8;
+			}
+			.composer-tools {
+				flex-direction: row;
+				align-items: center;
+				gap: 8px;
+			}
+			.composer-hint {
+				color: #8a96a6;
+				font-family: $font;
+				font-size: 12px;
+				font-weight: 600;
+			}
+			.composer-upload {
+				min-width: 84px;
+				height: 36px;
+				border-radius: 18px;
+				border: 1px solid #c8d8ea;
+				color: #2E86DE;
+				font-family: $font;
+				font-size: 13px;
+				font-weight: 700;
+				text-transform: none;
+				&:hover {
+					border-color: #2E86DE;
+					background: rgba(46, 134, 222, 0.08);
+				}
+			}
+			.composer-submit {
+				min-width: 92px;
+				height: 36px;
+				border-radius: 18px;
+				background: #2E86DE;
+				color: #fff;
+				font-family: $font;
+				font-size: 13px;
+				font-weight: 700;
+				text-transform: none;
+				&:hover {
+					background: #1f6fbd;
+				}
+				&.Mui-disabled {
+					background: #b7c9dc;
+					color: #fff;
+				}
+			}
+			&.login-required {
+				flex-direction: column;
+				gap: 8px;
+				align-items: flex-start;
+				.composer-title {
+					color: #162033;
+					font-family: $font;
+					font-size: 18px;
+					font-weight: 700;
+				}
+				.composer-copy {
+					color: #6c7888;
+					font-family: $font;
+					font-size: 14px;
+					font-weight: 500;
+				}
+				.composer-submit {
+					margin-top: 6px;
+				}
+			}
+			.composer-preview {
 				width: 100%;
+				gap: 8px;
+				padding-top: 8px;
+				img {
+					width: 100%;
+					max-height: 280px;
+					object-fit: cover;
+					border-radius: 8px;
+					border: 1px solid #dbe5ef;
+					background: #eef3f8;
+				}
+				.composer-remove-image {
+					width: fit-content;
+					min-width: 72px;
+					height: 30px;
+					padding: 0 10px;
+					border: 1px solid #f1c8c7;
+					border-radius: 15px;
+					color: #C13E3B;
+					font-family: $font;
+					font-size: 12px;
+					font-weight: 700;
+					text-transform: none;
+				}
+			}
+		}
+		.community-feed {
+			width: 100%;
+			background: #fff;
+			&.state-box,
+			&.empty-state {
+				min-height: 280px;
 				align-items: center;
 				justify-content: center;
-				margin-bottom: 50px;
-				gap: 20px;
-				padding-left: 270px;
-				.pagination-box {
-					align-items: center;
-					justify-content: center;
+				gap: 12px;
+				padding: 34px;
+				text-align: center;
+				.empty-title {
+					color: #162033;
+					font-family: $font;
+					font-size: 18px;
+					font-weight: 700;
 				}
-				.total-result {
-					p {
-						color: #1A1A2E;
-						text-align: center;
-						font-family: $font;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: 26px;
+				.empty-copy {
+					max-width: 420px;
+					color: #718092;
+					font-family: $font;
+					font-size: 14px;
+					font-weight: 500;
+					line-height: 22px;
+				}
+				.empty-action {
+					min-width: 92px;
+					height: 36px;
+					border-radius: 18px;
+					background: #2E86DE;
+					color: #fff;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 700;
+					text-transform: none;
+				}
+			}
+		}
+		.twit-card {
+			width: 100%;
+			gap: 12px;
+			padding: 18px 24px 12px;
+			border-bottom: 1px solid #e5edf5;
+			cursor: pointer;
+			transition:
+				background 0.18s ease,
+				box-shadow 0.18s ease;
+			&:hover {
+				background: #f8fbfe;
+			}
+		}
+		.twit-author-row {
+			width: 100%;
+			flex-direction: row;
+			align-items: flex-start;
+			gap: 12px;
+			.twit-avatar {
+				width: 44px;
+				height: 44px;
+				flex-shrink: 0;
+				border-radius: 50%;
+				object-fit: cover;
+				border: 1px solid #dde6ef;
+				cursor: pointer;
+			}
+			.twit-author-main {
+				width: 100%;
+				min-width: 0;
+			}
+			.twit-author-line {
+				width: 100%;
+				min-width: 0;
+				flex-direction: row;
+				align-items: center;
+				gap: 7px;
+				flex-wrap: wrap;
+			}
+			.twit-author-name {
+				max-width: 220px;
+				color: #172033;
+				font-family: $font;
+				font-size: 15px;
+				font-weight: 800;
+				line-height: 20px;
+				cursor: pointer;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			.twit-author-nick,
+			.twit-dot,
+			.twit-time {
+				color: #738296;
+				font-family: $font;
+				font-size: 13px;
+				font-weight: 500;
+				line-height: 20px;
+			}
+		}
+		.twit-body {
+			padding-left: 56px;
+			gap: 14px;
+			.twit-text {
+				color: #1f2937;
+				font-family: $font;
+				font-size: 15px;
+				font-weight: 500;
+				line-height: 24px;
+				white-space: pre-wrap;
+				overflow-wrap: anywhere;
+			}
+			.twit-media {
+				width: 100%;
+				max-height: 460px;
+				border-radius: 8px;
+				border: 1px solid #dbe5ef;
+				object-fit: cover;
+				background: #eef3f8;
+			}
+		}
+		.twit-action-row {
+			padding-left: 50px;
+			flex-direction: row;
+			align-items: center;
+			gap: 26px;
+			.twit-action {
+				flex-direction: row;
+				align-items: center;
+				gap: 2px;
+				color: #6f7f91;
+				.MuiIconButton-root {
+					width: 34px;
+					height: 34px;
+					color: #6f7f91;
+				}
+				svg {
+					width: 19px;
+					height: 19px;
+				}
+				p {
+					color: inherit;
+					font-family: $font;
+					font-size: 12px;
+					font-weight: 700;
+					line-height: 18px;
+				}
+				&:hover {
+					color: #2E86DE;
+					.MuiIconButton-root {
+						background: rgba(46, 134, 222, 0.1);
+						color: #2E86DE;
+					}
+				}
+				&.like-action.active {
+					color: #E92C28;
+					.MuiIconButton-root {
+						color: #E92C28;
+					}
+				}
+				&.delete-action:hover {
+					color: #E92C28;
+					.MuiIconButton-root {
+						background: rgba(233, 44, 40, 0.1);
+						color: #E92C28;
 					}
 				}
 			}
+		}
+		.community-right-rail {
+			width: 300px;
+			gap: 16px;
+			position: sticky;
+			top: 105px;
+			.community-rail-box {
+				width: 100%;
+				gap: 6px;
+				padding: 20px;
+				border: 1px solid #d8e0ea;
+				border-radius: 8px;
+				background: #fff;
+				box-shadow: 0 12px 30px rgba(23, 42, 76, 0.06);
+			}
+			.rail-title {
+				color: #162033;
+				font-family: $font;
+				font-size: 15px;
+				font-weight: 800;
+				line-height: 22px;
+			}
+			.rail-count {
+				color: #2E86DE;
+				font-family: $font;
+				font-size: 34px;
+				font-weight: 800;
+				line-height: 42px;
+			}
+			.rail-label,
+			.rail-text {
+				color: #718092;
+				font-family: $font;
+				font-size: 13px;
+				font-weight: 500;
+				line-height: 21px;
+			}
+		}
+		.pagination-config {
+			width: 100%;
+			align-items: center;
+			justify-content: center;
+			gap: 14px;
+			padding: 24px;
+			border-top: 1px solid #e5edf5;
+			background: #fff;
+			.pagination-box {
+				align-items: center;
+				justify-content: center;
+			}
+			.total-result {
+				p {
+					color: #6f7f91;
+					text-align: center;
+					font-family: $font;
+					font-size: 13px;
+					font-weight: 600;
+					line-height: 20px;
+				}
+			}
+		}
+	}
+}
+
+#mobile-wrap {
+	#community-list-page {
+		.container {
+			width: 100%;
+			padding: 24px 14px 40px;
+		}
+		.community-shell {
+			flex-direction: column;
+			gap: 16px;
+		}
+		.community-feed-column {
+			width: 100%;
+			border-radius: 8px;
+		}
+		.community-feed-header {
+			padding: 22px 18px 18px;
+			.community-title {
+				font-size: 24px;
+				line-height: 32px;
+			}
+		}
+		.community-composer {
+			padding: 16px;
+			.composer-avatar {
+				width: 40px;
+				height: 40px;
+			}
+		}
+		.twit-card {
+			padding: 16px 16px 10px;
+		}
+		.twit-author-row {
+			.twit-avatar {
+				width: 40px;
+				height: 40px;
+			}
+			.twit-author-name {
+				max-width: 170px;
+			}
+		}
+		.twit-body {
+			padding-left: 52px;
+		}
+		.twit-action-row {
+			padding-left: 46px;
+			gap: 14px;
+		}
+		.community-right-rail {
+			display: none;
 		}
 	}
 }
