@@ -376,6 +376,154 @@
 			}
 		}
 
+		// Threaded reply indentation
+		.comment-replies {
+			padding-left: 48px;
+			border-left: 2px solid #e5edf5;
+			margin-top: 4px;
+			.reply-card {
+				border-bottom: none;
+				padding: 10px 0 6px;
+				&:last-child {
+					padding-bottom: 0;
+				}
+			}
+		}
+
+		// Reply-to indicator pill
+		.reply-to-indicator {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			font-size: 13px;
+			color: #1a3a5c;
+			font-family: $font;
+			padding: 4px 0 8px;
+			button {
+				background: none;
+				border: none;
+				cursor: pointer;
+				color: #8a8077;
+				font-size: 16px;
+				line-height: 1;
+				padding: 0;
+				&:hover {
+					color: #1a1a2e;
+				}
+			}
+		}
+
+		// Per-comment action row (reply + like)
+		.comment-action-row {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+			margin-top: 6px;
+		}
+
+		// Per-comment reply button
+		.comment-reply-btn {
+			background: none;
+			border: none;
+			color: #1a3a5c;
+			font-size: 13px;
+			font-weight: 700;
+			cursor: pointer;
+			padding: 4px 0;
+			font-family: $font;
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+
+		// Per-comment like button
+		.comment-like-btn {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			background: none;
+			border: none;
+			font-size: 13px;
+			color: #8a8077;
+			cursor: pointer;
+			padding: 0;
+			font-family: $font;
+			&.liked {
+				color: #c1391a;
+			}
+			&:hover {
+				color: #c1391a;
+			}
+		}
+
+		// Comment edit inline UI
+		.comment-edit-input {
+			width: 100%;
+			font-size: 14px;
+			padding: 6px 8px;
+			border: 1px solid #ddd8cf;
+			border-radius: 4px;
+			outline: none;
+			margin-top: 4px;
+			font-family: inherit;
+			resize: none;
+		}
+		.comment-edit-actions {
+			display: flex;
+			gap: 8px;
+			margin-top: 6px;
+		}
+		.comment-edit-save {
+			background: #1a3a5c;
+			color: #fff;
+			border: none;
+			border-radius: 20px;
+			padding: 4px 14px;
+			font-size: 13px;
+			font-weight: 700;
+			cursor: pointer;
+			&:hover {
+				background: #0f2440;
+			}
+		}
+		.comment-edit-cancel {
+			background: none;
+			border: 1px solid #ddd8cf;
+			border-radius: 20px;
+			padding: 4px 14px;
+			font-size: 13px;
+			cursor: pointer;
+			color: #8a8077;
+			&:hover {
+				border-color: #1a3a5c;
+				color: #1a3a5c;
+			}
+		}
+		.comment-owner-actions {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			margin-left: auto;
+		}
+		.comment-owner-btn {
+			background: none;
+			border: none;
+			cursor: pointer;
+			color: #8a8077;
+			display: flex;
+			align-items: center;
+			padding: 4px;
+			border-radius: 50%;
+			transition: all 0.15s;
+			&:hover {
+				background: #f0f4f8;
+				color: #1a3a5c;
+			}
+			&.delete:hover {
+				color: #c1391a;
+			}
+		}
+
 		// Empty replies placeholder
 		.community-comments-placeholder {
 			width: 100%;

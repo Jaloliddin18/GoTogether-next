@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
@@ -13,6 +13,7 @@ import { TwitComment } from '../../libs/types/twit-comment/twit-comment';
 import TwitAuthorRow from '../../libs/components/community/TwitAuthorRow';
 import TwitBody from '../../libs/components/community/TwitBody';
 import TwitActionRow from '../../libs/components/community/TwitActionRow';
+import CommentCard from '../../libs/components/community/CommentCard';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import Moment from 'react-moment';
@@ -32,6 +33,8 @@ const CommunityDetail: NextPage = () => {
 	const twitId = typeof router.query?.id === 'string' ? router.query.id : '';
 	const [replyText, setReplyText] = useState('');
 	const [replySubmitting, setReplySubmitting] = useState(false);
+	const [replyTo, setReplyTo] = useState<{ parentId: string; nick: string } | null>(null);
+	const replyInputRef = useRef<HTMLInputElement>(null);
 
 	const [deleteTwit] = useMutation(DELETE_TWIT);
 	const [createTwitComment] = useMutation(CREATE_TWIT_COMMENT);
@@ -56,7 +59,7 @@ const CommunityDetail: NextPage = () => {
 		variables: {
 			input: {
 				page: 1,
-				limit: 20,
+				limit: 50,
 				sort: 'createdAt',
 				direction: Direction.DESC,
 				search: { twitId },
@@ -68,6 +71,9 @@ const CommunityDetail: NextPage = () => {
 
 	const twit = data?.getTwit;
 	const comments: TwitComment[] = commentsData?.getTwitComments?.list ?? [];
+	const depth0 = comments.filter((c) => c.depth === 0);
+	const depth1 = comments.filter((c) => c.depth === 1);
+	const depth2 = comments.filter((c) => c.depth === 2);
 	const isOwner = !!user?._id && user._id === twit?.memberId;
 
 	const goCommunityPage = async () => {
@@ -91,6 +97,11 @@ const CommunityDetail: NextPage = () => {
 		}
 	};
 
+	const handleReply = (parentId: string, nick: string) => {
+		setReplyTo({ parentId, nick });
+		setTimeout(() => replyInputRef.current?.focus(), 50);
+	};
+
 	const submitReplyHandler = async () => {
 		try {
 			if (!replyText.trim()) return;
@@ -101,9 +112,16 @@ const CommunityDetail: NextPage = () => {
 			if (!twitId) throw new Error(Message.SOMETHING_WENT_WRONG);
 			setReplySubmitting(true);
 			await createTwitComment({
-				variables: { input: { twitId, text: replyText.trim() } },
+				variables: {
+					input: {
+						twitId,
+						text: replyText.trim(),
+						...(replyTo ? { parentCommentId: replyTo.parentId } : {}),
+					},
+				},
 			});
 			setReplyText('');
+			setReplyTo(null);
 			await commentsRefetch();
 			await sweetTopSmallSuccessAlert('Reply posted', 800);
 		} catch (err: any) {
@@ -172,7 +190,7 @@ const CommunityDetail: NextPage = () => {
 										<Typography className="stat-label">Reposts</Typography>
 									</Stack>
 									<Stack className="detail-stat-item">
-										<Typography className="stat-count">{comments.length}</Typography>
+										<Typography className="stat-count">{depth0.length}</Typography>
 										<Typography className="stat-label">Replies</Typography>
 									</Stack>
 									<Stack className="detail-stat-item">
@@ -185,7 +203,7 @@ const CommunityDetail: NextPage = () => {
 									twit={twit}
 									viewCount={twit?.viewCount ?? 0}
 									isOwner={isOwner}
-									onComment={() => document.getElementById('reply-input')?.focus()}
+									onComment={() => replyInputRef.current?.focus()}
 									onDelete={deleteTwitHandler}
 								/>
 							</Stack>
@@ -199,13 +217,20 @@ const CommunityDetail: NextPage = () => {
 										className="reply-avatar"
 									/>
 									<Stack className="reply-input-wrap">
+										{replyTo && (
+											<div className="reply-to-indicator">
+												<span>Replying to @{replyTo.nick}</span>
+												<button onClick={() => setReplyTo(null)} aria-label="Cancel reply">×</button>
+											</div>
+										)}
 										<TextField
 											id="reply-input"
+											inputRef={replyInputRef}
 											value={replyText}
 											onChange={(e) => setReplyText(e.target.value)}
 											multiline
 											minRows={1}
-											placeholder="Post your reply"
+											placeholder={replyTo ? `Reply to @${replyTo.nick}...` : 'Post your reply'}
 											variant="standard"
 											InputProps={{ disableUnderline: true }}
 											className="reply-input"
@@ -230,95 +255,20 @@ const CommunityDetail: NextPage = () => {
 								<Stack className="detail-state-box" sx={{ minHeight: 100 }}>
 									<CircularProgress size={22} />
 								</Stack>
-							) : comments.length > 0 ? (
+							) : depth0.length > 0 ? (
 								<>
 									<Stack className="replies-section-header">
 										<Typography>Replies</Typography>
 									</Stack>
-									{comments.map((comment) => (
-										<Stack key={comment._id} className="reply-card">
-											<Stack
-												flexDirection="row"
-												alignItems="flex-start"
-												gap="12px"
-											>
-												<img
-													src={getMemberImage(comment.memberData?.memberImage)}
-													alt=""
-													style={{
-														width: 38,
-														height: 38,
-														borderRadius: '50%',
-														objectFit: 'cover',
-														border: '1px solid #ddd8cf',
-														flexShrink: 0,
-													}}
-												/>
-												<Stack gap="4px" minWidth={0} flex={1}>
-													<Stack flexDirection="row" alignItems="center" gap="6px" flexWrap="wrap">
-														<Typography
-															sx={{
-																color: '#1a1814',
-																fontFamily: 'Atkinson Hyperlegible, system-ui, sans-serif',
-																fontSize: 14,
-																fontWeight: 700,
-																lineHeight: '18px',
-															}}
-														>
-															{comment.memberData?.memberFullName ||
-																comment.memberData?.memberNick ||
-																'Community member'}
-														</Typography>
-														{comment.memberData?.memberNick && (
-															<Typography
-																sx={{
-																	color: '#8a8077',
-																	fontFamily: 'Atkinson Hyperlegible, system-ui, sans-serif',
-																	fontSize: 13,
-																	lineHeight: '18px',
-																}}
-															>
-																@{comment.memberData.memberNick}
-															</Typography>
-														)}
-														<Typography
-															sx={{
-																color: '#8a8077',
-																fontFamily: 'Atkinson Hyperlegible, system-ui, sans-serif',
-																fontSize: 13,
-																lineHeight: '18px',
-															}}
-														>
-															·
-														</Typography>
-														<Moment
-															fromNow
-															style={{
-																color: '#8a8077',
-																fontFamily: 'Atkinson Hyperlegible, system-ui, sans-serif',
-																fontSize: 13,
-																lineHeight: '18px',
-															}}
-														>
-															{comment.createdAt}
-														</Moment>
-													</Stack>
-													<Typography
-														sx={{
-															color: '#1a1814',
-															fontFamily: 'Atkinson Hyperlegible, system-ui, sans-serif',
-															fontSize: 14,
-															fontWeight: 400,
-															lineHeight: 1.65,
-															whiteSpace: 'pre-wrap',
-															overflowWrap: 'anywhere',
-														}}
-													>
-														{comment.text}
-													</Typography>
-												</Stack>
-											</Stack>
-										</Stack>
+									{depth0.map((comment) => (
+										<CommentCard
+											key={comment._id}
+											comment={comment}
+											replies={depth1.filter((r) => r.parentCommentId === comment._id)}
+											depth2={depth2}
+											onReply={handleReply}
+											onDelete={() => commentsRefetch()}
+										/>
 									))}
 								</>
 							) : (

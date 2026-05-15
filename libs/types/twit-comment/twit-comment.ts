@@ -8,7 +8,6 @@ export interface TwitComment {
 	text: string;
 	parentCommentId?: string;
 	depth: number;
-	likes: string[];
 	likeCount: number;
 	deletedAt?: Date;
 	createdAt: Date;
