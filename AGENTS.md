@@ -15,6 +15,17 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-16) — Guest reply prompt on twit detail page
+
+### Completed
+- **Guest login prompt**: `pages/community/detail.tsx` — replaced the `{user?._id && <composer>}` boolean guard with a ternary. Guests now see a `.detail-login-prompt` strip with a clickable "Log in" span (routes to `/account/join`) instead of nothing.
+- **Styles**: added `.detail-login-prompt` and `.login-link` to `scss/pc/community/detail.scss` in the `#community-detail-page` scope, directly above `.detail-reply-composer`. Colors: `#e2e8f0` border, `#64748b` muted text, `#2e86de` accent, `$font`.
+
+### Key rule
+- Auth-gated UI that hides completely for guests should almost always show a "Log in to …" prompt instead of blank space — blank space looks like a bug.
+
+---
+
 ## Session Update (2026-05-16) — Member profile page, follow/unfollow real-time fix, community banner
 
 ### Completed

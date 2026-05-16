@@ -290,6 +290,21 @@
 			}
 		}
 
+		// Guest login prompt (shown in place of reply composer)
+		.detail-login-prompt {
+			padding: 16px 24px;
+			border-bottom: 1px solid #e2e8f0;
+			color: #64748b;
+			font-family: $font;
+			font-size: 15px;
+			.login-link {
+				color: #2e86de;
+				cursor: pointer;
+				font-weight: 700;
+				&:hover { text-decoration: underline; }
+			}
+		}
+
 		// Reply compose box
 		.detail-reply-composer {
 			width: 100%;

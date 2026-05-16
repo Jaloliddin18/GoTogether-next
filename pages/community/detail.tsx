@@ -209,7 +209,13 @@ const CommunityDetail: NextPage = () => {
 							</Stack>
 
 							{/* Reply composer */}
-							{user?._id && (
+							{!user?._id ? (
+								<div className="detail-login-prompt">
+									<Typography>
+										<span onClick={() => router.push('/account/join')} className="login-link">Log in</span> to reply
+									</Typography>
+								</div>
+							) : (
 								<Stack className="detail-reply-composer">
 									<img
 										src={getMemberImage(user?.memberImage)}
