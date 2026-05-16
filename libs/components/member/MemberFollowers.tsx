@@ -70,12 +70,14 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 
 	return (
 		<div id="member-follows-page">
-			{memberFollowers.length === 0 && (
+			{memberFollowers.filter(f => f.followerId !== followInquiry.search?.followingId).length === 0 && (
 				<div className="follow-list-empty">
 					<Typography>No followers yet.</Typography>
 				</div>
 			)}
-			{memberFollowers.map((follower: Follower) => {
+			{memberFollowers
+				.filter((follower) => follower.followerId !== followInquiry.search?.followingId)
+				.map((follower: Follower) => {
 				const avatarSrc = resolveAvatar(follower.followerData?.memberImage);
 				const nick = follower.followerData?.memberNick ?? '';
 				const isLiked = follower.meLiked?.[0]?.myFavorite === true;

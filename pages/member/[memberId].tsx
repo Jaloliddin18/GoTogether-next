@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { Button, OutlinedInput, Pagination, Stack, Typography } from '@mui/material';
+import { Button, IconButton, OutlinedInput, Pagination, Stack, Typography } from '@mui/material';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import SearchIcon from '@mui/icons-material/Search';
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import Moment from 'react-moment';
@@ -62,6 +63,12 @@ const MemberProfile: NextPage = () => {
 	const [twitsPage, setTwitsPage] = useState(1);
 	const [isFollowing, setIsFollowing] = useState(false);
 	const [followersRefetchTrigger, setFollowersRefetchTrigger] = useState(0);
+
+	// Reset to Posts tab when navigating between member profiles
+	useEffect(() => {
+		setActiveTab(0);
+		setTwitsPage(1);
+	}, [memberId]);
 
 	// redirect guard — wait for router.isReady so memberId is defined,
 	// then check token synchronously (avoids false redirect before userVar hydrates)
@@ -213,6 +220,14 @@ const MemberProfile: NextPage = () => {
 
 					{/* Center: profile column */}
 					<Stack className="member-feed-column">
+						{/* Sticky back header */}
+						<div className="member-back-header">
+							<IconButton className="member-back-btn" onClick={() => router.back()} aria-label="Go back">
+								<ArrowBackOutlinedIcon />
+							</IconButton>
+							<Typography className="member-back-title">{memberData?.memberNick ?? 'Profile'}</Typography>
+						</div>
+
 						{/* Banner */}
 						<div className="member-profile-banner" />
 

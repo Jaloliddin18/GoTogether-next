@@ -15,6 +15,21 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-16) — Member profile bugs + back-navigation header
+
+### Completed
+- **Bug: wrong tab on navigation** — `[memberId].tsx`: added `useEffect([memberId])` that resets `activeTab` to `0` and `twitsPage` to `1` when `memberId` changes. Next.js reuses the page component across `/member/A` → `/member/B` navigation, so state was never reset.
+- **Bug: profile owner in own followers list** — `MemberFollowers.tsx`: added `.filter(follower => follower.followerId !== followInquiry.search?.followingId)` to both the empty-state check and the `.map()` render. Uses `follower.followerId` (plain GraphQL `String` scalar) compared to `followInquiry.search.followingId` (the profile owner's ID).
+- **Back-navigation header** — `[memberId].tsx`: added `<div className="member-back-header">` with `ArrowBackOutlinedIcon` + member nick title as the first child of the center feed column (above the banner). Calls `router.back()`. Added `IconButton` to MUI import; added `ArrowBackOutlinedIcon` import.
+- **Banner overlap fix** — `memberPage.scss`: removed `overflow: hidden` from `.member-feed-column` (it made the feed column the sticky scroll container, positioning the header 86px into the banner instead of 86px from the viewport). Back-header is not sticky — normal flow element. Added `border-radius: 4px 4px 0 0` to back-header to preserve column shape. Added `overflow: hidden` + `margin-top: 0` to banner.
+
+### Key rules
+- `overflow: hidden` on a flex parent makes it the sticky scroll container — child `position: sticky` resolves offsets from the parent's top, not the viewport. Remove `overflow: hidden` from any container where sticky children need to stick to the page scroll.
+- When navigating between dynamic routes in Next.js (`/member/[memberId]`), the page component is reused — any `useState` that depends on the route param must be reset in a `useEffect([param])`.
+- Self-exclusion in follower/following lists: compare `follower.followerId` (scalar String) against `followInquiry.search.followingId` — the profile owner's ID passed from the parent via `initialInput`.
+
+---
+
 ## Session Update (2026-05-16) — Guest reply prompt on twit detail page
 
 ### Completed
