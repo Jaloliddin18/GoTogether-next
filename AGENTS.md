@@ -2,9 +2,37 @@
 
 Read this file and `MEMORY.md` before doing anything. `MEMORY.md` is the session continuity file and records where the project stopped.
 
-Do not run `yarn build` after every small change; reserve it for major structural changes, not text swaps, favicon changes, or minor style fixes.
+---
+
+## Global Rules
+
+These rules apply permanently to all sessions on this project. They override any conflicting default behavior.
+
+1. **Never run build commands** (`yarn build`, `npm run build`, or any compile/type-check command) unless the user explicitly asks for it.
+2. **Never run git commands** (`git add`, `git commit`, `git push`, or any variant) without explicit instruction from the user. When a task is complete, always report what files were changed and recommend a commit message — then stop and wait for confirmation.
+
+---
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
+
+## Session Update (2026-05-16) — Member profile page, follow/unfollow real-time fix, community banner
+
+### Completed
+- **Member profile banner**: set `hero_lib.jpg` as background image in `scss/pc/member/memberPage.scss`; no overlay (user reverted overlay).
+- **Default avatar**: `resolveAvatar` in `MemberFollowers.tsx` and `MemberFollowings.tsx` now returns `/img/profile/defaultUser.svg` instead of empty string when `memberImage` is absent. Removed the initials-div fallback; always renders `<img>` using `resolveAvatar`.
+- **Like count in follow list**: added `<span className="follow-list-like-count">` next to the heart button in both follower and following rows, showing `memberLikes` from `followerData` / `followingData`. Style added to `memberPage.scss`.
+- **Community banner**: updated `LayoutBasic.tsx` — `/community` and `/community/detail` routes now use `/img/community/digital_community.jpeg` instead of `header2.svg`.
+- **Follow/unfollow real-time bug — root cause**: `MemberFollowers` and `MemberFollowings` were conditionally rendered with `{activeTab === n && ...}`, so they remounted on every tab switch. `followInquiry` reset to `initialInput` with empty `followingId`/`followerId` on each mount; a `useEffect` patched the ID asynchronously, creating a race where `skip: true` blocked the query at refetch time.
+- **Fix — populated initialInput**: parent `[memberId].tsx` now passes `initialInput={{ page: 1, limit: 5, search: { followingId: memberId } }}` (and `followerId` for followings) directly, so both components start with a valid query on mount. Internal `useEffect` and `GET_MEMBER` query removed from both children.
+- **Fix — header Follow button disconnected from list**: added `refetchTrigger` (number) prop to `MemberFollowers`. Parent increments it (after 300ms delay) inside `followHandler` after the subscribe/unsubscribe mutation resolves. Child watches it with `useEffect` and calls `getMemberFollowersRefetch`. Followings list does NOT need this — the header Follow button does not affect who the profile member follows.
+
+### Key rules from this session
+- `resolveAvatar` must return a fallback path, never an empty string — empty string passes a truthy check and silently skips the `<img>` render.
+- Conditionally mounted components (`{condition && <Component />}`) remount on every condition change — never rely on internal `useEffect` to populate query variables that should be known at mount time; pass them via props instead.
+- When two UI elements are visually related but rendered in different component trees (header button vs. list component), they are fully disconnected — use a trigger prop/counter to bridge them.
+- The followings list does not need a `refetchTrigger` — following the profile member changes their followers list, not their followings list.
+
+---
 
 ## Session Update (2026-05-16) — Comment threading, edit/delete/like, multi-image upload
 

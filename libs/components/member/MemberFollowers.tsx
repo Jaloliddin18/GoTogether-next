@@ -9,7 +9,7 @@ import { REACT_APP_API_URL } from '../../config';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { userVar } from '../../../apollo/store';
-import { GET_MEMBER, GET_MEMBER_FOLLOWERS } from '../../../apollo/user/query';
+import { GET_MEMBER_FOLLOWERS } from '../../../apollo/user/query';
 import { SUBSCRIBE, UNSUBSCRIBE } from '../../../apollo/user/mutation';
 import { sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
@@ -19,15 +19,15 @@ interface MemberFollowsProps {
 	unsubscribeHandler: any;
 	redirectToMemberPageHandler: any;
 	likeMemberHandler: any;
+	onProfileRefetch?: () => Promise<void>;
+	refetchTrigger?: number;
 }
 
 const resolveAvatar = (img?: string): string => {
-	if (!img) return '';
+	if (!img) return '/img/profile/defaultUser.svg';
 	if (img.startsWith('/img') || img.startsWith('http')) return img;
 	return `${REACT_APP_API_URL}/${img}`;
 };
-
-const getInitials = (nick: string): string => (nick ?? '').slice(0, 2).toUpperCase() || '?';
 
 // Coerce MongoDB ObjectId objects to plain strings
 const toId = (raw: any): string => {
@@ -37,19 +37,12 @@ const toId = (raw: any): string => {
 };
 
 const MemberFollowers = (props: MemberFollowsProps) => {
-	const { initialInput, likeMemberHandler, subscribeHandler, unsubscribeHandler, redirectToMemberPageHandler } = props;
+	const { initialInput, likeMemberHandler, subscribeHandler, unsubscribeHandler, redirectToMemberPageHandler, onProfileRefetch, refetchTrigger } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const [followInquiry, setFollowInquiry] = useState<FollowInquiry>(initialInput);
 	const [hoveredId, setHoveredId] = useState<string | null>(null);
 	const user = useReactiveVar(userVar);
-	const { memberId } = router.query;
-
-	const { refetch: getMemberRefetch } = useQuery(GET_MEMBER, {
-		fetchPolicy: 'network-only',
-		variables: { input: memberId || user?._id },
-		skip: !memberId && !user?._id,
-	});
 
 	const { data: followersData, refetch: getMemberFollowersRefetch } = useQuery(GET_MEMBER_FOLLOWERS, {
 		fetchPolicy: 'network-only',
@@ -61,27 +54,13 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 	const memberFollowers: Follower[] = followersData?.getMemberFollowers?.list ?? [];
 	const total: number = followersData?.getMemberFollowers?.metaCounter?.[0]?.total ?? 0;
 
-	const [subscribeLocal] = useMutation(SUBSCRIBE, {
-		onCompleted: async () => {
-			await getMemberFollowersRefetch({ input: followInquiry });
-			await sweetTopSmallSuccessAlert('Following!', 800);
-		},
-	});
-
-	const [unsubscribeLocal] = useMutation(UNSUBSCRIBE, {
-		onCompleted: async () => {
-			await getMemberFollowersRefetch({ input: followInquiry });
-			await sweetTopSmallSuccessAlert('Unfollowed!', 800);
-		},
-	});
+	const [subscribeLocal] = useMutation(SUBSCRIBE);
+	const [unsubscribeLocal] = useMutation(UNSUBSCRIBE);
 
 	useEffect(() => {
-		if (router.query.memberId) {
-			setFollowInquiry({ ...followInquiry, search: { followingId: router.query.memberId as string } });
-		} else if (user?._id) {
-			setFollowInquiry({ ...followInquiry, search: { followingId: user._id } });
-		}
-	}, [router.query.memberId, user?._id]);
+		if (!refetchTrigger) return;
+		getMemberFollowersRefetch({ input: followInquiry });
+	}, [refetchTrigger]);
 
 	const paginationHandler = async (_event: ChangeEvent<unknown>, value: number) => {
 		setFollowInquiry({ ...followInquiry, page: value });
@@ -106,23 +85,13 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 
 				return (
 					<div key={follower._id} className="follow-list-item">
-						{avatarSrc ? (
-							<img
-								src={avatarSrc}
-								alt={nick}
-								className="follow-list-avatar"
-								onClick={() => redirectToMemberPageHandler(toId(follower.followerData?._id))}
-								style={{ cursor: 'pointer' }}
-							/>
-						) : (
-							<div
-								className="follow-list-avatar--initials"
-								onClick={() => redirectToMemberPageHandler(toId(follower.followerData?._id))}
-								style={{ cursor: 'pointer' }}
-							>
-								{getInitials(nick)}
-							</div>
-						)}
+						<img
+						src={avatarSrc}
+						alt={nick}
+						className="follow-list-avatar"
+						onClick={() => redirectToMemberPageHandler(toId(follower.followerData?._id))}
+						style={{ cursor: 'pointer' }}
+					/>
 
 						<div
 							className="follow-list-info"
@@ -142,6 +111,7 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 							>
 								{isLiked ? <FavoriteIcon sx={{ fontSize: 18 }} /> : <FavoriteBorderIcon sx={{ fontSize: 18 }} />}
 							</button>
+							<span className="follow-list-like-count">{follower.followerData?.memberLikes ?? 0}</span>
 
 							{!isMe && (
 								<button
@@ -150,13 +120,16 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 									onMouseLeave={() => setHoveredId(null)}
 									onClick={async () => {
 										const targetId = toId(follower.followerData?._id);
+										if (!user?._id) { router.push('/account/join'); return; }
 										if (isFollowing) {
 											await unsubscribeLocal({ variables: { memberId: targetId } });
 										} else {
 											await subscribeLocal({ variables: { memberId: targetId } });
 										}
-										// Also refresh the profile stats on the parent page
-										if (memberId || user?._id) await getMemberRefetch({ input: memberId || user?._id });
+										await new Promise(resolve => setTimeout(resolve, 300));
+										await getMemberFollowersRefetch({ input: followInquiry });
+										if (onProfileRefetch) await onProfileRefetch();
+										await sweetTopSmallSuccessAlert(isFollowing ? 'Unfollowed!' : 'Following!', 800);
 									}}
 								>
 									{isFollowing ? (hoveredId === btnId ? 'Unfollow' : 'Following') : 'Follow'}

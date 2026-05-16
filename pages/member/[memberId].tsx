@@ -49,7 +49,6 @@ const resolveAvatar = (img?: string): string => {
 	return `${REACT_APP_API_URL}/${img}`;
 };
 
-const getInitials = (nick: string): string => (nick ?? '').slice(0, 2).toUpperCase() || '?';
 
 const LIMIT = 10;
 
@@ -62,6 +61,7 @@ const MemberProfile: NextPage = () => {
 	const [activeTab, setActiveTab] = useState(0);
 	const [twitsPage, setTwitsPage] = useState(1);
 	const [isFollowing, setIsFollowing] = useState(false);
+	const [followersRefetchTrigger, setFollowersRefetchTrigger] = useState(0);
 
 	// redirect guard — wait for router.isReady so memberId is defined,
 	// then check token synchronously (avoids false redirect before userVar hydrates)
@@ -180,6 +180,8 @@ const MemberProfile: NextPage = () => {
 			} else {
 				await subscribe({ variables: { memberId: memberId as string } });
 			}
+			await new Promise(resolve => setTimeout(resolve, 300));
+			setFollowersRefetchTrigger((k) => k + 1);
 			// onCompleted handles memberRefetch; just show the alert here
 			await sweetTopSmallSuccessAlert('Updated!', 800);
 		} catch (err: any) {
@@ -217,17 +219,11 @@ const MemberProfile: NextPage = () => {
 						{/* Avatar */}
 						<div className="member-profile-actions">
 							<div className="member-profile-avatar-wrap">
-								{memberData?.memberImage ? (
-									<img
-										src={resolveAvatar(memberData.memberImage)}
-										alt={memberData.memberNick ?? ''}
-										className="member-profile-avatar"
-									/>
-								) : (
-									<div className="member-profile-avatar member-profile-avatar--initials">
-										{getInitials(memberData?.memberNick ?? '')}
-									</div>
-								)}
+								<img
+									src={resolveAvatar(memberData?.memberImage)}
+									alt={memberData?.memberNick ?? ''}
+									className="member-profile-avatar"
+								/>
 							</div>
 						</div>
 
@@ -352,20 +348,25 @@ const MemberProfile: NextPage = () => {
 						{/* Followers tab */}
 						{activeTab === 1 && (
 							<MemberFollowers
+								initialInput={{ page: 1, limit: 5, search: { followingId: memberId } }}
 								subscribeHandler={subscribeHandler}
 								unsubscribeHandler={unsubscribeHandler}
 								likeMemberHandler={likeMemberHandler}
 								redirectToMemberPageHandler={redirectToMemberPageHandler}
+								onProfileRefetch={async () => { await memberRefetch({ input: memberId }); }}
+								refetchTrigger={followersRefetchTrigger}
 							/>
 						)}
 
 						{/* Followings tab */}
 						{activeTab === 2 && (
 							<MemberFollowings
+								initialInput={{ page: 1, limit: 5, search: { followerId: memberId } }}
 								subscribeHandler={subscribeHandler}
 								unsubscribeHandler={unsubscribeHandler}
 								likeMemberHandler={likeMemberHandler}
 								redirectToMemberPageHandler={redirectToMemberPageHandler}
+								onProfileRefetch={async () => { await memberRefetch({ input: memberId }); }}
 							/>
 						)}
 					</Stack>
