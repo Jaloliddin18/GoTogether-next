@@ -5,9 +5,10 @@ export interface Twit {
 	_id: string;
 	memberId: string;
 	text: string;
-	image?: string;
-	likes: string[];
+	images?: string[];
+	meLiked?: boolean;
 	likeCount: number;
+	viewCount?: number;
 	deletedAt?: Date;
 	createdAt: Date;
 	updatedAt: Date;

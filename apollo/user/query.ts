@@ -356,29 +356,14 @@ export const GET_MEMBER_FOLLOWERS = gql`
 				followerData {
 					_id
 					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
 					memberNick
 					memberFullName
 					memberImage
 					memberAddress
-					memberDesc
-					memberBooks
-					memberTwits
 					memberFollowers
 					memberFollowings
-					memberPoints
 					memberLikes
-					memberViews
-					memberComments
-					memberRank
-					memberWarnings
-					memberBlocks
-					deletedAt
 					createdAt
-					updatedAt
-					accessToken
 				}
 			}
 			metaCounter {
@@ -410,29 +395,14 @@ export const GET_MEMBER_FOLLOWINGS = gql`
 				followingData {
 					_id
 					memberType
-					memberStatus
-					memberAuthType
-					memberPhone
 					memberNick
 					memberFullName
 					memberImage
 					memberAddress
-					memberDesc
-					memberBooks
-					memberTwits
 					memberFollowers
 					memberFollowings
-					memberPoints
 					memberLikes
-					memberViews
-					memberComments
-					memberRank
-					memberWarnings
-					memberBlocks
-					deletedAt
 					createdAt
-					updatedAt
-					accessToken
 				}
 			}
 			metaCounter {
@@ -453,9 +423,10 @@ export const GET_TWITS = gql`
 				_id
 				memberId
 				text
-				image
-				likes
+				images
+				meLiked
 				likeCount
+				viewCount
 				deletedAt
 				createdAt
 				updatedAt
@@ -494,6 +465,28 @@ export const GET_TWITS = gql`
 	}
 `;
 
+export const GET_TWIT = gql`
+	query GetTwit($input: TwitInquiry!) {
+		getTwit(input: $input) {
+			_id
+			memberId
+			text
+			images
+			meLiked
+			likeCount
+			viewCount
+			createdAt
+			updatedAt
+			memberData {
+				_id
+				memberNick
+				memberFullName
+				memberImage
+			}
+		}
+	}
+`;
+
 export const GET_MEMBER_TWITS = gql`
 	query GetMemberTwits($input: TwitsInquiry!) {
 		getMemberTwits(input: $input) {
@@ -501,8 +494,8 @@ export const GET_MEMBER_TWITS = gql`
 				_id
 				memberId
 				text
-				image
-				likes
+				images
+				meLiked
 				likeCount
 				deletedAt
 				createdAt
@@ -552,7 +545,6 @@ export const GET_TWIT_COMMENTS = gql`
 				text
 				parentCommentId
 				depth
-				likes
 				likeCount
 				deletedAt
 				createdAt
@@ -595,12 +587,48 @@ export const GET_TWIT_COMMENTS = gql`
 
 // STUB operations — removed from backend
 // TODO: remove when legacy pages are transformed
-export const GET_AGENTS = gql`query GetAgents { __typename }`;
-export const GET_PROPERTIES = gql`query GetProperties { __typename }`;
-export const GET_PROPERTY = gql`query GetProperty { __typename }`;
-export const GET_BOARD_ARTICLES = gql`query GetBoardArticles { __typename }`;
-export const GET_BOARD_ARTICLE = gql`query GetBoardArticle { __typename }`;
-export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`query GetAllBoardArticlesByAdmin { __typename }`;
-export const GET_FAVORITES = gql`query GetFavorites { __typename }`;
-export const GET_VISITED = gql`query GetVisited { __typename }`;
-export const GET_AGENT_PROPERTIES = gql`query GetAgentProperties { __typename }`;
+export const GET_AGENTS = gql`
+	query GetAgents {
+		__typename
+	}
+`;
+export const GET_PROPERTIES = gql`
+	query GetProperties {
+		__typename
+	}
+`;
+export const GET_PROPERTY = gql`
+	query GetProperty {
+		__typename
+	}
+`;
+export const GET_BOARD_ARTICLES = gql`
+	query GetBoardArticles {
+		__typename
+	}
+`;
+export const GET_BOARD_ARTICLE = gql`
+	query GetBoardArticle {
+		__typename
+	}
+`;
+export const GET_ALL_BOARD_ARTICLES_BY_ADMIN = gql`
+	query GetAllBoardArticlesByAdmin {
+		__typename
+	}
+`;
+export const GET_FAVORITES = gql`
+	query GetFavorites {
+		__typename
+	}
+`;
+export const GET_VISITED = gql`
+	query GetVisited {
+		__typename
+	}
+`;
+export const GET_AGENT_PROPERTIES = gql`
+	query GetAgentProperties {
+		__typename
+	}
+`;

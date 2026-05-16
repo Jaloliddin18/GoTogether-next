@@ -41,3 +41,13 @@ Report pre-existing failures separately from new failures.
 - Suggested commit prefixes must use only:
   - `feat:`
   - `fix:`
+
+## Session Note (2026-05-15)
+
+- Community migration status:
+  - Live `/community` now uses Twit feed APIs (`GET_TWITS`, `CREATE_TWIT`, `LIKE_TWIT`, `DELETE_TWIT`).
+  - `/community/detail` uses `GET_TWIT` on query route `/community/detail?id=<twitId>`.
+- Twit image handling status:
+  - Upload uses `imagesUploader` target `twits`.
+  - Persist the returned relative path exactly in `createTwit.image`.
+  - Render normalization rule is: `http` as-is, `/` as-is, otherwise prefix `/`.

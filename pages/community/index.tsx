@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { Stack, Tab, Typography, Button, Pagination } from '@mui/material';
-import CommunityCard from '../../libs/components/common/CommunityCard';
+import { Pagination, Stack, Typography } from '@mui/material';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import { BoardArticle } from '../../libs/types/board-article/board-article';
+import CommunityShell from '../../libs/components/community/CommunityShell';
+import CommunityComposer from '../../libs/components/community/CommunityComposer';
+import CommunityFeed from '../../libs/components/community/CommunityFeed';
 import { T } from '../../libs/types/common';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { BoardArticlesInquiry } from '../../libs/types/board-article/board-article.input';
-import { BoardArticleCategory } from '../../libs/enums/board-article.enum';
-import { LIKE_TARGET_BOARD_ARTICLE } from '../../apollo/user/mutation';
-import { useMutation, useQuery } from '@apollo/client';
-import { GET_BOARD_ARTICLES } from '../../apollo/user/query';
-import { Message } from '../../libs/enums/common.enum';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import { Twit } from '../../libs/types/twit/twit';
+import { CreateTwitInput, TwitFeedType, TwitsInquiry } from '../../libs/types/twit/twit.input';
+import { Direction, Message } from '../../libs/enums/common.enum';
+import { CREATE_TWIT, DELETE_TWIT } from '../../apollo/user/mutation';
+import { GET_TWITS } from '../../apollo/user/query';
+import { userVar } from '../../apollo/store';
+import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -26,237 +27,110 @@ export const getStaticProps = async ({ locale }: any) => ({
 const Community: NextPage = ({ initialInput, ...props }: T) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const { query } = router;
-	const articleCategory = query?.articleCategory as string;
-	const [searchCommunity, setSearchCommunity] = useState<BoardArticlesInquiry>(initialInput);
-	const [boardArticles, setBoardArticles] = useState<BoardArticle[]>([]);
-	const [totalCount, setTotalCount] = useState<number>(0);
-	if (articleCategory) initialInput.search.articleCategory = articleCategory;
+	const user = useReactiveVar(userVar);
+	const [searchCommunity, setSearchCommunity] = useState<TwitsInquiry>(initialInput);
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
+	const [createTwit, { loading: createTwitLoading }] = useMutation(CREATE_TWIT);
+	const [deleteTwit] = useMutation(DELETE_TWIT);
 	const {
-		loading: boardArticlesLoading,
-		data: boardArticlesData,
-		error: getBoardArticlesError,
-		refetch: boardArticlesRefetch,
-	} = useQuery(GET_BOARD_ARTICLES, {
+		loading: twitsLoading,
+		error: getTwitsError,
+		data: twitsData,
+		refetch: twitsRefetch,
+	} = useQuery(GET_TWITS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: searchCommunity },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setBoardArticles(data?.getBoardArticles?.list ?? []);
-			setTotalCount(data?.getBoardArticles?.metaCounter[0]?.total);
-		},
 	});
-
-	/** LIFECYCLES **/
-	useEffect(() => {
-		if (!query?.articleCategory)
-			router.push(
-				{
-					pathname: router.pathname,
-					query: { articleCategory: 'FREE' },
-				},
-				router.pathname,
-				{ shallow: true },
-			);
-	}, []);
+	const twits: Twit[] = twitsData?.getTwits?.list ?? [];
+	const totalCount: number = twitsData?.getTwits?.metaCounter?.[0]?.total ?? 0;
 
 	/** HANDLERS **/
-	const tabChangeHandler = async (e: T, value: string) => {
-		console.log(value);
-
-		setSearchCommunity({ ...searchCommunity, page: 1, search: { articleCategory: value as BoardArticleCategory } });
-		await router.push(
-			{
-				pathname: '/community',
-				query: { articleCategory: value },
-			},
-			router.pathname,
-			{ shallow: true },
-		);
-	};
-
-	const paginationHandler = (e: T, value: number) => {
-		setSearchCommunity({ ...searchCommunity, page: value });
-	};
-
-	const likeArticleHandler = async (e: any, user: any, id: string) => {
+	const createTwitHandler = async (input: CreateTwitInput): Promise<boolean> => {
 		try {
-			e.stopPropagation();
-			if (!id) return;
-			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+			if (!user?._id) throw new Error(Message.NOT_AUTHENTICATED);
+			if (!input?.text?.trim()) throw new Error(Message.INSERT_ALL_INPUTS);
 
-			await likeTargetBoardArticle({
+			await createTwit({
+				variables: {
+					input: {
+						text: input.text.trim(),
+						images: input.images,
+					},
+				},
+			});
+
+			const nextInquiry = { ...searchCommunity, page: 1 };
+			setSearchCommunity(nextInquiry);
+			await twitsRefetch({ input: nextInquiry });
+			await sweetTopSmallSuccessAlert('Posted', 800);
+			return true;
+		} catch (err: any) {
+			console.log('ERROR, createTwitHandler:', err.message);
+			sweetMixinErrorAlert(err.message).then();
+			return false;
+		}
+	};
+
+	const deleteTwitHandler = async (id: string) => {
+		try {
+			if (!id) return;
+			if (!user?._id) {
+				goLoginPage();
+				return;
+			}
+
+			const confirmation = await sweetConfirmAlert('Delete this post?');
+			if (!confirmation) return;
+
+			await deleteTwit({
 				variables: { input: id },
 			});
 
-			await boardArticlesRefetch({ input: searchCommunity });
-
-			await sweetTopSmallSuccessAlert('success', 800);
+			await twitsRefetch({ input: searchCommunity });
+			await sweetTopSmallSuccessAlert('Deleted', 800);
 		} catch (err: any) {
-			console.log('ERROR, likePropertyHandler:', err.message);
+			console.log('ERROR, deleteTwitHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
 		}
 	};
 
-	if (device === 'mobile') {
-		return <h1>COMMUNITY PAGE MOBILE</h1>;
-	} else {
-		return (
-			<div id="community-list-page">
-				<div className="container">
-					<TabContext value={searchCommunity.search.articleCategory}>
-						<Stack className="main-box">
-							<Stack className="left-config">
-								<Stack className={'image-info'}>
-									<img src={'/img/logo/logoText.svg'} />
-									<Stack className={'community-name'}>
-										<Typography className={'name'}>Nestar Community</Typography>
-									</Stack>
-								</Stack>
+	const tabChangeHandler = async (tabIndex: number) => {
+		// tab 1 = Following requires auth
+		if (tabIndex === 1 && !user?._id) {
+			goLoginPage();
+			return;
+		}
+		const feedType = tabIndex === 1 ? TwitFeedType.FOLLOWING : TwitFeedType.FOR_YOU;
+		const nextInquiry = { ...searchCommunity, page: 1, feedType };
+		setSearchCommunity(nextInquiry);
+		await twitsRefetch({ input: nextInquiry });
+	};
 
-								<TabList
-									orientation="vertical"
-									aria-label="lab API tabs example"
-									TabIndicatorProps={{
-										style: { display: 'none' },
-									}}
-									onChange={tabChangeHandler}
-								>
-									<Tab
-										value={'FREE'}
-										label={'Free Board'}
-										className={`tab-button ${searchCommunity.search.articleCategory == 'FREE' ? 'active' : ''}`}
-									/>
-									<Tab
-										value={'RECOMMEND'}
-										label={'Recommendation'}
-										className={`tab-button ${searchCommunity.search.articleCategory == 'RECOMMEND' ? 'active' : ''}`}
-									/>
-									<Tab
-										value={'NEWS'}
-										label={'News'}
-										className={`tab-button ${searchCommunity.search.articleCategory == 'NEWS' ? 'active' : ''}`}
-									/>
-									<Tab
-										value={'HUMOR'}
-										label={'Humor'}
-										className={`tab-button ${searchCommunity.search.articleCategory == 'HUMOR' ? 'active' : ''}`}
-									/>
-								</TabList>
-							</Stack>
-							<Stack className="right-config">
-								<Stack className="panel-config">
-									<Stack className="title-box">
-										<Stack className="left">
-											<Typography className="title">{searchCommunity.search.articleCategory} BOARD</Typography>
-											<Typography className="sub-title">
-												Express your opinions freely here without content restrictions
-											</Typography>
-										</Stack>
-										<Button
-											onClick={() =>
-												router.push({
-													pathname: '/mypage',
-													query: {
-														category: 'writeArticle',
-													},
-												})
-											}
-											className="right"
-										>
-											Write
-										</Button>
-									</Stack>
+	const paginationHandler = async (e: T, value: number) => {
+		const nextInquiry = { ...searchCommunity, page: value };
+		setSearchCommunity(nextInquiry);
+		await twitsRefetch({ input: nextInquiry });
+	};
 
-									<TabPanel value="FREE">
-										<Stack className="list-box">
-											{totalCount ? (
-												boardArticles?.map((boardArticle: BoardArticle) => {
-													return (
-														<CommunityCard
-															boardArticle={boardArticle}
-															likeArticleHandler={likeArticleHandler}
-															key={boardArticle?._id}
-														/>
-													);
-												})
-											) : (
-												<Stack className={'no-data'}>
-													<img src="/img/icons/icoAlert.svg" alt="" />
-													<p>No Article found!</p>
-												</Stack>
-											)}
-										</Stack>
-									</TabPanel>
-									<TabPanel value="RECOMMEND">
-										<Stack className="list-box">
-											{totalCount ? (
-												boardArticles?.map((boardArticle: BoardArticle) => {
-													return (
-														<CommunityCard
-															boardArticle={boardArticle}
-															likeArticleHandler={likeArticleHandler}
-															key={boardArticle?._id}
-														/>
-													);
-												})
-											) : (
-												<Stack className={'no-data'}>
-													<img src="/img/icons/icoAlert.svg" alt="" />
-													<p>No Article found!</p>
-												</Stack>
-											)}
-										</Stack>
-									</TabPanel>
-									<TabPanel value="NEWS">
-										<Stack className="list-box">
-											{totalCount ? (
-												boardArticles?.map((boardArticle: BoardArticle) => {
-													return (
-														<CommunityCard
-															boardArticle={boardArticle}
-															likeArticleHandler={likeArticleHandler}
-															key={boardArticle?._id}
-														/>
-													);
-												})
-											) : (
-												<Stack className={'no-data'}>
-													<img src="/img/icons/icoAlert.svg" alt="" />
-													<p>No Article found!</p>
-												</Stack>
-											)}
-										</Stack>
-									</TabPanel>
-									<TabPanel value="HUMOR">
-										<Stack className="list-box">
-											{totalCount ? (
-												boardArticles?.map((boardArticle: BoardArticle) => {
-													return (
-														<CommunityCard
-															boardArticle={boardArticle}
-															likeArticleHandler={likeArticleHandler}
-															key={boardArticle?._id}
-														/>
-													);
-												})
-											) : (
-												<Stack className={'no-data'}>
-													<img src="/img/icons/icoAlert.svg" alt="" />
-													<p>No Article found!</p>
-												</Stack>
-											)}
-										</Stack>
-									</TabPanel>
-								</Stack>
-							</Stack>
-						</Stack>
-					</TabContext>
+	const goLoginPage = () => {
+		router.push('/account/join').then();
+	};
 
-					{totalCount > 0 && (
+	return (
+		<div id="community-list-page" className={`community-device-${device}`}>
+			<div className="container">
+				<CommunityShell totalCount={totalCount} onTabChange={tabChangeHandler}>
+					<CommunityComposer user={user} loading={createTwitLoading} onSubmit={createTwitHandler} onLogin={goLoginPage} />
+					<CommunityFeed
+						twits={twits}
+						loading={twitsLoading}
+						error={getTwitsError}
+						currentUserId={user?._id}
+						onDelete={deleteTwitHandler}
+					/>
+					{totalCount > searchCommunity.limit && (
 						<Stack className="pagination-config">
 							<Stack className="pagination-box">
 								<Pagination
@@ -269,26 +143,25 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 							</Stack>
 							<Stack className="total-result">
 								<Typography>
-									Total {totalCount} article{totalCount > 1 ? 's' : ''} available
+									Total {totalCount} post{totalCount > 1 ? 's' : ''} available
 								</Typography>
 							</Stack>
 						</Stack>
 					)}
-				</div>
+				</CommunityShell>
 			</div>
-		);
-	}
+		</div>
+	);
 };
 
 Community.defaultProps = {
 	initialInput: {
 		page: 1,
-		limit: 6,
+		limit: 10,
 		sort: 'createdAt',
-		direction: 'ASC',
-		search: {
-			articleCategory: 'FREE',
-		},
+		direction: Direction.DESC,
+		search: {},
+		feedType: TwitFeedType.FOR_YOU,
 	},
 };
 
