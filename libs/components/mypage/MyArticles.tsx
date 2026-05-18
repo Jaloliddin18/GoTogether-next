@@ -3,10 +3,6 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Pagination, Stack, Typography } from '@mui/material';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
@@ -14,56 +10,77 @@ import { T } from '../../types/common';
 import { Twit } from '../../types/twit/twit';
 import { DELETE_TWIT } from '../../../apollo/user/mutation';
 import { GET_MEMBER_TWITS } from '../../../apollo/user/query';
-import { REACT_APP_API_URL } from '../../config';
-import { sweetConfirmAlert, sweetErrorHandling, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import TwitCard from '../community/TwitCard';
+import { Direction } from '../../enums/common.enum';
+import { TwitsInquiry } from '../../types/twit/twit.input';
 
-const PAGE_LIMIT = 5;
-
-const formatDate = (iso: string | Date) =>
-	new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const PAGE_LIMIT = 10;
 
 const MyArticles: NextPage = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
-	const [twits, setTwits] = useState<Twit[]>([]);
-	const [total, setTotal] = useState(0);
 	const [page, setPage] = useState(1);
 
-	const twitInquiry = { page, limit: PAGE_LIMIT, sort: 'createdAt', direction: 'DESC' };
+	const twitInquiry: TwitsInquiry = {
+		page,
+		limit: PAGE_LIMIT,
+		sort: 'createdAt',
+		direction: Direction.DESC,
+		search: { memberId: user?._id },
+	};
 
 	/** APOLLO REQUESTS **/
-	const { refetch } = useQuery(GET_MEMBER_TWITS, {
+	const { loading, error, data, refetch } = useQuery(GET_MEMBER_TWITS, {
 		fetchPolicy: 'network-only',
-		variables: {
-			input: {
-				...twitInquiry,
-				search: { memberId: user._id },
-			},
-		},
+		variables: { input: twitInquiry },
 		skip: !user._id,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setTwits(data?.getMemberTwits?.list ?? []);
-			setTotal(data?.getMemberTwits?.metaCounter[0]?.total ?? 0);
-		},
 	});
+	const twits: Twit[] = data?.getMemberTwits?.list ?? [];
+	const total: number = data?.getMemberTwits?.metaCounter?.[0]?.total ?? 0;
 
 	const [deleteTwit] = useMutation(DELETE_TWIT);
 
 	/** HANDLERS **/
 	const deleteTwitHandler = async (twitId: string) => {
 		try {
+			if (!twitId) return;
+			if (!user?._id) {
+				await router.push('/account/join');
+				return;
+			}
 			if (!(await sweetConfirmAlert('Delete this twit? This cannot be undone.'))) return;
+
 			await deleteTwit({ variables: { input: twitId } });
-			await sweetTopSmallSuccessAlert('Twit deleted', 700);
-			await refetch({ input: { ...twitInquiry, search: { memberId: user._id } } });
+
+			const nextPage = twits.length === 1 && page > 1 ? page - 1 : page;
+			if (nextPage !== page) setPage(nextPage);
+
+			await refetch({
+				input: {
+					...twitInquiry,
+					page: nextPage,
+					search: { memberId: user?._id },
+				},
+			});
+			await sweetTopSmallSuccessAlert('Twit deleted', 800);
 		} catch (err: any) {
-			sweetErrorHandling(err).then();
+			sweetMixinErrorAlert(err.message).then();
 		}
 	};
 
-	const paginationHandler = (_: T, value: number) => setPage(value);
+	const paginationHandler = async (_: T, value: number) => {
+		setPage(value);
+		await refetch({
+			input: {
+				...twitInquiry,
+				page: value,
+				search: { memberId: user?._id },
+			},
+		});
+	};
 
 	if (device === 'mobile') return <>MY TWITS MOBILE</>;
 
@@ -74,80 +91,46 @@ const MyArticles: NextPage = () => {
 				<Typography className="panel-subtitle">{total} post{total !== 1 ? 's' : ''}</Typography>
 			</Stack>
 
-			{twits.length > 0 ? (
-				<Stack className="twit-list">
-					{twits.map((twit) => (
-						<div key={twit._id} className="twit-card" onClick={() => router.push(`/community/detail?id=${twit._id}`)}>
-							<div className="twit-card-header">
-								<div className="twit-author-row">
-									<img
-										className="twit-avatar"
-										src={twit.memberData?.memberImage ? `${REACT_APP_API_URL}/${twit.memberData.memberImage}` : '/img/profile/defaultUser.svg'}
-										alt="avatar"
-									/>
-									<div className="twit-author-info">
-										<span className="twit-nick">{twit.memberData?.memberNick ?? user.memberNick}</span>
-										<span className="twit-date">{formatDate(twit.createdAt)}</span>
-									</div>
-								</div>
-								<button
-									className="twit-delete-btn"
-									onClick={(e) => { e.stopPropagation(); deleteTwitHandler(twit._id); }}
-									title="Delete twit"
-								>
-									<DeleteOutlineIcon sx={{ fontSize: 18 }} />
-								</button>
-							</div>
-
-							<Typography className="twit-text">{twit.text}</Typography>
-
-							{twit.images && twit.images.length > 0 && (
-								<div className={`twit-images twit-images--${Math.min(twit.images.length, 3)}`}>
-									{twit.images.slice(0, 3).map((img, i) => (
-										<div key={i} className="twit-image-item">
-											<img
-												src={img.startsWith('http') ? img : `${REACT_APP_API_URL}/${img}`}
-												alt={`image-${i}`}
-											/>
-										</div>
-									))}
-								</div>
-							)}
-
-							<div className="twit-stats">
-								<span className="twit-stat">
-									<FavoriteBorderIcon sx={{ fontSize: 14 }} />
-									{twit.likeCount ?? 0}
-								</span>
-								<span className="twit-stat">
-									<VisibilityOutlinedIcon sx={{ fontSize: 14 }} />
-									{twit.viewCount ?? 0}
-								</span>
-								<span className="twit-stat">
-									<ChatBubbleOutlineIcon sx={{ fontSize: 14 }} />
-									0
-								</span>
-							</div>
-						</div>
-					))}
+			{loading && (
+				<Stack className="twit-state">
+					<Typography className="twit-state-title">Loading twits...</Typography>
 				</Stack>
-			) : (
+			)}
+
+			{!loading && error && (
+				<Stack className="twit-state">
+					<Typography className="twit-state-title">Unable to load twits.</Typography>
+				</Stack>
+			)}
+
+			{!loading && !error && twits.length > 0 ? (
+				<Stack className="twit-list">
+					{twits.map((twit) => <TwitCard key={twit._id} twit={twit} currentUserId={user?._id} onDelete={deleteTwitHandler} />)}
+				</Stack>
+			) : null}
+
+			{!loading && !error && twits.length === 0 && (
 				<Stack className="empty-state">
 					<EditNoteIcon className="empty-icon" />
-					<Typography className="empty-heading">You haven't posted anything yet</Typography>
+					<Typography className="empty-heading">No twits yet.</Typography>
 					<Typography className="empty-body">Share your thoughts with the library community.</Typography>
 				</Stack>
 			)}
 
-			{total > PAGE_LIMIT && (
+			{!loading && !error && total > PAGE_LIMIT && (
 				<Stack className="pagination-config">
-					<Pagination
-						count={Math.ceil(total / PAGE_LIMIT)}
-						page={page}
-						shape="circular"
-						color="primary"
-						onChange={paginationHandler}
-					/>
+					<Stack className="pagination-box">
+						<Pagination
+							count={Math.ceil(total / PAGE_LIMIT)}
+							page={page}
+							shape="circular"
+							color="primary"
+							onChange={paginationHandler}
+						/>
+					</Stack>
+					<Stack className="total-result">
+						<Typography>Total {total} twit{total > 1 ? 's' : ''} available</Typography>
+					</Stack>
 				</Stack>
 			)}
 		</div>

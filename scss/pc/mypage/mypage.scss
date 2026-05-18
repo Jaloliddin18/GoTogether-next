@@ -606,126 +606,242 @@ $transition: 0.18s ease;
 	width: 100%;
 
 	.twit-list {
-		gap: 12px !important;
+		gap: 0 !important;
+		border: 1px solid #e2e8f0;
+		border-radius: 4px;
+		background: #fff;
+		overflow: hidden;
+	}
+
+	.twit-state {
+		min-height: 220px;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid #e2e8f0;
+		border-radius: 4px;
+		background: #fff;
+		padding: 24px;
+		.twit-state-title {
+			color: #64748b;
+			font-family: $font;
+			font-size: 15px;
+			font-weight: 500;
+		}
 	}
 
 	.twit-card {
-		padding: 16px;
-		border-radius: $card-radius;
-		border: 1px solid $color-border;
-		background: $color-white;
+		width: 100%;
+		gap: 10px;
+		padding: 16px 24px 12px;
+		border-bottom: 1px solid #e2e8f0;
+		border-radius: 0;
+		background: #fff;
 		cursor: pointer;
-		transition: box-shadow $transition;
-
-		&:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); }
-	}
-
-	.twit-card-header {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		margin-bottom: 10px;
+		transition: background 0.15s ease;
+		&:hover {
+			background: #f6f6f6;
+		}
 	}
 
 	.twit-author-row {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-	}
-
-	.twit-avatar {
-		width: 36px;
-		height: 36px;
-		border-radius: 50%;
-		object-fit: cover;
-		border: 1px solid $color-border;
-		flex-shrink: 0;
-	}
-
-	.twit-author-info {
-		display: flex;
-		flex-direction: column;
-		gap: 1px;
-	}
-
-	.twit-nick {
-		font-family: $font;
-		font-size: 13px;
-		font-weight: 600;
-		color: $color-dark;
-	}
-
-	.twit-date {
-		font-family: $font;
-		font-size: 11px;
-		color: $color-muted;
-	}
-
-	.twit-delete-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 30px;
-		height: 30px;
-		border-radius: 6px;
-		border: none;
-		background: transparent;
-		color: $color-muted;
-		cursor: pointer;
-		transition: background $transition, color $transition;
-
-		&:hover {
-			background: rgba($color-danger, 0.08);
-			color: $color-danger;
-		}
-	}
-
-	.twit-text {
-		font-family: $font !important;
-		font-size: 14px !important;
-		color: $color-dark !important;
-		line-height: 1.6 !important;
-		margin-bottom: 10px !important;
-	}
-
-	.twit-images {
-		display: grid;
-		gap: 4px;
-		margin-bottom: 10px;
-		border-radius: 8px;
-		overflow: hidden;
-
-		&--1 { grid-template-columns: 1fr; }
-		&--2 { grid-template-columns: 1fr 1fr; }
-		&--3 {
-			grid-template-columns: 1fr 1fr;
-			grid-template-rows: 120px 120px;
-		}
-	}
-
-	.twit-image-item {
-		min-height: 120px;
-		overflow: hidden;
-
-		img {
-			width: 100%;
-			height: 100%;
+		width: 100%;
+		flex-direction: row;
+		align-items: flex-start;
+		gap: 12px;
+		.twit-avatar {
+			width: 44px;
+			height: 44px;
+			flex-shrink: 0;
+			border-radius: 50%;
 			object-fit: cover;
+			border: 1px solid #e2e8f0;
+			cursor: pointer;
+		}
+		.twit-author-main {
+			width: 100%;
+			min-width: 0;
+		}
+		.twit-author-line {
+			width: 100%;
+			min-width: 0;
+			flex-direction: row;
+			align-items: center;
+			gap: 6px;
+			flex-wrap: wrap;
+		}
+		.twit-author-name {
+			max-width: 220px;
+			color: #1a1a2e;
+			font-family: $font;
+			font-size: 15px;
+			font-weight: 700;
+			line-height: 20px;
+			cursor: pointer;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+		.twit-author-nick,
+		.twit-dot,
+		.twit-time {
+			color: #64748b;
+			font-family: $font;
+			font-size: 13px;
+			font-weight: 400;
+			line-height: 20px;
+		}
+		.twit-author-nick {
+			cursor: pointer;
+			&:hover {
+				text-decoration: underline;
+			}
 		}
 	}
 
-	.twit-stats {
-		display: flex;
-		gap: 16px;
+	.twit-body {
+		padding-left: 56px;
+		gap: 12px;
+		min-width: 0;
+		.twit-text {
+			color: #1a1a2e;
+			font-family: $font;
+			font-size: 15px;
+			font-weight: 400;
+			line-height: 1.6;
+			white-space: pre-wrap;
+			overflow-wrap: anywhere;
+		}
+		.twit-hashtag {
+			color: #2e86de;
+			cursor: pointer;
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+		.twit-media-grid {
+			display: grid;
+			gap: 2px;
+			border-radius: 14px;
+			overflow: hidden;
+			width: 100%;
+			&.count-1 {
+				grid-template-columns: 1fr;
+				height: 380px;
+			}
+			&.count-2 {
+				grid-template-columns: 1fr 1fr;
+				height: 280px;
+			}
+			&.count-3 {
+				grid-template-columns: 1fr 1fr;
+				grid-template-rows: 140px 140px;
+				height: 282px;
+				.media-item:first-child {
+					grid-column: 1;
+					grid-row: 1 / span 2;
+				}
+				.media-item:nth-child(2) {
+					grid-column: 2;
+					grid-row: 1;
+				}
+				.media-item:nth-child(3) {
+					grid-column: 2;
+					grid-row: 2;
+				}
+			}
+			.media-item {
+				overflow: hidden;
+				min-height: 0;
+				min-width: 0;
+				img {
+					width: 100%;
+					height: 100%;
+					object-fit: cover;
+					display: block;
+				}
+			}
+		}
 	}
 
-	.twit-stat {
-		display: flex;
+	.twit-action-row {
+		padding-left: 50px;
+		flex-direction: row;
 		align-items: center;
-		gap: 4px;
-		font-family: $font;
-		font-size: 12px;
-		color: $color-muted;
+		gap: 2px;
+		.twit-action {
+			flex-direction: row;
+			align-items: center;
+			gap: 1px;
+			color: #64748b;
+			.MuiIconButton-root {
+				width: 34px;
+				height: 34px;
+				color: #64748b;
+			}
+			svg {
+				font-size: 18px;
+			}
+			p {
+				color: inherit;
+				font-family: $font;
+				font-size: 13px;
+				font-weight: 400;
+				line-height: 18px;
+				min-width: 14px;
+			}
+			&:hover {
+				color: #2e86de;
+				.MuiIconButton-root {
+					background: rgba(46, 134, 222, 0.08);
+					color: #2e86de;
+				}
+			}
+			&.like-action.active {
+				color: #e92c28;
+				.MuiIconButton-root {
+					color: #e92c28;
+				}
+			}
+			&.delete-action:hover {
+				color: #e92c28;
+				.MuiIconButton-root {
+					background: rgba(233, 44, 40, 0.08);
+					color: #e92c28;
+				}
+			}
+		}
+	}
+
+	.pagination-config {
+		width: 100%;
+		align-items: center !important;
+		justify-content: center;
+		gap: 12px;
+		margin-top: 18px;
+		.pagination-box {
+			align-items: center;
+			justify-content: center;
+			.MuiPaginationItem-root {
+				color: #1a1a2e;
+			}
+			.MuiPaginationItem-root.Mui-selected {
+				background: #2e86de;
+				color: #fff;
+				&:hover {
+					background: #1a6fc4;
+				}
+			}
+		}
+		.total-result {
+			p {
+				color: #64748b;
+				text-align: center;
+				font-family: $font;
+				font-size: 13px;
+				font-weight: 400;
+				line-height: 20px;
+			}
+		}
 	}
 }
 
@@ -1039,6 +1155,25 @@ $transition: 0.18s ease;
 		font-size: 7.5px;
 		fill: #6b8cba;
 		letter-spacing: 0.06em;
+	}
+
+	.robot-planned-route {
+		fill: none;
+		stroke: rgba(42, 58, 92, 0.45);
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		stroke-dasharray: 6 6;
+		pointer-events: none;
+	}
+
+	.robot-live-trail {
+		fill: none;
+		stroke: rgba(46, 134, 222, 0.9);
+		stroke-width: 3;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		pointer-events: none;
 	}
 
 	.rt-dock-platform {

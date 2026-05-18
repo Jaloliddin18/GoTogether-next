@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { NextPage } from 'next';
 import { Tooltip, Typography } from '@mui/material';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
@@ -19,6 +19,8 @@ import { T } from '../../types/common';
 const SCALE = 3.4;
 const SVG_W = 680;
 const SVG_H = 340;
+const LIVE_TRAIL_MAX_POINTS = 100;
+const LIVE_TRAIL_MIN_DISTANCE = 3;
 
 function rx(v: number) { return v * SCALE; }
 function ry(v: number) { return (100 - v) * SCALE; }
@@ -33,6 +35,10 @@ const STOP_POINTS = [
 ];
 
 const CHARGING_DOCK_POSE = { x: 50, y: 18, theta: 0 };
+const CHARGING_DOCK_POINT = { x: rx(CHARGING_DOCK_POSE.x), y: ry(CHARGING_DOCK_POSE.y) };
+const SERVICE_POINT = { x: 96, y: 282 };
+const DESK_A_POINT = { x: 580, y: 68 };
+const DESK_B_POINT = { x: 580, y: 262 };
 
 const TERMINAL_STATUSES = new Set([
 	RequestStatus.COMPLETED,
@@ -214,12 +220,45 @@ function deriveTrackerViewModel(
 
 function findTargetStop(callNumber: string | null | undefined) {
 	if (!callNumber) return null;
-	const norm = callNumber.toUpperCase().trim().replace(/\s+/g, '_');
+	const norm = callNumber
+		.toUpperCase()
+		.trim()
+		.replace(/[\s-]+/g, '_')
+		.replace(/_+/g, '_');
 	const exact = STOP_POINTS.find((sp) => sp.id === norm);
 	if (exact) return exact;
 	if (norm.startsWith('LIB')) return STOP_POINTS.find((sp) => sp.id.startsWith('LIB')) ?? null;
 	if (norm.startsWith('COM')) return STOP_POINTS.find((sp) => sp.id.startsWith('COM')) ?? null;
 	return null;
+}
+
+function stopToPoint(stop: (typeof STOP_POINTS)[0]) {
+	return { x: stop.svg.x, y: stop.svg.y };
+}
+
+function normalizeDeskId(value: string | null | undefined): string {
+	if (!value) return '';
+	return value.toUpperCase().replace(/[\s-]+/g, '_');
+}
+
+function resolveDeskPoint(destinationDeskId: string | null | undefined) {
+	const normalized = normalizeDeskId(destinationDeskId);
+	if (!normalized) return DESK_A_POINT;
+	if (normalized.includes('DESK_B') || normalized.endsWith('_B') || normalized === 'B' || normalized.endsWith('_2') || normalized === '2') {
+		return DESK_B_POINT;
+	}
+	return DESK_A_POINT;
+}
+
+function resolveDestinationPoint(request: T | null) {
+	const requestType = (request?.requestType as string | undefined) ?? '';
+	const destinationType = (request?.destinationType as string | undefined) ?? '';
+	if (requestType === 'PURCHASE' || destinationType === 'RECEPTION') return SERVICE_POINT;
+	return resolveDeskPoint(request?.destinationDeskId ?? null);
+}
+
+function distance(a: { x: number; y: number }, b: { x: number; y: number }) {
+	return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
 function callNumberToShelfLabel(callNumber: string | null | undefined): string {
@@ -260,12 +299,23 @@ interface FloorMapProps {
 	poseY: number;
 	poseTheta: number;
 	targetStop: typeof STOP_POINTS[0] | null;
+	plannedRoutePoints: Array<{ x: number; y: number }>;
+	liveTrailPoints: Array<{ x: number; y: number }>;
 }
 
-const FloorMap = ({ poseX, poseY, poseTheta, targetStop }: FloorMapProps) => {
+const FloorMap = ({
+	poseX,
+	poseY,
+	poseTheta,
+	targetStop,
+	plannedRoutePoints,
+	liveTrailPoints,
+}: FloorMapProps) => {
 	const svgX = rx(poseX);
 	const svgY = ry(poseY);
 	const rotDeg = -(poseTheta * 180) / Math.PI;
+	const plannedRoutePolyline = plannedRoutePoints.map((p) => `${p.x},${p.y}`).join(' ');
+	const liveTrailPolyline = liveTrailPoints.map((p) => `${p.x},${p.y}`).join(' ');
 
 	return (
 		<svg
@@ -332,7 +382,15 @@ const FloorMap = ({ poseX, poseY, poseTheta, targetStop }: FloorMapProps) => {
 			<rect x={548} y={288} width={22} height={10} rx={1} className="rt-furniture" />
 			<rect x={578} y={288} width={22} height={10} rx={1} className="rt-furniture" />
 
-			{/* Layer 4: Room labels */}
+			{/* Layer 4: Route overlays */}
+			{plannedRoutePoints.length > 1 && (
+				<polyline points={plannedRoutePolyline} className="robot-planned-route" />
+			)}
+			{liveTrailPoints.length > 1 && (
+				<polyline points={liveTrailPolyline} className="robot-live-trail" />
+			)}
+
+			{/* Layer 5: Room labels */}
 			<text x={114} y={62} className="rt-zone-label" textAnchor="middle">Library Books</text>
 			<text x={114} y={78} className="rt-zone-sublabel" textAnchor="middle">Physical Collection</text>
 			<text x={364} y={62} className="rt-zone-label" textAnchor="middle">Commercial Books</text>
@@ -348,7 +406,7 @@ const FloorMap = ({ poseX, poseY, poseTheta, targetStop }: FloorMapProps) => {
 			<text x={580} y={262} className="rt-zone-label" textAnchor="middle">Desk B</text>
 			<text x={580} y={274} className="rt-zone-sublabel" textAnchor="middle">6 Students</text>
 
-			{/* Layer 5: Stop points */}
+			{/* Layer 6: Stop points */}
 			{STOP_POINTS.map((sp) => {
 				const isTarget = targetStop?.id === sp.id;
 				return (
@@ -374,7 +432,7 @@ const FloorMap = ({ poseX, poseY, poseTheta, targetStop }: FloorMapProps) => {
 				<tspan x={96} dy={8}>Point</tspan>
 			</text>
 
-			{/* Layer 6: Robot indicator */}
+			{/* Layer 7: Robot indicator */}
 			<g className="robot-arrow" style={{ transform: `translate(${svgX}px, ${svgY}px) rotate(${rotDeg}deg)` }}>
 				<polygon points="0,-10 6,6 0,3 -6,6" className="rt-robot-arrow" />
 			</g>
@@ -623,7 +681,8 @@ const RobotTracking: NextPage = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 
-	const [requests, setRequests] = React.useState<T[]>([]);
+	const [requests, setRequests] = useState<T[]>([]);
+	const [liveTrailPoints, setLiveTrailPoints] = useState<Array<{ x: number; y: number }>>([]);
 
 	useQuery(GET_SESSION_REQUESTS, {
 		fetchPolicy: 'network-only',
@@ -679,6 +738,51 @@ const RobotTracking: NextPage = () => {
 	const effectiveRequestStatus = liveRequestStatus ?? activeRequest?.status ?? null;
 
 	const targetStop = findTargetStop(activeRequest?.bookData?.bookCallNumber);
+	const selectedRequestId = activeRequest?._id ?? null;
+
+	const plannedRoutePoints = useMemo(() => {
+		if (!activeRequest) return [];
+
+		const destinationPoint = resolveDestinationPoint(activeRequest);
+		const route: Array<{ x: number; y: number }> = [CHARGING_DOCK_POINT];
+		if (targetStop) route.push(stopToPoint(targetStop));
+		route.push(destinationPoint);
+
+		return route.filter((point, index, arr) => {
+			if (index === 0) return true;
+			return arr[index - 1].x !== point.x || arr[index - 1].y !== point.y;
+		});
+	}, [activeRequest, targetStop]);
+
+	useEffect(() => {
+		setLiveTrailPoints([]);
+	}, [selectedRequestId]);
+
+	useEffect(() => {
+		if (!effectiveRequestStatus) return;
+		if (TERMINAL_STATUSES.has(effectiveRequestStatus as RequestStatus)) {
+			setLiveTrailPoints([]);
+		}
+	}, [effectiveRequestStatus]);
+
+	useEffect(() => {
+		if (!activeRequest) {
+			setLiveTrailPoints([]);
+			return;
+		}
+
+		if (effectiveRequestStatus && TERMINAL_STATUSES.has(effectiveRequestStatus as RequestStatus)) return;
+
+		const nextPoint = { x: rx(robotPose.x), y: ry(robotPose.y) };
+		setLiveTrailPoints((prev) => {
+			if (prev.length === 0) return [nextPoint];
+			const last = prev[prev.length - 1];
+			if (distance(last, nextPoint) < LIVE_TRAIL_MIN_DISTANCE) return prev;
+			const next = [...prev, nextPoint];
+			if (next.length > LIVE_TRAIL_MAX_POINTS) return next.slice(next.length - LIVE_TRAIL_MAX_POINTS);
+			return next;
+		});
+	}, [activeRequest, effectiveRequestStatus, robotPose.x, robotPose.y]);
 
 	if (device === 'mobile') return <div>LIVE TRACKING MOBILE</div>;
 
@@ -696,12 +800,14 @@ const RobotTracking: NextPage = () => {
 						<span>Library Floor — Level 1</span>
 					</div>
 
-					<FloorMap
-						poseX={robotPose.x}
-						poseY={robotPose.y}
-						poseTheta={robotPose.theta}
-						targetStop={targetStop}
-					/>
+						<FloorMap
+							poseX={robotPose.x}
+							poseY={robotPose.y}
+							poseTheta={robotPose.theta}
+							targetStop={targetStop}
+							plannedRoutePoints={activeRequest ? plannedRoutePoints : []}
+							liveTrailPoints={activeRequest ? liveTrailPoints : []}
+						/>
 
 					<div className="map-legend">
 						<span className="map-legend-item">

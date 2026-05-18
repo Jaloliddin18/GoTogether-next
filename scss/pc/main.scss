@@ -543,6 +543,21 @@ body::-webkit-scrollbar {
 		}
 		.container {
 			margin-top: 175px;
+			.header-basic-copy {
+				width: fit-content;
+				display: flex;
+				flex-direction: column;
+				gap: 6px;
+				&.with-large-font {
+					strong {
+						font-size: 56px;
+					}
+					span {
+						font-size: 28px;
+						line-height: 30px;
+					}
+				}
+			}
 			strong {
 				color: #fff;
 				font-family: $font;

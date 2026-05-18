@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
 import { Stack } from '@mui/material';
@@ -20,6 +20,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { LIKE_TARGET_MEMBER, SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mutation';
 import { Messages } from '../../libs/config';
 import { Message } from '../../libs/enums/common.enum';
+import { getJwtToken, updateUserInfo } from '../../libs/auth';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -32,6 +33,7 @@ const MyPage: NextPage = () => {
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
 	const category: any = router.query?.category ?? 'myProfile';
+	const [authHydrated, setAuthHydrated] = useState(false);
 
 	/** APOLLO REQUESTS **/
 	const [subscribe] = useMutation(SUBSCRIBE);
@@ -40,8 +42,19 @@ const MyPage: NextPage = () => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (!user._id) router.push('/').then();
-	}, [user]);
+		const jwt = getJwtToken();
+		if (jwt) updateUserInfo(jwt);
+		setAuthHydrated(true);
+	}, []);
+
+	useEffect(() => {
+		if (!router.isReady || !authHydrated) return;
+		if (!user._id) {
+			router
+				.replace(`/account/join?redirect=${encodeURIComponent(router.asPath)}`)
+				.then();
+		}
+	}, [router, authHydrated, user._id]);
 
 	/** HANDLERS **/
 	const subscribeHandler = async (id: string, refetch: any, query: any) => {
@@ -90,6 +103,8 @@ const MyPage: NextPage = () => {
 		}
 	};
 
+	if (!authHydrated) return null;
+	if (!user._id) return null;
 	if (device === 'mobile') return <div>MY PAGE</div>;
 
 	return (

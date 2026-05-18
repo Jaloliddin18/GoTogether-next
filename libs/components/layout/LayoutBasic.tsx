@@ -21,6 +21,7 @@ const withLayoutBasic = (Component: any) => {
 		const device = useDeviceDetect();
 		const [authHeader, setAuthHeader] = useState<boolean>(false);
 		const user = useReactiveVar(userVar);
+		const needsHeroTextLargeFont = ['/about', '/community', '/mypage', '/books'].includes(router.pathname);
 
 		const memoizedValues = useMemo(() => {
 			let title = '',
@@ -126,14 +127,16 @@ const withLayoutBasic = (Component: any) => {
 								style={{
 									backgroundImage: `url(${memoizedValues.bgImage})`,
 									backgroundSize: 'cover',
-									...(router.pathname === '/mypage' ? { backgroundPosition: 'center 36%' } : {}),
+									...(router.pathname === '/mypage' ? { backgroundPosition: 'center 47%' } : {}),
 									backgroundRepeat: 'no-repeat',
 									boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
 								}}
 							>
 								<Stack className={'container'}>
-									<strong>{t(memoizedValues.title)}</strong>
-									<span>{t(memoizedValues.desc)}</span>
+									<Stack className={`header-basic-copy ${needsHeroTextLargeFont ? 'with-large-font' : ''}`}>
+										<strong>{t(memoizedValues.title)}</strong>
+										<span>{t(memoizedValues.desc)}</span>
+									</Stack>
 								</Stack>
 							</Stack>
 						)}
