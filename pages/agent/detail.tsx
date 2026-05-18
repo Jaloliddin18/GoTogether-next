@@ -132,7 +132,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 	const redirectToMemberPageHandler = async (memberId: string) => {
 		try {
 			if (memberId === user?._id) await router.push(`/mypage?memberId=${memberId}`);
-			else await router.push(`/member?memberId=${memberId}`);
+			else await router.push(`/member/${memberId}`);
 		} catch (error) {
 			await sweetErrorHandling(error);
 		}

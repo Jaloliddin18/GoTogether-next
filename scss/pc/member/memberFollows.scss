@@ -3,166 +3,167 @@
 		width: 100%;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		.main-title-box {
-			width: 100%;
-			height: auto;
-			flex-direction: row;
-			justify-content: space-between;
-			.right-box {
-				width: 315px;
-				.main-title {
-					color: #1A1A2E;
-					font-family: $font;
-					font-size: 30px;
-					font-style: normal;
-					font-weight: 600;
-					line-height: normal;
-					letter-spacing: 0.6px;
-					text-transform: capitalize;
-				}
-			}
-		}
-		.follows-list-box {
-			width: 100%;
-			margin-top: 85px;
-			gap: 15px;
-			.listing-title-box {
-				width: 100%;
-				height: auto;
-				flex-direction: row;
-				gap: 110px;
-				padding: 18px 34px 18px 33px;
-				border-radius: 12px;
+
+		// ── Row ──
+		.follow-list-item {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px 16px;
+			border-bottom: 1px solid #e2e8f0;
+			transition: background 0.15s;
+
+			&:hover {
 				background: #f6f6f6;
-				justify-content: space-between;
-				.title-text {
-					color: #1A1A2E;
-					font-family: $font;
-					font-size: 15px;
-					font-style: normal;
-					font-weight: 600;
-					line-height: normal;
+			}
+		}
+
+		// ── Avatar ──
+		.follow-list-avatar {
+			width: 44px;
+			height: 44px;
+			border-radius: 50%;
+			object-fit: cover;
+			flex-shrink: 0;
+			border: 1px solid #e2e8f0;
+		}
+
+		.follow-list-avatar--initials {
+			width: 44px;
+			height: 44px;
+			border-radius: 50%;
+			flex-shrink: 0;
+			background: linear-gradient(135deg, #1b3a6b, #2e86de);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-family: $font;
+			font-size: 15px;
+			font-weight: 700;
+			color: #fff;
+		}
+
+		// ── Info ──
+		.follow-list-info {
+			flex: 1;
+			min-width: 0;
+			cursor: pointer;
+		}
+
+		.follow-list-nick {
+			font-family: $font;
+			font-size: 15px;
+			font-weight: 700;
+			color: #1a1a2e;
+			line-height: 20px;
+
+			&:hover {
+				text-decoration: underline;
+			}
+		}
+
+		.follow-list-type {
+			font-family: $font;
+			font-size: 13px;
+			color: #64748b;
+			line-height: 18px;
+		}
+
+		// ── Actions ──
+		.follow-list-actions {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			flex-shrink: 0;
+		}
+
+		.follow-list-heart {
+			background: none;
+			border: none;
+			cursor: pointer;
+			color: #64748b;
+			display: flex;
+			align-items: center;
+			padding: 4px;
+			border-radius: 50%;
+			transition: color 0.15s, background 0.15s;
+
+			&:hover {
+				background: rgba(224, 36, 94, 0.1);
+				color: #e0245e;
+			}
+
+			&.liked {
+				color: #e0245e;
+			}
+		}
+
+		.follow-list-follow-btn {
+			border-radius: 20px;
+			padding: 6px 16px;
+			font-family: $font;
+			font-size: 14px;
+			font-weight: 700;
+			cursor: pointer;
+			transition: all 0.15s;
+			line-height: 20px;
+
+			&.not-following {
+				background: #1a1a2e;
+				border: none;
+				color: #fff;
+
+				&:hover {
+					background: #2e86de;
 				}
 			}
-			.follows-card-box {
-				padding-right: 30px;
-				padding-bottom: 5px;
-				width: 100%;
-				height: auto;
-				flex-direction: row;
-				align-items: center;
-				gap: 10px;
-				border-bottom: 1px solid #E2E8F0;
-				.info {
-					width: 300px;
-					display: flex;
-					flex-direction: row;
-					align-items: center;
-					cursor: pointer;
-					.image-box {
-						width: 110px;
-						height: 110px;
-						overflow: hidden;
-						margin-right: 25px;
-						img {
-							width: 100%;
-							height: 100%;
-							object-fit: cover;
-							border-radius: 50%;
-						}
-					}
-					.information-box {
-						width: auto;
-						height: auto;
-						padding: 5px 0px;
-						.name {
-							color: #1A1A2E;
-							font-family: $font;
-							font-size: 13px;
-							font-style: normal;
-							font-weight: 600;
-							line-height: normal;
-						}
-					}
-				}
-				.details-box {
-					width: 300px;
-					display: flex;
-					flex-direction: row;
-					justify-content: space-between;
-					.info-box {
-						display: flex;
-						align-items: center;
-						img {
-							width: 24px;
-							height: 24px;
-						}
-						svg {
-							width: 24px;
-							height: 24px;
-							cursor: pointer;
-						}
-						p {
-							color: #1A1A2E;
-							font-family: $font;
-							font-size: 15px;
-							font-style: normal;
-							font-weight: 600;
-							line-height: normal;
-						}
-						span {
-							margin-left: 4px;
-							color: #1A1A2E;
-							font-family: $font;
-							font-size: 13px;
-							font-style: normal;
-							font-weight: 600;
-							line-height: normal;
-						}
-					}
-				}
-				.action-box {
-					width: 300px;
-					height: 100%;
-					flex-direction: row;
-					align-items: center;
-					justify-content: flex-end;
-					gap: 20px;
-					button {
-						border: 1px solid #b9b9b9;
-						color: #1A1A2E;
-						font-family: $font;
-						font-size: 14px;
-						font-style: normal;
-						font-weight: 400;
-						line-height: normal;
-					}
-					p {
-						color: #b9b9b9;
-						font-family: $font;
-						font-size: 14px;
-						font-style: italic;
-						font-weight: 400;
-						line-height: normal;
-					}
+
+			&.following {
+				background: none;
+				border: 1.5px solid #e2e8f0;
+				color: #1a1a2e;
+
+				&:hover {
+					border-color: #e0245e;
+					color: #e0245e;
 				}
 			}
 		}
+
+		// ── Empty state ──
+		.follow-list-empty {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			padding: 48px 24px;
+			color: #64748b;
+			font-family: $font;
+			font-size: 14px;
+
+			p {
+				color: #64748b;
+				font-family: $font;
+				font-size: 14px;
+			}
+		}
+
+		// ── Pagination ──
 		.pagination-config {
 			width: 100%;
 			height: auto;
 			justify-content: center;
 			align-items: center;
-			margin-top: 30px;
+			margin-top: 20px;
+			margin-bottom: 16px;
+
 			.total-result {
 				p {
-					color: #1A1A2E;
+					color: #1a1a2e;
 					text-align: center;
 					font-family: $font;
 					font-size: 14px;
-					font-style: normal;
 					font-weight: 400;
 					line-height: 26px;
 				}

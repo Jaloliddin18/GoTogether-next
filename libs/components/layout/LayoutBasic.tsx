@@ -48,13 +48,13 @@ const withLayoutBasic = (Component: any) => {
 					break;
 				case '/community':
 					title = 'Community';
-					desc = 'Home / For Rent';
-					bgImage = '/img/banner/header2.svg';
+					desc = 'Home / Community';
+					bgImage = '/img/community/digital_community.jpeg';
 					break;
 				case '/community/detail':
 					title = 'Community Detail';
-					desc = 'Home / For Rent';
-					bgImage = '/img/banner/header2.svg';
+					desc = 'Home / Community';
+					bgImage = '/img/community/digital_community.jpeg';
 					break;
 				case '/cs':
 					title = 'CS';
@@ -71,6 +71,8 @@ const withLayoutBasic = (Component: any) => {
 					title = 'Member Page';
 					desc = 'Home / For Rent';
 					bgImage = '/img/banner/header1.svg';
+					break;
+				case '/member/[memberId]':
 					break;
 				default:
 					break;
@@ -124,7 +126,7 @@ const withLayoutBasic = (Component: any) => {
 						<Stack
 							className={`header-basic ${authHeader && 'auth'}`}
 							style={{
-								backgroundImage: `${memoizedValues.heroOverlay}url(${memoizedValues.bgImage})`,
+								backgroundImage: `url(${memoizedValues.bgImage})`,
 								backgroundSize: 'cover',
 								boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
 							}}

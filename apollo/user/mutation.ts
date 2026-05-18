@@ -257,8 +257,8 @@ export const CREATE_TWIT = gql`
 			_id
 			memberId
 			text
-			image
-			likes
+			images
+			meLiked
 			likeCount
 			deletedAt
 			createdAt
@@ -268,14 +268,15 @@ export const CREATE_TWIT = gql`
 `;
 
 export const LIKE_TWIT = gql`
-	mutation LikeTwit($input: String!) {
-		likeTwit(twitId: $input) {
+	mutation LikeTwit($twitId: String!) {
+		likeTwit(twitId: $twitId) {
 			_id
 			memberId
 			text
-			image
-			likes
+			images
+			meLiked
 			likeCount
+			viewCount
 			deletedAt
 			createdAt
 			updatedAt
@@ -290,7 +291,7 @@ export const DELETE_TWIT = gql`
 			memberId
 			text
 			image
-			likes
+			meLiked
 			likeCount
 			deletedAt
 			createdAt
@@ -308,7 +309,6 @@ export const CREATE_TWIT_COMMENT = gql`
 			text
 			parentCommentId
 			depth
-			likes
 			likeCount
 			deletedAt
 			createdAt
@@ -327,7 +327,6 @@ export const UPDATE_TWIT_COMMENT = gql`
 			text
 			parentCommentId
 			depth
-			likes
 			likeCount
 			deletedAt
 			createdAt
@@ -346,7 +345,6 @@ export const DELETE_TWIT_COMMENT = gql`
 			text
 			parentCommentId
 			depth
-			likes
 			likeCount
 			deletedAt
 			createdAt
@@ -365,7 +363,6 @@ export const LIKE_TWIT_COMMENT = gql`
 			text
 			parentCommentId
 			depth
-			likes
 			likeCount
 			deletedAt
 			createdAt
@@ -414,35 +411,19 @@ export const UPDATE_COMMENT = gql`
  *************************/
 
 export const SUBSCRIBE = gql`
-	mutation Subscribe($input: String!) {
-		subscribe(input: $input) {
-			_id
+	mutation Subscribe($memberId: String!) {
+		subscribe(memberId: $memberId) {
 			followingId
 			followerId
-			createdAt
-			updatedAt
-			meFollowed {
-				followingId
-				followerId
-				myFollowing
-			}
 		}
 	}
 `;
 
 export const UNSUBSCRIBE = gql`
-	mutation Unsubscribe($input: String!) {
-		unsubscribe(input: $input) {
-			_id
+	mutation Unsubscribe($memberId: String!) {
+		unsubscribe(memberId: $memberId) {
 			followingId
 			followerId
-			createdAt
-			updatedAt
-			meFollowed {
-				followingId
-				followerId
-				myFollowing
-			}
 		}
 	}
 `;

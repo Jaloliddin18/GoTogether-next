@@ -380,7 +380,7 @@ export const UPDATE_TWIT_BY_ADMIN = gql`
 			memberId
 			text
 			image
-			likes
+			meLiked
 			likeCount
 			deletedAt
 			createdAt
@@ -396,7 +396,7 @@ export const REMOVE_TWIT_BY_ADMIN = gql`
 			memberId
 			text
 			image
-			likes
+			meLiked
 			likeCount
 			deletedAt
 			createdAt
@@ -433,11 +433,11 @@ export const REMOVE_TWIT_COMMENT_BY_ADMIN = gql`
 			text
 			parentCommentId
 			depth
-			likes
 			likeCount
 			deletedAt
 			createdAt
 			updatedAt
+			meLiked
 		}
 	}
 `;

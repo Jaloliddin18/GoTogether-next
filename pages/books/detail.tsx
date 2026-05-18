@@ -554,7 +554,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 											}
 										/>
 										<Stack className={'name-phone-listings'}>
-											<Link href={`/member?memberId=${property?.memberData?._id}`}>
+											<Link href={`/member/${property?.memberData?._id}`}>
 												<Typography className={'name'}>{property?.memberData?.memberNick}</Typography>
 											</Link>
 											<Stack className={'phone-number'}>

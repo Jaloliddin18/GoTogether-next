@@ -3,115 +3,129 @@ import { NextPage } from 'next';
 import { Pagination, Stack, Typography } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
-import CommunityCard from '../common/CommunityCard';
 import { T } from '../../types/common';
-import { BoardArticle } from '../../types/board-article/board-article';
-import { BoardArticlesInquiry } from '../../types/board-article/board-article.input';
-import { useMutation, useQuery } from '@apollo/client';
-import { LIKE_TARGET_BOARD_ARTICLE } from '../../../apollo/user/mutation';
-import { GET_BOARD_ARTICLES } from '../../../apollo/user/query';
-import { Message } from '../../enums/common.enum';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { DELETE_TWIT } from '../../../apollo/user/mutation';
+import { GET_MEMBER_TWITS } from '../../../apollo/user/query';
+import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { Twit } from '../../types/twit/twit';
+import { Direction } from '../../enums/common.enum';
+import { TwitsInquiry } from '../../types/twit/twit.input';
+import { userVar } from '../../../apollo/store';
+import TwitCard from '../community/TwitCard';
 
-const MemberArticles: NextPage = ({ initialInput, ...props }: any) => {
+const MemberArticles: NextPage = ({ initialInput }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
-	const [total, setTotal] = useState<number>(0);
 	const { memberId } = router.query;
-	const [searchFilter, setSearchFilter] = useState<BoardArticlesInquiry>(initialInput);
-	const [memberBoArticles, setMemberBoArticles] = useState<BoardArticle[]>([]);
+	const user = useReactiveVar(userVar);
+	const [searchFilter, setSearchFilter] = useState<TwitsInquiry>(initialInput);
 
-	/** APOLLO REQUESTS **/
-	const [likeTargetBoardArticle] = useMutation(LIKE_TARGET_BOARD_ARTICLE);
-	const {
-		loading: boardArticlesLoading,
-		data: boardArticlesData,
-		error: getBoardArticlesError,
-		refetch: boardArticlesRefetch,
-	} = useQuery(GET_BOARD_ARTICLES, {
+	const [deleteTwit] = useMutation(DELETE_TWIT);
+	const { loading: twitsLoading, error: getMemberTwitsError, data, refetch: memberTwitsRefetch } = useQuery(GET_MEMBER_TWITS, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchFilter },
+		skip: !memberId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setMemberBoArticles(data?.getBoardArticles?.list ?? []);
-			setTotal(data?.getBoardArticles?.metaCounter[0]?.total || 0);
-		},
 	});
+	const memberTwits: Twit[] = data?.getMemberTwits?.list ?? [];
+	const total: number = data?.getMemberTwits?.metaCounter?.[0]?.total ?? 0;
 
-	/** LIFECYCLES **/
 	useEffect(() => {
-		if (memberId) setSearchFilter({ ...initialInput, search: { memberId: memberId } });
+		if (!memberId) return;
+		setSearchFilter((prev) => ({
+			...prev,
+			page: 1,
+			search: { ...(prev.search ?? {}), memberId: String(memberId) },
+		}));
 	}, [memberId]);
 
-	/** HANDLERS **/
-	const paginationHandler = (e: T, value: number) => {
-		setSearchFilter({ ...searchFilter, page: value });
+	const paginationHandler = async (e: T, value: number) => {
+		const nextInquiry = { ...searchFilter, page: value };
+		setSearchFilter(nextInquiry);
+		await memberTwitsRefetch({ input: nextInquiry });
 	};
 
-	const likeBoardArticleHandler = async (e: any, user: any, id: any) => {
+	const deleteTwitHandler = async (id: string) => {
 		try {
-			e.stopPropagation();
 			if (!id) return;
-			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+			if (!user?._id) {
+				await router.push('/account/join');
+				return;
+			}
 
-			await likeTargetBoardArticle({
-				variables: { input: id },
-			});
-			await boardArticlesRefetch({ input: searchFilter });
-			await sweetTopSmallSuccessAlert('Success!', 750);
+			const confirmation = await sweetConfirmAlert('Delete this post?');
+			if (!confirmation) return;
+
+			await deleteTwit({ variables: { input: id } });
+			await memberTwitsRefetch({ input: searchFilter });
+			await sweetTopSmallSuccessAlert('Deleted', 800);
 		} catch (err: any) {
-			console.log('ERROR, likePropertyHandler:', err.message);
+			console.log('ERROR, deleteTwitHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
 		}
 	};
 
 	if (device === 'mobile') {
 		return <div>MEMBER ARTICLES MOBILE</div>;
-	} else {
-		return (
-			<div id="member-articles-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">Articles</Typography>
-					</Stack>
+	}
+
+	return (
+		<div id="member-articles-page">
+			<Stack className="main-title-box">
+				<Stack className="right-box">
+					<Typography className="main-title">Community Twits</Typography>
 				</Stack>
-				<Stack className="articles-list-box">
-					{memberBoArticles?.length === 0 && (
-						<div className={'no-data'}>
-							<img src="/img/icons/icoAlert.svg" alt="" />
-							<p>No Articles found!</p>
-						</div>
-					)}
-					{memberBoArticles?.map((boardArticle: BoardArticle) => {
-						return (
-							<CommunityCard
-								boardArticle={boardArticle}
-								key={boardArticle?._id}
-								size={'small'}
-								likeArticleHandler={likeBoardArticleHandler}
-							/>
-						);
-					})}
-				</Stack>
-				{memberBoArticles?.length !== 0 && (
-					<Stack className="pagination-config">
-						<Stack className="pagination-box">
-							<Pagination
-								count={Math.ceil(total / searchFilter.limit) || 1}
-								page={searchFilter.page}
-								shape="circular"
-								color="primary"
-								onChange={paginationHandler}
-							/>
-						</Stack>
-						<Stack className="total-result">
-							<Typography>{total} property available</Typography>
-						</Stack>
+			</Stack>
+
+			<Stack className="articles-list-box">
+				{twitsLoading && (
+					<Stack className={'no-data'}>
+						<p>Loading twits...</p>
 					</Stack>
 				)}
-			</div>
-		);
-	}
+
+				{!twitsLoading && getMemberTwitsError && (
+					<Stack className={'no-data'}>
+						<p>Unable to load member twits.</p>
+					</Stack>
+				)}
+
+				{!twitsLoading && !getMemberTwitsError && memberTwits.length === 0 && (
+					<Stack className={'no-data'}>
+						<p>No twits found.</p>
+					</Stack>
+				)}
+
+				{!twitsLoading && !getMemberTwitsError &&
+					memberTwits.map((twit: Twit) => (
+						<TwitCard
+							key={twit._id}
+							twit={twit}
+							currentUserId={user?._id}
+							onDelete={deleteTwitHandler}
+						/>
+					))}
+			</Stack>
+
+			{!twitsLoading && !getMemberTwitsError && total > searchFilter.limit && (
+				<Stack className="pagination-config">
+					<Stack className="pagination-box">
+						<Pagination
+							count={Math.ceil(total / searchFilter.limit) || 1}
+							page={searchFilter.page}
+							shape="circular"
+							color="primary"
+							onChange={paginationHandler}
+						/>
+					</Stack>
+					<Stack className="total-result">
+						<Typography>{total} twit{total > 1 ? 's' : ''} available</Typography>
+					</Stack>
+				</Stack>
+			)}
+		</div>
+	);
 };
 
 MemberArticles.defaultProps = {
@@ -119,7 +133,7 @@ MemberArticles.defaultProps = {
 		page: 1,
 		limit: 6,
 		sort: 'createdAt',
-		direction: 'DESC',
+		direction: Direction.DESC,
 		search: {},
 	},
 };
