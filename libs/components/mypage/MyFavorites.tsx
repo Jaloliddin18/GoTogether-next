@@ -1,107 +1,103 @@
 import React, { useState } from 'react';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Pagination, Stack, Typography } from '@mui/material';
-import PropertyCard from '../property/PropertyCard';
-import { Property } from '../../types/property/property';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import { useQuery, useReactiveVar } from '@apollo/client';
+import { userVar } from '../../../apollo/store';
 import { T } from '../../types/common';
-import { useMutation, useQuery } from '@apollo/client';
-import { LIKE_TARGET_PROPERTY } from '../../../apollo/user/mutation';
-import { GET_FAVORITES } from '../../../apollo/user/query';
-import { Message } from '../../enums/common.enum';
-import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import { Book } from '../../types/book/book';
+import { GET_FAVORITE_BOOKS } from '../../../apollo/user/query';
+import { REACT_APP_API_URL } from '../../config';
+
+const PAGE_LIMIT = 6;
+
+const SavedBookCard = ({ book }: { book: Book }) => {
+	const router = useRouter();
+	const cover = book.bookImages?.[0]
+		? `${REACT_APP_API_URL}/${book.bookImages[0]}`
+		: '/img/profile/defaultUser.svg';
+
+	return (
+		<div className="saved-book-card">
+			<div className="saved-book-cover">
+				<img src={cover} alt={book.bookTitle} />
+				<div className="saved-book-heart">
+					<FavoriteIcon sx={{ fontSize: 16 }} />
+				</div>
+			</div>
+			<div className="saved-book-body">
+				<span className="saved-book-category">{book.bookCategory}</span>
+				<Typography className="saved-book-title" title={book.bookTitle}>{book.bookTitle}</Typography>
+				<Typography className="saved-book-author">{book.bookAuthor}</Typography>
+			</div>
+			<div className="saved-book-footer">
+				<button className="saved-book-view-btn" onClick={() => router.push(`/books/${book._id}`)}>
+					View Book
+				</button>
+			</div>
+		</div>
+	);
+};
 
 const MyFavorites: NextPage = () => {
 	const device = useDeviceDetect();
-	const [myFavorites, setMyFavorites] = useState<Property[]>([]);
-	const [total, setTotal] = useState<number>(0);
-	const [searchFavorites, setSearchFavorites] = useState<T>({ page: 1, limit: 6 });
+	const user = useReactiveVar(userVar);
+	const [books, setBooks] = useState<Book[]>([]);
+	const [total, setTotal] = useState(0);
+	const [page, setPage] = useState(1);
 
-	/** APOLLO REQUESTS **/
-
-	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
-	const {
-		loading: getFavoritesLoading,
-		data: getFavoritesData,
-		error: getFavoritesError,
-		refetch: getFavoritesRefetch,
-	} = useQuery(GET_FAVORITES, {
+	/** APOLLO **/
+	useQuery(GET_FAVORITE_BOOKS, {
 		fetchPolicy: 'network-only',
-		variables: { input: searchFavorites },
+		variables: { input: { page, limit: PAGE_LIMIT } },
+		skip: !user._id,
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setMyFavorites(data.getFavorites?.list ?? []);
-			setTotal(data.getFavorites?.metaCounter[0]?.total || 0);
+			setBooks(data?.getFavoriteBooks?.list ?? []);
+			setTotal(data?.getFavoriteBooks?.metaCounter[0]?.total ?? 0);
 		},
 	});
 
-	/** HANDLERS **/
-	const paginationHandler = (e: T, value: number) => {
-		setSearchFavorites({ ...searchFavorites, page: value });
-	};
+	if (device === 'mobile') return <div>MY SAVED BOOKS MOBILE</div>;
 
-	const likePropertyHandler = async (user: T, id: string) => {
-		try {
-			if (!id) return;
-			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+	return (
+		<div id="my-favorites-page">
+			<Stack className="panel-header">
+				<Typography className="panel-title">Saved Books</Typography>
+				<Typography className="panel-subtitle">{total} book{total !== 1 ? 's' : ''} saved</Typography>
+			</Stack>
 
-			await likeTargetProperty({
-				variables: { input: id },
-			});
-
-			await getFavoritesRefetch({ input: searchFavorites });
-
-			await sweetTopSmallSuccessAlert('success', 800);
-		} catch (err: any) {
-			console.log('ERROR, likePropertyHandler:', err.message);
-			sweetMixinErrorAlert(err.message).then();
-		}
-	};
-
-	if (device === 'mobile') {
-		return <div>NESTAR MY FAVORITES MOBILE</div>;
-	} else {
-		return (
-			<div id="my-favorites-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">My Favorites</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
-					</Stack>
-				</Stack>
-				<Stack className="favorites-list-box">
-					{myFavorites?.length ? (
-						myFavorites?.map((property: Property) => {
-							return <PropertyCard property={property} likePropertyHandler={likePropertyHandler} myFavorites={true} />;
-						})
-					) : (
-						<div className={'no-data'}>
-							<img src="/img/icons/icoAlert.svg" alt="" />
-							<p>No Favorites found!</p>
-						</div>
-					)}
-				</Stack>
-				{myFavorites?.length ? (
-					<Stack className="pagination-config">
-						<Stack className="pagination-box">
+			{books.length > 0 ? (
+				<>
+					<div className="saved-books-grid">
+						{books.map((book) => (
+							<SavedBookCard key={book._id} book={book} />
+						))}
+					</div>
+					{total > PAGE_LIMIT && (
+						<Stack className="pagination-config">
 							<Pagination
-								count={Math.ceil(total / searchFavorites.limit)}
-								page={searchFavorites.page}
+								count={Math.ceil(total / PAGE_LIMIT)}
+								page={page}
 								shape="circular"
 								color="primary"
-								onChange={paginationHandler}
+								onChange={(_: T, v: number) => setPage(v)}
 							/>
 						</Stack>
-						<Stack className="total-result">
-							<Typography>
-								Total {total} favorite propert{total > 1 ? 'ies' : 'y'}
-							</Typography>
-						</Stack>
-					</Stack>
-				) : null}
-			</div>
-		);
-	}
+					)}
+				</>
+			) : (
+				<Stack className="empty-state">
+					<BookmarkIcon className="empty-icon" />
+					<Typography className="empty-heading">No saved books yet</Typography>
+					<Typography className="empty-body">Books you like will appear here for quick access.</Typography>
+				</Stack>
+			)}
+		</div>
+	);
 };
 
 export default MyFavorites;

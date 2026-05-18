@@ -11,6 +11,8 @@ import { MemberUpdate } from '../../types/member/member.update';
 import { UPDATE_MEMBER } from '../../../apollo/user/mutation';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
 
+const BIO_MAX = 200;
+
 const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	const device = useDeviceDetect();
 	const token = getJwtToken();
@@ -26,8 +28,8 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			...updateData,
 			memberNick: user.memberNick,
 			memberPhone: user.memberPhone,
-			memberAddress: user.memberAddress,
 			memberImage: user.memberImage,
+			memberDesc: user.memberDesc ?? '',
 		});
 	}, [user]);
 
@@ -35,27 +37,17 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	const uploadImage = async (e: any) => {
 		try {
 			const image = e.target.files[0];
-			console.log('+image:', image);
-
 			const formData = new FormData();
 			formData.append(
 				'operations',
 				JSON.stringify({
 					query: `mutation ImageUploader($file: Upload!, $target: String!) {
-						imageUploader(file: $file, target: $target) 
-				  }`,
-					variables: {
-						file: null,
-						target: 'member',
-					},
+						imageUploader(file: $file, target: $target)
+					}`,
+					variables: { file: null, target: 'member' },
 				}),
 			);
-			formData.append(
-				'map',
-				JSON.stringify({
-					'0': ['variables.file'],
-				}),
-			);
+			formData.append('map', JSON.stringify({ '0': ['variables.file'] }));
 			formData.append('0', image);
 
 			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
@@ -67,139 +59,105 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			});
 
 			const responseImage = response.data.data.imageUploader;
-			console.log('+responseImage: ', responseImage);
-			updateData.memberImage = responseImage;
-			setUpdateData({ ...updateData });
-
-			return `${REACT_APP_API_URL}/${responseImage}`;
+			setUpdateData({ ...updateData, memberImage: responseImage });
 		} catch (err) {
 			console.log('Error, uploadImage:', err);
 		}
 	};
 
-	const updatePropertyHandler = useCallback(async () => {
+	const updateProfileHandler = useCallback(async () => {
 		try {
 			if (!user._id) throw new Error(Messages.error2);
-			updateData._id = user._id;
-			const result = await updateMember({
-				variables: {
-					input: updateData,
-				},
-			});
-
-			// @ts-ignore
+			const result = await updateMember({ variables: { input: { ...updateData, _id: user._id } } });
 			const jwtToken = result.data.updateMember?.accessToken;
 			await updateStorage({ jwtToken });
-			updateUserInfo(result.data.updateMember?.accessToken);
-			await sweetMixinSuccessAlert('Information updated successfully');
+			updateUserInfo(jwtToken);
+			await sweetMixinSuccessAlert('Profile updated successfully');
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
 	}, [updateData]);
 
-	const doDisabledCheck = () => {
-		if (
-			updateData.memberNick === '' ||
-			updateData.memberPhone === '' ||
-			updateData.memberAddress === '' ||
-			updateData.memberImage === ''
-		) {
-			return true;
-		}
-	};
+	const isDisabled = () =>
+		!updateData.memberNick?.trim() ||
+		!updateData.memberPhone?.trim() ||
+		!updateData.memberImage?.trim();
 
-	console.log('+updateData', updateData);
+	if (device === 'mobile') return <>MY PROFILE PAGE MOBILE</>;
 
-	if (device === 'mobile') {
-		return <>MY PROFILE PAGE MOBILE</>;
-	} else
-		return (
-			<div id="my-profile-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">My Profile</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
+	return (
+		<div id="my-profile-page">
+			<Stack className="panel-header">
+				<Typography className="panel-title">My Profile</Typography>
+				<Typography className="panel-subtitle">Manage your account information</Typography>
+			</Stack>
+
+			<Stack className="profile-form">
+				<Stack className="profile-photo-section">
+					<Typography className="field-label">Photo</Typography>
+					<Stack className="photo-row">
+						<div className="avatar-preview">
+							<img
+								src={updateData?.memberImage ? `${REACT_APP_API_URL}/${updateData.memberImage}` : '/img/profile/defaultUser.svg'}
+								alt="avatar"
+							/>
+						</div>
+						<Stack className="upload-info">
+							<input type="file" hidden id="profile-upload" onChange={uploadImage} accept="image/jpg, image/jpeg, image/png" />
+							<label htmlFor="profile-upload" className="upload-btn">
+								Change Photo
+							</label>
+							<Typography className="upload-hint">JPG, JPEG or PNG — max 2MB</Typography>
+						</Stack>
 					</Stack>
 				</Stack>
-				<Stack className="top-box">
-					<Stack className="photo-box">
-						<Typography className="title">Photo</Typography>
-						<Stack className="image-big-box">
-							<Stack className="image-box">
-								<img
-									src={
-										updateData?.memberImage
-											? `${REACT_APP_API_URL}/${updateData?.memberImage}`
-											: `/img/profile/defaultUser.svg`
-									}
-									alt=""
-								/>
-							</Stack>
-							<Stack className="upload-big-box">
-								<input
-									type="file"
-									hidden
-									id="hidden-input"
-									onChange={uploadImage}
-									accept="image/jpg, image/jpeg, image/png"
-								/>
-								<label htmlFor="hidden-input" className="labeler">
-									<Typography>Upload Profile Image</Typography>
-								</label>
-								<Typography className="upload-text">A photo must be in JPG, JPEG or PNG format!</Typography>
-							</Stack>
-						</Stack>
-					</Stack>
-					<Stack className="small-input-box">
-						<Stack className="input-box">
-							<Typography className="title">Username</Typography>
-							<input
-								type="text"
-								placeholder="Your username"
-								value={updateData.memberNick}
-								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberNick: value })}
-							/>
-						</Stack>
-						<Stack className="input-box">
-							<Typography className="title">Phone</Typography>
-							<input
-								type="text"
-								placeholder="Your Phone"
-								value={updateData.memberPhone}
-								onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberPhone: value })}
-							/>
-						</Stack>
-					</Stack>
-					<Stack className="address-box">
-						<Typography className="title">Address</Typography>
+
+				<Stack className="profile-fields-grid">
+					<Stack className="field-group">
+						<Typography className="field-label">Username</Typography>
 						<input
 							type="text"
-							placeholder="Your address"
-							value={updateData.memberAddress}
-							onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberAddress: value })}
+							className="profile-input"
+							placeholder="Your username"
+							value={updateData.memberNick ?? ''}
+							onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberNick: value })}
 						/>
 					</Stack>
-					<Stack className="about-me-box">
-						<Button className="update-button" onClick={updatePropertyHandler} disabled={doDisabledCheck()}>
-							<Typography>Update Profile</Typography>
-							<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 13 13" fill="none">
-								<g clipPath="url(#clip0_7065_6985)">
-									<path
-										d="M12.6389 0H4.69446C4.49486 0 4.33334 0.161518 4.33334 0.361122C4.33334 0.560727 4.49486 0.722245 4.69446 0.722245H11.7672L0.105803 12.3836C-0.0352676 12.5247 -0.0352676 12.7532 0.105803 12.8942C0.176321 12.9647 0.268743 13 0.361131 13C0.453519 13 0.545907 12.9647 0.616459 12.8942L12.2778 1.23287V8.30558C12.2778 8.50518 12.4393 8.6667 12.6389 8.6667C12.8385 8.6667 13 8.50518 13 8.30558V0.361122C13 0.161518 12.8385 0 12.6389 0Z"
-										fill="white"
-									/>
-								</g>
-								<defs>
-									<clipPath id="clip0_7065_6985">
-										<rect width="13" height="13" fill="white" />
-									</clipPath>
-								</defs>
-							</svg>
-						</Button>
+					<Stack className="field-group">
+						<Typography className="field-label">Phone</Typography>
+						<input
+							type="text"
+							className="profile-input"
+							placeholder="Your phone number"
+							value={updateData.memberPhone ?? ''}
+							onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberPhone: value })}
+						/>
 					</Stack>
 				</Stack>
-			</div>
-		);
+
+				<Stack className="field-group full-width">
+					<Stack direction="row" justifyContent="space-between" alignItems="center">
+						<Typography className="field-label">Bio</Typography>
+						<Typography className="char-counter">
+							{(updateData.memberDesc ?? '').length}/{BIO_MAX}
+						</Typography>
+					</Stack>
+					<textarea
+						className="profile-textarea"
+						placeholder="Tell people a bit about yourself..."
+						maxLength={BIO_MAX}
+						rows={4}
+						value={updateData.memberDesc ?? ''}
+						onChange={({ target: { value } }) => setUpdateData({ ...updateData, memberDesc: value })}
+					/>
+				</Stack>
+
+				<Button className="profile-update-btn" onClick={updateProfileHandler} disabled={isDisabled()}>
+					Save Changes
+				</Button>
+			</Stack>
+		</div>
+	);
 };
 
 MyProfile.defaultProps = {
@@ -208,7 +166,7 @@ MyProfile.defaultProps = {
 		memberImage: '',
 		memberNick: '',
 		memberPhone: '',
-		memberAddress: '',
+		memberDesc: '',
 	},
 };
 

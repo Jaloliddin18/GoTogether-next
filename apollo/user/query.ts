@@ -497,6 +497,7 @@ export const GET_MEMBER_TWITS = gql`
 				images
 				meLiked
 				likeCount
+				viewCount
 				deletedAt
 				createdAt
 				updatedAt

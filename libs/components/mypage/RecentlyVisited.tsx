@@ -1,83 +1,101 @@
 import React, { useState } from 'react';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Pagination, Stack, Typography } from '@mui/material';
-import PropertyCard from '../property/PropertyCard';
-import { Property } from '../../types/property/property';
+import HistoryIcon from '@mui/icons-material/History';
+import { useQuery, useReactiveVar } from '@apollo/client';
+import { userVar } from '../../../apollo/store';
 import { T } from '../../types/common';
-import { GET_VISITED } from '../../../apollo/user/query';
-import { useQuery } from '@apollo/client';
+import { Book } from '../../types/book/book';
+import { GET_VISITED_BOOKS } from '../../../apollo/user/query';
+import { REACT_APP_API_URL } from '../../config';
+
+const PAGE_LIMIT = 6;
+
+const formatDate = (iso: string | Date) =>
+	new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 const RecentlyVisited: NextPage = () => {
 	const device = useDeviceDetect();
-	const [recentlyVisited, setRecentlyVisited] = useState<Property[]>([]);
-	const [total, setTotal] = useState<number>(0);
-	const [searchVisited, setSearchVisited] = useState<T>({ page: 1, limit: 6 });
+	const router = useRouter();
+	const user = useReactiveVar(userVar);
+	const [books, setBooks] = useState<Book[]>([]);
+	const [total, setTotal] = useState(0);
+	const [page, setPage] = useState(1);
 
-	/** APOLLO REQUESTS **/
-	const {
-		loading: getVisitedLoading,
-		data: getVisitedData,
-		error: getVisitedError,
-		refetch: getVisitedRefetch,
-	} = useQuery(GET_VISITED, {
+	/** APOLLO **/
+	useQuery(GET_VISITED_BOOKS, {
 		fetchPolicy: 'network-only',
-		variables: { input: searchVisited },
+		variables: { input: { page, limit: PAGE_LIMIT } },
+		skip: !user._id,
+		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			setRecentlyVisited(data.getVisited?.list ?? []);
-			setTotal(data.getVisited?.metaCounter[0]?.total || 0);
+			setBooks(data?.getVisitedBooks?.list ?? []);
+			setTotal(data?.getVisitedBooks?.metaCounter[0]?.total ?? 0);
 		},
 	});
 
-	/** HANDLERS **/
-	const paginationHandler = (e: T, value: number) => {
-		setSearchVisited({ ...searchVisited, page: value });
-	};
+	if (device === 'mobile') return <div>RECENTLY VIEWED MOBILE</div>;
 
-	if (device === 'mobile') {
-		return <div>NESTAR MY FAVORITES MOBILE</div>;
-	} else {
-		return (
-			<div id="my-favorites-page">
-				<Stack className="main-title-box">
-					<Stack className="right-box">
-						<Typography className="main-title">Recently Visited</Typography>
-						<Typography className="sub-title">We are glad to see you again!</Typography>
-					</Stack>
-				</Stack>
-				<Stack className="favorites-list-box">
-					{recentlyVisited?.length ? (
-						recentlyVisited?.map((property: Property) => {
-							return <PropertyCard property={property} recentlyVisited={true} />;
-						})
-					) : (
-						<div className={'no-data'}>
-							<img src="/img/icons/icoAlert.svg" alt="" />
-							<p>No Recently Visited Properties found!</p>
-						</div>
-					)}
-				</Stack>
-				{recentlyVisited?.length ? (
-					<Stack className="pagination-config">
-						<Stack className="pagination-box">
+	return (
+		<div id="recently-visited-page">
+			<Stack className="panel-header">
+				<Typography className="panel-title">Recently Viewed</Typography>
+				<Typography className="panel-subtitle">{total} book{total !== 1 ? 's' : ''} browsed</Typography>
+			</Stack>
+
+			{books.length > 0 ? (
+				<>
+					<div className="viewed-list">
+						{books.map((book) => {
+							const cover = book.bookImages?.[0]
+								? `${REACT_APP_API_URL}/${book.bookImages[0]}`
+								: '/img/profile/defaultUser.svg';
+							return (
+								<div key={book._id} className="viewed-row">
+									<div className="viewed-cover">
+										<img src={cover} alt={book.bookTitle} />
+									</div>
+									<div className="viewed-content">
+										<Typography className="viewed-title">{book.bookTitle}</Typography>
+										<Typography className="viewed-author">{book.bookAuthor}</Typography>
+										<span className="viewed-category">{book.bookCategory}</span>
+									</div>
+									<div className="viewed-meta">
+										<Typography className="viewed-date-label">Viewed</Typography>
+										<Typography className="viewed-date">{formatDate(book.updatedAt)}</Typography>
+									</div>
+									<div className="viewed-action">
+										<button className="view-again-btn" onClick={() => router.push(`/books/${book._id}`)}>
+											View Again
+										</button>
+									</div>
+								</div>
+							);
+						})}
+					</div>
+					{total > PAGE_LIMIT && (
+						<Stack className="pagination-config">
 							<Pagination
-								count={Math.ceil(total / searchVisited.limit)}
-								page={searchVisited.page}
+								count={Math.ceil(total / PAGE_LIMIT)}
+								page={page}
 								shape="circular"
 								color="primary"
-								onChange={paginationHandler}
+								onChange={(_: T, v: number) => setPage(v)}
 							/>
 						</Stack>
-						<Stack className="total-result">
-							<Typography>
-								Total {total} recently visited propert{total > 1 ? 'ies' : 'y'}
-							</Typography>
-						</Stack>
-					</Stack>
-				) : null}
-			</div>
-		);
-	}
+					)}
+				</>
+			) : (
+				<Stack className="empty-state">
+					<HistoryIcon className="empty-icon" />
+					<Typography className="empty-heading">No recently viewed books</Typography>
+					<Typography className="empty-body">Books you browse will appear here.</Typography>
+				</Stack>
+			)}
+		</div>
+	);
 };
 
 export default RecentlyVisited;

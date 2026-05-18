@@ -389,3 +389,147 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - Do not modify backend files from frontend tasks unless the user explicitly switches scope to backend.
 - Update `MEMORY.md` after each frontend session with where work stopped.
 - Build professional, complete product behavior; do not treat MVP as weak/minimal.
+
+---
+
+## MyPage Pre-Build Audit (2026-05-18)
+
+Full audit captured before the Smart Library MyPage is built. Use as the reference baseline — do not re-read every legacy file; consult this section instead.
+
+### Routing & Entry Point
+- **Main file:** `pages/mypage/index.tsx`
+- **No nested routes** — single page, tab switching via URL query param
+- **Pattern:** `/mypage?category={tab}`
+- Mobile returns bare `<div>MY PAGE</div>` placeholder — desktop only is implemented
+- Related: `pages/member/[memberId].tsx` for viewing *other* users' profiles
+
+### Page Structure & Layout
+Two-column layout — sidebar (266px) + content area (936px):
+```
+#my-page → .container → .my-page (Stack row)
+  ├── .left-config  → <MyMenu /> sidebar
+  └── .main-config  → conditional render based on router.query.category
+```
+
+Category → component mapping:
+
+| Category value | Component | Notes |
+|---|---|---|
+| `myProfile` (default) | `<MyProfile />` | Profile edit + avatar upload |
+| `myFavorites` | `<MyFavorites />` | Stub (property era) |
+| `recentlyVisited` | `<RecentlyVisited />` | Stub (property era) |
+| `followers` | `<MemberFollowers />` | Live |
+| `followings` | `<MemberFollowings />` | Live |
+| `myArticles` | `<MyArticles />` | Stub (board-article era) |
+| `writeArticle` | `<WriteArticle />` | Stub — shows "unavailable" |
+| `addProperty` | `<AddNewProperty />` | Agent-only, stub |
+| `myProperties` | `<MyProperties />` | Agent-only, stub |
+
+### Components
+
+| Component | Path | Status |
+|---|---|---|
+| `MyMenu` | `libs/components/mypage/MyMenu.tsx` | Live — sidebar nav, avatar, menu, logout |
+| `MyProfile` | `libs/components/mypage/MyProfile.tsx` | Live — profile edit + avatar upload |
+| `MyProperties` | `libs/components/mypage/MyProperties.tsx` | Stub (property) |
+| `PropertyCard` | `libs/components/mypage/PropertyCard.tsx` | Stub (property) |
+| `MyFavorites` | `libs/components/mypage/MyFavorites.tsx` | Stub (property) |
+| `RecentlyVisited` | `libs/components/mypage/RecentlyVisited.tsx` | Stub (property) |
+| `MyArticles` | `libs/components/mypage/MyArticles.tsx` | Stub (board-article) |
+| `WriteArticle` | `libs/components/mypage/WriteArticle.tsx` | Stub |
+| `AddNewProperty` | `libs/components/mypage/AddNewProperty.tsx` | Stub (agent-only) |
+| `MemberFollowers` | `libs/components/member/MemberFollowers.tsx` | Live — shared w/ member page |
+| `MemberFollowings` | `libs/components/member/MemberFollowings.tsx` | Live — shared w/ member page |
+
+### GraphQL — Live Operations
+
+| Operation | Type | Used in | Notes |
+|---|---|---|---|
+| `UPDATE_MEMBER` | Mutation | MyProfile | Updates nick/phone/address/image; returns new `accessToken` |
+| `LIKE_TARGET_MEMBER` | Mutation | Followers/Followings | |
+| `SUBSCRIBE` | Mutation | Follow a member | |
+| `UNSUBSCRIBE` | Mutation | Unfollow a member | |
+| `GET_MEMBER_FOLLOWERS` | Query | MemberFollowers | `followingId: user._id` |
+| `GET_MEMBER_FOLLOWINGS` | Query | MemberFollowings | `followerId: user._id` |
+
+### GraphQL — Stubs (return only `{ __typename }`)
+`CREATE_PROPERTY`, `UPDATE_PROPERTY`, `GET_AGENT_PROPERTIES`, `GET_PROPERTY`, `GET_FAVORITES`, `GET_VISITED`, `GET_BOARD_ARTICLES`, `LIKE_TARGET_PROPERTY`, `LIKE_TARGET_BOARD_ARTICLE`
+
+### State Management
+- Logged-in user: `useReactiveVar(userVar)` — JWT decoded at app init; never fetched per-page
+- Auth guard:
+  ```ts
+  useEffect(() => { if (!user._id) router.push('/').then(); }, [user]);
+  ```
+- After `UPDATE_MEMBER`: `updateStorage()` → `updateUserInfo(newAccessToken)` refreshes `userVar`
+- Each tab manages its own local `useState`
+
+### Profile Edit
+- **Avatar upload:** hidden `<input type="file">` → multipart FormData → `imageUploader` mutation → target `'member'` → relative path stored in `updateData.memberImage`
+- **No banner upload** in legacy MyPage
+- **Editable fields:** `memberNick`, `memberPhone`, `memberAddress`, `memberImage`
+- **Mutation:** `UPDATE_MEMBER` with `MemberUpdate` input
+- **Post-update:** `updateStorage()` → `updateUserInfo()` → `sweetMixinSuccessAlert()`
+- **Validation:** `doDisabledCheck()` disables submit if any required field empty; no inline error messages
+
+### Tabs Behavior
+URL-based navigation, not React state:
+```ts
+const category = router.query?.category ?? 'myProfile';
+```
+`MyMenu` uses `<Link href={{ pathname: '/mypage', query: { category: '...' } }} scroll={false}>`.
+Active state: black background + white text on active menu item.
+
+### SCSS & SweetAlert Patterns
+- **SCSS:** `scss/pc/mypage/mypage.scss` — white cards, 12px radius, `0px 1px 4px 0px rgba(24,26,32,0.07)` shadow, black active states
+- **MUI:** `Stack`, `Typography`, `Button`, `Pagination`, `Menu`, `MenuItem`, `IconButton`, `ModeIcon`, `DeleteIcon`, `FavoriteIcon`
+- `sweetConfirmAlert()` — logout/delete confirmations
+- `sweetMixinSuccessAlert()` — profile update success
+- `sweetTopSmallSuccessAlert()` — follow/subscribe toasts
+- `sweetErrorHandling(err)` — all catch blocks
+
+### What to Keep / What to Replace for Smart Library MyPage
+
+**Keep (reuse as-is):**
+- Auth guard pattern
+- URL-based tab navigation via `router.query.category`
+- Avatar upload flow (`imageUploader` mutation + multipart FormData)
+- `UPDATE_MEMBER` mutation + JWT refresh sequence
+- `MemberFollowers` / `MemberFollowings` components
+- All `sweetAlert` patterns
+
+**Replace (library-specific tabs):**
+- `myFavorites` → My Borrowed Books
+- `recentlyVisited` + `myProperties` → My Requests (with status)
+- `myArticles` / `writeArticle` → My Twits or remove
+- **Remove entirely:** `addProperty`, `myProperties`, agent-only guards — no agent role in the library system
+
+---
+
+## Planned: Admin Add Book Panel (2026-05-18)
+
+`libs/components/mypage/AddNewProperty.tsx` is **preserved intentionally** as the reference implementation for the Admin "Add Book" form. Do NOT delete it until the Admin form is complete and tested.
+
+**Rule:** `AddNewProperty.tsx` is NOT mounted on the student MyPage. It exists only as a template.
+
+### What to build
+Copy to `libs/components/admin/AddNewBook.tsx` and transform:
+
+| Property field | Book equivalent |
+|---|---|
+| `propertyTitle` | `bookTitle` |
+| `propertyPrice` | `bookPrice` (`{ amount, currency, isDiscounted }`) |
+| `propertyType` | `bookType` (enum `BookType`) |
+| `propertyLocation` | `bookCategory` (enum `BookCategory`) |
+| `propertyAddress` | `bookCallNumber` |
+| `propertyRooms/Beds/Square` | `bookPublishedYear`, `bookPages`, `bookFormat`, `bookAudience`, `bookLanguage` |
+| `propertyDesc` | `bookDescription` |
+| `propertyImages` | `bookImages` (max 5, target `'books'`) |
+
+New fields to add: `bookIsbn`, `bookAuthor`, `isBorrowable` toggle, `isPurchasable` toggle.
+
+GraphQL: `CREATE_BOOK` / `UPDATE_BOOK` from `apollo/admin/mutation.ts` (not the stub property mutations).
+Route guard: `user.memberType === MemberType.ADMIN`.
+After submit: redirect to `/_admin/books`.
+
+Full spec in `WORKFLOW.md`.

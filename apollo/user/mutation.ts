@@ -290,7 +290,7 @@ export const DELETE_TWIT = gql`
 			_id
 			memberId
 			text
-			image
+			images
 			meLiked
 			likeCount
 			deletedAt
