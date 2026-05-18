@@ -4,14 +4,8 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Book } from '../../types/book/book';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import LanguageIcon from '@mui/icons-material/Language';
-import StarIcon from '@mui/icons-material/Star';
-import { REACT_APP_API_URL } from '../../config';
+import { REACT_APP_API_URL, topPropertyRank } from '../../config';
 import { useRouter } from 'next/router';
-
-const MuiBox: any = Box;
-const MuiTypography: any = Typography;
-const MuiDivider: any = Divider;
 
 interface MostBorrowedCardProps {
 	book: Book;
@@ -30,9 +24,7 @@ const MostBorrowedCard = (props: MostBorrowedCardProps) => {
 		await router.push(`/books/detail?id=${bookId}`);
 	};
 
-	const imageUrl = book?.bookImages?.[0]
-		? `${REACT_APP_API_URL}/${book.bookImages[0]}`
-		: '/img/banner/header1.svg';
+	const imageUrl = resolveMediaUrl(book?.bookImages?.[0], '/img/banner/header1.svg');
 
 	const card = (
 		<MuiBox
