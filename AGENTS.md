@@ -392,6 +392,92 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 
 ---
 
+## Session Update (2026-05-18) — MyPage Smart Library Dashboard Rebuild
+
+### Completed (commit `bb02d33`)
+
+**Components rebuilt/created:**
+- `MyMenu.tsx` — flat 8-item nav (no section headers), MUI icons, avatar + nick + memberType at top, logout separated by border-top with `$color-danger`
+- `MyProfile.tsx` — removed `memberAddress`, added `memberDesc` textarea with 200-char live counter
+- `MyArticles.tsx` → "My Twits" — live `GET_MEMBER_TWITS`, `DELETE_TWIT` with `sweetConfirmAlert`, navigate to `/community/detail?id=`
+- `MyFavorites.tsx` → "Saved Books" — live `GET_FAVORITE_BOOKS`, 3-col grid, View Book → `/books/${book._id}`
+- `RecentlyVisited.tsx` → "Recently Viewed" — live `GET_VISITED_BOOKS`, 4-col rows, View Again → `/books/${book._id}`
+- `MyRequests.tsx` — NEW: live `GET_SESSION_REQUESTS`, client-side 3-tab filter (All/Active/History), uses real `RequestStatus` enum (14 values), status badge classes: `status-pending/active/ready/done/issue`
+- `RobotTracking.tsx` — NEW: SVG 4×4 floor map (A1–D4), animated robot dot (`robot-pulse-ring` CSS animation), mock robot at `colIndex:1.5, rowIndex:0.8` mid-aisle toward B3 target, right panel with status badge + "Request Robot" button
+
+**Components deleted:**
+- `MyProperties.tsx`, `PropertyCard.tsx`, `WriteArticle.tsx`, `Article.tsx` — all property/board-article era, removed
+
+**Bug fixes applied:**
+- `pages/mypage/index.tsx`: added `initialInput` with `user._id` to `MemberFollowers` and `MemberFollowings` — fixes race condition where components remounted before `followInquiry` was populated
+- `apollo/user/mutation.ts` `DELETE_TWIT`: `image` → `images` (removed field corrected)
+- `apollo/user/query.ts` `GET_MEMBER_TWITS`: added missing `viewCount` field
+- Both "View Book" / "View Again" buttons navigate to `/books/${book._id}` (not `/library/books/`)
+
+**SCSS:** `scss/pc/mypage/mypage.scss` fully overhauled — all colors use `$color-*` SCSS variables, all fonts use `$font`, no hardcoded hex.
+
+**Standard enforcement rule:** Never introduce non-project-standard fonts (DM Sans, Playfair Display, etc.) or hardcoded hex colors. Always use `$font` and `$color-*` from `scss/variables.scss`.
+
+### Key rules from this session
+- Book navigation from MyPage panels uses `/books/${book._id}` — not `/library/books/`.
+- `GET_SESSION_REQUESTS` has no status filter on the server (`SessionRequestsInquiry` input has no status field) — client-side tab filtering with `ACTIVE_STATUSES` / `HISTORY_STATUSES` arrays is correct.
+- Request cover image: `req.bookData?.bookImages?.[0]` prefixed with `REACT_APP_API_URL`; fallback `/img/profile/defaultUser.svg`.
+- `AddNewProperty.tsx` must NOT be deleted — it is the reference template for the Admin Add Book panel (see section below). It is not mounted on the student MyPage.
+
+---
+
+## Session Update (2026-05-18) — RobotTracking SVG floor plan + live WebSocket hook
+
+### Completed
+
+**Phase 1 — Backend audit (read-only):**
+Confirmed all modules needed for live tracking are fully implemented on the backend. No backend changes required.
+
+Key findings:
+- Robot position stored as `currentPose: { floorId, x, y, theta }` in cm / radians
+- WebSocket uses plain `ws` (NestJS `WsAdapter`) — NOT Socket.IO, NOT Apollo subscriptions
+- WS message format: `{ event: string, data: {} }` for both send and receive
+- WS join: `ws.send(JSON.stringify({ event: 'joinRequest', data: { requestId } }))`
+- Room pattern: `request:{requestId}` — backend scopes all events to requesting client
+- Env var: `REACT_APP_API_WS` (confirmed from `apollo/client.ts`)
+- `GET_SESSION_REQUESTS` was missing `robotData.currentPose` — added in Phase 2
+
+**Phase 2 — Files changed:**
+
+`apollo/user/query.ts`
+- Added `currentPose { floorId x y theta }` inside `robotData` block of `GET_SESSION_REQUESTS`
+
+`libs/hooks/useRobotSocket.ts` (NEW)
+- Raw WebSocket hook; connects to `REACT_APP_API_WS`; emits `joinRequest` on open
+- Handles: `joined`, `robotPosition`, `robotStatus`, `requestUpdated`, `deliveryReady`, `bookNotFound`, `robotOffline`, `error`
+- Reconnect: up to 5 retries × 3s; sets `ws.onclose = null` before close on unmount to prevent spurious retry
+- Resets all state when `requestId` changes
+
+`libs/components/mypage/RobotTracking.tsx` (full rebuild)
+- **SVG floor plan** at `viewBox="0 0 680 340"`, SCALE=3.4 px/cm, Y-flip: `SVG_y = (100 − real_y) × 3.4`
+- 7 zones (Library Books, Commercial Books, Navigation Aisle, Reception, Charging Dock, Desk A, Desk B) drawn with engineering schematic aesthetic — dashed borders for book zones, solid for rooms
+- 6 stop points (LIB_03/05/07, COM_03/05/07) at exact real-world coordinates; target stop pulsing ring
+- Robot indicator: circle + directional notch, CSS `transition: transform 0.8s ease` on position, 0.4s on heading rotation
+- **DeliveryTimeline**: 10 display steps ← 15 `RequestStatus` values; merged DB `timeline[]` + live socket events (deduplicated by status); step states: `completed/current/pending/failed`
+- **TrackingPanel**: compact book row (60×80px cover), callnumber badge, live robot status badge, battery bar (green/yellow/red), online dot, MUI `Tooltip` on disabled "Request Robot" button
+- Active request detection: status NOT in `{COMPLETED, FAILED, CANCELLED, BOOK_NOT_FOUND, QUEUED}`
+
+`scss/pc/mypage/mypage.scss`
+- Entire `#robot-tracking-page` section replaced; all CSS classes prefixed `rt-`
+- Animations: `rt-pulse` (target ring), `rt-dot-pulse` (status dot blink)
+- Zero hardcoded hex; zero non-`$font` family strings
+
+### Key rules from this session
+- **`RobotStatus` enum is in `libs/enums/robot.enum.ts`** — NOT `request.enum.ts`. Always import from the correct file.
+- Backend WS is plain `ws`, not Socket.IO. Client must use `new WebSocket(url)` + JSON parse, not `io()` or Apollo WS link.
+- NestJS `WsAdapter` message format: `{ event: string, data: {} }` in both directions.
+- `robotData.currentPose` comes from `GET_SESSION_REQUESTS` (embedded in Request response) — students cannot call `getRobot` directly (ADMIN-only GraphQL query).
+- Target stop point resolved from `bookCallNumber` prefix: `LIB_*` → library zone, `COM_*` → commercial zone.
+- CSS `transform: translate(Npx, Mpx)` on SVG elements in modern browsers uses SVG user units (not screen px) — safe to use for robot position with `transition` for smooth animation.
+- Active request = status not in `{COMPLETED, FAILED, CANCELLED, BOOK_NOT_FOUND, QUEUED}`. QUEUED is excluded because no robot is assigned yet.
+
+---
+
 ## MyPage Pre-Build Audit (2026-05-18)
 
 Full audit captured before the Smart Library MyPage is built. Use as the reference baseline — do not re-read every legacy file; consult this section instead.

@@ -260,6 +260,12 @@ export const GET_SESSION_REQUESTS = gql`
 					isOnline
 					battery
 					lastSeenAt
+					currentPose {
+						floorId
+						x
+						y
+						theta
+					}
 				}
 				timeline {
 					status

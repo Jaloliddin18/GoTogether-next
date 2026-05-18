@@ -41,18 +41,18 @@ const withLayoutBasic = (Component: any) => {
 				case '/mypage':
 					title = 'my page';
 					desc = 'Home / For Rent';
-					bgImage = '/img/banner/header1.svg';
+					bgImage = '/img/homepage/myPage2.jpg';
 					break;
 				case '/community':
 					title = 'Community';
 					desc = 'Home / Community';
-					bgImage = '/img/community/digital_community.jpeg';
+					bgImage = '/img/homepage/fiber8.jpg';
 					break;
-				case '/community/detail':
-					title = 'Community Detail';
-					desc = 'Home / Community';
-					bgImage = '/img/community/digital_community.jpeg';
-					break;
+				// case '/community/detail':
+				// 	title = 'Community Detail';
+				// 	desc = 'Home / Community';
+				// 	bgImage = '/img/community/digital_community.jpeg';
+				// 	break;
 				case '/cs':
 					title = 'CS';
 					desc = 'We are glad to see you again!';
@@ -73,7 +73,7 @@ const withLayoutBasic = (Component: any) => {
 					break;
 				default:
 					break;
-				}
+			}
 
 			return { title, desc, bgImage };
 		}, [router.pathname]);
@@ -126,6 +126,8 @@ const withLayoutBasic = (Component: any) => {
 								style={{
 									backgroundImage: `url(${memoizedValues.bgImage})`,
 									backgroundSize: 'cover',
+									...(router.pathname === '/mypage' ? { backgroundPosition: 'center 36%' } : {}),
+									backgroundRepeat: 'no-repeat',
 									boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
 								}}
 							>
