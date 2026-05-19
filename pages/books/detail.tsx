@@ -8,6 +8,7 @@ import {
 	Button,
 	Chip,
 	CircularProgress,
+	Divider,
 	Pagination as MuiPagination,
 	Rating,
 	Stack,
@@ -24,13 +25,16 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FlagIcon from '@mui/icons-material/Flag';
 import HeightIcon from '@mui/icons-material/Height';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import NumbersIcon from '@mui/icons-material/Numbers';
+import PinDropOutlinedIcon from '@mui/icons-material/PinDropOutlined';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import ReviewsIcon from '@mui/icons-material/Reviews';
 import ScaleIcon from '@mui/icons-material/Scale';
 import SchoolIcon from '@mui/icons-material/School';
+import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
 import StraightenIcon from '@mui/icons-material/Straighten';
 import StyleIcon from '@mui/icons-material/Style';
 import TranslateIcon from '@mui/icons-material/Translate';
@@ -50,12 +54,15 @@ import { CommentGroup } from '../../libs/enums/comment.enum';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { BookAudience } from '../../libs/enums/book.enum';
+import { RequestType } from '../../libs/enums/request.enum';
+import { CreateDeliveryRequestInput } from '../../libs/types/request/request.input';
 import { userVar } from '../../apollo/store';
 import { resolveMediaUrl } from '../../libs/utils';
 import { GET_BOOK, GET_BOOKS } from '../../apollo/library/query';
 import { GET_COMMENTS } from '../../apollo/user/query';
-import { LIKE_TARGET_BOOK, CREATE_COMMENT } from '../../apollo/user/mutation';
-import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import { LIKE_TARGET_BOOK, CREATE_COMMENT, CREATE_DELIVERY_REQUEST } from '../../apollo/user/mutation';
+import { announceTrackingRequest } from '../../libs/library/ws/trackingClient';
+import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert, sweetTopSuccessAlert } from '../../libs/sweetAlert';
 
 SwiperCore.use([Navigation, Autoplay]);
 
@@ -68,29 +75,44 @@ export const getServerSideProps = async ({ locale }: any) => ({
 });
 
 const libraryColors = {
-	ink: '#0f1f33',
-	muted: '#607086',
+	ink: '#172033',
+	muted: '#64748b',
 	soft: '#eef5ff',
-	blue: '#2468d6',
+	blue: '#2e86de',
+	deepBlue: '#173b68',
 	green: '#1b8f61',
-	amber: '#b7791f',
-	border: '#e3edf9',
-	paper: '#ffffff',
-	page: '#f5f8fc',
+	amber: '#a26418',
+	border: '#dce6f2',
+	paper: '#fbfdff',
+	page: '#f3f7fb',
 };
 
 const cardSx = {
-	background: libraryColors.paper,
+	background: 'rgba(251, 253, 255, 0.94)',
 	border: `1px solid ${libraryColors.border}`,
-	borderRadius: { xs: '20px', md: '26px' },
-	boxShadow: '0 18px 50px rgba(15, 31, 51, 0.07)',
+	borderRadius: { xs: '14px', md: '16px' },
+	boxShadow: '0 18px 44px rgba(23, 32, 51, 0.08)',
 };
 
 const sectionTitleSx = {
 	fontSize: { xs: 20, md: 24 },
 	fontWeight: 800,
 	color: libraryColors.ink,
-	letterSpacing: '-0.02em',
+	letterSpacing: 0,
+};
+
+const DESK_SESSION_STORAGE_KEY = 'gotogether.delivery.sessionId';
+
+const getOrCreateDeliverySessionId = (): string => {
+	if (typeof window === 'undefined') return '';
+	const existing = window.localStorage.getItem(DESK_SESSION_STORAGE_KEY);
+	if (existing) return existing;
+	const generated =
+		typeof window.crypto?.randomUUID === 'function'
+			? window.crypto.randomUUID()
+			: `guest-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+	window.localStorage.setItem(DESK_SESSION_STORAGE_KEY, generated);
+	return generated;
 };
 
 function formatLabel(value?: string | number | null): string {
@@ -130,6 +152,14 @@ const INITIAL_COMMENT_INQUIRY: CommentsInquiry = {
 	search: { commentRefId: '' },
 };
 
+const INITIAL_DESK_DESTINATION = {
+	destinationDeskId: 'A12',
+	floorId: 'floor_1',
+	x: '8.4',
+	y: '3.2',
+	theta: '0',
+};
+
 const BookDetailPage: NextPage = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
@@ -140,6 +170,7 @@ const BookDetailPage: NextPage = () => {
 	const [book, setBook] = useState<Book | null>(null);
 	const [slideImage, setSlideImage] = useState<string>('');
 	const [reviewRating, setReviewRating] = useState<number | null>(0);
+	const [deskDestination, setDeskDestination] = useState(INITIAL_DESK_DESTINATION);
 
 	const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>(INITIAL_COMMENT_INQUIRY);
 	const [bookComments, setBookComments] = useState<Comment[]>([]);
@@ -155,6 +186,7 @@ const BookDetailPage: NextPage = () => {
 	/** APOLLO REQUESTS **/
 	const [likeTargetBook] = useMutation(LIKE_TARGET_BOOK);
 	const [createComment] = useMutation(CREATE_COMMENT);
+	const [createDeliveryRequest, { loading: createRequestLoading }] = useMutation(CREATE_DELIVERY_REQUEST);
 
 	const { loading: getBookLoading, refetch: getBookRefetch } = useQuery(GET_BOOK, {
 		fetchPolicy: 'network-only',
@@ -246,6 +278,61 @@ const BookDetailPage: NextPage = () => {
 		}
 	};
 
+	const updateDeskDestination = (field: keyof typeof INITIAL_DESK_DESTINATION, value: string) => {
+		setDeskDestination((prev) => ({ ...prev, [field]: value }));
+	};
+
+	const createDeliveryRequestHandler = async (requestType: RequestType) => {
+		try {
+			if (!book?._id) return;
+
+			const x = Number(deskDestination.x);
+			const y = Number(deskDestination.y);
+			const theta = Number(deskDestination.theta);
+			if (!deskDestination.destinationDeskId.trim() || !deskDestination.floorId.trim()) {
+				throw new Error('Please enter your desk position.');
+			}
+			if (![x, y, theta].every(Number.isFinite)) {
+				throw new Error('Desk coordinates must be valid numbers.');
+			}
+
+			const input: CreateDeliveryRequestInput = {
+				bookId: book._id,
+				requestType,
+				destinationDeskId: deskDestination.destinationDeskId.trim(),
+				destination: {
+					floorId: deskDestination.floorId.trim(),
+					x,
+					y,
+					theta,
+				},
+			};
+
+			if (!user?._id) {
+				input.sessionId = getOrCreateDeliverySessionId();
+			}
+
+			const { data } = await createDeliveryRequest({ variables: { input } });
+			const request = data?.createDeliveryRequest;
+			if (request?._id) {
+				announceTrackingRequest({
+					requestId: request._id,
+					requestType,
+					status: request.status,
+					bookTitle: book.bookTitle,
+					createdAt: request.createdAt,
+				});
+			}
+
+			await sweetTopSuccessAlert(
+				request?.status === 'QUEUED' ? 'Request sent successfully' : 'Robot started delivery',
+				1800,
+			);
+		} catch (err: any) {
+			await sweetMixinErrorAlert(err.message ?? 'Request failed');
+		}
+	};
+
 	const imageList = useMemo(() => {
 		if (book?.bookImages?.length) return book.bookImages;
 		return ['/img/banner/books_hero.png'];
@@ -300,7 +387,12 @@ const BookDetailPage: NextPage = () => {
 	return (
 		<div
 			id="book-detail-page"
-			style={{ background: libraryColors.page, minHeight: '100vh', paddingBottom: isMobile ? 40 : 72 }}
+			style={{
+				background:
+					'linear-gradient(180deg, #eef4fb 0%, #f7f9fc 360px, #f3f7fb 100%)',
+				minHeight: '100vh',
+				paddingBottom: isMobile ? 40 : 72,
+			}}
 		>
 			<div
 				className="container"
@@ -323,7 +415,8 @@ const BookDetailPage: NextPage = () => {
 								content: '""',
 								position: 'absolute',
 								inset: 0,
-								background: 'radial-gradient(circle at 88% 12%, rgba(36, 104, 214, 0.12), transparent 30%)',
+								background:
+									'linear-gradient(135deg, rgba(46, 134, 222, 0.08), transparent 34%), radial-gradient(circle at 8% 4%, rgba(27, 143, 97, 0.08), transparent 28%)',
 								pointerEvents: 'none',
 							},
 						}}
@@ -332,27 +425,31 @@ const BookDetailPage: NextPage = () => {
 							sx={{
 								position: 'relative',
 								display: 'grid',
-								gridTemplateColumns: { xs: '1fr', lg: '430px minmax(0, 1fr) 132px' },
-								gap: { xs: 3, md: 4 },
+								gridTemplateColumns: { xs: '1fr', xl: '360px minmax(0, 1fr) 148px' },
+								gap: { xs: 3, md: 4.5 },
 								alignItems: 'start',
 							}}
 						>
 							<Stack spacing={1.5}>
 								<SafeBox
 									sx={{
-										borderRadius: { xs: '22px', md: '28px' },
+										borderRadius: { xs: '14px', md: '16px' },
 										overflow: 'hidden',
-										background: '#dfe8f5',
+										background: 'linear-gradient(145deg, #e8eef6, #f8fbff)',
 										border: `1px solid ${libraryColors.border}`,
-										boxShadow: '0 24px 55px rgba(15, 31, 51, 0.14)',
-										height: { xs: 420, sm: 520, lg: 580 },
+										boxShadow: '0 24px 52px rgba(23, 32, 51, 0.12)',
+										aspectRatio: '3 / 4',
+										minHeight: { xs: 360, sm: 460 },
+										display: 'grid',
+										placeItems: 'center',
+										p: { xs: 2, sm: 2.5 },
 									}}
 								>
 									<SafeBox
 										component="img"
 										src={resolveMediaUrl(currentImage, '/img/banner/books_hero.png')}
 										alt={book?.bookTitle ?? 'Book cover'}
-										sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 180ms ease' }}
+										sx={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', transition: 'opacity 180ms ease' }}
 									/>
 								</SafeBox>
 								<Stack
@@ -373,11 +470,12 @@ const BookDetailPage: NextPage = () => {
 													width: { xs: 78, sm: 92 },
 													height: { xs: 78, sm: 92 },
 													p: '3px',
-													borderRadius: '18px',
+													borderRadius: '12px',
 													border: isActive ? `2px solid ${libraryColors.blue}` : `2px solid ${libraryColors.border}`,
 													background: '#fff',
 													cursor: 'pointer',
 													flex: '0 0 auto',
+													scrollSnapAlign: 'start',
 													transition: 'transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease',
 													boxShadow: isActive ? '0 10px 24px rgba(36, 104, 214, 0.2)' : 'none',
 													'&:hover': { transform: 'translateY(-3px)', borderColor: libraryColors.blue },
@@ -388,7 +486,7 @@ const BookDetailPage: NextPage = () => {
 													component="img"
 													src={resolveMediaUrl(img, '/img/banner/books_hero.png')}
 													alt="Book thumbnail"
-													sx={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '14px', display: 'block' }}
+													sx={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '9px', display: 'block', background: '#eef4fb' }}
 												/>
 											</SafeBox>
 										);
@@ -398,14 +496,14 @@ const BookDetailPage: NextPage = () => {
 
 							<Stack spacing={2.5} sx={{ pt: { lg: 1 } }}>
 								<Stack spacing={1.2}>
-									<Typography variant={isMobile ? 'h4' : 'h1'} sx={{ color: libraryColors.ink, fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.05 }}>
+									<Typography variant={isMobile ? 'h4' : 'h1'} sx={{ color: libraryColors.ink, fontWeight: 900, letterSpacing: 0, lineHeight: 1.08, fontSize: { xs: 31, md: 48 } }}>
 										{book?.bookTitle ?? 'Book title unavailable'}
 									</Typography>
 									<Typography sx={{ color: libraryColors.muted, fontSize: { xs: 17, md: 19 }, fontWeight: 600 }}>
 										{book?.bookAuthor ? `by ${book.bookAuthor}` : 'Author unavailable'}
 									</Typography>
 									<Stack direction="row" spacing={1} alignItems="baseline" flexWrap="wrap">
-										<Typography sx={{ color: libraryColors.blue, fontSize: { xs: 25, md: 32 }, fontWeight: 900, letterSpacing: '-0.03em' }}>
+										<Typography sx={{ color: libraryColors.deepBlue, fontSize: { xs: 25, md: 32 }, fontWeight: 900, letterSpacing: 0 }}>
 											{formatPrice(book)}
 										</Typography>
 										{book?.bookPrice?.isDiscounted && book?.bookPrice?.discountPercent ? (
@@ -422,30 +520,91 @@ const BookDetailPage: NextPage = () => {
 									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#fff7df', color: libraryColors.amber, fontWeight: 800, borderRadius: '999px' }} />}
 								</Stack>
 
-								<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' }, gap: 1.5 }}>
-									{metaItems.map(({ label, value, icon: Icon }) => (
-										<Stack
-											key={label}
-											direction="row"
-											spacing={1.4}
+								<SafeBox sx={{ p: { xs: 1.6, sm: 2 }, border: `1px solid ${libraryColors.border}`, borderRadius: '16px', background: '#ffffff', boxShadow: '0 14px 32px rgba(23, 32, 51, 0.06)' }}>
+									<Stack direction={{ xs: 'column', md: 'row' }} spacing={1.2} mb={1.6}>
+										<Button
+											variant="contained"
+											startIcon={<LocalShippingOutlinedIcon />}
+											disabled={createRequestLoading || !book?.isBorrowable}
+											onClick={() => createDeliveryRequestHandler(RequestType.BORROW)}
 											sx={{
-												p: 1.6,
-												border: `1px solid ${libraryColors.border}`,
-												borderRadius: '18px',
-												background: 'rgba(248, 251, 255, 0.86)',
-												transition: 'transform 180ms ease, box-shadow 180ms ease',
-												'&:hover': { transform: 'translateY(-2px)', boxShadow: '0 12px 28px rgba(15, 31, 51, 0.06)' },
+												flex: 1,
+												minHeight: 48,
+												background: libraryColors.deepBlue,
+												borderRadius: '12px',
+												textTransform: 'none',
+												fontWeight: 900,
+												boxShadow: '0 12px 24px rgba(23, 59, 104, 0.22)',
+												transition: 'transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease',
+												'&:hover': { background: '#102d50', transform: 'translateY(-2px)', boxShadow: '0 16px 28px rgba(23, 59, 104, 0.28)' },
 											}}
 										>
-											<SafeBox sx={{ width: 38, height: 38, borderRadius: '14px', background: libraryColors.soft, color: libraryColors.blue, display: 'grid', placeItems: 'center', flex: '0 0 auto' }}>
-												<Icon sx={{ fontSize: 20 }} />
+											Borrow
+										</Button>
+										<Button
+											variant="outlined"
+											startIcon={<ShoppingBagOutlinedIcon />}
+											disabled={createRequestLoading || !book?.isPurchasable}
+											onClick={() => createDeliveryRequestHandler(RequestType.PURCHASE)}
+											sx={{
+												flex: 1,
+												minHeight: 48,
+												borderColor: '#b7c7d9',
+												color: libraryColors.deepBlue,
+												borderRadius: '12px',
+												textTransform: 'none',
+												fontWeight: 900,
+												background: '#f8fbff',
+												transition: 'transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease',
+												'&:hover': { borderColor: libraryColors.blue, background: '#eef5ff', transform: 'translateY(-2px)', boxShadow: '0 12px 24px rgba(23, 32, 51, 0.1)' },
+											}}
+										>
+											Commercial
+										</Button>
+									</Stack>
+									<Divider sx={{ borderColor: libraryColors.border, mb: 1.6 }} />
+									<Stack direction="row" spacing={1} alignItems="center" mb={1.2}>
+										<PinDropOutlinedIcon sx={{ color: libraryColors.blue, fontSize: 19 }} />
+										<Typography sx={{ color: libraryColors.ink, fontWeight: 900 }}>Desk Position</Typography>
+									</Stack>
+									<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', sm: '1.1fr 1fr 1fr 1fr 1fr' }, gap: 1 }}>
+										<TextField size="small" label="Desk" value={deskDestination.destinationDeskId} onChange={(event) => updateDeskDestination('destinationDeskId', event.target.value)} />
+										<TextField size="small" label="Floor" value={deskDestination.floorId} onChange={(event) => updateDeskDestination('floorId', event.target.value)} />
+										<TextField size="small" label="X" type="number" value={deskDestination.x} onChange={(event) => updateDeskDestination('x', event.target.value)} />
+										<TextField size="small" label="Y" type="number" value={deskDestination.y} onChange={(event) => updateDeskDestination('y', event.target.value)} />
+										<TextField size="small" label="Theta" type="number" value={deskDestination.theta} onChange={(event) => updateDeskDestination('theta', event.target.value)} />
+									</SafeBox>
+								</SafeBox>
+
+								<SafeBox sx={{ border: `1px solid ${libraryColors.border}`, borderRadius: '16px', overflow: 'hidden', background: '#ffffff' }}>
+									<Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: { xs: 1.6, sm: 2 }, py: 1.4, background: '#f6f9fd', borderBottom: `1px solid ${libraryColors.border}` }}>
+										<Typography sx={{ color: libraryColors.ink, fontSize: 14, fontWeight: 900 }}>Catalog Record</Typography>
+										<Typography sx={{ color: libraryColors.muted, fontSize: 12, fontWeight: 800 }}>{book?.bookCallNumber ?? 'Uncataloged'}</Typography>
+									</Stack>
+									<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' } }}>
+										{metaItems.map(({ label, value, icon: Icon }, index) => (
+											<SafeBox
+												key={label}
+												sx={{
+													p: { xs: 1.5, md: 1.7 },
+													minHeight: 82,
+													borderRight: { md: (index + 1) % 3 === 0 ? 'none' : `1px solid ${libraryColors.border}` },
+													borderBottom: {
+														xs: index === metaItems.length - 1 ? 'none' : `1px solid ${libraryColors.border}`,
+														md: index >= metaItems.length - 3 ? 'none' : `1px solid ${libraryColors.border}`,
+													},
+													transition: 'background-color 180ms ease',
+													'&:hover': { background: '#f8fbff' },
+												}}
+											>
+												<Stack direction="row" spacing={0.8} alignItems="center" mb={0.8}>
+													<Icon sx={{ fontSize: 17, color: libraryColors.blue }} />
+													<Typography sx={{ color: libraryColors.muted, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 0 }}>{label}</Typography>
+												</Stack>
+												<Typography sx={{ color: libraryColors.ink, fontSize: 15, fontWeight: 800, overflowWrap: 'anywhere' }}>{value}</Typography>
 											</SafeBox>
-											<SafeBox sx={{ minWidth: 0 }}>
-												<Typography sx={{ color: libraryColors.muted, fontSize: 12, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</Typography>
-												<Typography sx={{ color: libraryColors.ink, fontSize: 15, fontWeight: 800, mt: 0.25, overflowWrap: 'anywhere' }}>{value}</Typography>
-											</SafeBox>
-										</Stack>
-									))}
+										))}
+									</SafeBox>
 								</SafeBox>
 							</Stack>
 

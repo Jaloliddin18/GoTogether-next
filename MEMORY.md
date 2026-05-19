@@ -1,7 +1,86 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-16 | Commit: `d3c5270`
+**Last Updated:** 2026-05-20 | Commit: uncommitted frontend session
 **Current Branch:** `community`
+
+---
+
+## Today's Session Update (2026-05-20, Book Delivery + Robot Notifications)
+
+### Completed today
+- Inspected the existing backend request/robot/MQTT/WebSocket flow before frontend edits:
+  - `apps/nestar-api/src/components/request/request.resolver.ts`
+  - `apps/nestar-api/src/components/request/request.service.ts`
+  - `apps/nestar-api/src/components/robot/robot.resolver.ts`
+  - `apps/nestar-api/src/components/robot/robot.service.ts`
+  - `apps/nestar-api/src/robot-comm/mqtt.service.ts`
+  - `apps/nestar-api/src/robot-comm/mqtt.types.ts`
+  - `apps/nestar-api/src/socket/robot.gateway.ts`
+  - request/robot enums and notification model files
+  - `/Users/kko/Downloads/bookinventory-pickup-refactor_20260520_0038.md`
+- Redesigned `pages/books/detail.tsx` presentation in place while preserving existing data sections: title, author, image/gallery, views, likes, category, type, format, language, audience, ISBN, call number, status badges, description, physical details, reading guide, shelf/location, borrowing policy, reviews, and similar books.
+- Added Book Detail CTAs near price/status:
+  - `Borrow` -> calls `CREATE_DELIVERY_REQUEST` with `requestType: BORROW`
+  - `Commercial` -> calls `CREATE_DELIVERY_REQUEST` with `requestType: PURCHASE`
+- Added editable desk destination fields on the detail page: `destinationDeskId`, `floorId`, `x`, `y`, `theta`.
+- Added stable guest `sessionId` storage for unauthenticated delivery requests, matching backend `WithoutGuard` session support.
+- Added robot tracking helpers:
+  - `libs/library/ws/trackingClient.ts`
+  - `libs/library/ws/trackingEvents.ts`
+- Enhanced `libs/components/Top.tsx` notification bell:
+  - opens a right-side robot update panel
+  - joins backend robot WebSocket rooms with `{ event: "joinRequest", data: { requestId } }`
+  - listens for `robotStatus`, `requestUpdated`, `robotOffline`, `bookNotFound`, and `deliveryReady`
+  - maps backend robot/request states to user-readable notification cards
+  - notification cards navigate to `/mypage`
+  - bell can appear for logged-in users or active guest/session-tracked robot requests
+- Added notification panel styles in `scss/pc/main.scss`.
+- Added `REACT_APP_ROBOT_WS` to `next.config.js` and `.env.example`; helper fallback derives `ws://<api-host>:3009` from `REACT_APP_API_URL`.
+
+### Backend contract notes
+- Existing GraphQL mutation used: `createDeliveryRequest(input: CreateDeliveryRequestInput!): RequestTask`.
+- Frontend payload fields used: `bookId`, `requestType`, `sessionId?`, `destinationDeskId`, and `destination { floorId, x, y, theta }`.
+- `BORROW` requires `destinationDeskId` and `destination.floorId`; backend stores student desk destination, uses `LIBRARY` inventory, `STUDENT_DESK`, and `NOT_REQUIRED`.
+- `PURCHASE` uses `COMMERCIAL` inventory and backend maps destination to `REQUEST_RECEPTION_DESTINATION` with `RECEPTION` and `PAY_AT_RECEPTION`. Current backend does not persist separate student-origin coordinates for purchase requests, so the frontend sends the existing destination fields but cannot force seller-origin storage without backend contract changes.
+- Robot WebSocket gateway is fixed at port `3009`. The backend emits JSON envelopes shaped as `{ event, data }`.
+
+### Robot state mapping
+- `NAVIGATING_TO_SHELF` -> Robot started moving
+- `ARRIVED_AT_SHELF` -> Robot reached shelf
+- `VERIFYING_BOOK` -> Checking requested book
+- `BOOK_FOUND` -> Book found
+- `PICKING_UP` -> Picking up book
+- `DELIVERING` -> Delivering to your desk
+- `ARRIVED_AT_STUDENT` -> Robot arrived near your desk
+- `READY` -> Your book is ready
+
+### Verification result
+- No build, type-check, lint, or git command was run because `AGENTS.md` forbids build/compile/type-check and git commands unless explicitly requested.
+- Static/code-path checks confirmed frontend uses existing GraphQL mutation/enums and backend WebSocket event names.
+- MQTT virtual robot test was blocked:
+  - `localhost:1883` was not reachable.
+  - Initial `npx --no-install mqtt --help` could not find a local executable.
+  - After approval, `npx mqtt --help` downloaded/ran `mqtt@5.15.1`.
+  - A bounded publish attempt to `robot/robot_01/status` failed with `ECONNREFUSED` on `::1:1883` and `127.0.0.1:1883`.
+  - No MQTT status sequence was successfully published, so live frontend notifications are not end-to-end verified yet.
+
+### Exact next task
+- Start backend, MQTT broker, and frontend together.
+- Create a real delivery request from `/books/detail?id=<bookId>`.
+- Use the returned request id in the MQTT status publish flow.
+- Verify notification cards appear in chronological state order, panel open/close works, and card click routes to `/mypage`.
+
+### Uncommitted/untracked files
+- Modified:
+  - `.env.example`
+  - `MEMORY.md`
+  - `libs/components/Top.tsx`
+  - `next.config.js`
+  - `pages/books/detail.tsx`
+  - `scss/pc/main.scss`
+- Added:
+  - `libs/library/ws/trackingClient.ts`
+  - `libs/library/ws/trackingEvents.ts`
 
 ---
 
