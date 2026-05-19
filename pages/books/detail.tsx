@@ -75,33 +75,38 @@ export const getServerSideProps = async ({ locale }: any) => ({
 });
 
 const libraryColors = {
-	ink: '#172033',
-	muted: '#64748b',
+	ink: '#0f1f33',
+	muted: '#607086',
 	soft: '#eef5ff',
-	blue: '#2e86de',
-	deepBlue: '#173b68',
+	blue: '#2468d6',
 	green: '#1b8f61',
-	amber: '#a26418',
-	border: '#dce6f2',
-	paper: '#fbfdff',
-	page: '#f3f7fb',
+	amber: '#b7791f',
+	border: '#e3edf9',
+	paper: '#ffffff',
+	page: '#f5f8fc',
 };
 
 const cardSx = {
-	background: 'rgba(251, 253, 255, 0.94)',
+	background: libraryColors.paper,
 	border: `1px solid ${libraryColors.border}`,
-	borderRadius: { xs: '14px', md: '16px' },
-	boxShadow: '0 18px 44px rgba(23, 32, 51, 0.08)',
+	borderRadius: { xs: '20px', md: '26px' },
+	boxShadow: '0 18px 50px rgba(15, 31, 51, 0.07)',
 };
 
 const sectionTitleSx = {
 	fontSize: { xs: 20, md: 24 },
 	fontWeight: 800,
 	color: libraryColors.ink,
-	letterSpacing: 0,
+	letterSpacing: '-0.02em',
 };
 
 const DESK_SESSION_STORAGE_KEY = 'gotogether.delivery.sessionId';
+const AUTO_DESTINATION_STORAGE_KEYS = [
+	'gotogether.delivery.destination',
+	'gotogether.studentDesk',
+	'gotogether.memberDesk',
+	'studentDeskMeta',
+];
 
 const getOrCreateDeliverySessionId = (): string => {
 	if (typeof window === 'undefined') return '';
@@ -152,12 +157,65 @@ const INITIAL_COMMENT_INQUIRY: CommentsInquiry = {
 	search: { commentRefId: '' },
 };
 
-const INITIAL_DESK_DESTINATION = {
-	destinationDeskId: 'A12',
-	floorId: 'floor_1',
-	x: '8.4',
-	y: '3.2',
-	theta: '0',
+type AutoDeskDestination = {
+	destinationDeskId: string;
+	floorId: string;
+	x: number;
+	y: number;
+	theta: number;
+};
+
+const parseNumeric = (value: any): number | null => {
+	const parsed = Number(value);
+	return Number.isFinite(parsed) ? parsed : null;
+};
+
+const normalizeDeskDestination = (raw: any): AutoDeskDestination | null => {
+	if (!raw || typeof raw !== 'object') return null;
+	const destination = raw.destination ?? raw.pose ?? raw.position ?? raw.location ?? raw.coordinates ?? raw;
+	const destinationDeskId =
+		raw.destinationDeskId ?? raw.deskId ?? raw.desk?.id ?? raw.studentDeskId ?? raw.id;
+	const floorId = destination.floorId ?? raw.floorId ?? raw.floor ?? raw.floor?.id;
+	const x = parseNumeric(destination.x ?? raw.x);
+	const y = parseNumeric(destination.y ?? raw.y);
+	const theta = parseNumeric(destination.theta ?? raw.theta);
+
+	if (!destinationDeskId || !floorId || x === null || y === null || theta === null) return null;
+	return {
+		destinationDeskId: String(destinationDeskId).trim(),
+		floorId: String(floorId).trim(),
+		x,
+		y,
+		theta,
+	};
+};
+
+const resolveAutoDeskDestination = (user: any): AutoDeskDestination | null => {
+	const userCandidates = [
+		user?.studentDesk,
+		user?.desk,
+		user?.destination,
+		user?.deliveryDestination,
+		user,
+	];
+	for (const candidate of userCandidates) {
+		const normalized = normalizeDeskDestination(candidate);
+		if (normalized) return normalized;
+	}
+
+	if (typeof window !== 'undefined') {
+		for (const storageKey of AUTO_DESTINATION_STORAGE_KEYS) {
+			const raw = window.localStorage.getItem(storageKey);
+			if (!raw) continue;
+			try {
+				const parsed = JSON.parse(raw);
+				const normalized = normalizeDeskDestination(parsed);
+				if (normalized) return normalized;
+			} catch (_err) {}
+		}
+	}
+
+	return null;
 };
 
 const BookDetailPage: NextPage = () => {
@@ -170,8 +228,6 @@ const BookDetailPage: NextPage = () => {
 	const [book, setBook] = useState<Book | null>(null);
 	const [slideImage, setSlideImage] = useState<string>('');
 	const [reviewRating, setReviewRating] = useState<number | null>(0);
-	const [deskDestination, setDeskDestination] = useState(INITIAL_DESK_DESTINATION);
-
 	const [commentInquiry, setCommentInquiry] = useState<CommentsInquiry>(INITIAL_COMMENT_INQUIRY);
 	const [bookComments, setBookComments] = useState<Comment[]>([]);
 	const [commentTotal, setCommentTotal] = useState<number>(0);
@@ -278,33 +334,23 @@ const BookDetailPage: NextPage = () => {
 		}
 	};
 
-	const updateDeskDestination = (field: keyof typeof INITIAL_DESK_DESTINATION, value: string) => {
-		setDeskDestination((prev) => ({ ...prev, [field]: value }));
-	};
-
 	const createDeliveryRequestHandler = async (requestType: RequestType) => {
 		try {
 			if (!book?._id) return;
-
-			const x = Number(deskDestination.x);
-			const y = Number(deskDestination.y);
-			const theta = Number(deskDestination.theta);
-			if (!deskDestination.destinationDeskId.trim() || !deskDestination.floorId.trim()) {
-				throw new Error('Please enter your desk position.');
-			}
-			if (![x, y, theta].every(Number.isFinite)) {
-				throw new Error('Desk coordinates must be valid numbers.');
+			const autoDestination = resolveAutoDeskDestination(user);
+			if (!autoDestination) {
+				throw new Error('Desk location is not configured. Please set your desk metadata in My Page first.');
 			}
 
 			const input: CreateDeliveryRequestInput = {
 				bookId: book._id,
 				requestType,
-				destinationDeskId: deskDestination.destinationDeskId.trim(),
+				destinationDeskId: autoDestination.destinationDeskId,
 				destination: {
-					floorId: deskDestination.floorId.trim(),
-					x,
-					y,
-					theta,
+					floorId: autoDestination.floorId,
+					x: autoDestination.x,
+					y: autoDestination.y,
+					theta: autoDestination.theta,
 				},
 			};
 
@@ -388,18 +434,17 @@ const BookDetailPage: NextPage = () => {
 		<div
 			id="book-detail-page"
 			style={{
-				background:
-					'linear-gradient(180deg, #eef4fb 0%, #f7f9fc 360px, #f3f7fb 100%)',
+				background: '#ffffff',
 				minHeight: '100vh',
-				paddingBottom: isMobile ? 40 : 72,
+				paddingBottom: isMobile ? 40 : 64,
 			}}
 		>
 			<div
 				className="container"
 				style={{
 					width: '100%',
-					maxWidth: 1380,
-					padding: isMobile ? '120px 16px 0' : '120px 40px 0',
+					maxWidth: 1300,
+					padding: isMobile ? '28px 16px 0' : '42px 0 0',
 					boxSizing: 'border-box',
 					display: 'block',
 				}}
@@ -409,53 +454,40 @@ const BookDetailPage: NextPage = () => {
 						sx={{
 							...cardSx,
 							p: { xs: 2, sm: 3, md: 4 },
-							position: 'relative',
-							overflow: 'hidden',
-							'&:before': {
-								content: '""',
-								position: 'absolute',
-								inset: 0,
-								background:
-									'linear-gradient(135deg, rgba(46, 134, 222, 0.08), transparent 34%), radial-gradient(circle at 8% 4%, rgba(27, 143, 97, 0.08), transparent 28%)',
-								pointerEvents: 'none',
-							},
 						}}
 					>
 						<SafeBox
 							sx={{
-								position: 'relative',
 								display: 'grid',
-								gridTemplateColumns: { xs: '1fr', xl: '360px minmax(0, 1fr) 148px' },
+								gridTemplateColumns: { xs: '1fr', lg: '520px minmax(0, 1fr)' },
 								gap: { xs: 3, md: 4.5 },
 								alignItems: 'start',
 							}}
 						>
-							<Stack spacing={1.5}>
+							<Stack spacing={2}>
 								<SafeBox
 									sx={{
-										borderRadius: { xs: '14px', md: '16px' },
+										borderRadius: '20px',
 										overflow: 'hidden',
-										background: 'linear-gradient(145deg, #e8eef6, #f8fbff)',
+										background: '#ffffff',
 										border: `1px solid ${libraryColors.border}`,
-										boxShadow: '0 24px 52px rgba(23, 32, 51, 0.12)',
-										aspectRatio: '3 / 4',
-										minHeight: { xs: 360, sm: 460 },
+										height: { xs: 360, sm: 520, lg: 600 },
 										display: 'grid',
 										placeItems: 'center',
-										p: { xs: 2, sm: 2.5 },
+										p: { xs: 1.2, sm: 1.6 },
 									}}
 								>
 									<SafeBox
 										component="img"
 										src={resolveMediaUrl(currentImage, '/img/banner/books_hero.png')}
 										alt={book?.bookTitle ?? 'Book cover'}
-										sx={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', transition: 'opacity 180ms ease' }}
+										sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: '14px' }}
 									/>
 								</SafeBox>
 								<Stack
 									direction="row"
-									spacing={1.25}
-									sx={{ overflowX: 'auto', pb: 0.5, WebkitOverflowScrolling: 'touch' }}
+									spacing={1.5}
+									sx={{ overflowX: 'auto', pb: 1, WebkitOverflowScrolling: 'touch' }}
 								>
 									{imageList.map((img: string, index: number) => {
 										const isActive = currentImage === img;
@@ -465,28 +497,23 @@ const BookDetailPage: NextPage = () => {
 												component="button"
 												type="button"
 												onClick={() => changeImageHandler(img)}
-												aria-label={`Show book image ${index + 1}`}
 												sx={{
-													width: { xs: 78, sm: 92 },
-													height: { xs: 78, sm: 92 },
-													p: '3px',
+													width: { xs: 72, sm: 100, md: 120 },
+													height: { xs: 72, sm: 100, md: 120 },
+													p: '4px',
 													borderRadius: '12px',
-													border: isActive ? `2px solid ${libraryColors.blue}` : `2px solid ${libraryColors.border}`,
+													border: isActive ? `2px solid ${libraryColors.blue}` : `1px solid ${libraryColors.border}`,
 													background: '#fff',
 													cursor: 'pointer',
 													flex: '0 0 auto',
-													scrollSnapAlign: 'start',
-													transition: 'transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease',
-													boxShadow: isActive ? '0 10px 24px rgba(36, 104, 214, 0.2)' : 'none',
-													'&:hover': { transform: 'translateY(-3px)', borderColor: libraryColors.blue },
-													'&:focus-visible': { outline: `3px solid ${libraryColors.soft}` },
+													'&:hover': { borderColor: libraryColors.blue },
 												}}
 											>
 												<SafeBox
 													component="img"
 													src={resolveMediaUrl(img, '/img/banner/books_hero.png')}
 													alt="Book thumbnail"
-													sx={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '9px', display: 'block', background: '#eef4fb' }}
+													sx={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', display: 'block' }}
 												/>
 											</SafeBox>
 										);
@@ -494,150 +521,128 @@ const BookDetailPage: NextPage = () => {
 								</Stack>
 							</Stack>
 
-							<Stack spacing={2.5} sx={{ pt: { lg: 1 } }}>
-								<Stack spacing={1.2}>
-									<Typography variant={isMobile ? 'h4' : 'h1'} sx={{ color: libraryColors.ink, fontWeight: 900, letterSpacing: 0, lineHeight: 1.08, fontSize: { xs: 31, md: 48 } }}>
+							<Stack spacing={3}>
+								<Stack spacing={1} sx={{ minWidth: 0 }}>
+									<Typography variant={isMobile ? 'h4' : 'h2'} sx={{ color: libraryColors.ink, fontWeight: 800, lineHeight: 1.2, overflowWrap: 'break-word' }}>
 										{book?.bookTitle ?? 'Book title unavailable'}
 									</Typography>
-									<Typography sx={{ color: libraryColors.muted, fontSize: { xs: 17, md: 19 }, fontWeight: 600 }}>
+									<Typography sx={{ color: libraryColors.muted, fontSize: 18, fontWeight: 500 }}>
 										{book?.bookAuthor ? `by ${book.bookAuthor}` : 'Author unavailable'}
 									</Typography>
-									<Stack direction="row" spacing={1} alignItems="baseline" flexWrap="wrap">
-										<Typography sx={{ color: libraryColors.deepBlue, fontSize: { xs: 25, md: 32 }, fontWeight: 900, letterSpacing: 0 }}>
-											{formatPrice(book)}
+								</Stack>
+
+								<Stack direction="row" spacing={2} alignItems="center">
+									<Typography sx={{ color: libraryColors.blue, fontSize: 32, fontWeight: 800 }}>
+										{formatPrice(book)}
+									</Typography>
+									{book?.bookPrice?.isDiscounted && book?.bookPrice?.discountPercent ? (
+										<Typography sx={{ color: libraryColors.muted, textDecoration: 'line-through', fontSize: 18 }}>
+											{book.bookPrice.amount.toLocaleString()} {book.bookPrice.currency}
 										</Typography>
-										{book?.bookPrice?.isDiscounted && book?.bookPrice?.discountPercent ? (
-											<Typography sx={{ color: '#94a3b8', textDecoration: 'line-through', fontWeight: 700 }}>
-												{book.bookPrice.amount.toLocaleString()} {book.bookPrice.currency}
-											</Typography>
-										) : null}
+									) : null}
+								</Stack>
+
+								<Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
+									{book?.isBorrowable && <Chip label="Borrowable" sx={{ background: '#ecfdf5', color: '#059669', fontWeight: 700 }} />}
+									{book?.isPurchasable && <Chip label="Purchasable" sx={{ background: '#eff6ff', color: libraryColors.blue, fontWeight: 700 }} />}
+									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#fff7df', color: '#d97706', fontWeight: 700 }} />}
+								</Stack>
+
+								<Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap' }}>
+									<Stack direction="row" spacing={0.8} alignItems="center" sx={{ px: 1.5, py: 1, borderRadius: '12px', background: '#fff', border: `1px solid ${libraryColors.border}` }}>
+										<RemoveRedEyeIcon sx={{ fontSize: 20, color: libraryColors.blue }} />
+										<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>{book?.bookViews ?? 0}</Typography>
+									</Stack>
+									<Stack
+										component="button"
+										type="button"
+										direction="row"
+										spacing={0.8}
+										alignItems="center"
+										onClick={() => likeBookHandler(user, book?._id ?? '')}
+										sx={{
+											px: 1.5,
+											py: 1,
+											borderRadius: '12px',
+											background: '#fff',
+											border: `1px solid ${libraryColors.border}`,
+											cursor: 'pointer',
+											transition: 'all 0.2s',
+											'&:hover': { transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
+										}}
+									>
+										{book?.meLiked?.[0]?.myFavorite ? <FavoriteIcon sx={{ fontSize: 20, color: '#ef4444' }} /> : <FavoriteBorderIcon sx={{ fontSize: 20, color: libraryColors.blue }} />}
+										<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>{book?.bookLikes ?? 0}</Typography>
 									</Stack>
 								</Stack>
 
-								<Stack direction="row" gap={1} flexWrap="wrap">
-									{book?.isBorrowable && <Chip label="Borrowable" sx={{ background: '#e6f6ee', color: libraryColors.green, fontWeight: 800, borderRadius: '999px' }} />}
-									{book?.isPurchasable && <Chip label="Purchasable" sx={{ background: '#edf4ff', color: libraryColors.blue, fontWeight: 800, borderRadius: '999px' }} />}
-									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#fff7df', color: libraryColors.amber, fontWeight: 800, borderRadius: '999px' }} />}
+								<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+									<Button
+										variant="contained"
+										startIcon={<LocalShippingOutlinedIcon />}
+										disabled={createRequestLoading || !book?.isBorrowable}
+										onClick={() => createDeliveryRequestHandler(RequestType.BORROW)}
+										sx={{
+											flex: 1,
+											height: 52,
+											background: libraryColors.blue,
+											borderRadius: '12px',
+											textTransform: 'none',
+											fontSize: 16,
+											fontWeight: 700,
+											'&:hover': { background: '#1d4ed8' },
+										}}
+									>
+										Borrow
+									</Button>
+									<Button
+										variant="outlined"
+										startIcon={<ShoppingBagOutlinedIcon />}
+										disabled={createRequestLoading || !book?.isPurchasable}
+										onClick={() => createDeliveryRequestHandler(RequestType.PURCHASE)}
+										sx={{
+											flex: 1,
+											height: 52,
+											borderColor: libraryColors.blue,
+											color: libraryColors.blue,
+											borderRadius: '12px',
+											textTransform: 'none',
+											fontSize: 16,
+											fontWeight: 700,
+											'&:hover': { background: '#eff6ff', borderColor: '#1d4ed8' },
+										}}
+									>
+										Commercial
+									</Button>
 								</Stack>
 
-								<SafeBox sx={{ p: { xs: 1.6, sm: 2 }, border: `1px solid ${libraryColors.border}`, borderRadius: '16px', background: '#ffffff', boxShadow: '0 14px 32px rgba(23, 32, 51, 0.06)' }}>
-									<Stack direction={{ xs: 'column', md: 'row' }} spacing={1.2} mb={1.6}>
-										<Button
-											variant="contained"
-											startIcon={<LocalShippingOutlinedIcon />}
-											disabled={createRequestLoading || !book?.isBorrowable}
-											onClick={() => createDeliveryRequestHandler(RequestType.BORROW)}
-											sx={{
-												flex: 1,
-												minHeight: 48,
-												background: libraryColors.deepBlue,
-												borderRadius: '12px',
-												textTransform: 'none',
-												fontWeight: 900,
-												boxShadow: '0 12px 24px rgba(23, 59, 104, 0.22)',
-												transition: 'transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease',
-												'&:hover': { background: '#102d50', transform: 'translateY(-2px)', boxShadow: '0 16px 28px rgba(23, 59, 104, 0.28)' },
-											}}
-										>
-											Borrow
-										</Button>
-										<Button
-											variant="outlined"
-											startIcon={<ShoppingBagOutlinedIcon />}
-											disabled={createRequestLoading || !book?.isPurchasable}
-											onClick={() => createDeliveryRequestHandler(RequestType.PURCHASE)}
-											sx={{
-												flex: 1,
-												minHeight: 48,
-												borderColor: '#b7c7d9',
-												color: libraryColors.deepBlue,
-												borderRadius: '12px',
-												textTransform: 'none',
-												fontWeight: 900,
-												background: '#f8fbff',
-												transition: 'transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease',
-												'&:hover': { borderColor: libraryColors.blue, background: '#eef5ff', transform: 'translateY(-2px)', boxShadow: '0 12px 24px rgba(23, 32, 51, 0.1)' },
-											}}
-										>
-											Commercial
-										</Button>
-									</Stack>
-									<Divider sx={{ borderColor: libraryColors.border, mb: 1.6 }} />
-									<Stack direction="row" spacing={1} alignItems="center" mb={1.2}>
-										<PinDropOutlinedIcon sx={{ color: libraryColors.blue, fontSize: 19 }} />
-										<Typography sx={{ color: libraryColors.ink, fontWeight: 900 }}>Desk Position</Typography>
-									</Stack>
-									<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', sm: '1.1fr 1fr 1fr 1fr 1fr' }, gap: 1 }}>
-										<TextField size="small" label="Desk" value={deskDestination.destinationDeskId} onChange={(event) => updateDeskDestination('destinationDeskId', event.target.value)} />
-										<TextField size="small" label="Floor" value={deskDestination.floorId} onChange={(event) => updateDeskDestination('floorId', event.target.value)} />
-										<TextField size="small" label="X" type="number" value={deskDestination.x} onChange={(event) => updateDeskDestination('x', event.target.value)} />
-										<TextField size="small" label="Y" type="number" value={deskDestination.y} onChange={(event) => updateDeskDestination('y', event.target.value)} />
-										<TextField size="small" label="Theta" type="number" value={deskDestination.theta} onChange={(event) => updateDeskDestination('theta', event.target.value)} />
+								<SafeBox sx={{ border: `1px solid ${libraryColors.border}`, borderRadius: '16px', overflow: 'hidden' }}>
+									<SafeBox sx={{ px: 2, py: 1.5, background: '#f8fbff', borderBottom: `1px solid ${libraryColors.border}` }}>
+										<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>Catalog Record</Typography>
 									</SafeBox>
-								</SafeBox>
-
-								<SafeBox sx={{ border: `1px solid ${libraryColors.border}`, borderRadius: '16px', overflow: 'hidden', background: '#ffffff' }}>
-									<Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: { xs: 1.6, sm: 2 }, py: 1.4, background: '#f6f9fd', borderBottom: `1px solid ${libraryColors.border}` }}>
-										<Typography sx={{ color: libraryColors.ink, fontSize: 14, fontWeight: 900 }}>Catalog Record</Typography>
-										<Typography sx={{ color: libraryColors.muted, fontSize: 12, fontWeight: 800 }}>{book?.bookCallNumber ?? 'Uncataloged'}</Typography>
-									</Stack>
-									<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' } }}>
+									<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' } }}>
 										{metaItems.map(({ label, value, icon: Icon }, index) => (
 											<SafeBox
 												key={label}
 												sx={{
-													p: { xs: 1.5, md: 1.7 },
-													minHeight: 82,
-													borderRight: { md: (index + 1) % 3 === 0 ? 'none' : `1px solid ${libraryColors.border}` },
-													borderBottom: {
-														xs: index === metaItems.length - 1 ? 'none' : `1px solid ${libraryColors.border}`,
-														md: index >= metaItems.length - 3 ? 'none' : `1px solid ${libraryColors.border}`,
-													},
-													transition: 'background-color 180ms ease',
-													'&:hover': { background: '#f8fbff' },
+													p: 2,
+													borderRight: { sm: (index + 1) % (isMobile ? 2 : 3) === 0 ? 'none' : `1px solid ${libraryColors.border}` },
+													borderBottom: index < metaItems.length - (isMobile ? 1 : 3) ? `1px solid ${libraryColors.border}` : 'none',
 												}}
 											>
-												<Stack direction="row" spacing={0.8} alignItems="center" mb={0.8}>
-													<Icon sx={{ fontSize: 17, color: libraryColors.blue }} />
-													<Typography sx={{ color: libraryColors.muted, fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 0 }}>{label}</Typography>
+												<Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
+													<Icon sx={{ fontSize: 18, color: libraryColors.blue }} />
+													<Typography sx={{ color: libraryColors.muted, fontSize: 12, fontWeight: 600, textTransform: 'uppercase' }}>{label}</Typography>
 												</Stack>
-												<Typography sx={{ color: libraryColors.ink, fontSize: 15, fontWeight: 800, overflowWrap: 'anywhere' }}>{value}</Typography>
+												<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>{value}</Typography>
 											</SafeBox>
 										))}
 									</SafeBox>
 								</SafeBox>
 							</Stack>
-
-							<Stack direction={{ xs: 'row', lg: 'column' }} spacing={1.2} sx={{ justifyContent: { xs: 'flex-start', lg: 'flex-start' }, alignItems: { xs: 'stretch', lg: 'flex-end' } }}>
-								<Stack direction="row" spacing={0.8} alignItems="center" sx={{ px: 1.6, py: 1.2, borderRadius: '18px', background: '#fff', border: `1px solid ${libraryColors.border}`, boxShadow: '0 12px 28px rgba(15, 31, 51, 0.08)' }}>
-									<RemoveRedEyeIcon sx={{ fontSize: 19, color: libraryColors.blue }} />
-									<Typography sx={{ color: libraryColors.ink, fontWeight: 900 }}>{book?.bookViews ?? 0}</Typography>
-								</Stack>
-								<Stack
-									component="button"
-									type="button"
-									direction="row"
-									spacing={0.8}
-									alignItems="center"
-									onClick={() => likeBookHandler(user, book?._id ?? '')}
-									sx={{
-										px: 1.6,
-										py: 1.2,
-										borderRadius: '18px',
-										background: '#fff',
-										border: `1px solid ${libraryColors.border}`,
-										boxShadow: '0 12px 28px rgba(15, 31, 51, 0.08)',
-										cursor: 'pointer',
-										transition: 'transform 180ms ease',
-										'&:hover': { transform: 'translateY(-2px)' },
-									}}
-								>
-									{book?.meLiked?.[0]?.myFavorite ? <FavoriteIcon sx={{ fontSize: 19, color: '#e5484d' }} /> : <FavoriteBorderIcon sx={{ fontSize: 19, color: libraryColors.blue }} />}
-									<Typography sx={{ color: libraryColors.ink, fontWeight: 900 }}>{book?.bookLikes ?? 0}</Typography>
-								</Stack>
-							</Stack>
 						</SafeBox>
 					</SafeBox>
+
 
 					<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
 						<Stack direction="row" spacing={1.3} alignItems="center" mb={1.8}>
