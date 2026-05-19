@@ -619,3 +619,20 @@ Route guard: `user.memberType === MemberType.ADMIN`.
 After submit: redirect to `/_admin/books`.
 
 Full spec in `WORKFLOW.md`.
+
+---
+
+## Session Update (2026-05-19) — RobotTracking realtime lifecycle + post-completion return route
+
+### Completed
+- `useRobotSocket` now treats terminal request statuses as locked (`COMPLETED`, `FAILED`, `CANCELLED`, `BOOK_NOT_FOUND`) so later non-terminal events (like `READY`) cannot override them.
+- `requestUpdated` payload handling was hardened with requestId matching and safer timeline merge behavior.
+- `RobotTracking` status rendering now prefers terminal-aware effective status and prevents stale READY fallback.
+- Active-request selection was corrected to use the latest request record first (`updatedAt`/`createdAt`) to avoid showing old READY requests after a newer request is completed.
+- Added automatic request refresh behavior (`GET_SESSION_REQUESTS` polling + terminal refetch path) so new request assignment and status transitions appear without manual page refresh.
+- Socket tracking now follows the latest request room, not only non-terminal active requests, enabling post-completion robot movement visibility.
+- After completion, map rendering can show return-to-dock route/trail when robot status is `RETURNING`/`DOCKING`/`IDLE`, using corridor-based graph nodes.
+- Robot heading remains movement-aligned and route/live-trail remain graph-aligned.
+
+### Operational rule from this session
+- For RobotTracking, avoid tying WebSocket subscription strictly to “active request only”; keep latest-request room continuity when post-completion telemetry is expected.

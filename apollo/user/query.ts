@@ -267,6 +267,21 @@ export const GET_SESSION_REQUESTS = gql`
 						theta
 					}
 				}
+				inventoryData {
+					_id
+					bookShelf {
+						section
+						row
+						level
+						slot
+					}
+					bookLocation {
+						floorId
+						x
+						y
+						theta
+					}
+				}
 				timeline {
 					status
 					message

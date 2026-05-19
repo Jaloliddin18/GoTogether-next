@@ -1,7 +1,28 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-16 | Commit: `d3c5270`
-**Current Branch:** `community`
+**Last Updated:** 2026-05-19
+**Current Branch:** `myPage`
+
+---
+
+## Today's Session Update (2026-05-19, RobotTracking realtime completion lifecycle + return path)
+
+### Completed today
+- Fixed stale READY override by enforcing terminal-priority request status handling in `libs/hooks/useRobotSocket.ts`.
+- Added requestId-guarded socket event handling and safer timeline updates for `requestUpdated` payloads.
+- Updated `RobotTracking` effective status resolution to be terminal-aware and to avoid regressions from stale non-terminal updates.
+- Changed request selection to prioritize latest request timestamp and avoid fallback to older READY entries.
+- Added auto-refresh behavior for `GET_SESSION_REQUESTS` (`pollInterval`) so request assignment/status changes appear without manual page reload.
+- Kept WebSocket tracking bound to the latest request id to preserve post-completion telemetry visibility.
+- Added post-completion route rendering behavior so map can show return-to-dock path/trail after `COMPLETED` when robot emits `RETURNING`/`DOCKING`/`IDLE`.
+- Preserved planned/live route graph logic and heading behavior while stabilizing terminal lifecycle rendering.
+
+### Current stopping point
+- RobotTracking now updates without manual refresh for request lifecycle changes and can visually follow post-completion return telemetry.
+- Frontend build passes with existing unrelated warnings (`react-i18next` init notice and demo `+input` logs).
+
+### Exact next task
+- Validate end-to-end with persistent simulator listener mode so request creation triggers automatic robot movement without one-shot command runs.
 
 ---
 
