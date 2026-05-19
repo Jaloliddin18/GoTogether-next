@@ -1,11 +1,13 @@
 import React from 'react';
-import { Box, Divider, IconButton, Typography } from '@mui/material';
+import { Box as MuiBox, Divider as MuiDivider, IconButton, Typography as MuiTypography } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import LanguageIcon from '@mui/icons-material/Language';
+import StarIcon from '@mui/icons-material/Star';
 import { Book } from '../../types/book/book';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { REACT_APP_API_URL, topPropertyRank } from '../../config';
 import { useRouter } from 'next/router';
+import { resolveMediaUrl } from '../../utils';
 
 interface MostBorrowedCardProps {
 	book: Book;
