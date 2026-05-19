@@ -1,15 +1,10 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { NextPage } from 'next';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
 import {
 	Alert,
-	Box,
 	Button,
-	Card,
-	CardContent,
-	CardMedia,
 	CircularProgress,
 	Pagination,
 	Stack,
@@ -20,8 +15,8 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import withLayoutBasic from '../../../libs/components/layout/LayoutBasic';
 import useDeviceDetect from '../../../libs/hooks/useDeviceDetect';
 import { Direction } from '../../../libs/enums/common.enum';
-import { resolveMediaUrl } from '../../../libs/utils';
 import { GET_BOOKS } from '../../../apollo/library/query';
+import BookCard from '../../../libs/components/book/BookCard';
 
 const BOOKS_PER_PAGE = 12;
 
@@ -233,36 +228,9 @@ const LibraryBooksPage: NextPage = () => {
 									gap: 2,
 								}}
 							>
-								{books.map((book) => {
-									const imagePath = resolveMediaUrl(book.bookImages?.[0], '/img/logo/logoText.svg');
-
-									return (
-										<Link href={`/library/books/${book._id}`} key={book._id}>
-											<Card sx={{ height: '100%', cursor: 'pointer' }}>
-												<CardMedia component="img" height="220" image={imagePath} alt={book.bookTitle} />
-												<CardContent>
-													<Stack spacing={0.75}>
-														<Typography variant="h6">{book.bookTitle}</Typography>
-														<Typography color={'text.secondary'}>{book.bookAuthor}</Typography>
-														<Typography variant="body2" color={'text.secondary'}>
-															ISBN: {book.bookIsbn}
-														</Typography>
-														<Typography variant="body2" color={'text.secondary'}>
-															Category: {book.bookCategory}
-														</Typography>
-														<Typography variant="body2" color={'text.secondary'}>
-															Status: {book.bookStatus}
-														</Typography>
-														<Typography fontWeight={600}>
-															{book.bookPrice?.amount?.toLocaleString?.() ?? book.bookPrice?.amount}{' '}
-															{book.bookPrice?.currency ?? ''}
-														</Typography>
-													</Stack>
-												</CardContent>
-											</Card>
-										</Link>
-									);
-								})}
+								{books.map((book) => (
+									<BookCard key={book._id} book={book} />
+								))}
 							</Stack>
 
 							<Stack alignItems={'center'} py={2}>

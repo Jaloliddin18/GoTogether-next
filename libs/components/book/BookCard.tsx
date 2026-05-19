@@ -7,7 +7,7 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import LanguageIcon from '@mui/icons-material/Language';
 import StarIcon from '@mui/icons-material/Star';
 import { useRouter } from 'next/router';
-import { getBookDetailRoute, resolveMediaUrl } from '../../utils';
+import { resolveMediaUrl } from '../../utils';
 
 export interface BookCardModel {
 	_id: string;
@@ -44,9 +44,9 @@ const formatTag = (value?: string, fallback: string = 'GENERAL'): string => {
 };
 
 const getStatusTag = (book: BookCardModel): string => {
-	if (book.isBorrowable) return 'BORROWABLE';
 	if (book.isPurchasable) return 'PURCHASABLE';
-	return formatTag(book.bookStatus, 'REFERENCE');
+	if (book.isBorrowable) return 'BORROWABLE';
+	return '';
 };
 
 const getPriceLabel = (book: BookCardModel): string => {
@@ -59,20 +59,23 @@ const getPriceLabel = (book: BookCardModel): string => {
 
 const badgeBaseSx: SxProps<Theme> = {
 	position: 'absolute',
-	top: 14,
+	top: 12,
 	zIndex: 2,
 	display: 'inline-flex',
 	alignItems: 'center',
-	height: 38,
-	px: '18px',
+	minHeight: 27,
+	px: '12px',
 	borderRadius: '999px',
-	color: '#fff',
-	fontSize: '11px',
+	color: '#0d1b2e',
+	fontSize: '.7rem',
 	fontWeight: 700,
-	letterSpacing: '0.5px',
-	boxShadow: '0 8px 18px rgba(8, 12, 22, 0.34)',
-	backdropFilter: 'blur(10px)',
-	WebkitBackdropFilter: 'blur(10px)',
+	letterSpacing: '.06em',
+	lineHeight: 1.2,
+	textTransform: 'uppercase',
+	background: 'rgba(255,255,255,.85)',
+	border: '1px solid rgba(255,255,255,.6)',
+	backdropFilter: 'blur(8px)',
+	WebkitBackdropFilter: 'blur(8px)',
 };
 
 const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
@@ -81,12 +84,19 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 	const views = book?.bookViews ?? 0;
 	const likes = book?.bookLikes ?? 0;
 	const rating = Number(book?.bookRating?.average ?? 0).toFixed(1);
-	const imageUrl = resolveMediaUrl(book?.bookImages?.[0], '/img/banner/header1.svg');
-	const detailRoute = getBookDetailRoute(book?._id);
+	const imageUrl = resolveMediaUrl(book?.bookImages?.[0], '');
+	const [imageFailed, setImageFailed] = React.useState(false);
+	const statusTag = getStatusTag(book);
+	const statusColor = statusTag === 'PURCHASABLE' ? '#059669' : '#1a6fd4';
+
+	const getInitials = (title?: string) => {
+		const words = title?.trim().split(/\s+/).filter(Boolean) ?? [];
+		return (words[0]?.[0] ?? 'B') + (words[1]?.[0] ?? 'K');
+	};
 
 	const navigateToDetail = async () => {
 		if (!book?._id) return;
-		await router.push(detailRoute);
+		await router.push(`/books/detail?id=${book._id}`);
 	};
 
 	const likeClickHandler = async (e: React.MouseEvent) => {
@@ -110,51 +120,79 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 			sx={{
 				width: '100%',
 				backgroundColor: '#ffffff',
-				borderRadius: '28px',
-				border: '1px solid rgba(226, 232, 240, 0.95)',
+				borderRadius: '16px',
+				border: '1px solid #e8f0fb',
 				overflow: 'hidden',
 				cursor: 'pointer',
-				boxShadow: '0 12px 32px rgba(15, 31, 51, 0.09)',
-				transition: 'transform .35s ease, box-shadow .35s ease',
+				fontFamily: "'Sofia Pro', sans-serif",
+				transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease',
 				'&:hover': {
-					transform: 'translateY(-8px) scale(1.01)',
-					boxShadow: '0 26px 48px rgba(15, 31, 51, 0.18)',
-				},
-				'&:hover .book-card-image': {
-					transform: 'scale(1.03)',
+					transform: 'translateY(-6px)',
+					boxShadow: '0 20px 40px -8px rgba(26,111,212,.18)',
+					borderColor: '#1a6fd4',
 				},
 				...sx,
 			}}
 		>
-			<Box sx={{ width: '100%', minHeight: { xs: 220, sm: 240 }, position: 'relative', overflow: 'hidden' }}>
-				<Box
-					component="img"
-					src={imageUrl}
-					alt={book.bookTitle || 'Book cover'}
-					className="book-card-image"
-					sx={{
-						width: '100%',
-						height: { xs: 220, sm: 240, md: 252 },
-						objectFit: 'cover',
-						display: 'block',
-						transition: 'transform .35s ease',
-					}}
-				/>
-				<Box sx={{ ...badgeBaseSx, left: 14, background: 'rgba(18, 25, 40, 0.92)' }}>{formatTag(book.bookCategory)}</Box>
-				<Box sx={{ ...badgeBaseSx, right: 14, background: 'rgba(24, 150, 90, 0.95)' }}>{getStatusTag(book)}</Box>
+			<Box
+				sx={{
+					width: '100%',
+					height: 240,
+					position: 'relative',
+					overflow: 'hidden',
+					background: 'linear-gradient(135deg, #0d1b2e 0%, #1a3a6e 100%)',
+				}}
+			>
+				{imageUrl && !imageFailed ? (
+					<Box
+						component="img"
+						src={imageUrl}
+						alt={book.bookTitle || 'Book cover'}
+						className="book-card-image"
+						onError={() => setImageFailed(true)}
+						sx={{
+							width: '100%',
+							height: '100%',
+							objectFit: 'cover',
+							display: 'block',
+						}}
+					/>
+				) : (
+					<Box
+						sx={{
+							width: '100%',
+							height: '100%',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							background: 'linear-gradient(135deg, #0d1b2e 0%, #1a3a6e 100%)',
+							color: 'rgba(255,255,255,.92)',
+							fontFamily: "'Sofia Pro', sans-serif",
+							fontSize: '2.2rem',
+							fontWeight: 800,
+							letterSpacing: '.08em',
+						}}
+					>
+						{getInitials(book.bookTitle)}
+					</Box>
+				)}
+				<Box sx={{ ...badgeBaseSx, left: 12 }}>{formatTag(book.bookCategory)}</Box>
+				{statusTag && <Box sx={{ ...badgeBaseSx, right: 12, color: statusColor }}>{statusTag}</Box>}
 			</Box>
 
-			<Box sx={{ p: { xs: 2.2, md: 2.4 }, display: 'flex', flexDirection: 'column', gap: 1.15 }}>
+			<Box sx={{ p: 2, display: 'flex', flexDirection: 'column', fontFamily: "'Sofia Pro', sans-serif" }}>
 				<Typography
 					onClick={(e) => {
 						e.stopPropagation();
 						navigateToDetail().then();
 					}}
 					sx={{
-						fontSize: { xs: '1.06rem', md: '1.14rem' },
-						fontWeight: 800,
-						color: '#0f172a',
-						lineHeight: 1.33,
+						fontFamily: "'Sofia Pro', sans-serif",
+						fontSize: '1.05rem',
+						fontWeight: 700,
+						color: '#0d1b2e',
+						lineHeight: 1.3,
+						mb: '5px',
 						display: '-webkit-box',
 						WebkitLineClamp: 2,
 						WebkitBoxOrient: 'vertical',
@@ -166,9 +204,10 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 
 				<Typography
 					sx={{
-						fontSize: '0.92rem',
-						color: '#51627a',
-						lineHeight: 1.35,
+						fontFamily: "'Sofia Pro', sans-serif",
+						fontSize: '.82rem',
+						color: '#5a7a9c',
+						mb: '12px',
 						overflow: 'hidden',
 						textOverflow: 'ellipsis',
 						whiteSpace: 'nowrap',
@@ -179,42 +218,44 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 
 				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1.8 }}>
 					<Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.55 }}>
-						<LanguageIcon sx={{ fontSize: 17, color: '#5f738c' }} />
-						<Typography sx={{ fontSize: '0.9rem', color: '#5f738c', fontWeight: 600 }}>{book.bookLanguage || '-'}</Typography>
+						<LanguageIcon sx={{ fontSize: 14, color: '#5a7a9c' }} />
+						<Typography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.78rem', color: '#5a7a9c' }}>
+							{book.bookLanguage || '-'}
+						</Typography>
 					</Box>
 					<Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.55 }}>
-						<StarIcon sx={{ fontSize: 17, color: '#f59e0b' }} />
-						<Typography sx={{ fontSize: '0.9rem', color: '#5f738c', fontWeight: 700 }}>{rating}</Typography>
+						<StarIcon sx={{ fontSize: 14, color: '#f59e0b' }} />
+						<Typography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.78rem', color: '#5a7a9c' }}>{rating}</Typography>
 					</Box>
 				</Box>
 
-				<Divider sx={{ borderColor: '#e2e8f0' }} />
+				<Divider sx={{ borderColor: '#e8f0fb', margin: '10px 0' }} />
 
 				<Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-					<Typography sx={{ fontSize: { xs: '0.98rem', md: '1.06rem' }, fontWeight: 800, color: '#1a6fd4' }}>
+					<Typography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.95rem', fontWeight: 700, color: '#1a6fd4' }}>
 						{getPriceLabel(book)}
 					</Typography>
 
-					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1.4 }}>
-						<Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.55 }}>
-							<VisibilityOutlinedIcon sx={{ fontSize: 23, color: '#64748b' }} />
-							<Typography sx={{ fontSize: '1rem', fontWeight: 600, color: '#64748b' }}>{views}</Typography>
+					<Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+						<Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+							<VisibilityOutlinedIcon sx={{ fontSize: 19, color: '#5a7a9c' }} />
+							<Typography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.8rem', color: '#5a7a9c' }}>{views}</Typography>
 						</Box>
-						<Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.45 }}>
+						<Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
 							{likeHandler ? (
-								<IconButton onClick={likeClickHandler} sx={{ p: 0.45 }}>
+								<IconButton onClick={likeClickHandler} sx={{ p: '2px' }}>
 									{liked ? (
-										<FavoriteRoundedIcon sx={{ fontSize: 23, color: '#ef4444' }} />
+										<FavoriteRoundedIcon sx={{ fontSize: 20, color: '#ef4444' }} />
 									) : (
-										<FavoriteBorderRoundedIcon sx={{ fontSize: 23, color: '#64748b' }} />
+										<FavoriteBorderRoundedIcon sx={{ fontSize: 20, color: '#5a7a9c' }} />
 									)}
 								</IconButton>
 							) : liked ? (
-								<FavoriteRoundedIcon sx={{ fontSize: 23, color: '#ef4444' }} />
+								<FavoriteRoundedIcon sx={{ fontSize: 20, color: '#ef4444' }} />
 							) : (
-								<FavoriteBorderRoundedIcon sx={{ fontSize: 23, color: '#64748b' }} />
+								<FavoriteBorderRoundedIcon sx={{ fontSize: 20, color: '#5a7a9c' }} />
 							)}
-							<Typography sx={{ fontSize: '1rem', fontWeight: 600, color: '#64748b' }}>{likes}</Typography>
+							<Typography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.8rem', color: '#5a7a9c' }}>{likes}</Typography>
 						</Box>
 					</Box>
 				</Box>

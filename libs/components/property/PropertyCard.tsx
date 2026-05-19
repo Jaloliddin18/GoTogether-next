@@ -40,7 +40,7 @@ const PropertyCard = (props: PropertyCardType) => {
 		return (
 			<Stack className="card-config">
 				<Stack className="top">
-					<Link href={isBookCard ? `/library/books/${property?._id}` : { pathname: '/books/detail', query: { id: property?._id } }}>
+					<Link href={{ pathname: '/books/detail', query: { id: property?._id } }}>
 						<img src={imagePath} alt="" />
 					</Link>
 					{!isBookCard && property && legacyProperty?.propertyRank > topPropertyRank && (
@@ -60,7 +60,7 @@ const PropertyCard = (props: PropertyCardType) => {
 				<Stack className="bottom">
 					<Stack className="name-address">
 						<Stack className="name">
-							<Link href={isBookCard ? `/library/books/${property?._id}` : { pathname: '/books/detail', query: { id: property?._id } }}>
+							<Link href={{ pathname: '/books/detail', query: { id: property?._id } }}>
 								<Typography>{isBookCard ? book?.bookTitle : legacyProperty?.propertyTitle}</Typography>
 							</Link>
 						</Stack>
