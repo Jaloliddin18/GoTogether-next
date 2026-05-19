@@ -1,7 +1,7 @@
 import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Box, Button, Menu, MenuItem, Pagination, Stack, Typography } from '@mui/material';
-import PropertyCard from '../../libs/components/property/PropertyCard';
+import BookCard from '../../libs/components/book/BookCard';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import BookFilter from '../../libs/components/property/BookFilter';
@@ -11,11 +11,12 @@ import { Book } from '../../libs/types/book/book';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { GET_BOOKS } from '../../apollo/user/query';
 import { T } from '../../libs/types/common';
 import { LIKE_TARGET_BOOK } from '../../apollo/user/mutation';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import { userVar } from '../../apollo/store';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -26,6 +27,7 @@ export const getStaticProps = async ({ locale }: any) => ({
 const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const user = useReactiveVar(userVar);
 	const [searchFilter, setSearchFilter] = useState<BooksInquiry>(
 		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
 	);
@@ -77,20 +79,21 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 		setCurrentPage(value);
 	};
 
-	const likePropertyHandler = async (user: T, id: string) => {
+	const likeBookHandler = async (e: React.MouseEvent, bookId: string) => {
+		e.stopPropagation();
 		try {
-			if (!id) return;
+			if (!bookId) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 
 			await likeTargetBook({
-				variables: { input: id },
+				variables: { input: bookId },
 			});
 
 			await getBooksRefetch({ input: searchFilter });
 
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
-			console.log('ERROR, likePropertyHandler:', err.message);
+			console.log('ERROR, likeBookHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
 		}
 	};
@@ -168,16 +171,19 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 							<BookFilter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} />
 						</Stack>
 						<Stack className="main-config" mb={'76px'}>
-							<Stack className={'list-config'}>
+							<Stack
+								className={'list-config'}
+								sx={{ display: 'grid !important', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '20px', flexDirection: 'unset !important', flexWrap: 'unset !important' }}
+							>
 								{books?.length === 0 ? (
-									<div className={'no-data'}>
+									<div className={'no-data'} style={{ gridColumn: '1 / -1' }}>
 										<img src="/img/icons/icoAlert.svg" alt="" />
 										<p>No Books found!</p>
 									</div>
 								) : (
-									books.map((book: Book) => {
-										return <PropertyCard property={book} key={book?._id} likePropertyHandler={likePropertyHandler} />;
-									})
+									books.map((book: Book) => (
+										<BookCard key={book._id} book={book} likeHandler={likeBookHandler} />
+									))
 								)}
 							</Stack>
 							<Stack className="pagination-config">
