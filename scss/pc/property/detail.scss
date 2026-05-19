@@ -1,4 +1,8 @@
 #pc-wrap {
+	#book-detail-page {
+		padding-top: 120px;
+	}
+
 	#property-detail-page {
 		position: relative;
 		background: #fff;
@@ -751,6 +755,14 @@
 					}
 				}
 			}
+		}
+	}
+}
+
+@media (max-width: 768px) {
+	#pc-wrap {
+		#book-detail-page {
+			padding-top: 96px;
 		}
 	}
 }

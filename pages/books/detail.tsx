@@ -444,7 +444,7 @@ const BookDetailPage: NextPage = () => {
 				style={{
 					width: '100%',
 					maxWidth: 1300,
-					padding: isMobile ? '28px 16px 0' : '42px 0 0',
+					padding: isMobile ? '0 16px' : '0',
 					boxSizing: 'border-box',
 					display: 'block',
 				}}
