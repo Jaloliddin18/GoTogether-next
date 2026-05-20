@@ -16,22 +16,22 @@ import {
 	Typography,
 } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
 import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CategoryIcon from '@mui/icons-material/Category';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FlagIcon from '@mui/icons-material/Flag';
 import HeightIcon from '@mui/icons-material/Height';
-import Inventory2Icon from '@mui/icons-material/Inventory2';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import NumbersIcon from '@mui/icons-material/Numbers';
 import PinDropOutlinedIcon from '@mui/icons-material/PinDropOutlined';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import ReviewsIcon from '@mui/icons-material/Reviews';
 import ScaleIcon from '@mui/icons-material/Scale';
 import SchoolIcon from '@mui/icons-material/School';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
@@ -75,15 +75,16 @@ export const getServerSideProps = async ({ locale }: any) => ({
 });
 
 const libraryColors = {
-	ink: '#0f1f33',
-	muted: '#607086',
-	soft: '#eef5ff',
-	blue: '#2468d6',
-	green: '#1b8f61',
-	amber: '#b7791f',
-	border: '#e3edf9',
+	ink: '#1A1A2E',
+	muted: '#64748B',
+	soft: '#EBF4FF',
+	blue: '#2E86DE',
+	navy: '#1B3A6B',
+	green: '#22C55E',
+	amber: '#F59E0B',
+	border: '#E2E8F0',
 	paper: '#ffffff',
-	page: '#f5f8fc',
+	page: '#F8FAFC',
 };
 
 const cardSx = {
@@ -134,10 +135,10 @@ function formatCategoryName(cat: string): string {
 
 function getDifficulty(audience: string): { label: string; color: string } {
 	if (audience === BookAudience.CHILDREN || audience === BookAudience.TEEN)
-		return { label: 'Beginner', color: '#1b8f61' };
+		return { label: 'Beginner', color: '#22C55E' };
 	if (audience === BookAudience.GRADUATE || audience === BookAudience.PROFESSIONAL)
-		return { label: 'Advanced', color: '#b7791f' };
-	return { label: 'Intermediate', color: '#2468d6' };
+		return { label: 'Advanced', color: '#F59E0B' };
+	return { label: 'Intermediate', color: '#2E86DE' };
 }
 
 function formatPrice(book?: Book | null): string {
@@ -420,10 +421,10 @@ const BookDetailPage: NextPage = () => {
 	];
 
 	const policyItems = [
-		{ label: 'Borrow period', value: '14 days maximum', icon: CalendarMonthIcon },
-		{ label: 'Renewals', value: '1 renewal allowed before due date', icon: RefreshIcon },
+		{ label: 'Borrow period', value: '14 days maximum', icon: CalendarTodayIcon },
+		{ label: 'Renewals', value: '1 renewal allowed before due date', icon: AutorenewIcon },
 		{ label: 'Late fee', value: '₩100 per day after due date', icon: WarningAmberIcon },
-		{ label: 'Return method', value: 'Reception desk or library return station', icon: Inventory2Icon },
+		{ label: 'Return method', value: 'Reception desk or library return station', icon: AssignmentReturnIcon },
 	];
 
 	if (getBookLoading) {
@@ -506,11 +507,11 @@ const BookDetailPage: NextPage = () => {
 													height: { xs: 72, sm: 100, md: 120 },
 													p: '4px',
 													borderRadius: '12px',
-													border: isActive ? `2px solid ${libraryColors.blue}` : `1px solid ${libraryColors.border}`,
+													border: isActive ? `2px solid ${libraryColors.navy}` : `1px solid ${libraryColors.border}`,
 													background: '#fff',
 													cursor: 'pointer',
 													flex: '0 0 auto',
-													'&:hover': { borderColor: libraryColors.blue },
+													'&:hover': { borderColor: libraryColors.navy },
 												}}
 											>
 												<SafeBox
@@ -548,13 +549,13 @@ const BookDetailPage: NextPage = () => {
 
 								<Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
 									{book?.isBorrowable && <Chip label="Borrowable" sx={{ background: '#ecfdf5', color: '#059669', fontWeight: 700 }} />}
-									{book?.isPurchasable && <Chip label="Purchasable" sx={{ background: '#eff6ff', color: libraryColors.blue, fontWeight: 700 }} />}
+									{book?.isPurchasable && <Chip label="Purchasable" sx={{ background: '#EBF4FF', color: '#2E86DE', fontWeight: 700 }} />}
 									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#fff7df', color: '#d97706', fontWeight: 700 }} />}
 								</Stack>
 
 								<Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap' }}>
 									<Stack direction="row" spacing={0.8} alignItems="center" sx={{ px: 1.5, py: 1, borderRadius: '12px', background: '#fff', border: `1px solid ${libraryColors.border}` }}>
-										<RemoveRedEyeIcon sx={{ fontSize: 20, color: libraryColors.blue }} />
+										<RemoveRedEyeIcon sx={{ fontSize: 20, color: libraryColors.muted }} />
 										<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>{book?.bookViews ?? 0}</Typography>
 									</Stack>
 									<Stack
@@ -575,26 +576,28 @@ const BookDetailPage: NextPage = () => {
 											'&:hover': { transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
 										}}
 									>
-										{book?.meLiked?.[0]?.myFavorite ? <FavoriteIcon sx={{ fontSize: 20, color: '#ef4444' }} /> : <FavoriteBorderIcon sx={{ fontSize: 20, color: libraryColors.blue }} />}
+										{book?.meLiked?.[0]?.myFavorite ? <FavoriteIcon sx={{ fontSize: 20, color: '#ef4444' }} /> : <FavoriteBorderIcon sx={{ fontSize: 20, color: libraryColors.muted }} />}
 										<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>{book?.bookLikes ?? 0}</Typography>
 									</Stack>
 								</Stack>
 
 								<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 									<Button
-										variant="contained"
+										variant="outlined"
 										startIcon={<LocalShippingOutlinedIcon />}
 										disabled={createRequestLoading || !book?.isBorrowable}
 										onClick={() => createDeliveryRequestHandler(RequestType.BORROW)}
 										sx={{
 											flex: 1,
 											height: 52,
-											background: libraryColors.blue,
+											background: '#FFFFFF',
+											borderColor: '#E2E8F0',
+											color: '#1A1A2E',
 											borderRadius: '12px',
 											textTransform: 'none',
 											fontSize: 16,
 											fontWeight: 700,
-											'&:hover': { background: '#1d4ed8' },
+											'&:hover': { background: '#F8FAFC', borderColor: '#1B3A6B' },
 										}}
 									>
 										Borrow
@@ -607,13 +610,14 @@ const BookDetailPage: NextPage = () => {
 										sx={{
 											flex: 1,
 											height: 52,
-											borderColor: libraryColors.blue,
-											color: libraryColors.blue,
+											background: '#FFFFFF',
+											borderColor: '#E2E8F0',
+											color: '#1A1A2E',
 											borderRadius: '12px',
 											textTransform: 'none',
 											fontSize: 16,
 											fontWeight: 700,
-											'&:hover': { background: '#eff6ff', borderColor: '#1d4ed8' },
+											'&:hover': { background: '#F8FAFC', borderColor: '#1B3A6B' },
 										}}
 									>
 										Commercial
@@ -621,7 +625,7 @@ const BookDetailPage: NextPage = () => {
 								</Stack>
 
 								<SafeBox sx={{ border: `1px solid ${libraryColors.border}`, borderRadius: '16px', overflow: 'hidden' }}>
-									<SafeBox sx={{ px: 2, py: 1.5, background: '#f8fbff', borderBottom: `1px solid ${libraryColors.border}` }}>
+									<SafeBox sx={{ px: 2, py: 1.5, background: '#F8FAFC', borderBottom: `1px solid ${libraryColors.border}` }}>
 										<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>Catalog Record</Typography>
 									</SafeBox>
 									<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' } }}>
@@ -635,7 +639,7 @@ const BookDetailPage: NextPage = () => {
 												}}
 											>
 												<Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
-													<Icon sx={{ fontSize: 18, color: libraryColors.blue }} />
+													<Icon sx={{ fontSize: 18, color: libraryColors.muted }} />
 													<Typography sx={{ color: libraryColors.muted, fontSize: 12, fontWeight: 600, textTransform: 'uppercase' }}>{label}</Typography>
 												</Stack>
 												<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>{value}</Typography>
@@ -648,25 +652,13 @@ const BookDetailPage: NextPage = () => {
 					</SafeBox>
 
 
-					<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
-						<Stack direction="row" spacing={1.3} alignItems="center" mb={1.8}>
-							<SafeBox sx={{ width: 44, height: 44, borderRadius: '16px', background: libraryColors.soft, color: libraryColors.blue, display: 'grid', placeItems: 'center' }}>
-								<MenuBookIcon />
-							</SafeBox>
-							<Typography sx={sectionTitleSx}>Description</Typography>
-						</Stack>
-						<Typography sx={{ color: libraryColors.muted, lineHeight: 1.85, fontSize: 16, whiteSpace: 'pre-line' }}>
-							{book?.bookDescription || 'No description has been added for this book yet.'}
-						</Typography>
-					</SafeBox>
-
 					<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: { xs: 3, md: 4 } }}>
 						<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
 							<Typography sx={{ ...sectionTitleSx, mb: 2.2 }}>Physical Details</Typography>
 							<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 1.5 }}>
 								{physicalItems.map(({ label, value, icon: Icon }) => (
-									<Stack key={label} spacing={1} sx={{ p: 2, borderRadius: '20px', border: `1px solid ${libraryColors.border}`, background: '#f8fbff' }}>
-										<SafeBox sx={{ color: libraryColors.blue }}><Icon /></SafeBox>
+									<Stack key={label} spacing={1} sx={{ p: 2, borderRadius: '20px', border: `1px solid ${libraryColors.border}`, background: '#F8FAFC' }}>
+										<SafeBox sx={{ color: libraryColors.muted }}><Icon /></SafeBox>
 										<Typography sx={{ color: libraryColors.muted, fontSize: 13, fontWeight: 800 }}>{label}</Typography>
 										<Typography sx={{ color: libraryColors.ink, fontSize: 21, fontWeight: 900 }}>{value}</Typography>
 									</Stack>
@@ -678,8 +670,8 @@ const BookDetailPage: NextPage = () => {
 							<Typography sx={{ ...sectionTitleSx, mb: 2.2 }}>Reading Guide</Typography>
 							<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 1.5, mb: 2 }}>
 								{readingItems.map(({ label, value, icon: Icon, color }) => (
-									<Stack key={label} spacing={1} sx={{ p: 2, borderRadius: '20px', border: `1px solid ${libraryColors.border}`, background: '#f8fbff' }}>
-										<SafeBox sx={{ color: color ?? libraryColors.blue }}><Icon /></SafeBox>
+									<Stack key={label} spacing={1} sx={{ p: 2, borderRadius: '20px', border: `1px solid ${libraryColors.border}`, background: '#F8FAFC' }}>
+										<SafeBox sx={{ color: color ?? libraryColors.muted }}><Icon /></SafeBox>
 										<Typography sx={{ color: libraryColors.muted, fontSize: 13, fontWeight: 800 }}>{label}</Typography>
 										<Typography sx={{ color: color ?? libraryColors.ink, fontSize: 18, fontWeight: 900 }}>{value}</Typography>
 									</Stack>
@@ -687,7 +679,7 @@ const BookDetailPage: NextPage = () => {
 							</SafeBox>
 							<Stack direction="row" gap={1} flexWrap="wrap">
 								{['Best read: Morning', 'Study aid: Yes', 'Note-taking: Recommended'].map((tag) => (
-									<Chip key={tag} label={tag} sx={{ borderRadius: '999px', background: libraryColors.soft, color: libraryColors.blue, fontWeight: 800 }} />
+									<Chip key={tag} label={tag} sx={{ borderRadius: '999px', background: '#F8FAFC', border: '1px solid #E2E8F0', color: libraryColors.muted, fontWeight: 700 }} />
 								))}
 							</Stack>
 						</SafeBox>
@@ -701,36 +693,36 @@ const BookDetailPage: NextPage = () => {
 									Find this title in the main library section. The highlighted block marks the active shelf for this book.
 								</Typography>
 								<Stack direction="row" gap={1} flexWrap="wrap">
-									<Chip label={book?.bookCallNumber ?? 'Call number N/A'} sx={{ background: libraryColors.soft, color: libraryColors.blue, fontWeight: 900, borderRadius: '999px' }} />
+									<Chip label={book?.bookCallNumber ?? 'Call number N/A'} sx={{ background: '#EBF4FF', color: '#1B3A6B', fontWeight: 900, borderRadius: '999px' }} />
 									<Chip label="Good" sx={{ background: '#e6f6ee', color: libraryColors.green, fontWeight: 900, borderRadius: '999px' }} />
 								</Stack>
 							</Stack>
 
 							<SafeBox sx={{ flex: 1, minWidth: 0 }}>
-								<SafeBox sx={{ borderRadius: '24px', border: `1px solid ${libraryColors.border}`, background: 'linear-gradient(135deg, #f8fbff 0%, #edf4ff 100%)', p: { xs: 1.5, sm: 2.4 }, overflow: 'hidden' }}>
+								<SafeBox sx={{ borderRadius: '24px', border: `1px solid ${libraryColors.border}`, background: '#F8FAFC', p: { xs: 1.5, sm: 2.4 }, overflow: 'hidden' }}>
 									<SafeBox component="svg" viewBox="0 0 720 320" role="img" aria-label="Library shelf map" sx={{ width: '100%', display: 'block' }}>
-										<rect x="24" y="28" width="230" height="82" rx="18" fill="#dceaff" stroke="#2468d6" strokeWidth="3" />
-										<text x="139" y="63" textAnchor="middle" fontSize="18" fontWeight="800" fill="#2468d6">Library books</text>
-										<rect x="76" y="80" width="126" height="24" rx="12" fill="#2468d6" />
+										<rect x="24" y="28" width="230" height="82" rx="18" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="2" />
+										<text x="139" y="63" textAnchor="middle" fontSize="18" fontWeight="800" fill="#64748B">Library books</text>
+										<rect x="76" y="80" width="126" height="24" rx="12" fill="#1B3A6B" />
 										<text x="139" y="98" textAnchor="middle" fontSize="13" fontWeight="800" fill="#ffffff">This Book</text>
 
-										<rect x="466" y="28" width="230" height="82" rx="18" fill="#ffffff" stroke="#cbd8e8" strokeWidth="2" />
-										<text x="581" y="76" textAnchor="middle" fontSize="18" fontWeight="800" fill="#607086">Commercial books</text>
+										<rect x="466" y="28" width="230" height="82" rx="18" fill="#ffffff" stroke="#E2E8F0" strokeWidth="2" />
+										<text x="581" y="76" textAnchor="middle" fontSize="18" fontWeight="800" fill="#64748B">Commercial books</text>
 
-										<rect x="24" y="142" width="672" height="48" rx="18" fill="#ffffff" stroke="#d8e4f2" strokeWidth="2" />
+										<rect x="24" y="142" width="672" height="48" rx="18" fill="#ffffff" stroke="#E2E8F0" strokeWidth="2" />
 										<text x="360" y="173" textAnchor="middle" fontSize="16" fontWeight="800" fill="#8a9aae">Aisle</text>
 
-										<rect x="24" y="222" width="150" height="66" rx="18" fill="#ffffff" stroke="#cbd8e8" strokeWidth="2" />
-										<text x="99" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#607086">Reception</text>
+										<rect x="24" y="222" width="150" height="66" rx="18" fill="#ffffff" stroke="#E2E8F0" strokeWidth="2" />
+										<text x="99" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#64748B">Reception</text>
 
-										<rect x="218" y="222" width="150" height="66" rx="18" fill="#ffffff" stroke="#cbd8e8" strokeWidth="2" />
-										<text x="293" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#607086">Desk A</text>
+										<rect x="218" y="222" width="150" height="66" rx="18" fill="#ffffff" stroke="#E2E8F0" strokeWidth="2" />
+										<text x="293" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#64748B">Desk A</text>
 
-										<rect x="412" y="222" width="150" height="66" rx="18" fill="#ffffff" stroke="#cbd8e8" strokeWidth="2" />
-										<text x="487" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#607086">Desk B</text>
+										<rect x="412" y="222" width="150" height="66" rx="18" fill="#ffffff" stroke="#E2E8F0" strokeWidth="2" />
+										<text x="487" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#64748B">Desk B</text>
 
-										<rect x="604" y="222" width="92" height="66" rx="18" fill="#f7fbff" stroke="#cbd8e8" strokeWidth="2" />
-										<text x="650" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#607086">Aisle</text>
+										<rect x="604" y="222" width="92" height="66" rx="18" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="2" />
+										<text x="650" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#64748B">Aisle</text>
 									</SafeBox>
 								</SafeBox>
 							</SafeBox>
@@ -741,8 +733,8 @@ const BookDetailPage: NextPage = () => {
 						<Typography sx={{ ...sectionTitleSx, mb: 2.2 }}>Borrowing Policy</Typography>
 						<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 1.5 }}>
 							{policyItems.map(({ label, value, icon: Icon }) => (
-								<Stack key={label} direction="row" spacing={1.5} sx={{ p: 2, borderRadius: '20px', border: `1px solid ${libraryColors.border}`, background: '#f8fbff' }}>
-									<SafeBox sx={{ width: 42, height: 42, borderRadius: '15px', background: '#fff', color: libraryColors.blue, display: 'grid', placeItems: 'center', flex: '0 0 auto' }}><Icon /></SafeBox>
+								<Stack key={label} direction="row" spacing={1.5} sx={{ p: 2, borderRadius: '20px', border: `1px solid ${libraryColors.border}`, background: '#F8FAFC' }}>
+									<SafeBox sx={{ width: 42, height: 42, borderRadius: '15px', background: '#F8FAFC', border: '1px solid #E2E8F0', color: libraryColors.muted, display: 'grid', placeItems: 'center', flex: '0 0 auto' }}><Icon /></SafeBox>
 									<SafeBox>
 										<Typography sx={{ color: libraryColors.ink, fontWeight: 900 }}>{label}</Typography>
 										<Typography sx={{ color: libraryColors.muted, mt: 0.3 }}>{value}</Typography>
@@ -754,20 +746,15 @@ const BookDetailPage: NextPage = () => {
 
 					<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
 						<Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} gap={1.5} mb={2.5}>
-							<Stack direction="row" spacing={1.2} alignItems="center">
-								<SafeBox sx={{ width: 44, height: 44, borderRadius: '16px', background: libraryColors.soft, color: libraryColors.blue, display: 'grid', placeItems: 'center' }}>
-									<ReviewsIcon />
-								</SafeBox>
-								<SafeBox>
-									<Typography sx={sectionTitleSx}>Reviews</Typography>
-									<Typography sx={{ color: libraryColors.muted, fontWeight: 800 }}>{reviewLabel}</Typography>
-								</SafeBox>
-							</Stack>
+							<SafeBox>
+								<Typography sx={sectionTitleSx}>Reviews</Typography>
+								<Typography sx={{ color: libraryColors.muted, fontWeight: 600 }}>{reviewLabel}</Typography>
+							</SafeBox>
 						</Stack>
 
 						<Stack spacing={1.5} mb={3}>
 							{bookComments.length === 0 ? (
-								<SafeBox sx={{ p: { xs: 2.5, md: 3 }, borderRadius: '22px', background: '#f8fbff', border: `1px dashed ${libraryColors.border}`, textAlign: 'center' }}>
+								<SafeBox sx={{ p: { xs: 2.5, md: 3 }, borderRadius: '22px', background: '#F8FAFC', border: `1px dashed ${libraryColors.border}`, textAlign: 'center' }}>
 									<Typography sx={{ color: libraryColors.ink, fontWeight: 900, mb: 0.5 }}>No reviews yet</Typography>
 									<Typography sx={{ color: libraryColors.muted }}>Be the first reader to leave a note about this book.</Typography>
 								</SafeBox>
@@ -775,7 +762,7 @@ const BookDetailPage: NextPage = () => {
 								bookComments.map((comment: Comment) => {
 									const avatarSrc = resolveMediaUrl(comment?.memberData?.memberImage, '/img/profile/defaultUser.svg');
 									return (
-										<Stack key={comment._id} direction={{ xs: 'column', sm: 'row' }} spacing={1.7} sx={{ p: 2, background: '#f8fbff', border: `1px solid ${libraryColors.border}`, borderRadius: '22px' }}>
+										<Stack key={comment._id} direction={{ xs: 'column', sm: 'row' }} spacing={1.7} sx={{ p: 2, background: '#F8FAFC', border: `1px solid ${libraryColors.border}`, borderRadius: '22px' }}>
 											<Avatar src={avatarSrc} alt={comment.memberData?.memberNick ?? 'User'} sx={{ width: 48, height: 48 }} />
 											<SafeBox sx={{ flex: 1, minWidth: 0 }}>
 												<Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" gap={0.5} mb={0.6}>
@@ -796,7 +783,7 @@ const BookDetailPage: NextPage = () => {
 							</Stack>
 						)}
 
-						<SafeBox sx={{ p: { xs: 2, md: 2.5 }, borderRadius: '24px', background: '#f8fbff', border: `1px solid ${libraryColors.border}` }}>
+						<SafeBox sx={{ p: { xs: 2, md: 2.5 }, borderRadius: '24px', background: '#F8FAFC', border: `1px solid ${libraryColors.border}` }}>
 							<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.7} alignItems="flex-start">
 								<Avatar src={resolveMediaUrl(user?.memberImage, '/img/profile/defaultUser.svg')} alt={user?.memberNick ?? 'Reader'} sx={{ width: 48, height: 48 }} />
 								<Stack spacing={1.4} sx={{ flex: 1, width: '100%' }}>
@@ -805,7 +792,7 @@ const BookDetailPage: NextPage = () => {
 											<Typography sx={{ color: libraryColors.ink, fontSize: 18, fontWeight: 900 }}>Leave Review</Typography>
 											<Typography sx={{ color: libraryColors.muted, fontSize: 13 }}>Share a useful note for the next reader.</Typography>
 										</SafeBox>
-										<Rating value={reviewRating} onChange={(_event, value) => setReviewRating(value)} />
+										<Rating value={reviewRating} onChange={(_event, value) => setReviewRating(value)} sx={{ '& .MuiRating-iconEmpty': { color: '#E2E8F0' }, '& .MuiRating-iconFilled': { color: '#F59E0B' } }} />
 									</Stack>
 									<TextField
 										multiline
@@ -819,6 +806,9 @@ const BookDetailPage: NextPage = () => {
 												alignItems: 'flex-start',
 												borderRadius: '18px',
 												background: '#fff',
+												'& fieldset': { borderColor: '#E2E8F0' },
+												'&:hover fieldset': { borderColor: '#1B3A6B' },
+												'&.Mui-focused fieldset': { borderColor: '#1B3A6B', borderWidth: '2px' },
 											},
 										}}
 									/>
@@ -832,11 +822,11 @@ const BookDetailPage: NextPage = () => {
 												ml: { sm: 'auto' },
 												px: 3,
 												py: 1.35,
-												background: libraryColors.blue,
+												background: libraryColors.navy,
 												borderRadius: '16px',
 												textTransform: 'none',
 												fontWeight: 900,
-												'&:hover': { background: '#1d57b6' },
+												'&:hover': { background: '#142d52' },
 												'&.Mui-disabled': { background: '#cbd8e8', color: '#fff' },
 											}}
 										>
@@ -870,7 +860,7 @@ const BookDetailPage: NextPage = () => {
 									const imgSrc = resolveMediaUrl(b.bookImages?.[0], '/img/banner/books_hero.png');
 									return (
 										<SwiperSlide key={b._id}>
-											<SafeBox onClick={() => router.push(`/books/detail?id=${b._id}`)} sx={{ cursor: 'pointer', background: '#f8fbff', borderRadius: '22px', overflow: 'hidden', border: `1px solid ${libraryColors.border}`, transition: 'transform 180ms ease, box-shadow 180ms ease', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 16px 32px rgba(15, 31, 51, 0.1)' } }}>
+											<SafeBox onClick={() => router.push(`/books/detail?id=${b._id}`)} sx={{ cursor: 'pointer', background: '#F8FAFC', borderRadius: '22px', overflow: 'hidden', border: `1px solid ${libraryColors.border}`, transition: 'transform 180ms ease, box-shadow 180ms ease', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 16px 32px rgba(15, 31, 51, 0.1)' } }}>
 												<SafeBox component="img" src={imgSrc} alt={b.bookTitle} sx={{ width: '100%', height: 210, objectFit: 'cover', display: 'block' }} />
 												<SafeBox sx={{ p: 1.8 }}>
 													<Typography sx={{ fontSize: 15, fontWeight: 900, color: libraryColors.ink, mb: 0.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.bookTitle}</Typography>
