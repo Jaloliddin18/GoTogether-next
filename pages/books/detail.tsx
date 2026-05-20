@@ -8,6 +8,10 @@ import {
 	Button,
 	Chip,
 	CircularProgress,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
 	Divider,
 	Pagination as MuiPagination,
 	Rating,
@@ -54,7 +58,7 @@ import { CommentGroup } from '../../libs/enums/comment.enum';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { BookAudience } from '../../libs/enums/book.enum';
-import { RequestType } from '../../libs/enums/request.enum';
+import { DeliveryDestinationType, RequestType } from '../../libs/enums/request.enum';
 import { CreateDeliveryRequestInput } from '../../libs/types/request/request.input';
 import { userVar } from '../../apollo/store';
 import { resolveMediaUrl } from '../../libs/utils';
@@ -166,6 +170,11 @@ type AutoDeskDestination = {
 	theta: number;
 };
 
+const DESK_DESTINATION_MAP: Record<'A' | 'B', AutoDeskDestination> = {
+	A: { destinationDeskId: 'A', floorId: 'floor_1', x: 293, y: 255, theta: 0 },
+	B: { destinationDeskId: 'B', floorId: 'floor_1', x: 487, y: 255, theta: 0 },
+};
+
 const parseNumeric = (value: any): number | null => {
 	const parsed = Number(value);
 	return Number.isFinite(parsed) ? parsed : null;
@@ -239,6 +248,8 @@ const BookDetailPage: NextPage = () => {
 	});
 
 	const [similarBooks, setSimilarBooks] = useState<Book[]>([]);
+	const [isDeskModalOpen, setIsDeskModalOpen] = useState(false);
+	const [selectedDeskId, setSelectedDeskId] = useState<'A' | 'B' | null>(null);
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetBook] = useMutation(LIKE_TARGET_BOOK);
@@ -335,29 +346,35 @@ const BookDetailPage: NextPage = () => {
 		}
 	};
 
-	const createDeliveryRequestHandler = async (requestType: RequestType) => {
+	const createDeliveryRequestHandler = async (
+		requestType: RequestType,
+		options?: { deskId?: 'A' | 'B'; destinationType?: DeliveryDestinationType },
+	) => {
 		try {
 			if (!book?._id) return;
-			const autoDestination = resolveAutoDeskDestination(user);
-			const destination = autoDestination ?? {
-				destinationDeskId: 'A12',
-				floorId: 'floor_1',
-				x: 145,
-				y: 72,
-				theta: 0,
-			};
+			const destinationType =
+				options?.destinationType ??
+				(requestType === RequestType.BORROW
+					? DeliveryDestinationType.STUDENT_DESK
+					: DeliveryDestinationType.RECEPTION);
+			const selectedDeskDestination = options?.deskId ? DESK_DESTINATION_MAP[options.deskId] : null;
+			const autoDestination = requestType === RequestType.BORROW ? resolveAutoDeskDestination(user) : null;
+			const destination = selectedDeskDestination ?? autoDestination;
 
 			const input: CreateDeliveryRequestInput = {
 				bookId: book._id,
 				requestType,
-				destinationDeskId: destination.destinationDeskId,
-				destination: {
+				destinationType,
+			};
+			if (destination) {
+				input.destinationDeskId = destination.destinationDeskId;
+				input.destination = {
 					floorId: destination.floorId,
 					x: destination.x,
 					y: destination.y,
 					theta: destination.theta,
-				},
-			};
+				};
+			}
 
 			if (!user?._id) {
 				input.sessionId = getOrCreateDeliverySessionId();
@@ -375,13 +392,34 @@ const BookDetailPage: NextPage = () => {
 				});
 			}
 
-			await sweetTopSuccessAlert(
-				request?.status === 'QUEUED' ? 'Request sent successfully' : 'Robot started delivery',
-				1800,
-			);
+			if (requestType === RequestType.PURCHASE) {
+				await sweetTopSuccessAlert('Request sent successfully — Book will be delivered to Reception', 1800);
+			} else {
+				await sweetTopSuccessAlert('Request sent successfully', 1800);
+			}
 		} catch (err: any) {
 			await sweetMixinErrorAlert(err.message ?? 'Request failed');
 		}
+	};
+
+	const openDeskSelectionModal = () => {
+		setSelectedDeskId(null);
+		setIsDeskModalOpen(true);
+	};
+
+	const closeDeskSelectionModal = () => {
+		if (createRequestLoading) return;
+		setIsDeskModalOpen(false);
+	};
+
+	const confirmDeskSelection = async () => {
+		if (!selectedDeskId) return;
+		await createDeliveryRequestHandler(RequestType.BORROW, {
+			deskId: selectedDeskId,
+			destinationType: DeliveryDestinationType.STUDENT_DESK,
+		});
+		setIsDeskModalOpen(false);
+		setSelectedDeskId(null);
 	};
 
 	const imageList = useMemo(() => {
@@ -586,7 +624,7 @@ const BookDetailPage: NextPage = () => {
 										variant="outlined"
 										startIcon={<LocalShippingOutlinedIcon />}
 										disabled={createRequestLoading || !book?.isBorrowable}
-										onClick={() => createDeliveryRequestHandler(RequestType.BORROW)}
+										onClick={openDeskSelectionModal}
 										sx={{
 											flex: 1,
 											height: 52,
@@ -606,7 +644,11 @@ const BookDetailPage: NextPage = () => {
 										variant="outlined"
 										startIcon={<ShoppingBagOutlinedIcon />}
 										disabled={createRequestLoading || !book?.isPurchasable}
-										onClick={() => createDeliveryRequestHandler(RequestType.PURCHASE)}
+										onClick={() =>
+											createDeliveryRequestHandler(RequestType.PURCHASE, {
+												destinationType: DeliveryDestinationType.RECEPTION,
+											})
+										}
 										sx={{
 											flex: 1,
 											height: 52,
@@ -876,6 +918,84 @@ const BookDetailPage: NextPage = () => {
 					)}
 				</Stack>
 			</div>
+			<Dialog
+				open={isDeskModalOpen}
+				onClose={closeDeskSelectionModal}
+				fullWidth
+				maxWidth="xs"
+				slotProps={{
+					backdrop: {
+						sx: { backgroundColor: 'rgba(15, 23, 42, 0.55)' },
+					},
+				}}
+				PaperProps={{
+					sx: {
+						borderRadius: '16px',
+						border: `1px solid ${libraryColors.border}`,
+						backgroundColor: '#ffffff',
+					},
+				}}
+			>
+				<DialogTitle sx={{ color: libraryColors.ink, fontWeight: 700, pb: 1 }}>
+					Where would you like the book delivered?
+				</DialogTitle>
+				<DialogContent sx={{ pt: '8px !important' }}>
+					<Stack spacing={1.2}>
+						{(['A', 'B'] as const).map((deskId) => {
+							const selected = selectedDeskId === deskId;
+							return (
+								<Button
+									key={deskId}
+									variant="outlined"
+									onClick={() => setSelectedDeskId(deskId)}
+									sx={{
+										height: 50,
+										justifyContent: 'flex-start',
+										textTransform: 'none',
+										fontWeight: 700,
+										borderColor: selected ? libraryColors.navy : libraryColors.border,
+										color: libraryColors.ink,
+										backgroundColor: selected ? libraryColors.soft : '#ffffff',
+										'&:hover': {
+											borderColor: libraryColors.navy,
+											backgroundColor: selected ? libraryColors.soft : '#ffffff',
+										},
+									}}
+								>
+									Desk {deskId}
+								</Button>
+							);
+						})}
+					</Stack>
+				</DialogContent>
+				<DialogActions sx={{ px: 3, pb: 2.5 }}>
+					<Button
+						onClick={closeDeskSelectionModal}
+						disabled={createRequestLoading}
+						sx={{ textTransform: 'none', color: libraryColors.muted, fontWeight: 700 }}
+					>
+						Cancel
+					</Button>
+					<Button
+						variant="contained"
+						onClick={confirmDeskSelection}
+						disabled={!selectedDeskId || createRequestLoading}
+						sx={{
+							textTransform: 'none',
+							fontWeight: 700,
+							backgroundColor: libraryColors.navy,
+							color: '#ffffff',
+							'&:hover': { backgroundColor: libraryColors.navy },
+							'&.Mui-disabled': {
+								backgroundColor: '#cbd5e1',
+								color: '#ffffff',
+							},
+						}}
+					>
+						{createRequestLoading ? 'Sending...' : 'Confirm'}
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</div>
 	);
 };

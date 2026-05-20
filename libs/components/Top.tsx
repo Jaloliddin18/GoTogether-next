@@ -4,6 +4,7 @@ import { useRouter, withRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { getJwtToken, logOut, updateUserInfo } from '../auth';
 import { Stack, Box } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
 import Badge from '@mui/material/Badge';
@@ -18,10 +19,11 @@ import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
-import { useReactiveVar } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
 import { REACT_APP_API_URL } from '../config';
+import { CANCEL_REQUEST } from '../../apollo/user/mutation';
 import {
 	getRobotTrackingWsUrl,
 	joinRobotRequestRoom,
@@ -37,6 +39,8 @@ import {
 	RobotNotification,
 	saveRobotNotifications,
 } from '../library/ws/trackingEvents';
+import { RequestStatus } from '../enums/request.enum';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../sweetAlert';
 
 const Top = () => {
 	const device = useDeviceDetect();
@@ -54,8 +58,23 @@ const Top = () => {
 	const [robotNotifications, setRobotNotifications] = useState<RobotNotification[]>([]);
 	const [trackingRequests, setTrackingRequests] = useState<RobotTrackingRequest[]>([]);
 	const [trackingConnected, setTrackingConnected] = useState<boolean>(false);
+	const [cancellingNotificationId, setCancellingNotificationId] = useState<string | null>(null);
+	const [cancelErrors, setCancelErrors] = useState<Record<string, string>>({});
 	const robotSocketRef = useRef<WebSocket | null>(null);
 	const joinedRequestIdsRef = useRef<Set<string>>(new Set<string>());
+	const [cancelRequest] = useMutation(CANCEL_REQUEST);
+
+	const cancellableStatuses = new Set<RequestStatus | string>([
+		RequestStatus.QUEUED,
+		RequestStatus.ASSIGNED,
+		RequestStatus.NAVIGATING_TO_SHELF,
+		RequestStatus.ARRIVED_AT_SHELF,
+		RequestStatus.VERIFYING_BOOK,
+		RequestStatus.BOOK_FOUND,
+		RequestStatus.PICKING_UP,
+		RequestStatus.DELIVERING,
+		RequestStatus.ARRIVED_AT_STUDENT,
+	]);
 
 	const addRobotNotification = useCallback((notification: RobotNotification) => {
 		setRobotNotifications((prev) => {
@@ -223,6 +242,143 @@ const Top = () => {
 		await router.push('/mypage');
 	};
 
+	const dismissNotification = (notificationId: string) => {
+		setRobotNotifications((prev) => {
+			const next = prev.filter((n) => n.id !== notificationId);
+			saveRobotNotifications(next);
+			return next;
+		});
+	};
+
+	const cancelRequestHandler = async (notification: RobotNotification) => {
+		try {
+			setCancellingNotificationId(notification.id);
+			setCancelErrors((prev) => ({ ...prev, [notification.id]: '' }));
+			const { data } = await cancelRequest({
+				variables: { input: { requestId: notification.requestId } },
+			});
+			const cancelledStatus = data?.cancelRequest?.status ?? RequestStatus.CANCELLED;
+			const now = new Date().toISOString();
+			setRobotNotifications((prev) => {
+				const next = prev.map((item) =>
+					item.id === notification.id
+						? {
+								...item,
+								status: cancelledStatus,
+								title: getRobotNotificationTitle(cancelledStatus),
+								timestamp: now,
+						  }
+						: item,
+				);
+				saveRobotNotifications(next);
+				return next;
+			});
+			await sweetTopSmallSuccessAlert('Request cancelled. Robot returning to idle.', 1200);
+		} catch (err: any) {
+			const message = err?.message ?? 'Failed to cancel request';
+			setCancelErrors((prev) => ({ ...prev, [notification.id]: message }));
+			await sweetMixinErrorAlert(message);
+		} finally {
+			setCancellingNotificationId(null);
+		}
+	};
+
+	const renderNotificationCard = (notification: RobotNotification) => {
+		const canCancel = cancellableStatuses.has(notification.status);
+		const isCancelling = cancellingNotificationId === notification.id;
+		const cancelError = cancelErrors[notification.id];
+
+		return (
+			<div key={notification.id} className="robot-notification-card" style={{ display: 'flex', alignItems: 'center' }}>
+				<div
+					role="button"
+					tabIndex={0}
+					onClick={handleNotificationClick}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							handleNotificationClick();
+						}
+					}}
+					style={{ display: 'flex', alignItems: 'center', flex: 1, cursor: 'pointer', padding: 0, textAlign: 'left' }}
+				>
+					<span className="robot-card-icon"><SmartToyOutlinedIcon /></span>
+					<span className="robot-card-copy">
+						<strong>{notification.title}</strong>
+						<em>{notification.status}</em>
+						<small>{notificationTime(notification.timestamp)}</small>
+						{canCancel && (
+							<span style={{ marginTop: 8 }}>
+								<button
+									type="button"
+									onClick={(e) => {
+										e.stopPropagation();
+										cancelRequestHandler(notification);
+									}}
+									disabled={isCancelling}
+									style={{
+										background: '#ffffff',
+										border: '1px solid #EF4444',
+										color: '#EF4444',
+										borderRadius: 8,
+										fontSize: '0.75rem',
+										fontWeight: 700,
+										padding: '4px 10px',
+										cursor: isCancelling ? 'not-allowed' : 'pointer',
+										opacity: isCancelling ? 0.6 : 1,
+									}}
+									onMouseEnter={(e) => {
+										if (isCancelling) return;
+										e.currentTarget.style.background = '#fef2f2';
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.background = '#ffffff';
+									}}
+								>
+									{isCancelling ? (
+										<span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+											<CircularProgress size={12} sx={{ color: '#EF4444' }} />
+											Cancelling...
+										</span>
+									) : (
+										'Cancel Request'
+									)}
+								</button>
+							</span>
+						)}
+						{cancelError && (
+							<small style={{ color: '#EF4444', marginTop: 6 }}>{cancelError}</small>
+						)}
+					</span>
+					<ChevronRightOutlinedIcon className="robot-card-arrow" />
+				</div>
+				<button
+					onClick={(e) => {
+						e.stopPropagation();
+						dismissNotification(notification.id);
+					}}
+					style={{
+						background: 'none',
+						border: 'none',
+						cursor: 'pointer',
+						fontSize: '0.85rem',
+						color: '#9ab0c8',
+						padding: '2px 6px',
+						lineHeight: 1,
+						borderRadius: '4px',
+						flexShrink: 0,
+						transition: 'color 0.2s',
+					}}
+					onMouseEnter={e => (e.currentTarget.style.color = '#d63031')}
+					onMouseLeave={e => (e.currentTarget.style.color = '#9ab0c8')}
+					aria-label="Dismiss notification"
+				>
+					×
+				</button>
+			</div>
+		);
+	};
+
 	const StyledMenu = styled((props: MenuProps) => (
 		<Menu
 			elevation={0}
@@ -324,46 +480,7 @@ const Top = () => {
 						{notificationList.length === 0 ? (
 							<div className="robot-panel-empty">No robot updates yet.</div>
 						) : (
-							notificationList.map((notification) => (
-								<div key={notification.id} className="robot-notification-card" style={{ display: 'flex', alignItems: 'center' }}>
-									<button type="button" onClick={handleNotificationClick} style={{ display: 'flex', alignItems: 'center', flex: 1, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}>
-										<span className="robot-card-icon"><SmartToyOutlinedIcon /></span>
-										<span className="robot-card-copy">
-											<strong>{notification.title}</strong>
-											<em>{notification.status}</em>
-											<small>{notificationTime(notification.timestamp)}</small>
-										</span>
-										<ChevronRightOutlinedIcon className="robot-card-arrow" />
-									</button>
-									<button
-										onClick={(e) => {
-											e.stopPropagation();
-											setRobotNotifications((prev) => {
-												const next = prev.filter((n) => n.id !== notification.id);
-												saveRobotNotifications(next);
-												return next;
-											});
-										}}
-										style={{
-											background: 'none',
-											border: 'none',
-											cursor: 'pointer',
-											fontSize: '0.85rem',
-											color: '#9ab0c8',
-											padding: '2px 6px',
-											lineHeight: 1,
-											borderRadius: '4px',
-											flexShrink: 0,
-											transition: 'color 0.2s',
-										}}
-										onMouseEnter={e => (e.currentTarget.style.color = '#d63031')}
-										onMouseLeave={e => (e.currentTarget.style.color = '#9ab0c8')}
-										aria-label="Dismiss notification"
-									>
-										×
-									</button>
-								</div>
-							))
+							notificationList.map((notification) => renderNotificationCard(notification))
 						)}
 					</div>
 				</aside>
@@ -546,46 +663,7 @@ const Top = () => {
 						{notificationList.length === 0 ? (
 							<div className="robot-panel-empty">No robot updates yet.</div>
 						) : (
-							notificationList.map((notification) => (
-								<div key={notification.id} className="robot-notification-card" style={{ display: 'flex', alignItems: 'center' }}>
-									<button type="button" onClick={handleNotificationClick} style={{ display: 'flex', alignItems: 'center', flex: 1, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}>
-										<span className="robot-card-icon"><SmartToyOutlinedIcon /></span>
-										<span className="robot-card-copy">
-											<strong>{notification.title}</strong>
-											<em>{notification.status}</em>
-											<small>{notificationTime(notification.timestamp)}</small>
-										</span>
-										<ChevronRightOutlinedIcon className="robot-card-arrow" />
-									</button>
-									<button
-										onClick={(e) => {
-											e.stopPropagation();
-											setRobotNotifications((prev) => {
-												const next = prev.filter((n) => n.id !== notification.id);
-												saveRobotNotifications(next);
-												return next;
-											});
-										}}
-										style={{
-											background: 'none',
-											border: 'none',
-											cursor: 'pointer',
-											fontSize: '0.85rem',
-											color: '#9ab0c8',
-											padding: '2px 6px',
-											lineHeight: 1,
-											borderRadius: '4px',
-											flexShrink: 0,
-											transition: 'color 0.2s',
-										}}
-										onMouseEnter={e => (e.currentTarget.style.color = '#d63031')}
-										onMouseLeave={e => (e.currentTarget.style.color = '#9ab0c8')}
-										aria-label="Dismiss notification"
-									>
-										×
-									</button>
-								</div>
-							))
+							notificationList.map((notification) => renderNotificationCard(notification))
 						)}
 					</div>
 				</aside>
