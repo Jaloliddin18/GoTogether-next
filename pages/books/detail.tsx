@@ -250,6 +250,7 @@ const BookDetailPage: NextPage = () => {
 	const [similarBooks, setSimilarBooks] = useState<Book[]>([]);
 	const [isDeskModalOpen, setIsDeskModalOpen] = useState(false);
 	const [selectedDeskId, setSelectedDeskId] = useState<'A' | 'B' | null>(null);
+	const [isDeskSubmitting, setIsDeskSubmitting] = useState(false);
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetBook] = useMutation(LIKE_TARGET_BOOK);
@@ -348,10 +349,14 @@ const BookDetailPage: NextPage = () => {
 
 	const createDeliveryRequestHandler = async (
 		requestType: RequestType,
-		options?: { deskId?: 'A' | 'B'; destinationType?: DeliveryDestinationType },
-	) => {
+		options?: {
+			deskId?: 'A' | 'B';
+			destinationType?: DeliveryDestinationType;
+			skipSuccessToast?: boolean;
+		},
+	): Promise<boolean> => {
 		try {
-			if (!book?._id) return;
+			if (!book?._id) return false;
 			const destinationType =
 				options?.destinationType ??
 				(requestType === RequestType.BORROW
@@ -392,13 +397,18 @@ const BookDetailPage: NextPage = () => {
 				});
 			}
 
-			if (requestType === RequestType.PURCHASE) {
-				await sweetTopSuccessAlert('Request sent successfully — Book will be delivered to Reception', 1800);
-			} else {
-				await sweetTopSuccessAlert('Request sent successfully', 1800);
+			if (!options?.skipSuccessToast) {
+				if (requestType === RequestType.PURCHASE) {
+					await sweetTopSuccessAlert('Request sent successfully — Book will be delivered to Reception', 1800);
+				} else {
+					await sweetTopSuccessAlert('Request sent successfully', 1800);
+				}
 			}
+
+			return true;
 		} catch (err: any) {
 			await sweetMixinErrorAlert(err.message ?? 'Request failed');
+			return false;
 		}
 	};
 
@@ -408,18 +418,29 @@ const BookDetailPage: NextPage = () => {
 	};
 
 	const closeDeskSelectionModal = () => {
-		if (createRequestLoading) return;
+		if (isDeskSubmitting) return;
 		setIsDeskModalOpen(false);
 	};
 
 	const confirmDeskSelection = async () => {
 		if (!selectedDeskId) return;
-		await createDeliveryRequestHandler(RequestType.BORROW, {
+		setIsDeskSubmitting(true);
+		const success = await createDeliveryRequestHandler(RequestType.BORROW, {
 			deskId: selectedDeskId,
 			destinationType: DeliveryDestinationType.STUDENT_DESK,
+			skipSuccessToast: true,
 		});
-		setIsDeskModalOpen(false);
-		setSelectedDeskId(null);
+
+		if (success) {
+			setIsDeskModalOpen(false);
+			setSelectedDeskId(null);
+			setIsDeskSubmitting(false);
+			await new Promise((resolve) => setTimeout(resolve, 150));
+			await sweetTopSuccessAlert('Request sent successfully', 1800);
+			return;
+		}
+
+		setIsDeskSubmitting(false);
 	};
 
 	const imageList = useMemo(() => {
@@ -971,7 +992,7 @@ const BookDetailPage: NextPage = () => {
 				<DialogActions sx={{ px: 3, pb: 2.5 }}>
 					<Button
 						onClick={closeDeskSelectionModal}
-						disabled={createRequestLoading}
+						disabled={isDeskSubmitting}
 						sx={{ textTransform: 'none', color: libraryColors.muted, fontWeight: 700 }}
 					>
 						Cancel
@@ -979,10 +1000,11 @@ const BookDetailPage: NextPage = () => {
 					<Button
 						variant="contained"
 						onClick={confirmDeskSelection}
-						disabled={!selectedDeskId || createRequestLoading}
+						disabled={!selectedDeskId || isDeskSubmitting}
 						sx={{
 							textTransform: 'none',
 							fontWeight: 700,
+							opacity: isDeskSubmitting ? 0.75 : 1,
 							backgroundColor: libraryColors.navy,
 							color: '#ffffff',
 							'&:hover': { backgroundColor: libraryColors.navy },
@@ -992,7 +1014,7 @@ const BookDetailPage: NextPage = () => {
 							},
 						}}
 					>
-						{createRequestLoading ? 'Sending...' : 'Confirm'}
+						{isDeskSubmitting ? 'Sending...' : 'Confirm'}
 					</Button>
 				</DialogActions>
 			</Dialog>
