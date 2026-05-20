@@ -338,19 +338,23 @@ const BookDetailPage: NextPage = () => {
 		try {
 			if (!book?._id) return;
 			const autoDestination = resolveAutoDeskDestination(user);
-			if (!autoDestination) {
-				throw new Error('Desk location is not configured. Please set your desk metadata in My Page first.');
-			}
+			const destination = autoDestination ?? {
+				destinationDeskId: 'A12',
+				floorId: 'floor_1',
+				x: 145,
+				y: 72,
+				theta: 0,
+			};
 
 			const input: CreateDeliveryRequestInput = {
 				bookId: book._id,
 				requestType,
-				destinationDeskId: autoDestination.destinationDeskId,
+				destinationDeskId: destination.destinationDeskId,
 				destination: {
-					floorId: autoDestination.floorId,
-					x: autoDestination.x,
-					y: autoDestination.y,
-					theta: autoDestination.theta,
+					floorId: destination.floorId,
+					x: destination.x,
+					y: destination.y,
+					theta: destination.theta,
 				},
 			};
 

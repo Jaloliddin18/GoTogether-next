@@ -292,24 +292,77 @@ const Top = () => {
 							<p>Robot Updates</p>
 							<span>{trackingConnected ? 'Live connection active' : 'Waiting for robot signal'}</span>
 						</div>
-						<IconButton onClick={closeNotificationPanel} aria-label="Close robot notifications">
-							<CloseOutlinedIcon />
-						</IconButton>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+							{robotNotifications.length > 0 && (
+								<button
+									onClick={() => {
+										setRobotNotifications([]);
+										saveRobotNotifications([]);
+									}}
+									style={{
+										background: 'none',
+										border: 'none',
+										cursor: 'pointer',
+										fontSize: '0.78rem',
+										color: '#5a7a9c',
+										padding: '2px 8px',
+										borderRadius: '4px',
+										transition: 'color 0.2s',
+									}}
+									onMouseEnter={e => (e.currentTarget.style.color = '#1a6fd4')}
+									onMouseLeave={e => (e.currentTarget.style.color = '#5a7a9c')}
+								>
+									Clear all
+								</button>
+							)}
+							<IconButton onClick={closeNotificationPanel} aria-label="Close robot notifications">
+								<CloseOutlinedIcon />
+							</IconButton>
+						</div>
 					</div>
 					<div className="robot-panel-list">
 						{notificationList.length === 0 ? (
 							<div className="robot-panel-empty">No robot updates yet.</div>
 						) : (
 							notificationList.map((notification) => (
-								<button key={notification.id} className="robot-notification-card" type="button" onClick={handleNotificationClick}>
-									<span className="robot-card-icon"><SmartToyOutlinedIcon /></span>
-									<span className="robot-card-copy">
-										<strong>{notification.title}</strong>
-										<em>{notification.status}</em>
-										<small>{notificationTime(notification.timestamp)}</small>
-									</span>
-									<ChevronRightOutlinedIcon className="robot-card-arrow" />
-								</button>
+								<div key={notification.id} className="robot-notification-card" style={{ display: 'flex', alignItems: 'center' }}>
+									<button type="button" onClick={handleNotificationClick} style={{ display: 'flex', alignItems: 'center', flex: 1, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}>
+										<span className="robot-card-icon"><SmartToyOutlinedIcon /></span>
+										<span className="robot-card-copy">
+											<strong>{notification.title}</strong>
+											<em>{notification.status}</em>
+											<small>{notificationTime(notification.timestamp)}</small>
+										</span>
+										<ChevronRightOutlinedIcon className="robot-card-arrow" />
+									</button>
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											setRobotNotifications((prev) => {
+												const next = prev.filter((n) => n.id !== notification.id);
+												saveRobotNotifications(next);
+												return next;
+											});
+										}}
+										style={{
+											background: 'none',
+											border: 'none',
+											cursor: 'pointer',
+											fontSize: '0.85rem',
+											color: '#9ab0c8',
+											padding: '2px 6px',
+											lineHeight: 1,
+											borderRadius: '4px',
+											flexShrink: 0,
+											transition: 'color 0.2s',
+										}}
+										onMouseEnter={e => (e.currentTarget.style.color = '#d63031')}
+										onMouseLeave={e => (e.currentTarget.style.color = '#9ab0c8')}
+										aria-label="Dismiss notification"
+									>
+										×
+									</button>
+								</div>
 							))
 						)}
 					</div>
@@ -461,24 +514,77 @@ const Top = () => {
 							<p>Robot Updates</p>
 							<span>{trackingConnected ? 'Live connection active' : 'Waiting for robot signal'}</span>
 						</div>
-						<IconButton onClick={closeNotificationPanel} aria-label="Close robot notifications">
-							<CloseOutlinedIcon />
-						</IconButton>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+							{robotNotifications.length > 0 && (
+								<button
+									onClick={() => {
+										setRobotNotifications([]);
+										saveRobotNotifications([]);
+									}}
+									style={{
+										background: 'none',
+										border: 'none',
+										cursor: 'pointer',
+										fontSize: '0.78rem',
+										color: '#5a7a9c',
+										padding: '2px 8px',
+										borderRadius: '4px',
+										transition: 'color 0.2s',
+									}}
+									onMouseEnter={e => (e.currentTarget.style.color = '#1a6fd4')}
+									onMouseLeave={e => (e.currentTarget.style.color = '#5a7a9c')}
+								>
+									Clear all
+								</button>
+							)}
+							<IconButton onClick={closeNotificationPanel} aria-label="Close robot notifications">
+								<CloseOutlinedIcon />
+							</IconButton>
+						</div>
 					</div>
 					<div className="robot-panel-list">
 						{notificationList.length === 0 ? (
 							<div className="robot-panel-empty">No robot updates yet.</div>
 						) : (
 							notificationList.map((notification) => (
-								<button key={notification.id} className="robot-notification-card" type="button" onClick={handleNotificationClick}>
-									<span className="robot-card-icon"><SmartToyOutlinedIcon /></span>
-									<span className="robot-card-copy">
-										<strong>{notification.title}</strong>
-										<em>{notification.status}</em>
-										<small>{notificationTime(notification.timestamp)}</small>
-									</span>
-									<ChevronRightOutlinedIcon className="robot-card-arrow" />
-								</button>
+								<div key={notification.id} className="robot-notification-card" style={{ display: 'flex', alignItems: 'center' }}>
+									<button type="button" onClick={handleNotificationClick} style={{ display: 'flex', alignItems: 'center', flex: 1, background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}>
+										<span className="robot-card-icon"><SmartToyOutlinedIcon /></span>
+										<span className="robot-card-copy">
+											<strong>{notification.title}</strong>
+											<em>{notification.status}</em>
+											<small>{notificationTime(notification.timestamp)}</small>
+										</span>
+										<ChevronRightOutlinedIcon className="robot-card-arrow" />
+									</button>
+									<button
+										onClick={(e) => {
+											e.stopPropagation();
+											setRobotNotifications((prev) => {
+												const next = prev.filter((n) => n.id !== notification.id);
+												saveRobotNotifications(next);
+												return next;
+											});
+										}}
+										style={{
+											background: 'none',
+											border: 'none',
+											cursor: 'pointer',
+											fontSize: '0.85rem',
+											color: '#9ab0c8',
+											padding: '2px 6px',
+											lineHeight: 1,
+											borderRadius: '4px',
+											flexShrink: 0,
+											transition: 'color 0.2s',
+										}}
+										onMouseEnter={e => (e.currentTarget.style.color = '#d63031')}
+										onMouseLeave={e => (e.currentTarget.style.color = '#9ab0c8')}
+										aria-label="Dismiss notification"
+									>
+										×
+									</button>
+								</div>
 							))
 						)}
 					</div>
