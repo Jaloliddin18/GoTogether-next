@@ -70,7 +70,7 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 		formData.append('map', JSON.stringify(mapObj));
 		files.forEach((file, i) => formData.append(String(i), file));
 
-		const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
+		const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/graphql`, formData, {
 			headers: {
 				'Content-Type': 'multipart/form-data',
 				'apollo-require-preflight': true,
