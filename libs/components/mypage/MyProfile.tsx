@@ -9,7 +9,7 @@ import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { MemberUpdate } from '../../types/member/member.update';
 import { UPDATE_MEMBER } from '../../../apollo/user/mutation';
-import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../sweetAlert';
+import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../sweetAlert';
 
 const BIO_MAX = 200;
 
@@ -50,7 +50,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 			formData.append('map', JSON.stringify({ '0': ['variables.file'] }));
 			formData.append('0', image);
 
-			const response = await axios.post(`${process.env.REACT_APP_API_GRAPHQL_URL}`, formData, {
+			const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/graphql`, formData, {
 				headers: {
 					'Content-Type': 'multipart/form-data',
 					'apollo-require-preflight': true,
@@ -60,8 +60,8 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 
 			const responseImage = response.data.data.imageUploader;
 			setUpdateData({ ...updateData, memberImage: responseImage });
-		} catch (err) {
-			console.log('Error, uploadImage:', err);
+		} catch (err: any) {
+			sweetMixinErrorAlert(err.message ?? 'Image upload failed').then();
 		}
 	};
 
@@ -76,12 +76,12 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
-	}, [updateData]);
+	}, [updateData, user]);
 
-	const isDisabled = () =>
-		!updateData.memberNick?.trim() ||
-		!updateData.memberPhone?.trim() ||
-		!updateData.memberImage?.trim();
+	const isDisabled = () => {
+		const nick = updateData.memberNick?.trim() ?? '';
+		return nick.length < 3 || nick.length > 12;
+	};
 
 	if (device === 'mobile') return <>MY PROFILE PAGE MOBILE</>;
 
