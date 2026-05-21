@@ -1,7 +1,46 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-19
+**Last Updated:** 2026-05-21
 **Current Branch:** `myPage`
+
+---
+
+## Today's Session Update (2026-05-21, MyFavorites + RecentlyVisited redesign + like wiring)
+
+### Completed today
+- Redesigned `MyFavorites.tsx`: 3-col `.bk-grid` card layout, PAGE_LIMIT=10, MUI Pagination (same pattern as MyArticles). Cards show category label, like badge with count, cover image, title, author.
+- Redesigned `RecentlyVisited.tsx`: same 3-col grid + pagination. Cards show category label + visited date at top, cover, title, author.
+- Wired like button in MyFavorites: `LIKE_TARGET_BOOK` mutation + `refetchFavorites`; `FavoriteIcon`/`FavoriteBorderIcon` toggled by `meLiked[0]?.myFavorite`; `e.stopPropagation()` on heart click.
+- Fixed card navigation in both panels: routes to `/books/detail?id=${book._id}` (not `/books/${book._id}` — no dynamic route exists).
+- Fixed Apollo cache crash (`TypeError: Cannot convert object to primitive value`): added `meLiked { memberId likeRefId myFavorite }` to `LIKE_TARGET_BOOK` mutation return fields in `apollo/user/mutation.ts`. Omitting it caused `writeToStore` to try `String()` on the cached nested object.
+- SCSS: replaced old saved-books and viewed-books styles with shared `.bk-*` classes in `scss/pc/mypage/mypage.scss`. All `$font` and `$color-*` only — no hardcoded hex, no external fonts.
+
+### Current stopping point
+- All changes committed. Working tree clean.
+
+### Exact next task
+- Book detail page (`pages/library/books/[bookId].tsx`) — Smart Library book detail with BORROW/PURCHASE button and `createDeliveryRequest` mutation.
+
+### Uncommitted/untracked files
+- None (committed in this session).
+
+---
+
+## Today's Session Update (2026-05-20, Twit posting bug fixes)
+
+### Completed today
+- Fixed image upload URL in `CommunityComposer.tsx`: replaced undefined `process.env.REACT_APP_API_GRAPHQL_URL` with `process.env.NEXT_PUBLIC_API_URL}/graphql`. Any twit post with images was silently failing before this fix.
+- Aligned twit text character limit with backend: changed frontend limit from 500 → 280 → back to 500 after backend was also raised to 500. Both sides now consistently enforce 500 chars.
+  - `CommunityComposer.tsx`: `submitHandler` guard, `/500` counter hint, Post button disabled condition all updated.
+
+### Current stopping point
+- Working tree is clean after commit `fd8a163`.
+
+### Exact next task
+- Test twit posting end-to-end (text-only and with images) against running backend.
+
+### Uncommitted/untracked files
+- None (`git status`: working tree clean).
 
 ---
 
@@ -268,6 +307,7 @@ Per CLAUDE.md implementation order:
 ## Recent Commits
 
 ```
+fd8a163 fix: fix twit image upload URL and raise text limit to 500 characters
 d3c5270 feat: add comment threading, edit, delete, and like functionality
 a80f766 fix: community page UI fixes and image grid improvements
 ce808b4 fix: update agents.md

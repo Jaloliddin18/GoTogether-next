@@ -165,6 +165,11 @@ export const LIKE_TARGET_BOOK = gql`
 			deletedAt
 			createdAt
 			updatedAt
+			meLiked {
+				memberId
+				likeRefId
+				myFavorite
+			}
 		}
 	}
 `;

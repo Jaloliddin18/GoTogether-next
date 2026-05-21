@@ -148,7 +148,7 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 
 ### API Integration
 - Apollo setup is in `apollo/client.ts`. It uses `apollo-upload-client` for HTTP GraphQL and `WebSocketLink` for subscriptions, split by operation type.
-- GraphQL HTTP URI comes from `process.env.REACT_APP_API_GRAPHQL_URL`; WebSocket URI comes from `process.env.REACT_APP_API_WS`.
+- GraphQL HTTP URI is `process.env.NEXT_PUBLIC_API_URL + '/graphql'` (set via `NEXT_PUBLIC_API_URL` in `.env.*`). Do NOT use `REACT_APP_API_GRAPHQL_URL` — that var is undefined in this project. WebSocket URI comes from `process.env.REACT_APP_API_WS`.
 - Auth token handling is in `libs/auth/index.ts`: `accessToken` is stored in `localStorage`, decoded with `jwt-decode`, and written into `userVar`.
 - `apollo/store.ts` defines global reactive vars. `userVar` is the primary auth/user state used by layout and components.
 - User-facing Smart Library operations confirmed in `apollo/user/query.ts`: `GET_BOOKS`, `GET_BOOK`, `GET_FAVORITE_BOOKS`, `GET_VISITED_BOOKS`, request queries, follow queries, twit queries, and twit-comment queries.
@@ -302,7 +302,7 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - `likeTwit(twitId: String): Twit`: authenticated like toggle.
 - `deleteTwit(twitId: String): Twit`: authenticated owner soft delete.
 - Admin moderation APIs exist for all twits through admin resolver paths.
-- `CreateTwitInput` supports `text` and optional `images: String[]` (multi-image, max 3 via `imagesUploader`).
+- `CreateTwitInput` supports `text` (max 500 chars, enforced on both frontend and backend) and optional `images: String[]` (multi-image, max 3 via `imagesUploader`).
 - Important `Twit` fields: `_id`, `memberId`, `text`, `images`, `meLiked`, `likeCount`, `viewCount`, `deletedAt`, `createdAt`, `updatedAt`, and `memberData`. `meLiked` and `viewCount` are required for like toggle and view display; always include them in twit query/mutation return sets. Do not request `likes` or `image` — those fields are removed.
 - Frontend community pages should use Twit/TwitComment APIs for new community work. Existing board-article frontend pages are legacy and should not be mixed into new Twit work without a scoped migration.
 
@@ -392,6 +392,41 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 
 ---
 
+## Session Update (2026-05-21) — MyFavorites + RecentlyVisited redesign, like wiring, Apollo cache fix
+
+### Completed
+
+**MyFavorites.tsx — full redesign:**
+- Layout: 3-column `.bk-grid` card layout, PAGE_LIMIT=10, MUI Pagination matching `MyArticles` pattern (`pagination-config` > `pagination-box` > `Pagination` + `total-result`)
+- Card structure: `.bk-card-top` (category label left, like badge right), `.bk-card-image` (160px, object-fit cover), `.bk-card-body` (`$color-bg` tint, title + author)
+- Like button: `FavoriteIcon` / `FavoriteBorderIcon` toggled by `book.meLiked?.[0]?.myFavorite`; calls `LIKE_TARGET_BOOK` mutation + `refetchFavorites`; `e.stopPropagation()` prevents card navigation on heart click; shows `book.bookLikes` count
+- Card click navigates to `/books/detail?id=${book._id}` (query-param format matching `pages/books/detail.tsx`)
+- Auth guard: throws `Message.NOT_AUTHENTICATED` if not logged in; error shown via `sweetMixinErrorAlert`
+
+**RecentlyVisited.tsx — redesign + routing fix:**
+- Same 3-col `.bk-grid` + MUI Pagination (PAGE_LIMIT=10)
+- Card top row: category label left, visited date (`formatDate(book.updatedAt)`) right
+- Card click navigates to `/books/detail?id=${book._id}`
+
+**apollo/user/mutation.ts — Apollo cache bug fix:**
+- Added `meLiked { memberId likeRefId myFavorite }` to `LIKE_TARGET_BOOK` return fields
+- Root cause: cache held `Book.meLiked` as a nested object from `GET_FAVORITE_BOOKS`; mutation response omitted `meLiked`; Apollo's `warnAboutDataLoss` in `writeToStore` called `String()` on the cached object → `TypeError: Cannot convert object to primitive value`
+
+**scss/pc/mypage/mypage.scss:**
+- Replaced old `#my-favorites-page` and `#recently-visited-page` blocks with shared `.bk-*` card classes
+- All colors: `$color-*` variables only; all fonts: `$font` only — no hardcoded hex, no external font imports
+- `.bk-card-badge`: interactive like button with hover → `$color-danger`, `.bk-card-badge--liked` active state
+- `.bk-card-likes`: inline like count beside heart icon
+
+### Key rules from this session
+- Book detail navigation from MyPage uses `/books/detail?id=${book._id}` — NOT `/books/${book._id}` (no dynamic route exists; detail page reads `router.query.id`).
+- `LIKE_TARGET_BOOK` mutation MUST return `meLiked { memberId likeRefId myFavorite }` — omitting it causes Apollo cache type-mismatch crash (`Cannot convert object to primitive value`).
+- Never introduce non-project-standard fonts (DM Sans, Playfair Display, etc.) or hardcoded hex colors. Always use `$font` and `$color-*` from `scss/variables.scss`.
+- `e.stopPropagation()` is required on the like badge click to prevent the card's `onClick` navigation from also firing.
+- Category enum formatter: `raw.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase())` — applied wherever `bookCategory` or genre enum is displayed.
+
+---
+
 ## Session Update (2026-05-18) — MyPage Smart Library Dashboard Rebuild
 
 ### Completed (commit `bb02d33`)
@@ -400,8 +435,8 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - `MyMenu.tsx` — flat 8-item nav (no section headers), MUI icons, avatar + nick + memberType at top, logout separated by border-top with `$color-danger`
 - `MyProfile.tsx` — removed `memberAddress`, added `memberDesc` textarea with 200-char live counter
 - `MyArticles.tsx` → "My Twits" — live `GET_MEMBER_TWITS`, `DELETE_TWIT` with `sweetConfirmAlert`, navigate to `/community/detail?id=`
-- `MyFavorites.tsx` → "Saved Books" — live `GET_FAVORITE_BOOKS`, 3-col grid, View Book → `/books/${book._id}`
-- `RecentlyVisited.tsx` → "Recently Viewed" — live `GET_VISITED_BOOKS`, 4-col rows, View Again → `/books/${book._id}`
+- `MyFavorites.tsx` → "Saved Books" — live `GET_FAVORITE_BOOKS`, 3-col grid, like button wired, card → `/books/detail?id=`
+- `RecentlyVisited.tsx` → "Recently Viewed" — live `GET_VISITED_BOOKS`, 3-col grid, card → `/books/detail?id=`
 - `MyRequests.tsx` — NEW: live `GET_SESSION_REQUESTS`, client-side 3-tab filter (All/Active/History), uses real `RequestStatus` enum (14 values), status badge classes: `status-pending/active/ready/done/issue`
 - `RobotTracking.tsx` — NEW: SVG 4×4 floor map (A1–D4), animated robot dot (`robot-pulse-ring` CSS animation), mock robot at `colIndex:1.5, rowIndex:0.8` mid-aisle toward B3 target, right panel with status badge + "Request Robot" button
 
@@ -412,14 +447,12 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - `pages/mypage/index.tsx`: added `initialInput` with `user._id` to `MemberFollowers` and `MemberFollowings` — fixes race condition where components remounted before `followInquiry` was populated
 - `apollo/user/mutation.ts` `DELETE_TWIT`: `image` → `images` (removed field corrected)
 - `apollo/user/query.ts` `GET_MEMBER_TWITS`: added missing `viewCount` field
-- Both "View Book" / "View Again" buttons navigate to `/books/${book._id}` (not `/library/books/`)
 
 **SCSS:** `scss/pc/mypage/mypage.scss` fully overhauled — all colors use `$color-*` SCSS variables, all fonts use `$font`, no hardcoded hex.
 
 **Standard enforcement rule:** Never introduce non-project-standard fonts (DM Sans, Playfair Display, etc.) or hardcoded hex colors. Always use `$font` and `$color-*` from `scss/variables.scss`.
 
 ### Key rules from this session
-- Book navigation from MyPage panels uses `/books/${book._id}` — not `/library/books/`.
 - `GET_SESSION_REQUESTS` has no status filter on the server (`SessionRequestsInquiry` input has no status field) — client-side tab filtering with `ACTIVE_STATUSES` / `HISTORY_STATUSES` arrays is correct.
 - Request cover image: `req.bookData?.bookImages?.[0]` prefixed with `REACT_APP_API_URL`; fallback `/img/profile/defaultUser.svg`.
 - `AddNewProperty.tsx` must NOT be deleted — it is the reference template for the Admin Add Book panel (see section below). It is not mounted on the student MyPage.
