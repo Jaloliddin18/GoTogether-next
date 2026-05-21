@@ -33,7 +33,7 @@ const MyArticles: NextPage = () => {
 
 	/** APOLLO REQUESTS **/
 	const { loading, error, data, refetch } = useQuery(GET_MEMBER_TWITS, {
-		fetchPolicy: 'network-only',
+		fetchPolicy: 'cache-and-network',
 		variables: { input: twitInquiry },
 		skip: !user._id,
 		notifyOnNetworkStatusChange: true,
