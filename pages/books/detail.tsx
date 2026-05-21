@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { NextPage } from 'next';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
@@ -142,7 +143,7 @@ function getDifficulty(audience: string): { label: string; color: string } {
 		return { label: 'Beginner', color: '#22C55E' };
 	if (audience === BookAudience.GRADUATE || audience === BookAudience.PROFESSIONAL)
 		return { label: 'Advanced', color: '#F59E0B' };
-	return { label: 'Intermediate', color: '#2E86DE' };
+	return { label: 'Intermediate', color: '#64748B' };
 }
 
 function formatPrice(book?: Book | null): string {
@@ -504,6 +505,78 @@ const BookDetailPage: NextPage = () => {
 			}}
 		>
 			<div
+				style={{
+					position: 'relative',
+					width: '100%',
+					height: isMobile ? 160 : 280,
+					overflow: 'hidden',
+				}}
+			>
+					<img
+						src="/img/property/book-detail-banner.png"
+						alt="Book Detail Banner"
+						style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+					/>
+					<div
+						style={{
+							position: 'absolute',
+							inset: 0,
+							background: 'linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.42) 100%)',
+						}}
+					/>
+					<div
+						style={{
+							position: 'absolute',
+							inset: 0,
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}
+					>
+						<h1
+							style={{
+								color: '#FFFFFF',
+								fontFamily: "'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+								fontSize: isMobile ? 24 : 36,
+								fontWeight: 700,
+								textShadow: '0 2px 8px rgba(0,0,0,0.35)',
+								margin: 0,
+							}}
+						>
+							Book Detail
+						</h1>
+						<div
+							style={{
+								marginTop: 8,
+								fontSize: 14,
+								fontFamily: "'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+								color: 'rgba(255,255,255,0.85)',
+								display: 'flex',
+								alignItems: 'center',
+								gap: 8,
+							}}
+						>
+							<Link href="/" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}
+								onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; (e.currentTarget as HTMLAnchorElement).style.color = '#FFFFFF'; }}
+								onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.85)'; }}
+							>
+								Home
+							</Link>
+							<span style={{ color: 'rgba(255,255,255,0.6)' }}>›</span>
+							<Link href="/books" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}
+								onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; (e.currentTarget as HTMLAnchorElement).style.color = '#FFFFFF'; }}
+								onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.85)'; }}
+							>
+								Books
+							</Link>
+							<span style={{ color: 'rgba(255,255,255,0.6)' }}>›</span>
+							<span>Book Detail</span>
+						</div>
+					</div>
+			</div>
+
+			<div
 				className="container"
 				style={{
 					width: '100%',
@@ -513,7 +586,7 @@ const BookDetailPage: NextPage = () => {
 					display: 'block',
 				}}
 			>
-				<Stack spacing={{ xs: 3, md: 4 }}>
+				<Stack spacing={{ xs: 3, md: 4 }} sx={{ mt: '24px' }}>
 					<SafeBox
 						sx={{
 							...cardSx,
@@ -596,7 +669,7 @@ const BookDetailPage: NextPage = () => {
 								</Stack>
 
 								<Stack direction="row" spacing={2} alignItems="center">
-									<Typography sx={{ color: libraryColors.blue, fontSize: 32, fontWeight: 800 }}>
+									<Typography sx={{ color: libraryColors.ink, fontSize: 32, fontWeight: 800 }}>
 										{formatPrice(book)}
 									</Typography>
 									{book?.bookPrice?.isDiscounted && book?.bookPrice?.discountPercent ? (
@@ -607,9 +680,9 @@ const BookDetailPage: NextPage = () => {
 								</Stack>
 
 								<Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
-									{book?.isBorrowable && <Chip label="Borrowable" sx={{ background: '#ecfdf5', color: '#059669', fontWeight: 700 }} />}
-									{book?.isPurchasable && <Chip label="Purchasable" sx={{ background: '#EBF4FF', color: '#2E86DE', fontWeight: 700 }} />}
-									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#fff7df', color: '#d97706', fontWeight: 700 }} />}
+									{book?.isBorrowable && <Chip label="Borrowable" sx={{ background: '#f0fdf4', color: '#22C55E', fontWeight: 700, border: '1px solid #22C55E', borderRadius: '999px', fontSize: 13, px: 0.5 }} />}
+									{book?.isPurchasable && <Chip label="Purchasable" sx={{ background: '#EBF4FF', color: '#1B3A6B', fontWeight: 700, border: '1px solid #E2E8F0', borderRadius: '999px', fontSize: 13, px: 0.5 }} />}
+									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#fffbeb', color: '#F59E0B', fontWeight: 700, border: '1px solid #F59E0B', borderRadius: '999px', fontSize: 13, px: 0.5 }} />}
 								</Stack>
 
 								<Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap' }}>
