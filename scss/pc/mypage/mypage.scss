@@ -737,6 +737,7 @@ $transition: 0.18s ease;
 #my-requests-page {
 	width: 100%;
 
+	// ── Tab bar ──────────────────────────────────────────────────────────────
 	.requests-tab-bar {
 		display: flex;
 		gap: 4px;
@@ -767,29 +768,32 @@ $transition: 0.18s ease;
 		&:hover:not(.requests-tab--active) { color: $color-dark; }
 	}
 
+	// ── List container ────────────────────────────────────────────────────────
 	.requests-list {
 		display: flex;
 		flex-direction: column;
-		gap: 1px;
 	}
 
+	// ── Row ──────────────────────────────────────────────────────────────────
 	.request-row {
 		display: grid;
-		grid-template-columns: 48px 1fr 110px 100px;
-		gap: 16px;
+		grid-template-columns: 56px 1fr auto 96px;
+		gap: 14px;
 		align-items: center;
-		padding: 14px 0;
+		padding: 12px 0;
 		border-bottom: 1px solid $color-border;
 		transition: background $transition;
+		cursor: default;
 
-		&:hover { background: rgba($color-bg, 0.7); }
+		&:hover { background: $color-bg; }
 		&:last-child { border-bottom: none; }
 	}
 
+	// ── Book cover ───────────────────────────────────────────────────────────
 	.request-cover {
-		width: 48px;
-		height: 64px;
-		border-radius: 4px;
+		width: 56px;
+		height: 72px;
+		border-radius: 3px;
 		overflow: hidden;
 		flex-shrink: 0;
 
@@ -797,109 +801,104 @@ $transition: 0.18s ease;
 			width: 100%;
 			height: 100%;
 			object-fit: cover;
+			display: block;
 		}
+
+		svg { display: block; }
 	}
 
+	// ── Content column ───────────────────────────────────────────────────────
 	.request-content {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: 3px;
 		min-width: 0;
 	}
 
 	.request-title {
-		font-family: $font !important;
-		font-size: 13.5px !important;
-		font-weight: 600 !important;
-		color: $color-dark !important;
+		font-family: $font;
+		font-size: 13.5px;
+		font-weight: 600;
+		color: $color-dark;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		line-height: 1.4;
 	}
 
 	.request-author {
-		font-family: $font !important;
-		font-size: 12px !important;
-		color: $color-muted !important;
+		font-family: $font;
+		font-size: 12px;
+		font-weight: 400;
+		color: $color-muted;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		line-height: 1.4;
 	}
 
-	.request-meta {
+	// ── Status column — status row + type stacked below ─────────────────────
+	.request-status-col {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 6px;
+		gap: 4px;
+		white-space: nowrap;
 	}
 
-	// Status badges
-	.request-status {
-		display: inline-flex;
-		align-items: center;
-		padding: 3px 8px;
-		border-radius: 6px;
-		font-family: $font;
-		font-size: 11px;
-		font-weight: 500;
-
-		&.status-pending {
-			background: rgba($color-warning, 0.12);
-			color: $color-warning;
-		}
-		&.status-approved {
-			background: rgba($color-success, 0.12);
-			color: $color-success;
-		}
-		&.status-returned {
-			background: rgba($color-muted, 0.12);
-			color: $color-muted;
-		}
-		&.status-rejected {
-			background: rgba($color-danger, 0.1);
-			color: $color-danger;
-		}
-	}
-
-	// Request type pills
-	.request-type-pill {
-		display: inline-flex;
-		align-items: center;
-		padding: 2px 8px;
-		border-radius: 4px;
-		font-family: $font;
-		font-size: 10px;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.4px;
-
-		&.request-type-borrow {
-			background: rgba($color-info, 0.1);
-			color: $color-info;
-		}
-		&.request-type-purchase {
-			background: rgba($color-dark, 0.08);
-			color: $color-dark;
-		}
-	}
-
-	.request-dates {
+	// inner row: dot + label side by side
+	.request-status-row {
 		display: flex;
-		flex-direction: column;
-		gap: 1px;
+		align-items: center;
+		gap: 7px;
+	}
+
+	.request-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		flex-shrink: 0;
+
+		&.dot-primary { background: $color-primary; }
+		&.dot-success  { background: $color-success;  }
+		&.dot-danger   { background: $color-danger;   }
+		&.dot-warning  { background: $color-warning;  }
+		&.dot-muted    { background: $color-muted;    }
+	}
+
+	.request-status-label {
+		font-family: $font;
+		font-size: 12px;
+		font-weight: 500;
+		color: $color-dark;
+		line-height: 1;
+	}
+
+	.request-type {
+		font-family: $font;
+		font-size: 12px;
+		font-weight: 400;
+		color: $color-muted;
+		line-height: 1;
+	}
+
+	// ── Date column ───────────────────────────────────────────────────────────
+	.request-date-col {
 		text-align: right;
 	}
 
-	.request-date-label {
-		font-family: $font !important;
-		font-size: 10px !important;
-		color: $color-muted !important;
-		text-transform: uppercase;
-		letter-spacing: 0.4px;
+	.request-date {
+		font-family: $font;
+		font-size: 12px;
+		font-weight: 400;
+		color: $color-muted;
+		white-space: nowrap;
 	}
 
-	.request-date {
-		font-family: $font !important;
-		font-size: 12px !important;
-		color: $color-dark !important;
-		font-weight: 500 !important;
+	// ── Empty state svg icon ──────────────────────────────────────────────────
+	.empty-icon-svg {
+		color: $color-border;
+		flex-shrink: 0;
 	}
 }
 

@@ -158,7 +158,7 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 MemberFollowings.defaultProps = {
 	initialInput: {
 		page: 1,
-		limit: 5,
+		limit: 10,
 		search: { followerId: '' },
 	},
 };
