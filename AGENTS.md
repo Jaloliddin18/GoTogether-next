@@ -15,6 +15,28 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-21) — Groq AI chatbot frontend + request actions
+
+### Completed
+- Replaced old `Chat.tsx` group-chat UI with `AiChatBubble.tsx`.
+- Layouts now use `<AiChatBubble />`: `LayoutHome.tsx`, `LayoutFull.tsx`, `LayoutBasic.tsx`.
+- Chatbot styles live in `scss/pc/chat/ai-chat.scss` and are imported by `scss/pc/main.scss`.
+- Chatbot calls backend REST endpoint `${REACT_APP_API_URL}/chat/message`; `REACT_APP_API_URL` is exported from `libs/config.ts` and reads `NEXT_PUBLIC_API_URL`.
+- Backend response contract consumed by frontend: `{ reply: string, books: ChatBookSuggestion[] }`.
+- Assistant replies render markdown plus structured book suggestion cards.
+- Book cards navigate to `/books/detail?id=<bookId>`.
+- Book cards include confirm-gated `Borrow` / `Purchase` actions using `CREATE_DELIVERY_REQUEST`.
+- Borrow action defaults to `DESK_A` on `demo_floor`; purchase action lets backend use reception defaults.
+- Guest request actions use localStorage key `gachi_go_chat_session_id`.
+- `react-markdown` dependency added.
+
+### Key rules
+- Never hardcode frontend API URLs; use `REACT_APP_API_URL` from `libs/config.ts`.
+- Do not parse assistant prose for UI actions; use structured backend response fields.
+- Keep request creation confirmation-gated inside chat.
+- Do not touch `apollo/client.ts`, `robot.gateway.ts`, or robot socket/tracking code for chatbot UI work.
+- Chatbot favicon path is `/img/logo/final_favicon1.png`.
+
 ## Session Update (2026-05-16) — Member profile bugs + back-navigation header
 
 ### Completed

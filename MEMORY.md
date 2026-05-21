@@ -5,6 +5,48 @@
 
 ---
 
+## Today's Session Update (2026-05-21, Groq AI chatbot frontend + request actions)
+
+### Completed today
+- Replaced the old broadcast group chat component with `libs/components/AiChatBubble.tsx`.
+- Deleted `libs/components/Chat.tsx`.
+- Installed `react-markdown` and wired assistant markdown rendering.
+- Added `scss/pc/chat/ai-chat.scss` and imported it from `scss/pc/main.scss`.
+- Updated `LayoutHome.tsx`, `LayoutFull.tsx`, and `LayoutBasic.tsx` to render `<AiChatBubble />`.
+- Fixed chatbot logo path to `/img/logo/final_favicon1.png`.
+- Chat API base uses `REACT_APP_API_URL` from `libs/config.ts`; that value is sourced from `process.env.NEXT_PUBLIC_API_URL`.
+- Frontend consumes backend `/chat/message` response shape `{ reply, books }`.
+- Assistant messages can render structured clickable book cards from `books`.
+- Book cards route to `/books/detail?id=<bookId>`.
+- Added quick prompt chips for common catalog/robot questions.
+- Added in-chat Borrow/Purchase confirmation flow on suggested book cards.
+- Confirmed actions call `CREATE_DELIVERY_REQUEST` only after explicit user confirmation.
+- Borrow requests default to `destinationDeskId: DESK_A` with `demo_floor` destination coordinates.
+- Purchase requests rely on backend reception defaults.
+- Guest chat request actions use a stable `gachi_go_chat_session_id` in localStorage.
+- Preserved `apollo/client.ts` and did not touch robot websocket code.
+
+### Verification
+- Frontend build passed with `yarn build`.
+- Backend build passed from backend repo with `npm run build`.
+- Remaining frontend build noise is pre-existing: `+input` log from `pages/account/join.tsx` and `react-i18next` static-generation warnings.
+
+### Key rules from this session
+- Do not hardcode frontend API URLs; `REACT_APP_API_URL` is the compatibility export in `libs/config.ts`, backed by `NEXT_PUBLIC_API_URL`.
+- Do not parse AI prose for actions. Use backend structured fields like `books` for UI cards/actions.
+- Chat request creation must remain confirmation-gated.
+- Do not touch `apollo/client.ts` or robot gateway/socket files for chatbot UI work.
+- `/books/detail` is still query-param based: `/books/detail?id=<bookId>`.
+
+### Current stopping point
+- Chatbot UI, book suggestions, and confirm-gated borrow/purchase request creation are implemented and build cleanly.
+- Live end-to-end QA with running frontend/backend, MongoDB, and real `GROQ_API_KEY` is still needed.
+
+### Exact next task
+- Runtime QA: ask for borrowable books, click Borrow, confirm, verify request appears in MyPage request/tracking UI; repeat for Purchase.
+
+---
+
 ## Today's Session Update (2026-05-21, MyFavorites + RecentlyVisited redesign + like wiring)
 
 ### Completed today

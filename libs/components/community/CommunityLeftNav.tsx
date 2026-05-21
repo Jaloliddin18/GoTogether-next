@@ -4,7 +4,7 @@ import { IconButton } from '@mui/material';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
-import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
+import MessageBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import BookmarkBorderOutlinedIcon from '@mui/icons-material/BookmarkBorderOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 
@@ -15,7 +15,7 @@ const CommunityLeftNav = () => {
 		{ icon: <HomeOutlinedIcon />, label: 'Home', path: '/' },
 		{ icon: <SearchOutlinedIcon />, label: 'Search', path: '/community' },
 		{ icon: <NotificationsNoneOutlinedIcon />, label: 'Notifications', path: null },
-		{ icon: <ChatBubbleOutlineOutlinedIcon />, label: 'Messages', path: null },
+		{ icon: <MessageBubbleOutlineOutlinedIcon />, label: 'Messages', path: null },
 		{ icon: <BookmarkBorderOutlinedIcon />, label: 'Bookmarks', path: null },
 		{ icon: <PersonOutlineOutlinedIcon />, label: 'Profile', path: '/member' },
 	];

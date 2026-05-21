@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { IconButton, Stack, Typography } from '@mui/material';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import MessageBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import RepeatOutlinedIcon from '@mui/icons-material/RepeatOutlined';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -29,7 +29,7 @@ const getLikedSet = (): Set<string> => {
 
 const saveLikedSet = (s: Set<string>): void => {
 	try {
-		localStorage.setItem(LS_KEY, JSON.stringify([...s]));
+		localStorage.setItem(LS_KEY, JSON.stringify(Array.from(s)));
 	} catch {}
 };
 
@@ -126,7 +126,7 @@ const TwitActionRow = ({
 		<Stack className="twit-action-row">
 			<Stack className="twit-action">
 				<IconButton onClick={commentHandler} aria-label="Reply">
-					<ChatBubbleOutlineIcon />
+					<MessageBubbleOutlineIcon />
 				</IconButton>
 				<Typography>0</Typography>
 			</Stack>
