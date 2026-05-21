@@ -508,7 +508,7 @@ const BookDetailPage: NextPage = () => {
 				style={{
 					position: 'relative',
 					width: '100%',
-					height: isMobile ? 160 : 280,
+					height: isMobile ? 260 : 380,
 					overflow: 'hidden',
 				}}
 			>
