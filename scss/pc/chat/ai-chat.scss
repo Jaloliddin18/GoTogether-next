@@ -290,74 +290,9 @@
 }
 
 .ai-chat-book-actions {
-  button,
   em {
-    border: none;
     background: $color-primary;
     color: $color-white;
-    cursor: pointer;
-    font-family: $font;
-  }
-
-  button:hover {
-    background: $color-primary-hover;
-  }
-}
-
-.ai-chat-confirm {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 12px 14px;
-  border-top: 1px solid $color-border;
-  background: $color-white;
-  font-family: $font;
-
-  strong {
-    display: block;
-    margin-bottom: 3px;
-    font-size: 13px;
-    line-height: 1.3;
-    color: $color-dark;
-  }
-
-  span {
-    display: block;
-    font-size: 11px;
-    line-height: 1.35;
-    color: $color-muted;
-  }
-}
-
-.ai-chat-confirm-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-
-  button {
-    border: 1px solid $color-border;
-    border-radius: 8px;
-    padding: 7px 10px;
-    background: $color-white;
-    color: $color-dark;
-    font-family: $font;
-    font-size: 12px;
-    cursor: pointer;
-
-    &:last-child {
-      border-color: $color-primary;
-      background: $color-primary;
-      color: $color-white;
-    }
-
-    &:hover:not(:disabled) {
-      border-color: $color-primary;
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
   }
 }
 

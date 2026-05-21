@@ -25,15 +25,15 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - Backend response contract consumed by frontend: `{ reply: string, books: ChatBookSuggestion[] }`.
 - Assistant replies render markdown plus structured book suggestion cards.
 - Book cards navigate to `/books/detail?id=<bookId>`.
-- Book cards include confirm-gated `Borrow` / `Purchase` actions using `CREATE_DELIVERY_REQUEST`.
-- Borrow action defaults to `DESK_A` on `demo_floor`; purchase action lets backend use reception defaults.
-- Guest request actions use localStorage key `gachi_go_chat_session_id`.
+- Book cards are Open-only; do not render Borrow/Purchase buttons in chat.
+- Active chat history persists for 15 minutes in localStorage key `gachi_go_ai_chat_state`.
 - `react-markdown` dependency added.
 
 ### Key rules
 - Never hardcode frontend API URLs; use `REACT_APP_API_URL` from `libs/config.ts`.
 - Do not parse assistant prose for UI actions; use structured backend response fields.
-- Keep request creation confirmation-gated inside chat.
+- Do not create borrow/purchase requests from chat; use book detail pages for those actions.
+- Keep chat history persistence scoped to 15 minutes.
 - Do not touch `apollo/client.ts`, `robot.gateway.ts`, or robot socket/tracking code for chatbot UI work.
 - Chatbot favicon path is `/img/logo/final_favicon1.png`.
 

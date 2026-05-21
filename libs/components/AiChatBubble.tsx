@@ -4,11 +4,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
-import { useMutation, useReactiveVar } from '@apollo/client';
 import { REACT_APP_API_URL } from '../config';
-import { CREATE_DELIVERY_REQUEST } from '../../apollo/user/mutation';
-import { userVar } from '../../apollo/store';
-import { RequestType } from '../enums/request.enum';
 
 interface ChatBookSuggestion {
 	bookId: string;
@@ -27,23 +23,15 @@ interface ChatMsg {
 	books?: ChatBookSuggestion[];
 }
 
-interface PendingBookAction {
-	book: ChatBookSuggestion;
-	type: RequestType;
+interface StoredChatState {
+	messages: ChatMsg[];
+	updatedAt: number;
 }
 
 const CHAT_API = `${REACT_APP_API_URL}/chat/message`;
 const BOOK_FALLBACK_IMAGE = '/img/profile/defaultUser.svg';
-const CHAT_SESSION_KEY = 'gachi_go_chat_session_id';
-const DEFAULT_BORROW_DESTINATION = {
-	destinationDeskId: 'DESK_A',
-	destination: {
-		floorId: 'demo_floor',
-		x: 0.72,
-		y: 0.18,
-		theta: 0,
-	},
-};
+const CHAT_STORAGE_KEY = 'gachi_go_ai_chat_state';
+const CHAT_TTL_MS = 15 * 60 * 1000;
 const QUICK_PROMPTS = [
 	'Recommend borrowable engineering books',
 	'Find Korean language study books',
@@ -68,15 +56,41 @@ const formatBookLabel = (value?: string): string => {
 		.replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
-const getChatSessionId = (): string => {
-	if (typeof window === 'undefined') return '';
+const loadStoredMessages = (): ChatMsg[] => {
+	if (typeof window === 'undefined') return [];
 
-	const existing = localStorage.getItem(CHAT_SESSION_KEY);
-	if (existing) return existing;
+	try {
+		const raw = localStorage.getItem(CHAT_STORAGE_KEY);
+		if (!raw) return [];
 
-	const created = `chat-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-	localStorage.setItem(CHAT_SESSION_KEY, created);
-	return created;
+		const stored = JSON.parse(raw) as StoredChatState;
+		if (!stored?.updatedAt || Date.now() - stored.updatedAt > CHAT_TTL_MS) {
+			localStorage.removeItem(CHAT_STORAGE_KEY);
+			return [];
+		}
+
+		return Array.isArray(stored.messages) ? stored.messages : [];
+	} catch {
+		localStorage.removeItem(CHAT_STORAGE_KEY);
+		return [];
+	}
+};
+
+const saveStoredMessages = (messages: ChatMsg[]): void => {
+	if (typeof window === 'undefined') return;
+
+	if (messages.length === 0) {
+		localStorage.removeItem(CHAT_STORAGE_KEY);
+		return;
+	}
+
+	localStorage.setItem(
+		CHAT_STORAGE_KEY,
+		JSON.stringify({
+			messages,
+			updatedAt: Date.now(),
+		}),
+	);
 };
 
 const SendIcon = () => (
@@ -104,16 +118,20 @@ const TrashIcon = () => (
 
 const AiChatBubble: React.FC = () => {
 	const router = useRouter();
-	const user = useReactiveVar(userVar);
 	const [open, setOpen] = useState(false);
 	const [messages, setMessages] = useState<ChatMsg[]>([]);
 	const [input, setInput] = useState('');
 	const [loading, setLoading] = useState(false);
-	const [pendingAction, setPendingAction] = useState<PendingBookAction | null>(null);
-	const [actionLoading, setActionLoading] = useState(false);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
-	const [createDeliveryRequest] = useMutation(CREATE_DELIVERY_REQUEST);
+
+	useEffect(() => {
+		setMessages(loadStoredMessages());
+	}, []);
+
+	useEffect(() => {
+		saveStoredMessages(messages);
+	}, [messages]);
 
 	useEffect(() => {
 		if (open && inputRef.current) inputRef.current.focus();
@@ -149,58 +167,6 @@ const AiChatBubble: React.FC = () => {
 
 	const openBookDetail = (bookId: string) => {
 		router.push(`/books/detail?id=${bookId}`).then();
-	};
-
-	const requestBookAction = (book: ChatBookSuggestion, type: RequestType) => {
-		setPendingAction({ book, type });
-	};
-
-	const confirmBookAction = async () => {
-		if (!pendingAction || actionLoading) return;
-
-		const { book, type } = pendingAction;
-		setActionLoading(true);
-
-		try {
-			const input =
-				type === RequestType.BORROW
-					? {
-							bookId: book.bookId,
-							requestType: type,
-							...DEFAULT_BORROW_DESTINATION,
-					  }
-					: {
-							bookId: book.bookId,
-							requestType: type,
-					  };
-			const variables = user?._id ? { input } : { input: { ...input, sessionId: getChatSessionId() } };
-			const { data } = await createDeliveryRequest({ variables });
-			const request = data?.createDeliveryRequest;
-			const status = request?.status ? formatBookLabel(request.status) : 'Created';
-
-			setMessages((prev) => [
-				...prev,
-				{
-					role: 'assistant',
-					content:
-						type === RequestType.BORROW
-							? `Borrow request created for **${book.title}**. Status: **${status}**. You can follow it from My Page robot tracking.`
-							: `Purchase request created for **${book.title}**. Status: **${status}**. Payment is handled at reception.`,
-				},
-			]);
-			setPendingAction(null);
-		} catch (err: any) {
-			const message = err?.graphQLErrors?.[0]?.message ?? err?.message ?? 'Request failed';
-			setMessages((prev) => [
-				...prev,
-				{
-					role: 'assistant',
-					content: `I could not create that request. ${message}`,
-				},
-			]);
-		} finally {
-			setActionLoading(false);
-		}
 	};
 
 	const applyQuickPrompt = (prompt: string) => {
@@ -248,7 +214,14 @@ const AiChatBubble: React.FC = () => {
 							</div>
 							<div className="ai-chat-header-actions">
 								{messages.length > 0 && (
-									<button onClick={() => setMessages([])} aria-label="Clear chat" title="Clear chat">
+									<button
+										onClick={() => {
+											setMessages([]);
+											saveStoredMessages([]);
+										}}
+										aria-label="Clear chat"
+										title="Clear chat"
+									>
 										<TrashIcon />
 									</button>
 								)}
@@ -301,28 +274,6 @@ const AiChatBubble: React.FC = () => {
 																				{book.callNumber && <em>{book.callNumber}</em>}
 																			</span>
 																			<span className="ai-chat-book-actions">
-																				{book.isBorrowable && (
-																					<button
-																						type="button"
-																						onClick={(e) => {
-																							e.stopPropagation();
-																							requestBookAction(book, RequestType.BORROW);
-																						}}
-																					>
-																						Borrow
-																					</button>
-																				)}
-																				{book.isPurchasable && (
-																					<button
-																						type="button"
-																						onClick={(e) => {
-																							e.stopPropagation();
-																							requestBookAction(book, RequestType.PURCHASE);
-																						}}
-																					>
-																						Purchase
-																					</button>
-																				)}
 																				<em>Open</em>
 																			</span>
 																		</span>
@@ -353,29 +304,6 @@ const AiChatBubble: React.FC = () => {
 							)}
 							<div ref={messagesEndRef} />
 						</div>
-
-						{pendingAction && (
-							<div className="ai-chat-confirm">
-								<div>
-									<strong>
-										{pendingAction.type === RequestType.BORROW ? 'Borrow' : 'Purchase'} {pendingAction.book.title}?
-									</strong>
-									<span>
-										{pendingAction.type === RequestType.BORROW
-											? 'Robot delivery will be sent to study desk A.'
-											: 'The book will be delivered to reception for payment.'}
-									</span>
-								</div>
-								<div className="ai-chat-confirm-actions">
-									<button type="button" onClick={() => setPendingAction(null)} disabled={actionLoading}>
-										Cancel
-									</button>
-									<button type="button" onClick={confirmBookAction} disabled={actionLoading}>
-										{actionLoading ? 'Creating...' : 'Confirm'}
-									</button>
-								</div>
-							</div>
-						)}
 
 						<div className="ai-chat-input-row">
 							<textarea
