@@ -29,20 +29,21 @@ const withAdminLayout = (Component: ComponentType) => {
 		const [openMenu, setOpenMenu] = useState(false);
 		const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 		const [title, setTitle] = useState('admin');
-		const [loading, setLoading] = useState(true);
+		const [authHydrated, setAuthHydrated] = useState(false);
 
 		/** LIFECYCLES **/
 		useEffect(() => {
 			const jwt = getJwtToken();
 			if (jwt) updateUserInfo(jwt);
-			setLoading(false);
+			setAuthHydrated(true);
 		}, []);
 
 		useEffect(() => {
-			if (!loading && user.memberType !== MemberType.ADMIN) {
-				router.push('/').then();
+			if (!router.isReady || !authHydrated) return;
+			if (user.memberType !== MemberType.ADMIN) {
+				router.replace('/').then();
 			}
-		}, [loading, user, router]);
+		}, [authHydrated, user.memberType, router]);
 
 		/** HANDLERS **/
 		const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -58,6 +59,7 @@ const withAdminLayout = (Component: ComponentType) => {
 			router.push('/').then();
 		};
 
+		if (!authHydrated) return null;
 		if (!user || user?.memberType !== MemberType.ADMIN) return null;
 
 		return (

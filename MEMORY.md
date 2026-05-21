@@ -1,7 +1,107 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-16 | Commit: `d3c5270`
-**Current Branch:** `community`
+**Last Updated:** 2026-05-21
+**Current Branch:** `myPage`
+
+---
+
+## Today's Session Update (2026-05-21, Groq AI chatbot frontend)
+
+### Completed today
+- Replaced the old broadcast group chat component with `libs/components/AiChatBubble.tsx`.
+- Deleted `libs/components/Chat.tsx`.
+- Installed `react-markdown` and wired assistant markdown rendering.
+- Added `scss/pc/chat/ai-chat.scss` and imported it from `scss/pc/main.scss`.
+- Updated `LayoutHome.tsx`, `LayoutFull.tsx`, and `LayoutBasic.tsx` to render `<AiChatBubble />`.
+- Fixed chatbot logo path to `/img/logo/final_favicon1.png`.
+- Chat API base uses `REACT_APP_API_URL` from `libs/config.ts`; that value is sourced from `process.env.NEXT_PUBLIC_API_URL`.
+- Frontend consumes backend `/chat/message` response shape `{ reply, books }`.
+- Assistant messages can render structured clickable book cards from `books`.
+- Book cards route to `/books/detail?id=<bookId>`.
+- Added quick prompt chips for common catalog/robot questions.
+- Removed in-chat Borrow/Purchase actions; chat book cards now show only `Open`.
+- Added 15-minute localStorage persistence for active chat history under `gachi_go_ai_chat_state`.
+- Preserved `apollo/client.ts` and did not touch robot websocket code.
+
+### Verification
+- Frontend build passed with `yarn build`.
+- Backend build passed from backend repo with `npm run build`.
+- Remaining frontend build noise is pre-existing: `+input` log from `pages/account/join.tsx` and `react-i18next` static-generation warnings.
+
+### Key rules from this session
+- Do not hardcode frontend API URLs; `REACT_APP_API_URL` is the compatibility export in `libs/config.ts`, backed by `NEXT_PUBLIC_API_URL`.
+- Do not parse AI prose for actions. Use backend structured fields like `books` for UI cards.
+- Do not create borrow/purchase requests from chat; book cards should only open detail pages.
+- Chat history should persist for 15 minutes across route navigation, then expire automatically.
+- Do not touch `apollo/client.ts` or robot gateway/socket files for chatbot UI work.
+- `/books/detail` is still query-param based: `/books/detail?id=<bookId>`.
+
+### Current stopping point
+- Chatbot UI, book suggestions, Open-only book cards, and 15-minute chat persistence are implemented and build cleanly.
+- Live end-to-end QA with running frontend/backend, MongoDB, and real `GROQ_API_KEY` is still needed.
+
+### Exact next task
+- Runtime QA: ask for books, verify cards appear only when asked, click Open, and verify `/books/detail?id=<bookId>` navigation.
+
+---
+
+## Today's Session Update (2026-05-21, MyFavorites + RecentlyVisited redesign + like wiring)
+
+### Completed today
+- Redesigned `MyFavorites.tsx`: 3-col `.bk-grid` card layout, PAGE_LIMIT=10, MUI Pagination (same pattern as MyArticles). Cards show category label, like badge with count, cover image, title, author.
+- Redesigned `RecentlyVisited.tsx`: same 3-col grid + pagination. Cards show category label + visited date at top, cover, title, author.
+- Wired like button in MyFavorites: `LIKE_TARGET_BOOK` mutation + `refetchFavorites`; `FavoriteIcon`/`FavoriteBorderIcon` toggled by `meLiked[0]?.myFavorite`; `e.stopPropagation()` on heart click.
+- Fixed card navigation in both panels: routes to `/books/detail?id=${book._id}` (not `/books/${book._id}` — no dynamic route exists).
+- Fixed Apollo cache crash (`TypeError: Cannot convert object to primitive value`): added `meLiked { memberId likeRefId myFavorite }` to `LIKE_TARGET_BOOK` mutation return fields in `apollo/user/mutation.ts`. Omitting it caused `writeToStore` to try `String()` on the cached nested object.
+- SCSS: replaced old saved-books and viewed-books styles with shared `.bk-*` classes in `scss/pc/mypage/mypage.scss`. All `$font` and `$color-*` only — no hardcoded hex, no external fonts.
+
+### Current stopping point
+- All changes committed. Working tree clean.
+
+### Exact next task
+- Book detail page (`pages/library/books/[bookId].tsx`) — Smart Library book detail with BORROW/PURCHASE button and `createDeliveryRequest` mutation.
+
+### Uncommitted/untracked files
+- None (committed in this session).
+
+---
+
+## Today's Session Update (2026-05-20, Twit posting bug fixes)
+
+### Completed today
+- Fixed image upload URL in `CommunityComposer.tsx`: replaced undefined `process.env.REACT_APP_API_GRAPHQL_URL` with `process.env.NEXT_PUBLIC_API_URL}/graphql`. Any twit post with images was silently failing before this fix.
+- Aligned twit text character limit with backend: changed frontend limit from 500 → 280 → back to 500 after backend was also raised to 500. Both sides now consistently enforce 500 chars.
+  - `CommunityComposer.tsx`: `submitHandler` guard, `/500` counter hint, Post button disabled condition all updated.
+
+### Current stopping point
+- Working tree is clean after commit `fd8a163`.
+
+### Exact next task
+- Test twit posting end-to-end (text-only and with images) against running backend.
+
+### Uncommitted/untracked files
+- None (`git status`: working tree clean).
+
+---
+
+## Today's Session Update (2026-05-19, RobotTracking realtime completion lifecycle + return path)
+
+### Completed today
+- Fixed stale READY override by enforcing terminal-priority request status handling in `libs/hooks/useRobotSocket.ts`.
+- Added requestId-guarded socket event handling and safer timeline updates for `requestUpdated` payloads.
+- Updated `RobotTracking` effective status resolution to be terminal-aware and to avoid regressions from stale non-terminal updates.
+- Changed request selection to prioritize latest request timestamp and avoid fallback to older READY entries.
+- Added auto-refresh behavior for `GET_SESSION_REQUESTS` (`pollInterval`) so request assignment/status changes appear without manual page reload.
+- Kept WebSocket tracking bound to the latest request id to preserve post-completion telemetry visibility.
+- Added post-completion route rendering behavior so map can show return-to-dock path/trail after `COMPLETED` when robot emits `RETURNING`/`DOCKING`/`IDLE`.
+- Preserved planned/live route graph logic and heading behavior while stabilizing terminal lifecycle rendering.
+
+### Current stopping point
+- RobotTracking now updates without manual refresh for request lifecycle changes and can visually follow post-completion return telemetry.
+- Frontend build passes with existing unrelated warnings (`react-i18next` init notice and demo `+input` logs).
+
+### Exact next task
+- Validate end-to-end with persistent simulator listener mode so request creation triggers automatic robot movement without one-shot command runs.
 
 ---
 
@@ -247,6 +347,7 @@ Per CLAUDE.md implementation order:
 ## Recent Commits
 
 ```
+fd8a163 fix: fix twit image upload URL and raise text limit to 500 characters
 d3c5270 feat: add comment threading, edit, delete, and like functionality
 a80f766 fix: community page UI fixes and image grid improvements
 ce808b4 fix: update agents.md

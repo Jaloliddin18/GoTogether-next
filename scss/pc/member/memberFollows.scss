@@ -158,9 +158,28 @@
 			margin-top: 20px;
 			margin-bottom: 16px;
 
+			.pagination-box {
+				align-items: center;
+				justify-content: center;
+
+				.MuiPaginationItem-root {
+					font-family: $font;
+					color: $color-dark;
+				}
+
+				.MuiPaginationItem-root.Mui-selected {
+					background: $color-primary;
+					color: $color-white;
+
+					&:hover {
+						background: $color-primary-hover;
+					}
+				}
+			}
+
 			.total-result {
 				p {
-					color: #1a1a2e;
+					color: $color-muted;
 					text-align: center;
 					font-family: $font;
 					font-size: 14px;

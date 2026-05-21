@@ -15,6 +15,28 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-21) — Groq AI chatbot frontend + request actions
+
+### Completed
+- Replaced old `Chat.tsx` group-chat UI with `AiChatBubble.tsx`.
+- Layouts now use `<AiChatBubble />`: `LayoutHome.tsx`, `LayoutFull.tsx`, `LayoutBasic.tsx`.
+- Chatbot styles live in `scss/pc/chat/ai-chat.scss` and are imported by `scss/pc/main.scss`.
+- Chatbot calls backend REST endpoint `${REACT_APP_API_URL}/chat/message`; `REACT_APP_API_URL` is exported from `libs/config.ts` and reads `NEXT_PUBLIC_API_URL`.
+- Backend response contract consumed by frontend: `{ reply: string, books: ChatBookSuggestion[] }`.
+- Assistant replies render markdown plus structured book suggestion cards.
+- Book cards navigate to `/books/detail?id=<bookId>`.
+- Book cards are Open-only; do not render Borrow/Purchase buttons in chat.
+- Active chat history persists for 15 minutes in localStorage key `gachi_go_ai_chat_state`.
+- `react-markdown` dependency added.
+
+### Key rules
+- Never hardcode frontend API URLs; use `REACT_APP_API_URL` from `libs/config.ts`.
+- Do not parse assistant prose for UI actions; use structured backend response fields.
+- Do not create borrow/purchase requests from chat; use book detail pages for those actions.
+- Keep chat history persistence scoped to 15 minutes.
+- Do not touch `apollo/client.ts`, `robot.gateway.ts`, or robot socket/tracking code for chatbot UI work.
+- Chatbot favicon path is `/img/logo/final_favicon1.png`.
+
 ## Session Update (2026-05-16) — Member profile bugs + back-navigation header
 
 ### Completed
@@ -148,7 +170,7 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 
 ### API Integration
 - Apollo setup is in `apollo/client.ts`. It uses `apollo-upload-client` for HTTP GraphQL and `WebSocketLink` for subscriptions, split by operation type.
-- GraphQL HTTP URI comes from `process.env.REACT_APP_API_GRAPHQL_URL`; WebSocket URI comes from `process.env.REACT_APP_API_WS`.
+- GraphQL HTTP URI is `process.env.NEXT_PUBLIC_API_URL + '/graphql'` (set via `NEXT_PUBLIC_API_URL` in `.env.*`). Do NOT use `REACT_APP_API_GRAPHQL_URL` — that var is undefined in this project. WebSocket URI comes from `process.env.REACT_APP_API_WS`.
 - Auth token handling is in `libs/auth/index.ts`: `accessToken` is stored in `localStorage`, decoded with `jwt-decode`, and written into `userVar`.
 - `apollo/store.ts` defines global reactive vars. `userVar` is the primary auth/user state used by layout and components.
 - User-facing Smart Library operations confirmed in `apollo/user/query.ts`: `GET_BOOKS`, `GET_BOOK`, `GET_FAVORITE_BOOKS`, `GET_VISITED_BOOKS`, request queries, follow queries, twit queries, and twit-comment queries.
@@ -302,7 +324,7 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - `likeTwit(twitId: String): Twit`: authenticated like toggle.
 - `deleteTwit(twitId: String): Twit`: authenticated owner soft delete.
 - Admin moderation APIs exist for all twits through admin resolver paths.
-- `CreateTwitInput` supports `text` and optional `images: String[]` (multi-image, max 3 via `imagesUploader`).
+- `CreateTwitInput` supports `text` (max 500 chars, enforced on both frontend and backend) and optional `images: String[]` (multi-image, max 3 via `imagesUploader`).
 - Important `Twit` fields: `_id`, `memberId`, `text`, `images`, `meLiked`, `likeCount`, `viewCount`, `deletedAt`, `createdAt`, `updatedAt`, and `memberData`. `meLiked` and `viewCount` are required for like toggle and view display; always include them in twit query/mutation return sets. Do not request `likes` or `image` — those fields are removed.
 - Frontend community pages should use Twit/TwitComment APIs for new community work. Existing board-article frontend pages are legacy and should not be mixed into new Twit work without a scoped migration.
 
@@ -389,3 +411,283 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - Do not modify backend files from frontend tasks unless the user explicitly switches scope to backend.
 - Update `MEMORY.md` after each frontend session with where work stopped.
 - Build professional, complete product behavior; do not treat MVP as weak/minimal.
+
+---
+
+## Session Update (2026-05-21) — MyFavorites + RecentlyVisited redesign, like wiring, Apollo cache fix
+
+### Completed
+
+**MyFavorites.tsx — full redesign:**
+- Layout: 3-column `.bk-grid` card layout, PAGE_LIMIT=10, MUI Pagination matching `MyArticles` pattern (`pagination-config` > `pagination-box` > `Pagination` + `total-result`)
+- Card structure: `.bk-card-top` (category label left, like badge right), `.bk-card-image` (160px, object-fit cover), `.bk-card-body` (`$color-bg` tint, title + author)
+- Like button: `FavoriteIcon` / `FavoriteBorderIcon` toggled by `book.meLiked?.[0]?.myFavorite`; calls `LIKE_TARGET_BOOK` mutation + `refetchFavorites`; `e.stopPropagation()` prevents card navigation on heart click; shows `book.bookLikes` count
+- Card click navigates to `/books/detail?id=${book._id}` (query-param format matching `pages/books/detail.tsx`)
+- Auth guard: throws `Message.NOT_AUTHENTICATED` if not logged in; error shown via `sweetMixinErrorAlert`
+
+**RecentlyVisited.tsx — redesign + routing fix:**
+- Same 3-col `.bk-grid` + MUI Pagination (PAGE_LIMIT=10)
+- Card top row: category label left, visited date (`formatDate(book.updatedAt)`) right
+- Card click navigates to `/books/detail?id=${book._id}`
+
+**apollo/user/mutation.ts — Apollo cache bug fix:**
+- Added `meLiked { memberId likeRefId myFavorite }` to `LIKE_TARGET_BOOK` return fields
+- Root cause: cache held `Book.meLiked` as a nested object from `GET_FAVORITE_BOOKS`; mutation response omitted `meLiked`; Apollo's `warnAboutDataLoss` in `writeToStore` called `String()` on the cached object → `TypeError: Cannot convert object to primitive value`
+
+**scss/pc/mypage/mypage.scss:**
+- Replaced old `#my-favorites-page` and `#recently-visited-page` blocks with shared `.bk-*` card classes
+- All colors: `$color-*` variables only; all fonts: `$font` only — no hardcoded hex, no external font imports
+- `.bk-card-badge`: interactive like button with hover → `$color-danger`, `.bk-card-badge--liked` active state
+- `.bk-card-likes`: inline like count beside heart icon
+
+### Key rules from this session
+- Book detail navigation from MyPage uses `/books/detail?id=${book._id}` — NOT `/books/${book._id}` (no dynamic route exists; detail page reads `router.query.id`).
+- `LIKE_TARGET_BOOK` mutation MUST return `meLiked { memberId likeRefId myFavorite }` — omitting it causes Apollo cache type-mismatch crash (`Cannot convert object to primitive value`).
+- Never introduce non-project-standard fonts (DM Sans, Playfair Display, etc.) or hardcoded hex colors. Always use `$font` and `$color-*` from `scss/variables.scss`.
+- `e.stopPropagation()` is required on the like badge click to prevent the card's `onClick` navigation from also firing.
+- Category enum formatter: `raw.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase())` — applied wherever `bookCategory` or genre enum is displayed.
+
+---
+
+## Session Update (2026-05-18) — MyPage Smart Library Dashboard Rebuild
+
+### Completed (commit `bb02d33`)
+
+**Components rebuilt/created:**
+- `MyMenu.tsx` — flat 8-item nav (no section headers), MUI icons, avatar + nick + memberType at top, logout separated by border-top with `$color-danger`
+- `MyProfile.tsx` — removed `memberAddress`, added `memberDesc` textarea with 200-char live counter
+- `MyArticles.tsx` → "My Twits" — live `GET_MEMBER_TWITS`, `DELETE_TWIT` with `sweetConfirmAlert`, navigate to `/community/detail?id=`
+- `MyFavorites.tsx` → "Saved Books" — live `GET_FAVORITE_BOOKS`, 3-col grid, like button wired, card → `/books/detail?id=`
+- `RecentlyVisited.tsx` → "Recently Viewed" — live `GET_VISITED_BOOKS`, 3-col grid, card → `/books/detail?id=`
+- `MyRequests.tsx` — NEW: live `GET_SESSION_REQUESTS`, client-side 3-tab filter (All/Active/History), uses real `RequestStatus` enum (14 values), status badge classes: `status-pending/active/ready/done/issue`
+- `RobotTracking.tsx` — NEW: SVG 4×4 floor map (A1–D4), animated robot dot (`robot-pulse-ring` CSS animation), mock robot at `colIndex:1.5, rowIndex:0.8` mid-aisle toward B3 target, right panel with status badge + "Request Robot" button
+
+**Components deleted:**
+- `MyProperties.tsx`, `PropertyCard.tsx`, `WriteArticle.tsx`, `Article.tsx` — all property/board-article era, removed
+
+**Bug fixes applied:**
+- `pages/mypage/index.tsx`: added `initialInput` with `user._id` to `MemberFollowers` and `MemberFollowings` — fixes race condition where components remounted before `followInquiry` was populated
+- `apollo/user/mutation.ts` `DELETE_TWIT`: `image` → `images` (removed field corrected)
+- `apollo/user/query.ts` `GET_MEMBER_TWITS`: added missing `viewCount` field
+
+**SCSS:** `scss/pc/mypage/mypage.scss` fully overhauled — all colors use `$color-*` SCSS variables, all fonts use `$font`, no hardcoded hex.
+
+**Standard enforcement rule:** Never introduce non-project-standard fonts (DM Sans, Playfair Display, etc.) or hardcoded hex colors. Always use `$font` and `$color-*` from `scss/variables.scss`.
+
+### Key rules from this session
+- `GET_SESSION_REQUESTS` has no status filter on the server (`SessionRequestsInquiry` input has no status field) — client-side tab filtering with `ACTIVE_STATUSES` / `HISTORY_STATUSES` arrays is correct.
+- Request cover image: `req.bookData?.bookImages?.[0]` prefixed with `REACT_APP_API_URL`; fallback `/img/profile/defaultUser.svg`.
+- `AddNewProperty.tsx` must NOT be deleted — it is the reference template for the Admin Add Book panel (see section below). It is not mounted on the student MyPage.
+
+---
+
+## Session Update (2026-05-18) — RobotTracking SVG floor plan + live WebSocket hook
+
+### Completed
+
+**Phase 1 — Backend audit (read-only):**
+Confirmed all modules needed for live tracking are fully implemented on the backend. No backend changes required.
+
+Key findings:
+- Robot position stored as `currentPose: { floorId, x, y, theta }` in cm / radians
+- WebSocket uses plain `ws` (NestJS `WsAdapter`) — NOT Socket.IO, NOT Apollo subscriptions
+- WS message format: `{ event: string, data: {} }` for both send and receive
+- WS join: `ws.send(JSON.stringify({ event: 'joinRequest', data: { requestId } }))`
+- Room pattern: `request:{requestId}` — backend scopes all events to requesting client
+- Env var: `REACT_APP_API_WS` (confirmed from `apollo/client.ts`)
+- `GET_SESSION_REQUESTS` was missing `robotData.currentPose` — added in Phase 2
+
+**Phase 2 — Files changed:**
+
+`apollo/user/query.ts`
+- Added `currentPose { floorId x y theta }` inside `robotData` block of `GET_SESSION_REQUESTS`
+
+`libs/hooks/useRobotSocket.ts` (NEW)
+- Raw WebSocket hook; connects to `REACT_APP_API_WS`; emits `joinRequest` on open
+- Handles: `joined`, `robotPosition`, `robotStatus`, `requestUpdated`, `deliveryReady`, `bookNotFound`, `robotOffline`, `error`
+- Reconnect: up to 5 retries × 3s; sets `ws.onclose = null` before close on unmount to prevent spurious retry
+- Resets all state when `requestId` changes
+
+`libs/components/mypage/RobotTracking.tsx` (full rebuild)
+- **SVG floor plan** at `viewBox="0 0 680 340"`, SCALE=3.4 px/cm, Y-flip: `SVG_y = (100 − real_y) × 3.4`
+- 7 zones (Library Books, Commercial Books, Navigation Aisle, Reception, Charging Dock, Desk A, Desk B) drawn with engineering schematic aesthetic — dashed borders for book zones, solid for rooms
+- 6 stop points (LIB_03/05/07, COM_03/05/07) at exact real-world coordinates; target stop pulsing ring
+- Robot indicator: circle + directional notch, CSS `transition: transform 0.8s ease` on position, 0.4s on heading rotation
+- **DeliveryTimeline**: 10 display steps ← 15 `RequestStatus` values; merged DB `timeline[]` + live socket events (deduplicated by status); step states: `completed/current/pending/failed`
+- **TrackingPanel**: compact book row (60×80px cover), callnumber badge, live robot status badge, battery bar (green/yellow/red), online dot, MUI `Tooltip` on disabled "Request Robot" button
+- Active request detection: status NOT in `{COMPLETED, FAILED, CANCELLED, BOOK_NOT_FOUND, QUEUED}`
+
+`scss/pc/mypage/mypage.scss`
+- Entire `#robot-tracking-page` section replaced; all CSS classes prefixed `rt-`
+- Animations: `rt-pulse` (target ring), `rt-dot-pulse` (status dot blink)
+- Zero hardcoded hex; zero non-`$font` family strings
+
+### Key rules from this session
+- **`RobotStatus` enum is in `libs/enums/robot.enum.ts`** — NOT `request.enum.ts`. Always import from the correct file.
+- Backend WS is plain `ws`, not Socket.IO. Client must use `new WebSocket(url)` + JSON parse, not `io()` or Apollo WS link.
+- NestJS `WsAdapter` message format: `{ event: string, data: {} }` in both directions.
+- `robotData.currentPose` comes from `GET_SESSION_REQUESTS` (embedded in Request response) — students cannot call `getRobot` directly (ADMIN-only GraphQL query).
+- Target stop point resolved from `bookCallNumber` prefix: `LIB_*` → library zone, `COM_*` → commercial zone.
+- CSS `transform: translate(Npx, Mpx)` on SVG elements in modern browsers uses SVG user units (not screen px) — safe to use for robot position with `transition` for smooth animation.
+- Active request = status not in `{COMPLETED, FAILED, CANCELLED, BOOK_NOT_FOUND, QUEUED}`. QUEUED is excluded because no robot is assigned yet.
+
+---
+
+## MyPage Pre-Build Audit (2026-05-18)
+
+Full audit captured before the Smart Library MyPage is built. Use as the reference baseline — do not re-read every legacy file; consult this section instead.
+
+### Routing & Entry Point
+- **Main file:** `pages/mypage/index.tsx`
+- **No nested routes** — single page, tab switching via URL query param
+- **Pattern:** `/mypage?category={tab}`
+- Mobile returns bare `<div>MY PAGE</div>` placeholder — desktop only is implemented
+- Related: `pages/member/[memberId].tsx` for viewing *other* users' profiles
+
+### Page Structure & Layout
+Two-column layout — sidebar (266px) + content area (936px):
+```
+#my-page → .container → .my-page (Stack row)
+  ├── .left-config  → <MyMenu /> sidebar
+  └── .main-config  → conditional render based on router.query.category
+```
+
+Category → component mapping:
+
+| Category value | Component | Notes |
+|---|---|---|
+| `myProfile` (default) | `<MyProfile />` | Profile edit + avatar upload |
+| `myFavorites` | `<MyFavorites />` | Stub (property era) |
+| `recentlyVisited` | `<RecentlyVisited />` | Stub (property era) |
+| `followers` | `<MemberFollowers />` | Live |
+| `followings` | `<MemberFollowings />` | Live |
+| `myArticles` | `<MyArticles />` | Stub (board-article era) |
+| `writeArticle` | `<WriteArticle />` | Stub — shows "unavailable" |
+| `addProperty` | `<AddNewProperty />` | Agent-only, stub |
+| `myProperties` | `<MyProperties />` | Agent-only, stub |
+
+### Components
+
+| Component | Path | Status |
+|---|---|---|
+| `MyMenu` | `libs/components/mypage/MyMenu.tsx` | Live — sidebar nav, avatar, menu, logout |
+| `MyProfile` | `libs/components/mypage/MyProfile.tsx` | Live — profile edit + avatar upload |
+| `MyProperties` | `libs/components/mypage/MyProperties.tsx` | Stub (property) |
+| `PropertyCard` | `libs/components/mypage/PropertyCard.tsx` | Stub (property) |
+| `MyFavorites` | `libs/components/mypage/MyFavorites.tsx` | Stub (property) |
+| `RecentlyVisited` | `libs/components/mypage/RecentlyVisited.tsx` | Stub (property) |
+| `MyArticles` | `libs/components/mypage/MyArticles.tsx` | Stub (board-article) |
+| `WriteArticle` | `libs/components/mypage/WriteArticle.tsx` | Stub |
+| `AddNewProperty` | `libs/components/mypage/AddNewProperty.tsx` | Stub (agent-only) |
+| `MemberFollowers` | `libs/components/member/MemberFollowers.tsx` | Live — shared w/ member page |
+| `MemberFollowings` | `libs/components/member/MemberFollowings.tsx` | Live — shared w/ member page |
+
+### GraphQL — Live Operations
+
+| Operation | Type | Used in | Notes |
+|---|---|---|---|
+| `UPDATE_MEMBER` | Mutation | MyProfile | Updates nick/phone/address/image; returns new `accessToken` |
+| `LIKE_TARGET_MEMBER` | Mutation | Followers/Followings | |
+| `SUBSCRIBE` | Mutation | Follow a member | |
+| `UNSUBSCRIBE` | Mutation | Unfollow a member | |
+| `GET_MEMBER_FOLLOWERS` | Query | MemberFollowers | `followingId: user._id` |
+| `GET_MEMBER_FOLLOWINGS` | Query | MemberFollowings | `followerId: user._id` |
+
+### GraphQL — Stubs (return only `{ __typename }`)
+`CREATE_PROPERTY`, `UPDATE_PROPERTY`, `GET_AGENT_PROPERTIES`, `GET_PROPERTY`, `GET_FAVORITES`, `GET_VISITED`, `GET_BOARD_ARTICLES`, `LIKE_TARGET_PROPERTY`, `LIKE_TARGET_BOARD_ARTICLE`
+
+### State Management
+- Logged-in user: `useReactiveVar(userVar)` — JWT decoded at app init; never fetched per-page
+- Auth guard:
+  ```ts
+  useEffect(() => { if (!user._id) router.push('/').then(); }, [user]);
+  ```
+- After `UPDATE_MEMBER`: `updateStorage()` → `updateUserInfo(newAccessToken)` refreshes `userVar`
+- Each tab manages its own local `useState`
+
+### Profile Edit
+- **Avatar upload:** hidden `<input type="file">` → multipart FormData → `imageUploader` mutation → target `'member'` → relative path stored in `updateData.memberImage`
+- **No banner upload** in legacy MyPage
+- **Editable fields:** `memberNick`, `memberPhone`, `memberAddress`, `memberImage`
+- **Mutation:** `UPDATE_MEMBER` with `MemberUpdate` input
+- **Post-update:** `updateStorage()` → `updateUserInfo()` → `sweetMixinSuccessAlert()`
+- **Validation:** `doDisabledCheck()` disables submit if any required field empty; no inline error messages
+
+### Tabs Behavior
+URL-based navigation, not React state:
+```ts
+const category = router.query?.category ?? 'myProfile';
+```
+`MyMenu` uses `<Link href={{ pathname: '/mypage', query: { category: '...' } }} scroll={false}>`.
+Active state: black background + white text on active menu item.
+
+### SCSS & SweetAlert Patterns
+- **SCSS:** `scss/pc/mypage/mypage.scss` — white cards, 12px radius, `0px 1px 4px 0px rgba(24,26,32,0.07)` shadow, black active states
+- **MUI:** `Stack`, `Typography`, `Button`, `Pagination`, `Menu`, `MenuItem`, `IconButton`, `ModeIcon`, `DeleteIcon`, `FavoriteIcon`
+- `sweetConfirmAlert()` — logout/delete confirmations
+- `sweetMixinSuccessAlert()` — profile update success
+- `sweetTopSmallSuccessAlert()` — follow/subscribe toasts
+- `sweetErrorHandling(err)` — all catch blocks
+
+### What to Keep / What to Replace for Smart Library MyPage
+
+**Keep (reuse as-is):**
+- Auth guard pattern
+- URL-based tab navigation via `router.query.category`
+- Avatar upload flow (`imageUploader` mutation + multipart FormData)
+- `UPDATE_MEMBER` mutation + JWT refresh sequence
+- `MemberFollowers` / `MemberFollowings` components
+- All `sweetAlert` patterns
+
+**Replace (library-specific tabs):**
+- `myFavorites` → My Borrowed Books
+- `recentlyVisited` + `myProperties` → My Requests (with status)
+- `myArticles` / `writeArticle` → My Twits or remove
+- **Remove entirely:** `addProperty`, `myProperties`, agent-only guards — no agent role in the library system
+
+---
+
+## Planned: Admin Add Book Panel (2026-05-18)
+
+`libs/components/mypage/AddNewProperty.tsx` is **preserved intentionally** as the reference implementation for the Admin "Add Book" form. Do NOT delete it until the Admin form is complete and tested.
+
+**Rule:** `AddNewProperty.tsx` is NOT mounted on the student MyPage. It exists only as a template.
+
+### What to build
+Copy to `libs/components/admin/AddNewBook.tsx` and transform:
+
+| Property field | Book equivalent |
+|---|---|
+| `propertyTitle` | `bookTitle` |
+| `propertyPrice` | `bookPrice` (`{ amount, currency, isDiscounted }`) |
+| `propertyType` | `bookType` (enum `BookType`) |
+| `propertyLocation` | `bookCategory` (enum `BookCategory`) |
+| `propertyAddress` | `bookCallNumber` |
+| `propertyRooms/Beds/Square` | `bookPublishedYear`, `bookPages`, `bookFormat`, `bookAudience`, `bookLanguage` |
+| `propertyDesc` | `bookDescription` |
+| `propertyImages` | `bookImages` (max 5, target `'books'`) |
+
+New fields to add: `bookIsbn`, `bookAuthor`, `isBorrowable` toggle, `isPurchasable` toggle.
+
+GraphQL: `CREATE_BOOK` / `UPDATE_BOOK` from `apollo/admin/mutation.ts` (not the stub property mutations).
+Route guard: `user.memberType === MemberType.ADMIN`.
+After submit: redirect to `/_admin/books`.
+
+Full spec in `WORKFLOW.md`.
+
+---
+
+## Session Update (2026-05-19) — RobotTracking realtime lifecycle + post-completion return route
+
+### Completed
+- `useRobotSocket` now treats terminal request statuses as locked (`COMPLETED`, `FAILED`, `CANCELLED`, `BOOK_NOT_FOUND`) so later non-terminal events (like `READY`) cannot override them.
+- `requestUpdated` payload handling was hardened with requestId matching and safer timeline merge behavior.
+- `RobotTracking` status rendering now prefers terminal-aware effective status and prevents stale READY fallback.
+- Active-request selection was corrected to use the latest request record first (`updatedAt`/`createdAt`) to avoid showing old READY requests after a newer request is completed.
+- Added automatic request refresh behavior (`GET_SESSION_REQUESTS` polling + terminal refetch path) so new request assignment and status transitions appear without manual page refresh.
+- Socket tracking now follows the latest request room, not only non-terminal active requests, enabling post-completion robot movement visibility.
+- After completion, map rendering can show return-to-dock route/trail when robot status is `RETURNING`/`DOCKING`/`IDLE`, using corridor-based graph nodes.
+- Robot heading remains movement-aligned and route/live-trail remain graph-aligned.
+
+### Operational rule from this session
+- For RobotTracking, avoid tying WebSocket subscription strictly to “active request only”; keep latest-request room continuity when post-completion telemetry is expected.
