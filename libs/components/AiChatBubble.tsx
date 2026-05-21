@@ -190,7 +190,7 @@ const AiChatBubble: React.FC = () => {
 	return (
 		<>
 			<button className="ai-chat-bubble-btn" onClick={() => setOpen((v) => !v)} aria-label="Open library assistant">
-				<Image src="/img/logo/final_favicon1.png" alt="Library Assistant" width={28} height={28} />
+				<Image src="/img/logo/final_favicon1.png" alt="Library Assistant" width={40} height={40} />
 			</button>
 
 			<AnimatePresence>
@@ -205,7 +205,7 @@ const AiChatBubble: React.FC = () => {
 						<div className="ai-chat-header">
 							<div className="ai-chat-header-left">
 								<div className="ai-chat-avatar">
-									<Image src="/img/logo/final_favicon1.png" alt="Library Assistant" width={26} height={26} />
+									<Image src="/img/logo/final_favicon1.png" alt="Library Assistant" width={34} height={34} />
 								</div>
 								<div>
 									<div className="ai-chat-title">같이Go Assistant</div>
@@ -235,7 +235,7 @@ const AiChatBubble: React.FC = () => {
 							{messages.length === 0 && !loading ? (
 								<div className="ai-chat-welcome">
 									<div className="ai-welcome-icon">
-										<Image src="/img/logo/final_favicon1.png" alt="Library Assistant" width={32} height={32} />
+										<Image src="/img/logo/final_favicon1.png" alt="Library Assistant" width={42} height={42} />
 									</div>
 									<p>Hi! I'm your 같이Go Library Assistant. Ask me about books, borrowing, robot delivery, or how to navigate the app.</p>
 									<div className="ai-chat-quick-prompts">
