@@ -6,8 +6,8 @@ import { Book } from '../../types/book/book';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import LanguageIcon from '@mui/icons-material/Language';
 import StarIcon from '@mui/icons-material/Star';
-import { REACT_APP_API_URL } from '../../config';
 import { useRouter } from 'next/router';
+import { resolveMediaUrl } from '../../utils';
 
 const MuiBox: any = Box;
 const MuiTypography: any = Typography;
@@ -112,7 +112,7 @@ const NewArrivalCard = (props: NewArrivalCardProps) => {
 		await router.push(`/books/detail?id=${bookId}`);
 	};
 
-	const imageUrl = book?.bookImages?.[0] ? `${REACT_APP_API_URL}/${book.bookImages[0]}` : '';
+	const imageUrl = resolveMediaUrl(book?.bookImages?.[0], '/img/default-book.jpg');
 	const availabilityLabel = book.isPurchasable ? 'Purchasable' : book.isBorrowable ? 'Borrowable' : '';
 	const availabilityColor = book.isPurchasable ? '#059669' : '#1a6fd4';
 
