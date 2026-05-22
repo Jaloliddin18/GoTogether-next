@@ -1,53 +1,63 @@
 import React from 'react';
-import { Stack, Box } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
+import { Box, Stack, Typography } from '@mui/material';
+
+const notices = [
+	{
+		title: 'Important Notice',
+		date: 'May 23, 2026',
+		description: 'Our library robot assistant now supports faster book pickup scheduling.',
+	},
+	{
+		title: 'New Borrowing Feature',
+		date: 'May 23, 2026',
+		description: 'Users can now reserve books directly through virtual robot assistance.',
+	},
+	{
+		title: 'Maintenance Update',
+		date: 'May 23, 2026',
+		description: 'Book inventory synchronization improvements have been deployed.',
+	},
+	{
+		title: 'Library Hours Update',
+		date: 'May 23, 2026',
+		description: 'Weekend operating hours have been extended.',
+	},
+	{
+		title: 'Mobile Access Improvements',
+		date: 'May 23, 2026',
+		description: 'Better mobile responsiveness is now available.',
+	},
+	{
+		title: 'Book Request Expansion',
+		date: 'May 23, 2026',
+		description: 'Students can now request additional academic resources.',
+	},
+];
 
 const Notice = () => {
-	const device = useDeviceDetect();
-
-	/** APOLLO REQUESTS **/
-	/** LIFECYCLES **/
-	/** HANDLERS **/
-
-	const data = [
-		{
-			no: 1,
-			event: true,
-			title: 'Register to use and get discounts',
-			date: '01.03.2024',
-		},
-		{
-			no: 2,
-			title: "It's absolutely free to upload and trade properties",
-			date: '31.03.2024',
-		},
-	];
-
-	if (device === 'mobile') {
-		return <div>NOTICE MOBILE</div>;
-	} else {
-		return (
-			<Stack className={'notice-content'}>
-				<span className={'title'}>Notice</span>
-				<Stack className={'main'}>
-					<Box component={'div'} className={'top'}>
-						<span>number</span>
-						<span>title</span>
-						<span>date</span>
+	return (
+		<Stack className={'notice-content'}>
+			<Typography className={'section-title'}>Notice</Typography>
+			<Typography className={'section-subtitle'}>Stay updated with our latest announcements and news</Typography>
+			<Stack className={'notice-cards'}>
+				{notices.map((notice) => (
+					<Box className={'notice-modern-card'} component={'div'} key={notice.title}>
+						<Box className={'card-top'} component={'div'}>
+							<Box className={'left'} component={'div'}>
+								<NotificationsActiveOutlinedIcon className={'notice-icon'} />
+							</Box>
+							<Box className={'center'} component={'div'}>
+								<Typography className={'card-title'}>{notice.title}</Typography>
+							</Box>
+							<Typography className={'card-date'}>{notice.date}</Typography>
+						</Box>
+						<Typography className={'card-description'}>{notice.description}</Typography>
 					</Box>
-					<Stack className={'bottom'}>
-						{data.map((ele: any) => (
-							<div className={`notice-card ${ele?.event && 'event'}`} key={ele.title}>
-								{ele?.event ? <div>event</div> : <span className={'notice-number'}>{ele.no}</span>}
-								<span className={'notice-title'}>{ele.title}</span>
-								<span className={'notice-date'}>{ele.date}</span>
-							</div>
-						))}
-					</Stack>
-				</Stack>
+				))}
 			</Stack>
-		);
-	}
+		</Stack>
+	);
 };
 
 export default Notice;
