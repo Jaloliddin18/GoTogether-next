@@ -12,14 +12,14 @@ import AboutLogoCloudSection from '../../libs/components/about/AboutLogoCloudSec
 
 // ── Static data ───────────────────────────────────────────────────────────────
 const TEAM = [
-	{ name: 'Jaloliddin', role: 'Frontend / Full-stack', photo: '/img/members/jaloliddin2.png' },
-	{ name: 'Akhror', role: 'Backend / NestJS', photo: '/img/members/ahror.png' },
-	{ name: 'Aziz', role: 'ROS 2 / Navigation', photo: '/img/members/aziz.PNG' },
-	{ name: 'Jahongir', role: 'Hardware / TurtleBot', photo: '/img/members/jahongir.png' },
-	{ name: 'Ibrohim', role: 'Mobile App / React Native', photo: '/img/members/ibrohim.png' },
-	{ name: 'Zhazaiym', role: 'ML / Path Planning', photo: '/img/members/zhazaiym.png' },
-	{ name: 'Sevinch', role: 'DevOps / Infrastructure', photo: '/img/members/sevinch.JPG' },
-	{ name: 'Zubayda', role: 'Project Contributor', photo: '/img/members/zubayda.png' },
+	{ name: 'Jaloliddin', role: 'Co-Founder (CEO)', photo: '/img/members/jaloliddin2.png' },
+	{ name: 'Akhror', role: 'Co-Founder (CTO)', photo: '/img/members/ahror.png' },
+	{ name: 'Aziz', role: 'Project Manager (CPO)', photo: '/img/members/aziz.PNG' },
+	{ name: 'Jahongir', role: 'IT Manager (CIO)', photo: '/img/members/jahongir.png' },
+	{ name: 'Ibrohim', role: 'Supply Chain Manager (COO)', photo: '/img/members/ibrohim.png' },
+	{ name: 'Zhazaiym', role: 'Sales Manager (CSO)', photo: '/img/members/zhazaiym.png' },
+	{ name: 'Sevinch', role: 'Chief Marketing Officer (CMO)', photo: '/img/members/sevinch.JPG' },
+	{ name: 'Zubayda', role: 'Financial Manager (CFO)', photo: '/img/members/zubayda.png' },
 ] as const;
 
 const TECH_ROW1 = ['ROS 2', 'TurtleBot 3', 'LiDAR', 'Python', 'SLAM'];
@@ -361,7 +361,7 @@ const About: NextPage = () => {
 						<p>{t('cta_sub')}</p>
 					</div>
 					<div className={'cta-right'}>
-						<Link href={'/library/books'} className={'btn-outline'}>
+						<Link href={'/library'} className={'btn-outline'}>
 							{t('cta_btn1')}
 						</Link>
 						<Link href={'/account/join'} className={'btn-filled'}>
