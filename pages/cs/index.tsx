@@ -4,8 +4,8 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { Box, Stack } from '@mui/material';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
-import ArticleIcon from '@mui/icons-material/Article';
+import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import Notice from '../../libs/components/cs/Notice';
 import Faq from '../../libs/components/cs/Faq';
@@ -17,8 +17,8 @@ type CsTab = (typeof TAB_VALUES)[number];
 
 const TAB_ITEMS: { key: CsTab; label: string; icon: JSX.Element }[] = [
 	{ key: 'notice', label: 'Notices & Updates', icon: <NotificationsActiveOutlinedIcon /> },
-	{ key: 'faq', label: 'FAQ', icon: <QuestionAnswerIcon /> },
-	{ key: 'terms', label: 'Terms & Conditions', icon: <ArticleIcon /> },
+	{ key: 'faq', label: 'FAQ', icon: <QuestionAnswerOutlinedIcon /> },
+	{ key: 'terms', label: 'Terms & Conditions', icon: <ArticleOutlinedIcon /> },
 ];
 
 export const getStaticProps = async ({ locale }: any) => ({
@@ -69,7 +69,7 @@ const CS: NextPage = () => {
 									{item.icon}
 									<span>{item.label}</span>
 								</button>
-								{index !== TAB_ITEMS.length - 1 && <span className={'tab-separator'}>|</span>}
+								{index !== TAB_ITEMS.length - 1 && <span className={'tab-separator'} aria-hidden="true" />}
 							</React.Fragment>
 						))}
 					</Box>

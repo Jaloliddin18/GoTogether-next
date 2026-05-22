@@ -1,11 +1,11 @@
 import React from 'react';
-import ArticleIcon from '@mui/icons-material/Article';
-import { Box, Stack, Typography } from '@mui/material';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import { Stack } from '@mui/material';
 
 const terms = [
 	{
 		title: 'Account Responsibility',
-		description: 'You are responsible for maintaining confidentiality of account information.',
+		description: 'You are responsible for maintaining the confidentiality of your account information.',
 	},
 	{
 		title: 'Reservation Policy',
@@ -32,17 +32,39 @@ const terms = [
 const Terms = () => {
 	return (
 		<Stack className={'terms-content'}>
-			<Typography className={'section-title'}>Terms & Conditions</Typography>
-			<Typography className={'section-subtitle'}>Please read our terms and conditions carefully.</Typography>
+			<div style={{ marginBottom: 24 }}>
+				<h2 style={{ fontSize: 28, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>Terms & Conditions</h2>
+				<p style={{ fontSize: 14, color: '#64748B', marginTop: 4, marginBottom: 0 }}>
+					Please read our terms and conditions carefully.
+				</p>
+			</div>
 			<Stack className={'terms-cards'}>
 				{terms.map((term) => (
-					<Box className={'terms-card'} component={'div'} key={term.title}>
-						<Stack className={'terms-top'}>
-							<ArticleIcon className={'terms-icon'} />
-							<Typography className={'terms-title'}>{term.title}</Typography>
-						</Stack>
-						<Typography className={'terms-description'}>{term.description}</Typography>
-					</Box>
+					<div
+						key={term.title}
+						style={{
+							border: '1px solid #E2E8F0',
+							borderRadius: 12,
+							background: 'white',
+							overflow: 'hidden',
+						}}
+					>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: 10,
+								padding: '16px 20px',
+								borderBottom: '1px solid #E2E8F0',
+							}}
+						>
+							<ArticleOutlinedIcon style={{ color: '#1B3A6B', fontSize: 20, flexShrink: 0 }} />
+							<span style={{ fontWeight: 600, color: '#1A1A2E', fontSize: 15 }}>{term.title}</span>
+						</div>
+						<div style={{ padding: '12px 20px 16px 50px', fontSize: 14, color: '#64748B' }}>
+							{term.description}
+						</div>
+					</div>
 				))}
 			</Stack>
 		</Stack>

@@ -1,6 +1,6 @@
 import React from 'react';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
-import { Box, Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 
 const notices = [
 	{
@@ -38,22 +38,36 @@ const notices = [
 const Notice = () => {
 	return (
 		<Stack className={'notice-content'}>
-			<Typography className={'section-title'}>Notice</Typography>
-			<Typography className={'section-subtitle'}>Stay updated with our latest announcements and news</Typography>
+			<div style={{ marginBottom: 24 }}>
+				<h2 style={{ fontSize: 28, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>Notice</h2>
+				<p style={{ fontSize: 14, color: '#64748B', marginTop: 4, marginBottom: 0 }}>
+					Stay updated with our latest announcements and news
+				</p>
+			</div>
 			<Stack className={'notice-cards'}>
 				{notices.map((notice) => (
-					<Box className={'notice-modern-card'} component={'div'} key={notice.title}>
-						<Box className={'card-top'} component={'div'}>
-							<Box className={'left'} component={'div'}>
-								<NotificationsActiveOutlinedIcon className={'notice-icon'} />
-							</Box>
-							<Box className={'center'} component={'div'}>
-								<Typography className={'card-title'}>{notice.title}</Typography>
-							</Box>
-							<Typography className={'card-date'}>{notice.date}</Typography>
-						</Box>
-						<Typography className={'card-description'}>{notice.description}</Typography>
-					</Box>
+					<div
+						key={notice.title}
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							padding: '16px 20px',
+							border: '1px solid #E2E8F0',
+							borderRadius: 12,
+							background: 'white',
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+							<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+								<NotificationsActiveOutlinedIcon style={{ color: '#1B3A6B', fontSize: 20 }} />
+								<span style={{ fontWeight: 600, color: '#1A1A2E', fontSize: 15 }}>{notice.title}</span>
+							</div>
+							<span style={{ fontSize: 13, color: '#64748B', whiteSpace: 'nowrap' }}>{notice.date}</span>
+						</div>
+						<p style={{ fontSize: 14, color: '#64748B', marginTop: 8, paddingLeft: 30, marginBottom: 0 }}>
+							{notice.description}
+						</p>
+					</div>
 				))}
 			</Stack>
 		</Stack>

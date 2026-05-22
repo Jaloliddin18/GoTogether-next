@@ -1,37 +1,7 @@
-import React, { SyntheticEvent, useState } from 'react';
-import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
-import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/AccordionSummary';
-import { AccordionDetails, Stack, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import React, { useState } from 'react';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-
-const Accordion = styled((props: AccordionProps) => <MuiAccordion disableGutters elevation={0} square {...props} />)(
-	() => ({
-		border: 'none',
-		borderRadius: '12px',
-		overflow: 'hidden',
-		boxShadow: '0 2px 10px rgba(15, 23, 42, 0.06)',
-		background: '#ffffff',
-		'&:not(:last-child)': {
-			marginBottom: '14px',
-		},
-		'&::before': {
-			display: 'none',
-		},
-	}),
-);
-
-const AccordionSummary = styled((props: AccordionSummaryProps) => (
-	<MuiAccordionSummary expandIcon={<KeyboardArrowDownRoundedIcon sx={{ fontSize: '1.35rem', color: '#64748B' }} />} {...props} />
-))(() => ({
-	padding: '8px 12px',
-	border: '1px solid #E2E8F0',
-	borderRadius: '12px',
-	'& .MuiAccordionSummary-content': {
-		margin: '8px 0',
-	},
-}));
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Stack } from '@mui/material';
 
 const faqItems = [
 	{
@@ -77,29 +47,69 @@ const faqItems = [
 ];
 
 const Faq = () => {
-	const [expanded, setExpanded] = useState<string | false>(false);
-
-	const handleChange = (panel: string) => (_event: SyntheticEvent, newExpanded: boolean) => {
-		setExpanded(newExpanded ? panel : false);
-	};
+	const [openFaq, setOpenFaq] = useState<number | null>(null);
+	const toggleFaq = (i: number) => setOpenFaq(openFaq === i ? null : i);
 
 	return (
 		<Stack className={'faq-content'}>
-			<Typography className={'section-title'}>Frequently Asked Questions</Typography>
-			<Typography className={'section-subtitle'}>Find answers to common questions about our services</Typography>
+			<div style={{ marginBottom: 24 }}>
+				<h2 style={{ fontSize: 28, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>Frequently Asked Questions</h2>
+				<p style={{ fontSize: 14, color: '#64748B', marginTop: 4, marginBottom: 0 }}>
+					Find answers to common questions about our services
+				</p>
+			</div>
 			<Stack className={'faq-wrap'}>
-				{faqItems.map((item, idx) => (
-					<Accordion expanded={expanded === `panel-${idx}`} onChange={handleChange(`panel-${idx}`)} key={item.question}>
-						<AccordionSummary id={`faq-${idx}`} aria-controls={`faq-content-${idx}`}>
-							<Stack className={'faq-question-row'}>
-								<HelpOutlineIcon className={'faq-help-icon'} />
-								<Typography className={'faq-question'}>{item.question}</Typography>
-							</Stack>
-						</AccordionSummary>
-						<AccordionDetails id={`faq-content-${idx}`} aria-labelledby={`faq-${idx}`}>
-							<Typography className={'faq-answer'}>{item.answer}</Typography>
-						</AccordionDetails>
-					</Accordion>
+				{faqItems.map((item, index) => (
+					<div
+						key={item.question}
+						style={{
+							border: '1px solid #E2E8F0',
+							borderRadius: 12,
+							background: 'white',
+							overflow: 'hidden',
+						}}
+					>
+						<button
+							onClick={() => toggleFaq(index)}
+							style={{
+								width: '100%',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'space-between',
+								padding: '16px 20px',
+								background: 'transparent',
+								border: 'none',
+								cursor: 'pointer',
+								textAlign: 'left',
+							}}
+						>
+							<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+								<HelpOutlineIcon style={{ color: '#1B3A6B', fontSize: 20, flexShrink: 0 }} />
+								<span style={{ fontWeight: 600, color: '#1A1A2E', fontSize: 15 }}>{item.question}</span>
+							</div>
+							<ExpandMoreIcon
+								style={{
+									color: '#64748B',
+									flexShrink: 0,
+									transform: openFaq === index ? 'rotate(180deg)' : 'rotate(0deg)',
+									transition: 'transform 200ms ease',
+								}}
+							/>
+						</button>
+						{openFaq === index && (
+							<div
+								style={{
+									padding: '0 20px 16px 50px',
+									fontSize: 14,
+									color: '#64748B',
+									borderTop: '1px solid #E2E8F0',
+									paddingTop: 12,
+								}}
+							>
+								{item.answer}
+							</div>
+						)}
+					</div>
 				))}
 			</Stack>
 		</Stack>

@@ -66,9 +66,9 @@
           align-items: center;
 
           span {
-            font-size: 48px;
+            font-size: 36px;
             font-weight: 700;
-            color: #0f172a;
+            color: #1a1a2e;
             text-align: center;
           }
 
@@ -77,7 +77,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 18px;
+            font-size: 16px;
             color: #64748b;
 
             a {
@@ -110,14 +110,17 @@
           flex-wrap: wrap;
 
           .tab-separator {
-            font-size: 20px;
-            color: #94a3b8;
-            user-select: none;
+            display: inline-block;
+            width: 1px;
+            height: 24px;
+            background: #e2e8f0;
+            margin: 0 8px;
+            flex-shrink: 0;
           }
 
           .cs-tab-btn {
-            height: 52px;
-            padding: 0 18px;
+            height: 44px;
+            padding: 0 20px;
             border-radius: 9999px;
             border: 1px solid #e2e8f0;
             background: #ffffff;
@@ -125,9 +128,9 @@
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            font-size: 15px;
-            font-weight: 700;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
             transition: all 0.2s ease;
             font-family: inherit;
             outline: none;
@@ -138,6 +141,11 @@
 
             &:focus-visible {
               box-shadow: 0 0 0 3px rgba(27, 58, 107, 0.18);
+            }
+
+            &:hover:not(.active) {
+              background: #ebf4ff;
+              color: #1b3a6b;
             }
 
             &.active {
@@ -172,7 +180,7 @@
         .terms-cards {
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 0;
         }
 
         .notice-modern-card,
@@ -299,13 +307,7 @@
         .cs-main-info {
           .info {
             span {
-              font-size: 40px;
-            }
-          }
-
-          .btns {
-            .tab-separator {
-              display: none;
+              font-size: 30px;
             }
           }
         }
@@ -332,17 +334,21 @@
         .cs-main-info {
           .info {
             span {
-              font-size: 36px;
+              font-size: 26px;
             }
 
             p {
-              font-size: 16px;
+              font-size: 14px;
             }
           }
 
           .btns {
             margin-top: 28px;
             gap: 8px;
+
+            .tab-separator {
+              display: none;
+            }
 
             .cs-tab-btn {
               width: 100%;
