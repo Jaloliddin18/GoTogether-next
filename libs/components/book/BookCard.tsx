@@ -38,38 +38,12 @@ interface BookCardProps {
 	sx?: SxProps<Theme>;
 }
 
-const formatTag = (value?: string, fallback: string = 'GENERAL'): string => {
-	if (!value) return fallback;
-	return value.replace(/_/g, ' ').toUpperCase();
-};
-
 const getPriceLabel = (book: BookCardModel): string => {
 	if (book.isPurchasable && (book.bookPrice?.amount ?? 0) > 0) {
 		const amount = Number(book.bookPrice?.amount ?? 0).toLocaleString();
 		return `₩ ${amount}`;
 	}
 	return 'Borrow Only';
-};
-
-const badgeBaseSx: SxProps<Theme> = {
-	position: 'absolute',
-	top: 12,
-	zIndex: 2,
-	display: 'inline-flex',
-	alignItems: 'center',
-	minHeight: 27,
-	px: '12px',
-	borderRadius: '999px',
-	color: '#0d1b2e',
-	fontSize: '.7rem',
-	fontWeight: 700,
-	letterSpacing: '.06em',
-	lineHeight: 1.2,
-	textTransform: 'uppercase',
-	background: 'rgba(255,255,255,.85)',
-	border: '1px solid rgba(255,255,255,.6)',
-	backdropFilter: 'blur(8px)',
-	WebkitBackdropFilter: 'blur(8px)',
 };
 
 const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
@@ -167,7 +141,6 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 						{getInitials(book.bookTitle)}
 					</Box>
 				)}
-				<Box sx={{ ...badgeBaseSx, left: 12 }}>{formatTag(book.bookCategory)}</Box>
 			</Box>
 
 			<Box sx={{ p: 2, display: 'flex', flexDirection: 'column', fontFamily: "'Sofia Pro', sans-serif" }}>

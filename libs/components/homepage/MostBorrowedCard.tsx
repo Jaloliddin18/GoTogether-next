@@ -133,7 +133,6 @@ const MostBorrowedCard = (props: MostBorrowedCardProps) => {
 						{getInitials(book.bookTitle)}
 					</MuiBox>
 				)}
-				<MuiBox sx={{ ...badgeBaseSx, left: '12px', color: '#0d1b2e' }}>{book.bookCategory?.replace(/_/g, ' ')}</MuiBox>
 				{book.bookRank > 0 ? (
 					<MuiBox sx={{ ...badgeBaseSx, right: '12px', color: '#b45309' }}>Top</MuiBox>
 				) : null}

@@ -1,9 +1,35 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-22
+**Last Updated:** 2026-05-23
 **Current Branch:** `aboutUs`
 
 ---
+
+## Today's Session Update (2026-05-23, Book cards cleanup + image render fix + hero heading alignment)
+
+### Completed today
+- Updated book-detail hero heading in `pages/books/detail.tsx` to match shared large-banner typography/placement patterns:
+  - switched to Inter/Noto stack and large heading scale
+  - moved from centered hero copy to left-aligned container offset.
+- Fixed image URL resolution source in `libs/utils.ts`:
+  - `resolveMediaUrl` now uses `NEXT_PUBLIC_API_URL` first (with `REACT_APP_API_URL` fallback)
+  - this restores image rendering consistency for `/books`, `/books/detail`, and homepage sections using resolver-based media (including Most Borrowed).
+- Updated `src/components/books/YouMayAlsoLike.tsx`:
+  - removed shiny blue hover accent
+  - removed Borrowable/Purchasable badge
+  - changed price text color to black.
+- Removed category badge rendering on book cards across requested surfaces:
+  - homepage: `NewArrivalCard.tsx`, `FeaturedBookCard.tsx`, `MostBorrowedCard.tsx`
+  - books list page cards: `libs/components/book/BookCard.tsx`
+  - detail related cards: `src/components/books/YouMayAlsoLike.tsx`.
+
+### Current stopping point
+- Book cards now render without category pills on homepage, books list, and detail related cards.
+- Books/detail/MostBorrowed image paths now resolve via the correct API base env flow.
+- Book detail hero heading is aligned to the same visual direction as other major page banners.
+
+### Exact next task
+- Frontend visual QA pass on `/`, `/books`, and `/books/detail?id=<id>` to confirm card overlays, image rendering, and hero alignment at desktop + mobile breakpoints.
 
 ## Today's Session Update (2026-05-22, About hero stats strip removal + tech stack pills)
 

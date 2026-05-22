@@ -48,22 +48,6 @@ const imageSx: any = {
 	display: 'block',
 };
 
-const badgeBaseSx: any = {
-	position: 'absolute',
-	top: '12px',
-	background: 'rgba(255,255,255,.85)',
-	backdropFilter: 'blur(8px)',
-	WebkitBackdropFilter: 'blur(8px)',
-	border: '1px solid rgba(255,255,255,.6)',
-	borderRadius: '100px',
-	padding: '4px 12px',
-	fontSize: '.7rem',
-	fontWeight: 700,
-	letterSpacing: '.06em',
-	textTransform: 'uppercase',
-	lineHeight: 1.2,
-};
-
 const titleSx: any = {
 	fontFamily: "'Sofia Pro', sans-serif",
 	fontSize: '1.05rem',
@@ -137,7 +121,6 @@ const FeaturedBookCard = (props: FeaturedBookCardProps) => {
 						{getInitials(book.bookTitle)}
 					</MuiBox>
 				)}
-				<MuiBox sx={{ ...badgeBaseSx, left: '12px', color: '#0d1b2e' }}>{book.bookCategory?.replace(/_/g, ' ')}</MuiBox>
 			</MuiBox>
 			<MuiBox sx={{ padding: '16px', display: 'flex', flexDirection: 'column', fontFamily: "'Sofia Pro', sans-serif" }}>
 				<MuiTypography sx={titleSx}>{book.bookTitle}</MuiTypography>

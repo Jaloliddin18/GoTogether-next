@@ -15,6 +15,30 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-23) — Book detail hero + image resolver + card badge cleanup
+
+### Completed
+- Updated the book-detail hero heading block in `pages/books/detail.tsx` to match the shared banner style direction used by major pages:
+  - heading typography changed from Sofia-centered style to Inter/Noto stack with large banner sizing
+  - heading/breadcrumb placement moved to left-aligned container offset (instead of centered block).
+- Fixed cross-page book-image rendering by updating `resolveMediaUrl` in `libs/utils.ts`:
+  - resolver now prefers `process.env.NEXT_PUBLIC_API_URL` (with `REACT_APP_API_URL` fallback)
+  - this restores correct absolute backend image URLs in `/books`, `/books/detail`, and homepage sections using `resolveMediaUrl` (including Most Borrowed).
+- Updated `src/components/books/YouMayAlsoLike.tsx`:
+  - removed blue shiny hover accent (neutralized hover shadow/border)
+  - removed Borrowable/Purchasable availability badge
+  - changed price text color to black.
+- Removed book-category pill rendering from card UIs in requested scopes:
+  - `libs/components/homepage/NewArrivalCard.tsx`
+  - `libs/components/homepage/FeaturedBookCard.tsx`
+  - `libs/components/homepage/MostBorrowedCard.tsx`
+  - `libs/components/book/BookCard.tsx` (books page cards)
+  - `src/components/books/YouMayAlsoLike.tsx` (book detail related cards).
+
+### Key rules
+- For frontend media URLs, prefer `NEXT_PUBLIC_API_URL` as the primary env source in this repo.
+- Keep category text out of visual card badges when the request is for cleaner card surfaces; do not remove category query filters unless explicitly asked.
+
 ## Session Update (2026-05-22) — About hero stats removal + tech-stack dark/white pill pass
 
 ### Completed
