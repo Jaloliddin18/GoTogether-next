@@ -59,88 +59,45 @@ const PROTOTYPE_SCOPE = [
 	{ value: 'Real-time', label: 'robot telemetry', Icon: TrackChangesRoundedIcon },
 ] as const;
 
-const PRICING_CARDS = [
-	{
-		title: 'Borrow',
-		value: 'Free',
-		label: 'For library borrowing',
-		features: [
-			'Borrow available library books',
-			'Delivered to your saved desk location',
-			'Real-time request status updates',
-			'Return handled through the library flow',
-		],
-		cta: 'Browse Books',
-		href: '/books',
-		featured: false,
-	},
-	{
-		title: 'Purchase',
-		value: 'Book price',
-		label: 'For bookstore items',
-		features: [
-			'Buy purchasable books from available inventory',
-			'Pickup destination: reception',
-			'Payment status tracked in request flow',
-			'Useful for textbooks and course materials',
-		],
-		cta: 'View Store Books',
-		href: '/books',
-		featured: false,
-	},
-	{
-		title: 'Robot Delivery',
-		value: 'Included',
-		label: 'Prototype delivery service',
-		features: [
-			'TurtleBot delivery prototype',
-			'MQTT command and telemetry flow',
-			'Shelf pickup with gripper mechanism',
-			'Live delivery status updates',
-		],
-		cta: 'Learn How It Works',
-		href: '#about-workflow',
-		featured: true,
-	},
-] as const;
-
 const RobotPrototypeSection = () => (
 	<section className={'robot-showcase'} aria-labelledby={'robot-prototype-title'}>
 		<div className={'container'}>
-			<div className={'robot-visual-col'} aria-label={'Robot prototype visual summary'}>
-				<div className={'robot-visual-card'}>
-					<span className={'robot-visual-status'}>School prototype</span>
-					<div className={'robot-icon-stage'}>
-						<SmartToyRoundedIcon />
+			<div className={'section-heading'}>
+				<h2 id={'robot-prototype-title'}>Built to prove library delivery from request to pickup</h2>
+				<p>
+					같이Go uses a TurtleBot-based prototype to test how a student book request can become a real robot task. The
+					goal is not to claim production deployment, but to validate the core delivery loop for a capstone demo.
+				</p>
+			</div>
+			<div className={'robot-cols'}>
+				<div className={'robot-visual-col'} aria-label={'Robot prototype visual summary'}>
+					<div className={'robot-visual-card'}>
+						<span className={'robot-visual-status'}>School prototype</span>
+						<div className={'robot-icon-stage'}>
+							<SmartToyRoundedIcon />
+						</div>
+						<strong>TurtleBot delivery assistant</strong>
+						<p>Request handoff, route logic, fixed-gripper pickup, and telemetry feedback in one demo flow.</p>
+						<div className={'robot-visual-points'}>
+							{ROBOT_VISUAL_POINTS.map(({ label, Icon }) => (
+								<div className={'robot-visual-point'} key={label}>
+									<Icon />
+									<span>{label}</span>
+								</div>
+							))}
+						</div>
 					</div>
-					<strong>TurtleBot delivery assistant</strong>
-					<p>Request handoff, route logic, fixed-gripper pickup, and telemetry feedback in one demo flow.</p>
-					<div className={'robot-visual-points'}>
-						{ROBOT_VISUAL_POINTS.map(({ label, Icon }) => (
-							<div className={'robot-visual-point'} key={label}>
-								<Icon />
-								<span>{label}</span>
+				</div>
+				<div className={'robot-specs-col'}>
+					<div className={'spec-rows'}>
+						{SPEC_ROWS.map((row) => (
+							<div className={'spec-row'} key={row.key}>
+								<span className={'spec-key'}>{row.key}</span>
+								<span className={'spec-sep'}>—</span>
+								<span className={'spec-val'}>{row.val}</span>
 							</div>
 						))}
 					</div>
-				</div>
-			</div>
-
-			<div className={'robot-specs-col'}>
-				<span className={'robot-eyebrow'}>Meet the Robot Prototype</span>
-				<h2 id={'robot-prototype-title'}>Built to prove library delivery from request to pickup</h2>
-				<p className={'robot-desc'}>
-					같이Go uses a TurtleBot-based prototype to test how a student book request can become a real robot task.
-					The goal is not to claim production deployment, but to validate the core delivery loop for a capstone demo.
-				</p>
-				<div className={'spec-rows'}>
-					{SPEC_ROWS.map((row) => (
-						<div className={'spec-row'} key={row.key}>
-							<span className={'spec-key'}>{row.key}</span>
-							<span className={'spec-sep'}>—</span>
-							<span className={'spec-val'}>{row.val}</span>
-						</div>
-					))}
 				</div>
 			</div>
 		</div>
@@ -156,11 +113,8 @@ const PrototypeScopeSection = () => (
 				<p>These figures describe the current prototype scope, not commercial deployment metrics.</p>
 			</div>
 			<div className={'scope-grid'}>
-				{PROTOTYPE_SCOPE.map(({ value, label, Icon }) => (
+				{PROTOTYPE_SCOPE.map(({ value, label }) => (
 					<article className={'scope-card'} key={label}>
-						<span className={'scope-icon'} aria-hidden={'true'}>
-							<Icon />
-						</span>
 						<strong>{value}</strong>
 						<span>{label}</span>
 					</article>
@@ -171,35 +125,72 @@ const PrototypeScopeSection = () => (
 );
 
 const SimplePricingSection = () => (
-	<section className={'business-model'} aria-labelledby={'simple-pricing-title'}>
-		<div className={'container'}>
-			<div className={'section-header pricing-heading'}>
-				<h2 id={'simple-pricing-title'}>Simple Library Pricing</h2>
-				<p>
-					Borrow books for free, purchase bookstore items when available, and use robot delivery as part of
-					the smart library experience.
-				</p>
+	<div className={'business-model'}>
+		<div className={'bm-container'}>
+			<div className={'bm-heading'}>
+				<h2>Pricing Framework</h2>
+				<p>A complete deployment package for any institution.</p>
 			</div>
-			<div className={'pricing-cards'}>
-				{PRICING_CARDS.map((card) => (
-					<article className={`pricing-card${card.featured ? ' featured' : ''}`} key={card.title}>
-						<div className={`card-accent${card.featured ? '' : ' primary-accent'}`} />
-						<strong className={'card-title'}>{card.title}</strong>
-						<span className={'card-price'}>{card.value}</span>
-						<span className={'card-label'}>{card.label}</span>
-						<ul className={'card-features'}>
-							{card.features.map((feature) => (
-								<li key={feature}>{feature}</li>
-							))}
-						</ul>
-						<Link href={card.href} className={'card-cta'}>
-							{card.cta}
-						</Link>
-					</article>
-				))}
+
+			<div className={'bm-table'}>
+				<div className={'bm-header'}>
+					<div className={'bm-col-name'}>Tier</div>
+					<div className={'bm-col-included'}>What is included</div>
+					<div className={'bm-col-details'}>Details</div>
+					<div className={'bm-col-price'}>Price</div>
+				</div>
+
+				<div className={'bm-row'}>
+					<div className={'bm-col-name'}>
+						<span className={'bm-tier-title'}>Hardware Unit</span>
+						<span className={'bm-tier-sub'}>Per deployment unit</span>
+					</div>
+					<div className={'bm-col-included'}>
+						<span>Autonomous Mobile Robot</span>
+						<span>Navigation system</span>
+						<span>UI/UX interface</span>
+						<span>Book interface</span>
+					</div>
+					<div className={'bm-col-details'}>One-time hardware purchase per deployment unit</div>
+					<div className={'bm-col-price'}>$8,000</div>
+				</div>
+
+				<div className={'bm-row bm-row--featured'}>
+					<div className={'bm-col-name'}>
+						<span className={'bm-tier-title'}>System Infrastructure</span>
+						<span className={'bm-tier-sub'}>Core platform</span>
+					</div>
+					<div className={'bm-col-included'}>
+						<span>Sorting and Charging Hub</span>
+						<span>Database and API integration</span>
+						<span>Analytics dashboard</span>
+						<span>Multi-robot support</span>
+					</div>
+					<div className={'bm-col-details'}>Core platform powering the full delivery lifecycle and management layer</div>
+					<div className={'bm-col-price'}>$45,000</div>
+				</div>
+
+				<div className={'bm-row'}>
+					<div className={'bm-col-name'}>
+						<span className={'bm-tier-title'}>Operations</span>
+						<span className={'bm-tier-sub'}>Annual subscription</span>
+					</div>
+					<div className={'bm-col-included'}>
+						<span>SaaS license</span>
+						<span>Maintenance and AI updates</span>
+						<span>24/7 support</span>
+						<span>Incident response</span>
+					</div>
+					<div className={'bm-col-details'}>Annual subscription — keeps the system current and supported</div>
+					<div className={'bm-col-price'}>$5,000 / yr</div>
+				</div>
 			</div>
+
+			<p className={'bm-footer'}>
+				All tiers can be combined into a full deployment package. Contact us for institutional pricing.
+			</p>
 		</div>
-	</section>
+	</div>
 );
 
 // ── Page component ────────────────────────────────────────────────────────────
@@ -284,17 +275,6 @@ const About: NextPage = () => {
 								<span className={'member-role'}>{member.role}</span>
 							</div>
 						))}
-					</div>
-				</div>
-			</section>
-
-			{/* ── 12. UNIVERSITY BADGE ─────────────────────────────────────────── */}
-			<section className={'university-badge'}>
-				<div className={'container'}>
-					<img src={'/img/logo/logo_capstone.png'} alt={'Inha University Capstone'} className={'capstone-logo'} />
-					<div className={'uni-text'}>
-						<p className={'uni-label'}>{t('uni_label')}</p>
-						<p className={'uni-name'}>{t('uni_name')}</p>
 					</div>
 				</div>
 			</section>
