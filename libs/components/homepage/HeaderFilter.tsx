@@ -43,6 +43,8 @@ import DesignServicesOutlinedIcon from '@mui/icons-material/DesignServicesOutlin
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
+import { Direction } from '../../enums/common.enum';
+import type { BooksInquiry } from '../../types/book/book.input';
 
 const modalStyle: React.CSSProperties = {
 	position: 'absolute',
@@ -166,7 +168,7 @@ const BOOK_CATEGORY_OPTIONS: IconFilterOption[] = [
 	{ value: 'SCIENCE_AND_MATH', label: 'Science & Math', Icon: FunctionsOutlinedIcon },
 	{ value: 'BUSINESS', label: 'Business', Icon: BusinessCenterOutlinedIcon },
 	{ value: 'LITERATURE', label: 'Literature', Icon: AutoStoriesOutlinedIcon },
-	{ value: 'NOVEL', label: 'Novel', Icon: AutoStoriesOutlinedIcon },
+	{ value: 'COMICS', label: 'Comics', Icon: TheaterComedyOutlinedIcon },
 	{ value: 'SELF_IMPROVEMENT', label: 'Self Improvement', Icon: SelfImprovementOutlinedIcon },
 	{ value: 'TEXTBOOKS', label: 'Textbooks', Icon: MenuBookOutlinedIcon },
 	{ value: 'KOREAN_LANGUAGE', label: 'Korean Language', Icon: TranslateOutlinedIcon },
@@ -283,6 +285,9 @@ const HeaderFilter = () => {
 	};
 
 	const resetFilterHandler = () => {
+		setBookFormat('');
+		setBookType('');
+		setBookCategory('');
 		setBookAudience('');
 		setBookLanguage('');
 		setBookSearchQuery('');
@@ -301,24 +306,32 @@ const HeaderFilter = () => {
 
 	const pushSearchHandler = async () => {
 		try {
-			const params: any = {};
+			const search: any = {};
+			const trimmedKeyword = bookSearchQuery.trim();
 
-			if (bookSearchQuery.trim()) params.keyword = bookSearchQuery.trim();
-			if (bookFormat) params.format = bookFormat;
-			if (bookType) params.type = bookType;
-			if (bookCategory) params.category = bookCategory;
+			if (trimmedKeyword) search.keyword = trimmedKeyword;
+			if (bookFormat) search.bookFormat = bookFormat;
+			if (bookType) search.bookType = bookType;
+			if (bookCategory) search.bookCategory = bookCategory;
+			if (bookAudience) search.bookAudience = bookAudience;
+			if (bookLanguage) search.bookLanguage = bookLanguage;
+			if (isBorrowable) search.isBorrowable = true;
+			if (isPurchasable) search.isPurchasable = true;
+			if (minRating > 0) search.minRating = minRating;
+			if (minPrice > 0) search.minPrice = minPrice;
+			if (maxPrice > 0) search.maxPrice = maxPrice;
 
-			if (bookAudience) params.audience = bookAudience;
-			if (bookLanguage) params.language = bookLanguage;
-			if (isBorrowable) params.borrowable = 'true';
-			if (isPurchasable) params.purchasable = 'true';
-			if (minRating > 0) params.minRating = minRating;
-			if (minPrice > 0) params.minPrice = minPrice;
-			if (maxPrice > 0) params.maxPrice = maxPrice;
+			const input: BooksInquiry = {
+				page: 1,
+				limit: 9,
+				sort: 'createdAt',
+				direction: Direction.DESC,
+				search,
+			};
 
 			await router.push({
 				pathname: '/books',
-				query: params,
+				query: { input: JSON.stringify(input) },
 			});
 		} catch (err: any) {
 			console.log('ERROR, pushSearchHandler:', err);

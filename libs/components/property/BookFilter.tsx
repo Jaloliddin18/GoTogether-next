@@ -1,7 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Stack, Typography, Checkbox, OutlinedInput, IconButton, Tooltip, Slider } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { BookAudience, BookCategory, BookFormat, BookLanguage, BookType } from '../../enums/book.enum';
+import { BookCategory, BookFormat, BookLanguage } from '../../enums/book.enum';
 import { BooksInquiry } from '../../types/book/book.input';
 import { useRouter } from 'next/router';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
@@ -11,7 +11,6 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 interface BookFilterType {
 	searchFilter: BooksInquiry;
-	setSearchFilter: any;
 	initialInput: BooksInquiry;
 }
 
@@ -21,22 +20,41 @@ const formatLabel = (value: string) =>
 		.replace(/_/g, ' ')
 		.replace(/\b\w/g, (c) => c.toUpperCase());
 
+const CURATED_BOOK_CATEGORIES: BookCategory[] = [
+	BookCategory.TEXTBOOKS,
+	BookCategory.COMPUTER_SCIENCE,
+	BookCategory.ENGINEERING,
+	BookCategory.BUSINESS,
+	BookCategory.SCIENCE_AND_MATH,
+	BookCategory.TEST_PREPARATION,
+	BookCategory.KOREAN_LANGUAGE,
+	BookCategory.TOPIK_PREPARATION,
+	BookCategory.LITERATURE,
+	BookCategory.SELF_IMPROVEMENT,
+	BookCategory.ROMANCE,
+	BookCategory.MYSTERY_THRILLER,
+	BookCategory.SCIENCE_FICTION,
+	BookCategory.CHILDRENS_BOOKS,
+	BookCategory.OTHER,
+];
+
+const CATEGORY_SHOW_MORE_LIMIT = 6;
 const SHOW_MORE_LIMIT = 3;
 
 const BookFilter = (props: BookFilterType) => {
-	const { searchFilter, setSearchFilter, initialInput } = props;
+	const { searchFilter, initialInput } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const [searchText, setSearchText] = useState<string>((searchFilter?.search as any)?.keyword ?? '');
+	const [showAllCategories, setShowAllCategories] = useState(false);
 	const [showAllLanguages, setShowAllLanguages] = useState(false);
-	const [showAllAudiences, setShowAllAudiences] = useState(false);
 	const [localRating, setLocalRating] = useState<number>((searchFilter?.search as any)?.minRating ?? 0);
 
-	const bookCategories = Object.values(BookCategory);
-	const bookTypes = Object.values(BookType);
+	const bookCategories = CURATED_BOOK_CATEGORIES;
 	const bookFormats = Object.values(BookFormat);
-	const bookLanguages = Object.values(BookLanguage);
-	const bookAudiences = Object.values(BookAudience);
+	const bookLanguages = Object.values(BookLanguage).filter(
+		(lang) => lang !== BookLanguage.ARABIC && lang !== BookLanguage.FRENCH && lang !== BookLanguage.OTHER,
+	);
 
 	/** HANDLERS **/
 	const singleSelectHandler = useCallback(
@@ -58,7 +76,7 @@ const BookFilter = (props: BookFilterType) => {
 				console.log('ERROR, singleSelectHandler:', err);
 			}
 		},
-		[searchFilter],
+		[router, searchFilter],
 	);
 
 	const toggleHandler = useCallback(
@@ -80,7 +98,7 @@ const BookFilter = (props: BookFilterType) => {
 				console.log('ERROR, toggleHandler:', err);
 			}
 		},
-		[searchFilter],
+		[router, searchFilter],
 	);
 
 	const priceHandler = useCallback(
@@ -97,7 +115,7 @@ const BookFilter = (props: BookFilterType) => {
 				console.log('ERROR, priceHandler:', err);
 			}
 		},
-		[searchFilter],
+		[router, searchFilter],
 	);
 
 	const ratingHandler = useCallback(
@@ -119,7 +137,7 @@ const BookFilter = (props: BookFilterType) => {
 				console.log('ERROR, ratingHandler:', err);
 			}
 		},
-		[searchFilter],
+		[router, searchFilter],
 	);
 
 	const refreshHandler = async () => {
@@ -135,6 +153,33 @@ const BookFilter = (props: BookFilterType) => {
 			console.log('ERROR, refreshHandler:', err);
 		}
 	};
+
+	const keywordHandler = useCallback(
+		async (value: string) => {
+			try {
+				const currentSearch: any = searchFilter?.search ?? {};
+				const newSearch = { ...currentSearch };
+				const trimmedKeyword = value.trim();
+
+				if (trimmedKeyword) newSearch.keyword = trimmedKeyword;
+				else delete newSearch.keyword;
+
+				await router.push(
+					`/books?input=${JSON.stringify({ ...searchFilter, page: 1, search: newSearch })}`,
+					`/books?input=${JSON.stringify({ ...searchFilter, page: 1, search: newSearch })}`,
+					{ scroll: false },
+				);
+			} catch (err: any) {
+				console.log('ERROR, keywordHandler:', err);
+			}
+		},
+		[router, searchFilter],
+	);
+
+	useEffect(() => {
+		setSearchText((searchFilter?.search as any)?.keyword ?? '');
+		setLocalRating((searchFilter?.search as any)?.minRating ?? 0);
+	}, [searchFilter]);
 
 	if (device === 'mobile') {
 		return <div>BOOKS FILTER</div>;
@@ -154,20 +199,14 @@ const BookFilter = (props: BookFilterType) => {
 							onChange={(e: any) => setSearchText(e.target.value)}
 							onKeyDown={(e: any) => {
 								if (e.key === 'Enter') {
-									setSearchFilter({
-										...searchFilter,
-										search: { ...(searchFilter?.search ?? {}), keyword: searchText },
-									});
+									keywordHandler(searchText).then();
 								}
 							}}
 							endAdornment={
 								<CancelRoundedIcon
 									onClick={() => {
 										setSearchText('');
-										setSearchFilter({
-											...searchFilter,
-											search: { ...(searchFilter?.search ?? {}), keyword: '' },
-										});
+										keywordHandler('').then();
 									}}
 								/>
 							}
@@ -184,8 +223,8 @@ const BookFilter = (props: BookFilterType) => {
 				{/* Book Category */}
 				<Stack className={'find-your-home'} mb={'30px'}>
 					<Typography className={'title'}>Book Category</Typography>
-					<Stack className={'book-filter-scroll'}>
-						{bookCategories.map((cat) => (
+					<Stack sx={{ gap: '8px' }}>
+						{(showAllCategories ? bookCategories : bookCategories.slice(0, CATEGORY_SHOW_MORE_LIMIT)).map((cat) => (
 							<Stack className={'input-box'} key={cat}>
 								<Checkbox
 									id={`cat-${cat}`}
@@ -202,29 +241,32 @@ const BookFilter = (props: BookFilterType) => {
 							</Stack>
 						))}
 					</Stack>
-				</Stack>
-
-				{/* Book Type */}
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Book Type</Typography>
-					<Stack className={'book-filter-scroll'}>
-						{bookTypes.map((type) => (
-							<Stack className={'input-box'} key={type}>
-								<Checkbox
-									id={`type-${type}`}
-									className="property-checkbox"
-									color="primary"
-									size="small"
-									value={type}
-									checked={(searchFilter?.search as any)?.bookType === type}
-									onChange={() => singleSelectHandler('bookType', type)}
-								/>
-								<label htmlFor={`type-${type}`} style={{ cursor: 'pointer' }}>
-									<Typography className="property-type">{formatLabel(type)}</Typography>
-								</label>
-							</Stack>
-						))}
-					</Stack>
+					{bookCategories.length > CATEGORY_SHOW_MORE_LIMIT && (
+						<button
+							onClick={() => setShowAllCategories((prev) => !prev)}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '2px',
+								marginTop: '8px',
+								background: 'none',
+								border: 'none',
+								padding: 0,
+								cursor: 'pointer',
+								color: '#64748B',
+								fontSize: '14px',
+								fontFamily: 'inherit',
+							}}
+							onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#1A1A2E')}
+							onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#64748B')}
+						>
+							{showAllCategories ? (
+								<>Show less <KeyboardArrowUpIcon style={{ fontSize: '16px' }} /></>
+							) : (
+								<>Show more <KeyboardArrowDownIcon style={{ fontSize: '16px' }} /></>
+							)}
+						</button>
+					)}
 				</Stack>
 
 				{/* Book Format */}
@@ -287,53 +329,6 @@ const BookFilter = (props: BookFilterType) => {
 							onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#64748B')}
 						>
 							{showAllLanguages ? (
-								<>Show less <KeyboardArrowUpIcon style={{ fontSize: '16px' }} /></>
-							) : (
-								<>Show more <KeyboardArrowDownIcon style={{ fontSize: '16px' }} /></>
-							)}
-						</button>
-					)}
-				</Stack>
-
-				{/* Book Audience */}
-				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Audience</Typography>
-					{(showAllAudiences ? bookAudiences : bookAudiences.slice(0, SHOW_MORE_LIMIT)).map((aud) => (
-						<Stack className={'input-box'} key={aud}>
-							<Checkbox
-								id={`aud-${aud}`}
-								className="property-checkbox"
-								color="primary"
-								size="small"
-								value={aud}
-								checked={(searchFilter?.search as any)?.bookAudience === aud}
-								onChange={() => singleSelectHandler('bookAudience', aud)}
-							/>
-							<label htmlFor={`aud-${aud}`} style={{ cursor: 'pointer' }}>
-								<Typography className="property-type">{formatLabel(aud)}</Typography>
-							</label>
-						</Stack>
-					))}
-					{bookAudiences.length > SHOW_MORE_LIMIT && (
-						<button
-							onClick={() => setShowAllAudiences((prev) => !prev)}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '2px',
-								marginTop: '8px',
-								background: 'none',
-								border: 'none',
-								padding: 0,
-								cursor: 'pointer',
-								color: '#64748B',
-								fontSize: '14px',
-								fontFamily: 'inherit',
-							}}
-							onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#1A1A2E')}
-							onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#64748B')}
-						>
-							{showAllAudiences ? (
 								<>Show less <KeyboardArrowUpIcon style={{ fontSize: '16px' }} /></>
 							) : (
 								<>Show more <KeyboardArrowDownIcon style={{ fontSize: '16px' }} /></>

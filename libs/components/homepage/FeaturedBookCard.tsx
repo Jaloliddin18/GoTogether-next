@@ -8,6 +8,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import StarIcon from '@mui/icons-material/Star';
 import { useRouter } from 'next/router';
 import { resolveMediaUrl } from '../../utils';
+import { REACT_APP_API_URL } from '../../config';
 
 const MuiBox: any = Box;
 const MuiTypography: any = Typography;
@@ -26,11 +27,10 @@ const cardSx: any = {
 	overflow: 'hidden',
 	cursor: 'pointer',
 	fontFamily: "'Sofia Pro', sans-serif",
-	transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease',
+	transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
 	'&:hover': {
 		transform: 'translateY(-6px)',
-		boxShadow: '0 20px 40px -8px rgba(26,111,212,.18)',
-		borderColor: '#1a6fd4',
+		boxShadow: '0 20px 40px -8px rgba(15, 23, 42, 0.16)',
 	},
 };
 
@@ -47,22 +47,6 @@ const imageSx: any = {
 	height: '100%',
 	objectFit: 'cover',
 	display: 'block',
-};
-
-const badgeBaseSx: any = {
-	position: 'absolute',
-	top: '12px',
-	background: 'rgba(255,255,255,.85)',
-	backdropFilter: 'blur(8px)',
-	WebkitBackdropFilter: 'blur(8px)',
-	border: '1px solid rgba(255,255,255,.6)',
-	borderRadius: '100px',
-	padding: '4px 12px',
-	fontSize: '.7rem',
-	fontWeight: 700,
-	letterSpacing: '.06em',
-	textTransform: 'uppercase',
-	lineHeight: 1.2,
 };
 
 const titleSx: any = {
@@ -112,7 +96,7 @@ const FeaturedBookCard = (props: FeaturedBookCardProps) => {
 		await router.push(`/books/detail?id=${bookId}`);
 	};
 
-	const imageUrl = resolveMediaUrl(book?.bookImages?.[0], '/img/default-book.jpg');
+	const imageUrl = book?.bookImages?.[0] ? `${REACT_APP_API_URL}/${book.bookImages[0]}` : '';
 	const availabilityLabel = book.isPurchasable ? 'Purchasable' : book.isBorrowable ? 'Borrowable' : '';
 	const availabilityColor = book.isPurchasable ? '#059669' : '#1a6fd4';
 
@@ -120,7 +104,13 @@ const FeaturedBookCard = (props: FeaturedBookCardProps) => {
 		<MuiBox className="top-card-box" onClick={() => pushDetailHandler(book._id)} sx={cardSx}>
 			<MuiBox sx={imageWrapSx}>
 				{imageUrl && !imageFailed ? (
-					<Box component="img" src={imageUrl} alt={book.bookTitle || 'Book cover'} onError={() => setImageFailed(true)} sx={imageSx} />
+					<Box
+						component="img"
+						src={imageUrl}
+						alt={book.bookTitle || 'Book cover'}
+						onError={() => setImageFailed(true)}
+						sx={imageSx}
+					/>
 				) : (
 					<MuiBox
 						sx={{
@@ -140,8 +130,6 @@ const FeaturedBookCard = (props: FeaturedBookCardProps) => {
 						{getInitials(book.bookTitle)}
 					</MuiBox>
 				)}
-				<MuiBox sx={{ ...badgeBaseSx, left: '12px', color: '#0d1b2e' }}>{book.bookCategory?.replace(/_/g, ' ')}</MuiBox>
-				{availabilityLabel && <MuiBox sx={{ ...badgeBaseSx, right: '12px', color: availabilityColor }}>{availabilityLabel}</MuiBox>}
 			</MuiBox>
 			<MuiBox sx={{ padding: '16px', display: 'flex', flexDirection: 'column', fontFamily: "'Sofia Pro', sans-serif" }}>
 				<MuiTypography sx={titleSx}>{book.bookTitle}</MuiTypography>
@@ -158,8 +146,12 @@ const FeaturedBookCard = (props: FeaturedBookCardProps) => {
 				</MuiBox>
 				<MuiDivider sx={{ borderColor: '#e8f0fb', margin: '10px 0' }} />
 				<MuiBox sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-					<MuiTypography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.95rem', fontWeight: 700, color: '#1a6fd4' }}>
-						{book.isPurchasable && book?.bookPrice?.amount ? `₩ ${book.bookPrice.amount.toLocaleString()}` : 'Borrow Only'}
+					<MuiTypography
+						sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.95rem', fontWeight: 700, color: '#000' }}
+					>
+						{book.isPurchasable && book?.bookPrice?.amount
+							? `₩ ${book.bookPrice.amount.toLocaleString()}`
+							: 'Borrow Only'}
 					</MuiTypography>
 					<MuiBox sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						<MuiBox sx={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
@@ -168,7 +160,9 @@ const FeaturedBookCard = (props: FeaturedBookCardProps) => {
 						</MuiBox>
 						<MuiBox sx={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
 							<IconButton onClick={(e) => likeHandler(e, book._id)} sx={{ padding: '2px' }}>
-								<FavoriteIcon sx={{ fontSize: 20, color: liked ? '#ef4444' : '#5a7a9c', transition: 'color 0.2s ease' }} />
+								<FavoriteIcon
+									sx={{ fontSize: 20, color: liked ? '#ef4444' : '#5a7a9c', transition: 'color 0.2s ease' }}
+								/>
 							</IconButton>
 							<MuiTypography sx={{ ...metaTextSx, fontSize: '.8rem' }}>{likeCount}</MuiTypography>
 						</MuiBox>

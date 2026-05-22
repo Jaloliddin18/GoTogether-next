@@ -152,17 +152,17 @@
 							margin: 0 0 0 10px;
 						}
 					}
-						.trend-card-box {
-							position: relative;
-							width: 300px;
-							height: auto;
-							display: flex;
-						flex-direction: column;
-						transition: transform 0.3s;
-						&:hover {
-							opacity: 1;
-							transform: scale(1.05);
-						}
+							.trend-card-box {
+								position: relative;
+								width: 300px;
+								height: auto;
+								display: flex;
+								flex-direction: column;
+								transition: transform 0.3s;
+								&:hover {
+									opacity: 1;
+									transform: scale(1.05);
+								}
 							.card-img {
 								position: relative;
 								width: 100%;
@@ -318,17 +318,17 @@
 							margin: 0 0 10px 10px;
 						}
 					}
-						.popular-card-box {
-							position: relative;
-							width: 400px;
-							height: auto;
-							display: flex;
-						flex-direction: column;
-						transition: transform 0.3s, opacity 0.3s;
-						&:hover {
-							opacity: 1;
-							transform: scale(1.05);
-						}
+							.popular-card-box {
+								position: relative;
+								width: 400px;
+								height: auto;
+								display: flex;
+								flex-direction: column;
+								transition: transform 0.3s, opacity 0.3s;
+								&:hover {
+									opacity: 1;
+									transform: scale(1.05);
+								}
 							.card-img {
 								position: relative;
 								width: 100%;
@@ -528,17 +528,17 @@
 							margin: 0 0 0 10px;
 						}
 					}
-						.top-card-box {
-							position: relative;
-							width: 300px;
-							height: auto;
-							display: flex;
-						flex-direction: column;
-						transition: transform 0.3s;
-						&:hover {
-							opacity: 1;
-							transform: scale(1.05);
-						}
+							.top-card-box {
+								position: relative;
+								width: 300px;
+								height: auto;
+								display: flex;
+								flex-direction: column;
+								transition: transform 0.3s;
+								&:hover {
+									opacity: 1;
+									transform: scale(1.05);
+								}
 							.card-img {
 								position: relative;
 								width: 100%;

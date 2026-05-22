@@ -510,49 +510,72 @@ const BookDetailPage: NextPage = () => {
 							position: 'absolute',
 							inset: 0,
 							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
 							justifyContent: 'center',
 						}}
 					>
-						<h1
-							style={{
-								color: '#FFFFFF',
-								fontFamily: "'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-								fontSize: isMobile ? 32 : 48,
-								fontWeight: 700,
-								textShadow: '0 2px 12px rgba(0,0,0,0.4)',
-								margin: 0,
-							}}
-						>
-							Book Detail
-						</h1>
 						<div
+							className="container"
 							style={{
-								marginTop: 12,
-								fontSize: isMobile ? 16 : 18,
-								fontFamily: "'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-								color: 'rgba(255,255,255,0.85)',
-								display: 'flex',
-								alignItems: 'center',
-								gap: 8,
+								width: '100%',
+								maxWidth: 1300,
+								padding: isMobile ? '0 16px' : '0',
+								boxSizing: 'border-box',
 							}}
 						>
-							<Link href="/" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}
-								onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; (e.currentTarget as HTMLAnchorElement).style.color = '#FFFFFF'; }}
-								onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.85)'; }}
+							<div
+								style={{
+									width: 'fit-content',
+									marginTop: isMobile ? 92 : 175,
+									display: 'flex',
+									flexDirection: 'column',
+									gap: isMobile ? 4 : 6,
+								}}
 							>
-								Home
-							</Link>
-							<span style={{ color: 'rgba(255,255,255,0.6)' }}>›</span>
-							<Link href="/books" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}
-								onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; (e.currentTarget as HTMLAnchorElement).style.color = '#FFFFFF'; }}
-								onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.85)'; }}
-							>
-								Books
-							</Link>
-							<span style={{ color: 'rgba(255,255,255,0.6)' }}>›</span>
-							<span>Book Detail</span>
+								<h1
+									style={{
+										color: '#FFFFFF',
+										fontFamily: "'Inter', 'Noto Sans KR', -apple-system, sans-serif",
+										fontSize: isMobile ? 40 : 56,
+										fontStyle: 'normal',
+										fontWeight: 600,
+										lineHeight: 'normal',
+										letterSpacing: isMobile ? '0.8px' : '0.96px',
+										textTransform: 'capitalize',
+										textShadow: '0 2px 12px rgba(0,0,0,0.35)',
+										margin: 0,
+									}}
+								>
+									Book Detail
+								</h1>
+								<div
+									style={{
+										fontSize: isMobile ? 18 : 28,
+										fontFamily: "'Inter', 'Noto Sans KR', -apple-system, sans-serif",
+										fontWeight: 400,
+										lineHeight: isMobile ? '22px' : '30px',
+										color: '#FFFFFF',
+										display: 'flex',
+										alignItems: 'center',
+										gap: 8,
+									}}
+								>
+									<Link href="/" style={{ color: '#FFFFFF', textDecoration: 'none' }}
+										onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+										onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+									>
+										Home
+									</Link>
+									<span>/</span>
+									<Link href="/books" style={{ color: '#FFFFFF', textDecoration: 'none' }}
+										onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
+										onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
+									>
+										Books
+									</Link>
+									<span>/</span>
+									<span>Book Detail</span>
+								</div>
+							</div>
 						</div>
 					</div>
 			</div>

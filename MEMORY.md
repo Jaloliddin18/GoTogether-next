@@ -1,7 +1,163 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-21
-**Current Branch:** `myPage`
+**Last Updated:** 2026-05-23
+**Current Branch:** `aboutUs`
+
+---
+
+## Today's Session Update (2026-05-23, homepage advanced filter wiring + about hero image replacement)
+
+### Completed today
+- Wired homepage `libs/components/homepage/HeaderFilter.tsx` advanced filter search action to push `/books` with `query.input` as a serialized `BooksInquiry` object (instead of flat query params).
+- Updated `pages/books/index.tsx` to support both query entry paths:
+  - parse canonical `input` JSON when present
+  - fallback-map legacy flat query keys into `BooksInquiry.search` when `input` is absent.
+- Updated `libs/components/property/BookFilter.tsx`:
+  - keyword enter/clear now route through `/books?input=...` so keyword filter actually applies through the same URL contract
+  - local keyword and rating display now sync from `searchFilter` on external navigation changes.
+- Fixed advanced filter category option mismatch in `HeaderFilter` by replacing invalid category value `NOVEL` with `COMICS`.
+- Replaced About hero header background for `/about` in `libs/components/layout/LayoutBasic.tsx`:
+  - from `/img/banner/aboutBanner.svg`
+  - to `/img/aboutUs.webp`.
+- Added the new hero background asset file at `public/img/aboutUs.webp`.
+
+### Current stopping point
+- Homepage advanced filter and books-page filtering now share a unified URL contract (`/books?input=<BooksInquiry JSON>`) with backward-compatible flat-query parsing on read.
+- About page top hero/header uses the new `aboutUs.webp` image.
+- Working tree includes these updated files plus the new image asset.
+
+### Exact next task
+- Frontend runtime QA pass:
+  - from homepage advanced filter -> `/books` result correctness
+  - refresh/deep-link persistence for filter state
+  - `/about` hero visual check (desktop + mobile crop/alignment).
+
+## Today's Session Update (2026-05-23, Book cards cleanup + image render fix + hero heading alignment)
+
+### Completed today
+- Updated book-detail hero heading in `pages/books/detail.tsx` to match shared large-banner typography/placement patterns:
+  - switched to Inter/Noto stack and large heading scale
+  - moved from centered hero copy to left-aligned container offset.
+- Fixed image URL resolution source in `libs/utils.ts`:
+  - `resolveMediaUrl` now uses `NEXT_PUBLIC_API_URL` first (with `REACT_APP_API_URL` fallback)
+  - this restores image rendering consistency for `/books`, `/books/detail`, and homepage sections using resolver-based media (including Most Borrowed).
+- Updated `src/components/books/YouMayAlsoLike.tsx`:
+  - removed shiny blue hover accent
+  - removed Borrowable/Purchasable badge
+  - changed price text color to black.
+- Removed category badge rendering on book cards across requested surfaces:
+  - homepage: `NewArrivalCard.tsx`, `FeaturedBookCard.tsx`, `MostBorrowedCard.tsx`
+  - books list page cards: `libs/components/book/BookCard.tsx`
+  - detail related cards: `src/components/books/YouMayAlsoLike.tsx`.
+
+### Current stopping point
+- Book cards now render without category pills on homepage, books list, and detail related cards.
+- Books/detail/MostBorrowed image paths now resolve via the correct API base env flow.
+- Book detail hero heading is aligned to the same visual direction as other major page banners.
+
+### Exact next task
+- Frontend visual QA pass on `/`, `/books`, and `/books/detail?id=<id>` to confirm card overlays, image rendering, and hero alignment at desktop + mobile breakpoints.
+
+## Today's Session Update (2026-05-22, About hero stats strip removal + tech stack pills)
+
+### Completed today
+- Removed the About hero stats summary from `libs/components/about/AboutHeroSection.tsx`:
+  - deleted `HERO_STATS` constant
+  - deleted `.about-hero-stats` render block.
+- Removed stats-only style blocks from `scss/pc/about/about.scss`:
+  - mobile `.about-hero-stats` / `.about-stat`
+  - desktop `.about-hero-stats` / `.about-stat`.
+- Updated About tech-stack section style rules in `scss/pc/about/about.scss`:
+  - `.tech-stack` background changed to `$color-dark`
+  - tech heading text colors adjusted (`h2` white, `p` muted)
+  - tech pills now white with dark text (`background: $color-white`, `color: $color-dark`)
+  - pill shape kept rounded (`border-radius: 100px`) with primary border hover emphasis.
+- Added section-scoped heading selector coverage for both `.section-heading` and `.section-header` under `.tech-stack`; no JSX layout change was needed because the heading was already above the pill rows.
+
+### Current stopping point
+- About hero no longer renders the 4-stat strip.
+- Tech stack section uses dark section background with white chips and dark chip text.
+
+### Exact next task
+- Continue About-only visual polish if requested, keeping changes strictly section-scoped.
+
+## Today's Session Update (2026-05-22, About logo cloud marquee + team heading placement)
+
+### Completed today
+- Replaced the About robot prototype frame content with the real TurtleBot image (`/img/logo/robot3.png`) inside the existing outer frame.
+- Updated Team section structure in `pages/about/index.tsx`:
+  - heading/subtext moved out of the grid column
+  - structure now uses `team-section` > `team-container` > `section-heading` and `team-grid`
+  - team member cards remained unchanged.
+- Reworked `libs/components/about/AboutLogoCloudSection.tsx`:
+  - removed prev/next button carousel logic (`useState`, `useMemo`, arrow handlers/buttons)
+  - switched to auto-scroll marquee track rendering
+  - duplicated logo list sequence for seamless looping
+  - updated heading to `Built With` and `The technologies powering 같이Go`
+  - kept existing logo URLs unchanged.
+- Reworked `.about-logo-cloud` SCSS in `scss/pc/about/about.scss` (mobile + desktop blocks only):
+  - full-width wrapper with `border-top` and `border-bottom`
+  - stage now full width with no max-width clipping
+  - added `@keyframes marquee` and hover-pause behavior
+  - removed all logo opacity/blur/grayscale/faded-position styling
+  - tightened spacing and increased repeated logos to remove visible gaps in the strip.
+
+### Current stopping point
+- About page logo cloud now uses continuous marquee auto-scroll with full-color logos and denser spacing.
+- Team section heading is centered above the team grid in the requested structure.
+- Robot prototype frame now shows the real TurtleBot image only.
+
+### Exact next task
+- Continue scoped About page cleanup only when requested; keep edits section-bounded and avoid touching i18n or unrelated pages.
+
+## Today's Session Update (2026-05-22, About hero/intro section)
+
+### Completed today
+- Added `libs/components/about/AboutHeroSection.tsx` as the first About page hero/intro section.
+- Adapted the 21st.dev-style structure into 같이Go Smart Library conventions: intro copy, service cards, central robot-delivery visual, prototype-oriented stats, and CTA.
+- Used existing `/img/homepage/robot_delivery.webp` asset instead of external image URLs.
+- Used existing MUI icons because `lucide-react` is not installed.
+- Used existing `framer-motion` dependency for subtle viewport animations with reduced-motion support.
+- Wired the hero CTA to the existing `/books` route because this checkout does not have `pages/library/*`.
+- Replaced the old inline hero in `pages/about/index.tsx` and added mobile hero rendering instead of the previous mobile placeholder.
+- Updated only About page styles in `scss/pc/about/about.scss`, including mobile wrapper styles for the hero.
+- Removed the old visible placeholder blocks below the new hero: "The Library Crisis", the four crisis/stat cards, the benefit-card row, and the old three-card "How It Works" section.
+- Removed the now-unused About-page imports/constants and pruned the dead About-only SCSS selectors for those removed blocks.
+- Added `libs/components/about/AboutWorkflowSection.tsx` as the second About page section, directly below the hero.
+- The workflow section uses a custom React-state accordion with a desktop preview card and mobile inline preview cards; no Radix, shadcn, Tailwind, lucide, or external image dependency was added.
+- Workflow content explains the student-facing delivery path: browse, choose borrow/purchase, confirm destination, robot task handoff, track delivery status, and receive the book.
+- Added `libs/components/about/AboutArchitectureSection.tsx` as the third About page section, directly below the hero and workflow sections.
+- Replaced the older inline desktop-only architecture block with a cleaner website-friendly system flow: Student Web Platform, Backend + Database, MQTT Communication, Cognitive Processing, and TurtleBot + Gripper.
+- Added three supporting architecture detail cards for mission dispatch, route/vision logic, and the live feedback loop.
+- The architecture section uses existing MUI icons and SCSS project tokens only; no poster image, external image, new dependency, shadcn, Tailwind, global theme change, or direct MQTT frontend behavior was added.
+- Removed the unsupported "Market Opportunity" section from the About page, including market-size, ROI, competing-solution, and global-expansion claims.
+- Redesigned the old "Meet the Hardware / 같이Go Delivery Robot" block as a cleaner "Meet the Robot Prototype" section with an icon-based TurtleBot visual card instead of the empty "Robot photo coming soon" box.
+- Replaced the old animated "By the Numbers" metrics with a static "Prototype Scope" section using school-project scope only: 50+ catalog records, 15-20 physical demo books, 1 TurtleBot prototype, borrow + purchase request flows, and real-time robot telemetry.
+- Replaced the old About pricing/business-model content with "Simple Library Pricing" for students: Borrow / Free, Purchase / Book price, and Robot Delivery / Included.
+- Removed unsupported pricing claims from the About pricing section, including hardware unit cost, system infrastructure cost, operations annual fee, SaaS license, maintenance and AI updates, and 24/7 support wording.
+- Added `id="about-workflow"` to the About workflow section so the Robot Delivery pricing CTA can scroll to the workflow explanation.
+- Added `libs/components/about/AboutLogoCloudSection.tsx` as the final About page content section before the shared layout footer.
+- The logo-cloud section now uses the uploaded/reference logo set: Nvidia, Supabase, OpenAI, Turso, Vercel, GitHub, Claude AI, and Clerk.
+- Implemented the logo cloud with SCSS only: desktop CSS marquee with reduced-motion support, and static stacked logo cards on mobile. No shadcn/Tailwind structure, `react-use-measure`, or new dependency was added.
+- Updated the logo-cloud section background back to white while keeping the individual logo cards dark so the light wordmark SVGs remain visible.
+- Restyled the About logo-cloud section to match the screenshot reference more closely: white background, centered "Already used by / Best in the Game" heading, functional black MUI-chevron arrow buttons, a bordered horizontal logo strip, sharp center logo, and faded/blurred side logos.
+
+### Verification
+- `npm run build` passed.
+- Build still prints the existing `+input` static-generation logs from the account join page.
+
+### Current stopping point
+- `/about` now starts with a Smart Library-specific hero/intro section.
+- The second `/about` section now explains how Smart Library delivery works with an accordion and active preview panel.
+- The third `/about` section now explains the prototype system architecture in a clean card-based flow.
+- The following About sections now stay prototype-honest: robot prototype and prototype scope.
+- The About pricing section is now student-facing and prototype-honest instead of institution/investor-facing.
+- The final About page content section is now a quiet technology strip above the shared footer.
+- The old duplicated/problem/benefit/workflow sections are no longer rendered.
+- Remaining About page sections after the hero still contain older mixed prototype/business copy and can be cleaned up in separate scoped passes.
+
+### Exact next task
+- Continue About page section-by-section cleanup after the hero if requested, keeping each pass scoped.
 
 ---
 

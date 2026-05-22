@@ -1,0 +1,44 @@
+{
+  "hero_headline": "저희가 책을 가져다주는 로봇을 만들었습니다.",
+  "hero_sub": "같이Go는 인하대학교에서 개발한 자율 도서관 배달 시스템입니다 — TurtleBot 3 + ROS 2로 학생들에게 책을 직접 배달합니다.",
+  "hero_cta": "도서관 탐색하기 →",
+
+  "how_title": "이용 방법",
+  "how_subtitle": "요청부터 배달까지 몇 분 안에 — 완전 자율 운영.",
+  "step1_title": "책 요청",
+  "step1_desc": "앱에서 책을 선택하고 몇 초 안에 요청을 제출하세요.",
+  "step2_title": "로봇 이동",
+  "step2_desc": "ROS 2 경로 계획이 TurtleBot 3을 서가로 직접 이동시킵니다.",
+  "step3_title": "픽업 준비 완료",
+  "step3_desc": "로봇이 층에 도착하면 WebSocket으로 실시간 상태가 업데이트됩니다.",
+
+  "robot_eyebrow": "하드웨어 소개",
+  "robot_headline": "TurtleBot 3 Burger",
+  "robot_sub": "LiDAR 기반 SLAM으로 도서관을 탐색하고 고정 그리퍼로 책을 배달하는 ROS 2 Humble 기반 완전 자율 이동 로봇입니다.",
+  "spec_platform": "TurtleBot 3 Burger — 플랫폼",
+  "spec_software": "ROS 2 Humble — 소프트웨어 스택",
+  "spec_hardware": "고정 그리퍼 — 하드웨어",
+  "spec_sensing": "LiDAR 기반 내비게이션 — 센싱",
+  "spec_connectivity": "실시간 WebSocket 추적 — 연결성",
+  "spec_delivery": "다층 배달 — 기능",
+
+  "stats_title": "주요 수치",
+  "stat1_label": "보유 도서 수",
+  "stat2_label": "서비스 층수",
+  "stat3_label": "팀원 수",
+  "stat4_label": "로봇",
+
+  "tech_title": "기술 스택",
+  "tech_subtitle": "하드웨어와 소프트웨어의 만남 — 풀스택 로보틱스 시스템.",
+
+  "team_title": "팀 소개",
+  "team_subtitle": "여덟 명의 학생, 하나의 로봇, 하나의 미션.",
+
+  "uni_label": "2025 캡스톤 디자인 프로젝트",
+  "uni_name": "인하대학교 컴퓨터공학과",
+
+  "cta_headline": "첫 번째 책을 대출할 준비가 되셨나요?",
+  "cta_sub": "도서관 목록을 검색하고 1분 안에 배달을 요청하세요.",
+  "cta_btn1": "도서 탐색하기 →",
+  "cta_btn2": "회원가입"
+}

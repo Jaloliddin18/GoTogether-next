@@ -1,0 +1,44 @@
+{
+  "hero_headline": "We built a robot that fetches your books.",
+  "hero_sub": "같이Go is an autonomous library delivery system built at Inha University — TurtleBot 3 + ROS 2, delivering books directly to students.",
+  "hero_cta": "Explore the Library →",
+
+  "how_title": "How It Works",
+  "how_subtitle": "From request to delivery in minutes — fully autonomous.",
+  "step1_title": "Request a Book",
+  "step1_desc": "Pick a book in the app and submit your request in seconds.",
+  "step2_title": "Robot Navigates",
+  "step2_desc": "ROS 2 path-planning moves TurtleBot 3 directly to the shelf.",
+  "step3_title": "Pickup Ready",
+  "step3_desc": "Robot arrives at your floor. Status updates live via WebSocket.",
+
+  "robot_eyebrow": "Meet the Hardware",
+  "robot_headline": "TurtleBot 3 Burger",
+  "robot_sub": "A fully autonomous mobile robot running ROS 2 Humble, navigating the library stacks with LiDAR-based SLAM and delivering books with a fixed gripper.",
+  "spec_platform": "TurtleBot 3 Burger — platform",
+  "spec_software": "ROS 2 Humble — software stack",
+  "spec_hardware": "Fixed Gripper — hardware",
+  "spec_sensing": "LiDAR-based Navigation — sensing",
+  "spec_connectivity": "Real-time WebSocket Tracking — connectivity",
+  "spec_delivery": "Multi-floor Delivery — capability",
+
+  "stats_title": "By the Numbers",
+  "stat1_label": "Books in Collection",
+  "stat2_label": "Library Floors Served",
+  "stat3_label": "Team Members",
+  "stat4_label": "Robot",
+
+  "tech_title": "Built With",
+  "tech_subtitle": "Hardware meets software — a full-stack robotics system.",
+
+  "team_title": "The Team",
+  "team_subtitle": "Eight students, one robot, one mission.",
+
+  "uni_label": "2025 Capstone Design Project",
+  "uni_name": "Department of Computer Engineering, Inha University",
+
+  "cta_headline": "Ready to borrow your first book?",
+  "cta_sub": "Search the library catalog and request delivery in under a minute.",
+  "cta_btn1": "Browse Books →",
+  "cta_btn2": "Sign Up"
+}

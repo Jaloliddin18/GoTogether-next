@@ -151,12 +151,10 @@ import { useQuery, useMutation } from '@apollo/client';
 ## Smart Library implementation order
 
 1. `apollo/library/query.ts` — book queries
-2. `pages/library/books/index.tsx` — book list page ✅ (created)
-3. `pages/library/books/[bookId].tsx` — book detail + BORROW/PURCHASE button
-4. `pages/library/requests/index.tsx` — request history
-5. `pages/library/tracking/[requestId].tsx` — live robot tracking via WebSocket
-6. `pages/library/community/index.tsx` — Twit feed
-7. `pages/member/[memberId].tsx` — user profile (transform existing)
+2. `pages/library/requests/index.tsx` — request history
+3. `pages/library/tracking/[requestId].tsx` — live robot tracking via WebSocket
+4. `pages/library/community/index.tsx` — Twit feed
+5. `pages/member/[memberId].tsx` — user profile (transform existing)
 
 ---
 

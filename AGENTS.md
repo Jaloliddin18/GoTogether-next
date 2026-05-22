@@ -15,6 +15,97 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-23) — Homepage advanced filter wiring + About hero background update
+
+### Completed
+- Wired homepage `HeaderFilter` advanced filter payload to `/books` using the existing `input` JSON contract (`BooksInquiry`) instead of flat query params.
+- Updated `/books` page query handling in `pages/books/index.tsx`:
+  - primary flow: parse `router.query.input` JSON
+  - fallback flow: map legacy flat params (`format`, `type`, `category`, `audience`, `language`, `borrowable`, `purchasable`, `minRating`, `minPrice`, `maxPrice`, `keyword`) into `BooksInquiry.search`.
+- Updated books sidebar filter behavior in `libs/components/property/BookFilter.tsx`:
+  - keyword enter/clear now push router URL (`/books?input=...`) instead of only mutating local component state
+  - local `searchText` and `localRating` now sync from incoming `searchFilter` so homepage -> books state stays visually consistent.
+- Fixed homepage filter category option mismatch in `HeaderFilter` by replacing invalid category value `NOVEL` with valid `COMICS`.
+- Updated About page hero background source in `libs/components/layout/LayoutBasic.tsx`:
+  - `/about` header background changed from `/img/banner/aboutBanner.svg` to `/img/aboutUs.webp`.
+- Added new static asset file: `public/img/aboutUs.webp`.
+
+### Key rules
+- Keep `/books?input=<BooksInquiry JSON>` as the canonical filter-state URL contract for books filtering.
+- If compatibility is needed, support flat query params only as a read-side fallback in `/books`; write-side navigation should continue to emit `input`.
+- When homepage filter enums are manually curated, ensure option values match `BookCategory` / `BookType` enums exactly to avoid silent backend filter misses.
+
+## Session Update (2026-05-23) — Book detail hero + image resolver + card badge cleanup
+
+### Completed
+- Updated the book-detail hero heading block in `pages/books/detail.tsx` to match the shared banner style direction used by major pages:
+  - heading typography changed from Sofia-centered style to Inter/Noto stack with large banner sizing
+  - heading/breadcrumb placement moved to left-aligned container offset (instead of centered block).
+- Fixed cross-page book-image rendering by updating `resolveMediaUrl` in `libs/utils.ts`:
+  - resolver now prefers `process.env.NEXT_PUBLIC_API_URL` (with `REACT_APP_API_URL` fallback)
+  - this restores correct absolute backend image URLs in `/books`, `/books/detail`, and homepage sections using `resolveMediaUrl` (including Most Borrowed).
+- Updated `src/components/books/YouMayAlsoLike.tsx`:
+  - removed blue shiny hover accent (neutralized hover shadow/border)
+  - removed Borrowable/Purchasable availability badge
+  - changed price text color to black.
+- Removed book-category pill rendering from card UIs in requested scopes:
+  - `libs/components/homepage/NewArrivalCard.tsx`
+  - `libs/components/homepage/FeaturedBookCard.tsx`
+  - `libs/components/homepage/MostBorrowedCard.tsx`
+  - `libs/components/book/BookCard.tsx` (books page cards)
+  - `src/components/books/YouMayAlsoLike.tsx` (book detail related cards).
+
+### Key rules
+- For frontend media URLs, prefer `NEXT_PUBLIC_API_URL` as the primary env source in this repo.
+- Keep category text out of visual card badges when the request is for cleaner card surfaces; do not remove category query filters unless explicitly asked.
+
+## Session Update (2026-05-22) — About hero stats removal + tech-stack dark/white pill pass
+
+### Completed
+- Removed the About hero stats strip from `libs/components/about/AboutHeroSection.tsx`:
+  - deleted `HERO_STATS` constant (`10k+`, `2`, `3`, `1` summary values)
+  - deleted the `.about-hero-stats` JSX block that rendered those four cards.
+- Removed stats-only styles from `scss/pc/about/about.scss`:
+  - deleted mobile `.about-hero-stats` + nested `.about-stat` block
+  - deleted desktop `.about-hero-stats` + nested `.about-stat` block.
+- Updated About tech-stack section styling in `scss/pc/about/about.scss`:
+  - section background switched to `$color-dark`
+  - heading colors set for tech-stack context (`h2` white, `p` muted)
+  - pills styled as rounded white chips with dark text (`background: $color-white`, `color: $color-dark`, `border-radius: 100px`)
+  - hover keeps pill text dark with primary border emphasis.
+- Applied heading-position safety for tech-stack styling by covering both `.section-heading` and `.section-header` inside `.tech-stack`; JSX already had heading above pill rows, so no structural JSX move was needed.
+
+### Key rules
+- If a requested About heading rule mentions `.section-heading` but JSX uses `.section-header`, style both selectors inside the section scope instead of changing unrelated global heading behavior.
+- For quick visual tweak requests on About sections, keep edits section-scoped in `about.scss` and avoid touching unrelated About blocks or i18n.
+
+## Session Update (2026-05-22) — About page logo cloud + team heading + robot frame
+
+### Completed
+- Updated the About robot prototype visual frame to use the real TurtleBot image at `/img/logo/robot3.png` and removed inner placeholder/icon content from the outer frame.
+- Repositioned the About Team heading/subtext above the team card grid using:
+  - wrapper: `team-section` > `team-container`
+  - heading block: `section-heading`
+  - grid block: `team-grid` with all 8 member cards unchanged.
+- Converted `AboutLogoCloudSection` from button-based manual carousel to auto-scroll marquee:
+  - removed `useState`, `useMemo`, visible-window offset logic, and prev/next handlers/buttons
+  - rendered duplicated logo sequence in `logo-cloud-track` for seamless loop
+  - set heading copy to `Built With` and `The technologies powering 같이Go`
+  - kept existing logo URLs unchanged (`svgl.app` sources)
+- Reworked `.about-logo-cloud` rules (mobile and desktop blocks) to full-width strip behavior:
+  - section width 100%, overflow hidden, top/bottom borders, white background
+  - stage width 100% with no max-width constraint
+  - marquee keyframes and hover-pause behavior
+  - removed logo fading/muting/filtering states (no grayscale/opacity blur effects)
+- Tightened marquee density to eliminate visible gaps:
+  - increased repeated logo sequence count
+  - reduced per-logo horizontal margin.
+
+### Key rules
+- About logo cloud should use `logo-cloud-track` marquee logic, not button pagination.
+- Do not apply opacity/grayscale/blur treatment to technology logos unless explicitly requested.
+- Keep existing external logo image URLs unchanged unless the user explicitly asks to replace assets.
+
 ## Session Update (2026-05-21) — Groq AI chatbot frontend + request actions
 
 ### Completed

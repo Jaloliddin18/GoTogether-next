@@ -52,30 +52,90 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 		},
 	});
 
+	const getSingleQueryValue = (value: string | string[] | undefined): string => {
+		if (Array.isArray(value)) return value[0] ?? '';
+		return value ?? '';
+	};
+
+	const buildSearchFilterFromFlatQuery = (baseInput: BooksInquiry): BooksInquiry => {
+		const queryPage = getSingleQueryValue(router.query.page).trim();
+		const parsedPage = queryPage ? Math.max(1, Number(queryPage) || 1) : 1;
+
+		const keyword = getSingleQueryValue(router.query.keyword).trim();
+		const format = getSingleQueryValue(router.query.format).trim();
+		const type = getSingleQueryValue(router.query.type).trim();
+		const category = getSingleQueryValue(router.query.category).trim();
+		const audience = getSingleQueryValue(router.query.audience).trim();
+		const language = getSingleQueryValue(router.query.language).trim();
+		const borrowable = getSingleQueryValue(router.query.borrowable).trim();
+		const purchasable = getSingleQueryValue(router.query.purchasable).trim();
+		const minRatingRaw = getSingleQueryValue(router.query.minRating).trim();
+		const minPriceRaw = getSingleQueryValue(router.query.minPrice).trim();
+		const maxPriceRaw = getSingleQueryValue(router.query.maxPrice).trim();
+
+		const parsedMinRating = minRatingRaw ? Number(minRatingRaw) : 0;
+		const parsedMinPrice = minPriceRaw ? Number(minPriceRaw) : 0;
+		const parsedMaxPrice = maxPriceRaw ? Number(maxPriceRaw) : 0;
+
+		const search: any = {};
+		if (keyword) search.keyword = keyword;
+		if (format) search.bookFormat = format;
+		if (type) search.bookType = type;
+		if (category) search.bookCategory = category;
+		if (audience) search.bookAudience = audience;
+		if (language) search.bookLanguage = language;
+		if (borrowable === 'true') search.isBorrowable = true;
+		if (purchasable === 'true') search.isPurchasable = true;
+		if (!Number.isNaN(parsedMinRating) && parsedMinRating > 0) search.minRating = parsedMinRating;
+		if (!Number.isNaN(parsedMinPrice) && parsedMinPrice > 0) search.minPrice = parsedMinPrice;
+		if (!Number.isNaN(parsedMaxPrice) && parsedMaxPrice > 0) search.maxPrice = parsedMaxPrice;
+
+		return {
+			...baseInput,
+			page: parsedPage,
+			search,
+		};
+	};
+
 	/** LIFECYCLES **/
 	useEffect(() => {
-		if (router.query.input) {
-			const inputObj = JSON.parse(router?.query?.input as string);
-			setSearchFilter(inputObj);
+		if (!router.isReady) return;
+
+		const inputQuery = router.query.input;
+		const inputString = Array.isArray(inputQuery) ? inputQuery[0] : inputQuery;
+
+		if (inputString) {
+			try {
+				const inputObj = JSON.parse(inputString as string);
+				const nextFilter = {
+					...initialInput,
+					...inputObj,
+					search: inputObj?.search ?? {},
+				};
+				setSearchFilter(nextFilter);
+				setCurrentPage(nextFilter.page === undefined ? 1 : nextFilter.page);
+				return;
+			} catch (err) {
+				console.log('ERROR, parse input query:', err);
+			}
 		}
 
-		setCurrentPage(searchFilter.page === undefined ? 1 : searchFilter.page);
-	}, [router]);
-
-	useEffect(() => {
-		console.log('searchFilter:', searchFilter);
-	}, [searchFilter]);
+		const nextFilter = buildSearchFilterFromFlatQuery(initialInput);
+		setSearchFilter(nextFilter);
+		setCurrentPage(nextFilter.page === undefined ? 1 : nextFilter.page);
+	}, [router.isReady, router.query, initialInput]);
 
 	/** HANDLERS **/
-	const handlePaginationChange = async (event: ChangeEvent<unknown>, value: number) => {
-		searchFilter.page = value;
+	const handlePaginationChange = async (_event: ChangeEvent<unknown>, value: number) => {
+		const nextFilter = { ...searchFilter, page: value };
 		await router.push(
-			`/books?input=${JSON.stringify(searchFilter)}`,
-			`/books?input=${JSON.stringify(searchFilter)}`,
+			`/books?input=${JSON.stringify(nextFilter)}`,
+			`/books?input=${JSON.stringify(nextFilter)}`,
 			{
 				scroll: false,
 			},
 		);
+		setSearchFilter(nextFilter);
 		setCurrentPage(value);
 	};
 
@@ -168,7 +228,7 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 					</Box>
 					<Stack className={'property-page'}>
 						<Stack className={'filter-config'}>
-							<BookFilter searchFilter={searchFilter} setSearchFilter={setSearchFilter} initialInput={initialInput} />
+							<BookFilter searchFilter={searchFilter} initialInput={initialInput} />
 						</Stack>
 						<Stack className="main-config" mb={'76px'}>
 							<Stack

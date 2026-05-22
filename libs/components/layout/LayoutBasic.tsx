@@ -40,7 +40,7 @@ const withLayoutBasic = (Component: any) => {
 				case '/about':
 					title = 'About';
 					desc = 'Home / About';
-					bgImage = '/img/banner/aboutBanner.svg';
+					bgImage = '/img/aboutUs.webp';
 					break;
 				case '/mypage':
 					title = 'my page';

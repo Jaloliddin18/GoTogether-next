@@ -58,8 +58,6 @@ const YouMayAlsoLikeCard = ({ book, likeHandler }: CardProps) => {
 	const likeCount = book?.bookLikes ?? 0;
 	const [imageFailed, setImageFailed] = useState(false);
 	const imageUrl = resolveMediaUrl(book?.bookImages?.[0], '');
-	const availabilityLabel = book.isPurchasable ? 'Purchasable' : book.isBorrowable ? 'Borrowable' : '';
-	const availabilityColor = book.isPurchasable ? '#059669' : '#1a6fd4';
 
 	return (
 		<MuiBox
@@ -75,8 +73,8 @@ const YouMayAlsoLikeCard = ({ book, likeHandler }: CardProps) => {
 				transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease',
 				'&:hover': {
 					transform: 'translateY(-6px)',
-					boxShadow: '0 20px 40px -8px rgba(26,111,212,.18)',
-					borderColor: '#1a6fd4',
+					boxShadow: '0 20px 40px -8px rgba(15, 23, 42, 0.12)',
+					borderColor: '#CBD5E1',
 				},
 			}}
 		>
@@ -116,18 +114,9 @@ const YouMayAlsoLikeCard = ({ book, likeHandler }: CardProps) => {
 						{getInitials(book.bookTitle)}
 					</MuiBox>
 				)}
-				<div style={{ ...badgeBase, left: '12px', color: '#0d1b2e' }}>
-					{book.bookCategory?.replace(/_/g, ' ')}
-				</div>
 				{book.bookRank > 0 ? (
 					<div style={{ ...badgeBase, right: '12px', color: '#b45309' }}>Top</div>
-				) : (
-					!!availabilityLabel && (
-						<div style={{ ...badgeBase, right: '12px', color: availabilityColor }}>
-							{availabilityLabel}
-						</div>
-					)
-				)}
+				) : null}
 			</MuiBox>
 
 			<MuiBox sx={{ padding: '16px', display: 'flex', flexDirection: 'column', fontFamily: "'Sofia Pro', sans-serif" }}>
@@ -181,7 +170,7 @@ const YouMayAlsoLikeCard = ({ book, likeHandler }: CardProps) => {
 							fontFamily: "'Sofia Pro', sans-serif",
 							fontSize: '.95rem',
 							fontWeight: 700,
-							color: '#1a6fd4',
+							color: '#000000',
 						}}
 					>
 						{book.isPurchasable && book?.bookPrice?.amount
