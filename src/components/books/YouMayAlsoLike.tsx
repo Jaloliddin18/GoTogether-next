@@ -441,7 +441,7 @@ const YouMayAlsoLike = ({ currentBookId, category }: YouMayAlsoLikeProps) => {
 	}
 
 	return (
-		<div style={{ fontFamily: "'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+		<div style={{ fontFamily: "'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", paddingBottom: '24px' }}>
 			<style>{YMYL_STYLES}</style>
 			<SectionHeader />
 			{books.length === 0 ? (
@@ -503,6 +503,7 @@ const YouMayAlsoLike = ({ currentBookId, category }: YouMayAlsoLikeProps) => {
 					</Link>
 				</div>
 			) : (
+				<div style={{ marginTop: '24px' }}>
 				<Swiper
 					className="ymyl-swiper"
 					modules={[Navigation, Pagination]}
@@ -522,6 +523,7 @@ const YouMayAlsoLike = ({ currentBookId, category }: YouMayAlsoLikeProps) => {
 						</SwiperSlide>
 					))}
 				</Swiper>
+				</div>
 			)}
 		</div>
 	);
