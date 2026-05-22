@@ -6,6 +6,8 @@ import { Stack } from '@mui/material';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
+import { useReactiveVar } from '@apollo/client';
+import { userVar } from '../../apollo/store';
 import AboutHeroSection from '../../libs/components/about/AboutHeroSection';
 import AboutArchitectureSection from '../../libs/components/about/AboutArchitectureSection';
 import AboutLogoCloudSection from '../../libs/components/about/AboutLogoCloudSection';
@@ -271,6 +273,7 @@ const MarketResearchSection = () => (
 const About: NextPage = () => {
 	const device = useDeviceDetect();
 	const { t } = useTranslation('about');
+	const user = useReactiveVar(userVar);
 
 	if (device === 'mobile') {
 		return (
@@ -361,12 +364,14 @@ const About: NextPage = () => {
 						<p>{t('cta_sub')}</p>
 					</div>
 					<div className={'cta-right'}>
-						<Link href={'/library'} className={'btn-outline'}>
+						<Link href={'/books'} className={'btn-outline'}>
 							{t('cta_btn1')}
 						</Link>
-						<Link href={'/account/join'} className={'btn-filled'}>
-							{t('cta_btn2')}
-						</Link>
+						{!user._id && (
+							<Link href={'/account/join'} className={'btn-filled'}>
+								{t('cta_btn2')}
+							</Link>
+						)}
 					</div>
 				</div>
 			</section>
