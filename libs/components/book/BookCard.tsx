@@ -43,12 +43,6 @@ const formatTag = (value?: string, fallback: string = 'GENERAL'): string => {
 	return value.replace(/_/g, ' ').toUpperCase();
 };
 
-const getStatusTag = (book: BookCardModel): string => {
-	if (book.isPurchasable) return 'PURCHASABLE';
-	if (book.isBorrowable) return 'BORROWABLE';
-	return '';
-};
-
 const getPriceLabel = (book: BookCardModel): string => {
 	if (book.isPurchasable && (book.bookPrice?.amount ?? 0) > 0) {
 		const amount = Number(book.bookPrice?.amount ?? 0).toLocaleString();
@@ -86,8 +80,6 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 	const rating = Number(book?.bookRating?.average ?? 0).toFixed(1);
 	const imageUrl = resolveMediaUrl(book?.bookImages?.[0], '');
 	const [imageFailed, setImageFailed] = React.useState(false);
-	const statusTag = getStatusTag(book);
-	const statusColor = statusTag === 'PURCHASABLE' ? '#059669' : '#1a6fd4';
 
 	const getInitials = (title?: string) => {
 		const words = title?.trim().split(/\s+/).filter(Boolean) ?? [];
@@ -125,11 +117,10 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 				overflow: 'hidden',
 				cursor: 'pointer',
 				fontFamily: "'Sofia Pro', sans-serif",
-				transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease',
+				transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
 				'&:hover': {
 					transform: 'translateY(-6px)',
-					boxShadow: '0 20px 40px -8px rgba(26,111,212,.18)',
-					borderColor: '#1a6fd4',
+					boxShadow: '0 20px 40px -8px rgba(15, 23, 42, 0.16)',
 				},
 				...sx,
 			}}
@@ -177,7 +168,6 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 					</Box>
 				)}
 				<Box sx={{ ...badgeBaseSx, left: 12 }}>{formatTag(book.bookCategory)}</Box>
-				{statusTag && <Box sx={{ ...badgeBaseSx, right: 12, color: statusColor }}>{statusTag}</Box>}
 			</Box>
 
 			<Box sx={{ p: 2, display: 'flex', flexDirection: 'column', fontFamily: "'Sofia Pro', sans-serif" }}>
@@ -232,7 +222,7 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 				<Divider sx={{ borderColor: '#e8f0fb', margin: '10px 0' }} />
 
 				<Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-					<Typography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.95rem', fontWeight: 700, color: '#1a6fd4' }}>
+					<Typography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.95rem', fontWeight: 700, color: '#000' }}>
 						{getPriceLabel(book)}
 					</Typography>
 

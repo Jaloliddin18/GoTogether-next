@@ -22,11 +22,10 @@ const cardSx: any = {
 	overflow: 'hidden',
 	cursor: 'pointer',
 	fontFamily: "'Sofia Pro', sans-serif",
-	transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease',
+	transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
 	'&:hover': {
 		transform: 'translateY(-6px)',
-		boxShadow: '0 20px 40px -8px rgba(26,111,212,.18)',
-		borderColor: '#1a6fd4',
+		boxShadow: '0 20px 40px -8px rgba(15, 23, 42, 0.16)',
 	},
 };
 
@@ -109,8 +108,6 @@ const MostBorrowedCard = (props: MostBorrowedCardProps) => {
 	};
 
 	const imageUrl = resolveMediaUrl(book?.bookImages?.[0], '');
-	const availabilityLabel = book.isPurchasable ? 'Purchasable' : book.isBorrowable ? 'Borrowable' : '';
-	const availabilityColor = book.isPurchasable ? '#059669' : '#1a6fd4';
 
 	const card = (
 		<MuiBox className="popular-card-box" onClick={() => pushDetailHandler(book._id)} sx={cardSx}>
@@ -139,9 +136,7 @@ const MostBorrowedCard = (props: MostBorrowedCardProps) => {
 				<MuiBox sx={{ ...badgeBaseSx, left: '12px', color: '#0d1b2e' }}>{book.bookCategory?.replace(/_/g, ' ')}</MuiBox>
 				{book.bookRank > 0 ? (
 					<MuiBox sx={{ ...badgeBaseSx, right: '12px', color: '#b45309' }}>Top</MuiBox>
-				) : (
-					availabilityLabel && <MuiBox sx={{ ...badgeBaseSx, right: '12px', color: availabilityColor }}>{availabilityLabel}</MuiBox>
-				)}
+				) : null}
 			</MuiBox>
 			<MuiBox sx={{ padding: '16px', display: 'flex', flexDirection: 'column', fontFamily: "'Sofia Pro', sans-serif" }}>
 				<MuiTypography sx={titleSx}>{book.bookTitle}</MuiTypography>
@@ -158,7 +153,7 @@ const MostBorrowedCard = (props: MostBorrowedCardProps) => {
 				</MuiBox>
 				<MuiDivider sx={{ borderColor: '#e8f0fb', margin: '10px 0' }} />
 				<MuiBox sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-					<MuiTypography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.95rem', fontWeight: 700, color: '#1a6fd4' }}>
+					<MuiTypography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.95rem', fontWeight: 700, color: '#000' }}>
 						{book.isPurchasable && book?.bookPrice?.amount ? `₩ ${book.bookPrice.amount.toLocaleString()}` : 'Borrow Only'}
 					</MuiTypography>
 					<MuiBox sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
