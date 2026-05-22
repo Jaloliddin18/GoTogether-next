@@ -39,6 +39,204 @@ body {
 	overflow-y: scroll;
 }
 
+.notification-button {
+	margin-right: 6px !important;
+	width: 42px;
+	height: 42px;
+	color: #ffffff !important;
+	transition:
+		transform 180ms ease,
+		background-color 180ms ease;
+	&:hover {
+		background: rgba(255, 255, 255, 0.14) !important;
+		transform: translateY(-1px);
+	}
+	.notification-icon {
+		color: #ffffff;
+	}
+}
+
+.mobile-notification-button {
+	position: relative;
+	width: 42px;
+	height: 42px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid rgba(226, 232, 240, 0.9);
+	border-radius: 50%;
+	background: #ffffff;
+	color: #1a1a2e;
+	cursor: pointer;
+	span {
+		position: absolute;
+		top: -3px;
+		right: -3px;
+		min-width: 18px;
+		height: 18px;
+		padding: 0 5px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 999px;
+		background: #e5484d;
+		color: #fff;
+		font-family: $font;
+		font-size: 11px;
+		font-weight: 800;
+	}
+}
+
+.robot-notification-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 1300;
+	background: rgba(15, 23, 42, 0.32);
+	backdrop-filter: blur(2px);
+	-webkit-backdrop-filter: blur(2px);
+}
+
+.robot-notification-panel {
+	position: fixed;
+	top: 0;
+	right: 0;
+	z-index: 1301;
+	width: min(420px, 100vw);
+	height: 100vh;
+	padding: 22px;
+	box-sizing: border-box;
+	background: #f8fbff;
+	border-left: 1px solid #dce6f2;
+	box-shadow: -28px 0 60px rgba(15, 23, 42, 0.2);
+	transform: translateX(104%);
+	transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+	pointer-events: none;
+	&.open {
+		transform: translateX(0);
+		pointer-events: auto;
+	}
+	.robot-panel-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		margin-bottom: 20px;
+		p {
+			margin: 0;
+			color: #172033;
+			font-family: $font;
+			font-size: 22px;
+			font-weight: 900;
+			letter-spacing: 0;
+		}
+		span {
+			display: block;
+			margin-top: 4px;
+			color: #64748b;
+			font-family: $font;
+			font-size: 13px;
+			font-weight: 700;
+		}
+		button {
+			background: #ffffff;
+			border: 1px solid #dce6f2;
+		}
+	}
+	.robot-panel-list {
+		height: calc(100vh - 94px);
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		padding-right: 2px;
+	}
+	.robot-panel-empty {
+		padding: 28px 18px;
+		border: 1px dashed #cbd8e8;
+		border-radius: 14px;
+		background: #ffffff;
+		color: #64748b;
+		font-family: $font;
+		font-size: 14px;
+		font-weight: 700;
+		text-align: center;
+	}
+	.robot-notification-card {
+		width: 100%;
+		display: grid;
+		grid-template-columns: 44px minmax(0, 1fr) 22px;
+		gap: 12px;
+		align-items: center;
+		padding: 14px;
+		border: 1px solid #dce6f2;
+		border-radius: 14px;
+		background: #ffffff;
+		text-align: left;
+		cursor: pointer;
+		box-shadow: 0 10px 24px rgba(23, 32, 51, 0.06);
+		transition:
+			transform 180ms ease,
+			box-shadow 180ms ease,
+			background-color 180ms ease,
+			border-color 180ms ease;
+		&:hover,
+		&:focus-visible {
+			transform: translateY(-2px) scale(1.01);
+			border-color: #2e86de;
+			background: #f2f8ff;
+			box-shadow: 0 16px 34px rgba(23, 32, 51, 0.12);
+			outline: none;
+		}
+		.robot-card-icon {
+			width: 44px;
+			height: 44px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 12px;
+			background: #eef5ff;
+			color: #2e86de;
+		}
+		.robot-card-copy {
+			min-width: 0;
+			display: flex;
+			flex-direction: column;
+			gap: 3px;
+			strong {
+				color: #172033;
+				font-family: $font;
+				font-size: 14px;
+				font-weight: 900;
+				line-height: 1.25;
+			}
+			em {
+				color: #2e86de;
+				font-family: $font;
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 800;
+				overflow-wrap: anywhere;
+			}
+			small {
+				color: #64748b;
+				font-family: $font;
+				font-size: 12px;
+				font-weight: 700;
+			}
+		}
+		.robot-card-arrow {
+			color: #8a9aae;
+		}
+	}
+}
+
+@media (max-width: 640px) {
+	.robot-notification-panel {
+		width: 100vw;
+		padding: 18px;
+	}
+}
+
 body::-webkit-scrollbar {
 	display: none; /* for Chrome, Safari, and Opera */
 }

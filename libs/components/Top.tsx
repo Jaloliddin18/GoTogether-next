@@ -4,8 +4,11 @@ import { useRouter, withRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { getJwtToken, logOut, updateUserInfo } from '../auth';
 import { Stack, Box } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
+import Badge from '@mui/material/Badge';
+import IconButton from '@mui/material/IconButton';
 import { alpha, styled } from '@mui/material/styles';
 import Menu, { MenuProps } from '@mui/material/Menu';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
@@ -13,25 +16,78 @@ import { CaretDown } from 'phosphor-react';
 import useDeviceDetect from '../hooks/useDeviceDetect';
 import Link from 'next/link';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import { useReactiveVar } from '@apollo/client';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
 import { REACT_APP_API_URL } from '../config';
+import { CANCEL_REQUEST } from '../../apollo/user/mutation';
+import {
+	getRobotTrackingWsUrl,
+	joinRobotRequestRoom,
+	loadTrackingRequests,
+	parseTrackingEnvelope,
+	ROBOT_TRACKING_REQUEST_EVENT,
+	RobotTrackingRequest,
+} from '../library/ws/trackingClient';
+import {
+	createRobotNotification,
+	getRobotNotificationTitle,
+	loadRobotNotifications,
+	RobotNotification,
+	saveRobotNotifications,
+} from '../library/ws/trackingEvents';
+import { RequestStatus } from '../enums/request.enum';
+import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../sweetAlert';
 
 const Top = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
-	const { t, i18n } = useTranslation('common');
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
 	const [lang, setLang] = useState<string | null>('en');
 	const drop = Boolean(anchorEl2);
 	const [colorChange, setColorChange] = useState(false);
-	const [anchorEl, setAnchorEl] = React.useState<any | HTMLElement>(null);
-	let open = Boolean(anchorEl);
 	const [bgColor, setBgColor] = useState<boolean>(false);
 	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null);
 	const logoutOpen = Boolean(logoutAnchor);
+	const [notificationOpen, setNotificationOpen] = useState<boolean>(false);
+	const [robotNotifications, setRobotNotifications] = useState<RobotNotification[]>([]);
+	const [trackingRequests, setTrackingRequests] = useState<RobotTrackingRequest[]>([]);
+	const [trackingConnected, setTrackingConnected] = useState<boolean>(false);
+	const [cancellingNotificationId, setCancellingNotificationId] = useState<string | null>(null);
+	const [cancelErrors, setCancelErrors] = useState<Record<string, string>>({});
+	const robotSocketRef = useRef<WebSocket | null>(null);
+	const joinedRequestIdsRef = useRef<Set<string>>(new Set<string>());
+	const [cancelRequest] = useMutation(CANCEL_REQUEST);
+
+	const cancellableStatuses = new Set<RequestStatus | string>([
+		RequestStatus.QUEUED,
+		RequestStatus.ASSIGNED,
+		RequestStatus.NAVIGATING_TO_SHELF,
+		RequestStatus.ARRIVED_AT_SHELF,
+		RequestStatus.VERIFYING_BOOK,
+		RequestStatus.BOOK_FOUND,
+		RequestStatus.PICKING_UP,
+		RequestStatus.DELIVERING,
+		RequestStatus.ARRIVED_AT_STUDENT,
+	]);
+
+	const addRobotNotification = useCallback((notification: RobotNotification) => {
+		setRobotNotifications((prev) => {
+			if (prev.some((item) => item.id === notification.id)) return prev;
+			const next = [...prev, notification].slice(-30);
+			saveRobotNotifications(next);
+			return next;
+		});
+	}, []);
+
+	const changeNavbarColor = useCallback(() => {
+		setColorChange(window.scrollY >= 50);
+	}, []);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -44,18 +100,105 @@ const Top = () => {
 	}, [router]);
 
 	useEffect(() => {
-		switch (router.pathname) {
-			case '/books/detail':
-				setBgColor(true);
-				break;
-			default:
-				break;
-		}
+		setBgColor(router.pathname === '/books/detail');
 	}, [router]);
 
 	useEffect(() => {
 		const jwt = getJwtToken();
 		if (jwt) updateUserInfo(jwt);
+	}, []);
+
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
+		window.addEventListener('scroll', changeNavbarColor);
+		return () => window.removeEventListener('scroll', changeNavbarColor);
+	}, [changeNavbarColor]);
+
+	useEffect(() => {
+		setTrackingRequests(loadTrackingRequests());
+		setRobotNotifications(loadRobotNotifications());
+	}, []);
+
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
+
+		const handleTrackingRequest = (event: Event) => {
+			const detail = (event as CustomEvent<RobotTrackingRequest>).detail;
+			if (!detail?.requestId) return;
+
+			setTrackingRequests(loadTrackingRequests());
+			addRobotNotification({
+				id: `${detail.requestId}-local-${detail.status ?? 'ASSIGNED'}-${detail.createdAt ?? new Date().toISOString()}`,
+				requestId: detail.requestId,
+				title: getRobotNotificationTitle(detail.status ?? 'ASSIGNED'),
+				status: detail.status ?? 'ASSIGNED',
+				message: detail.bookTitle ? `${detail.bookTitle} request is now active.` : 'Delivery request is now active.',
+				timestamp: detail.createdAt ?? new Date().toISOString(),
+				event: 'localRequest',
+			});
+		};
+
+		window.addEventListener(ROBOT_TRACKING_REQUEST_EVENT, handleTrackingRequest);
+		return () => window.removeEventListener(ROBOT_TRACKING_REQUEST_EVENT, handleTrackingRequest);
+	}, [addRobotNotification]);
+
+	useEffect(() => {
+		if (typeof window === 'undefined' || trackingRequests.length === 0) return;
+
+		const joinRequests = (socket: WebSocket) => {
+			trackingRequests.forEach((request) => {
+				if (!request.requestId || joinedRequestIdsRef.current.has(request.requestId)) return;
+				joinRobotRequestRoom(socket, request.requestId);
+				joinedRequestIdsRef.current.add(request.requestId);
+			});
+		};
+
+		const existingSocket = robotSocketRef.current;
+		if (existingSocket?.readyState === WebSocket.OPEN) {
+			joinRequests(existingSocket);
+			return;
+		}
+
+		if (existingSocket?.readyState === WebSocket.CONNECTING) return;
+
+		let socket: WebSocket;
+		try {
+			socket = new WebSocket(getRobotTrackingWsUrl());
+		} catch {
+			setTrackingConnected(false);
+			return;
+		}
+		robotSocketRef.current = socket;
+
+		socket.onopen = () => {
+			setTrackingConnected(true);
+			joinedRequestIdsRef.current.clear();
+			joinRequests(socket);
+		};
+
+		socket.onmessage = (message) => {
+			const envelope = parseTrackingEnvelope(message);
+			if (!envelope || envelope.event === 'joined') return;
+			const notification = createRobotNotification(envelope);
+			if (notification) addRobotNotification(notification);
+		};
+
+		socket.onclose = () => {
+			setTrackingConnected(false);
+			joinedRequestIdsRef.current.clear();
+		};
+
+		socket.onerror = () => {
+			setTrackingConnected(false);
+		};
+	}, [trackingRequests, addRobotNotification]);
+
+	useEffect(() => {
+		return () => {
+			robotSocketRef.current?.close();
+			robotSocketRef.current = null;
+			joinedRequestIdsRef.current.clear();
+		};
 	}, []);
 
 	/** HANDLERS **/
@@ -77,24 +220,163 @@ const Top = () => {
 		[router],
 	);
 
-	const changeNavbarColor = () => {
-		if (window.scrollY >= 50) {
-			setColorChange(true);
-		} else {
-			setColorChange(false);
+	const openNotificationPanel = () => setNotificationOpen(true);
+	const closeNotificationPanel = () => setNotificationOpen(false);
+
+	const notificationTime = (timestamp: string) =>
+		new Intl.DateTimeFormat('en', {
+			month: 'short',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		}).format(new Date(timestamp));
+
+	const notificationList = React.useMemo(
+		() => [...robotNotifications].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
+		[robotNotifications],
+	);
+	const canShowRobotBell = Boolean(user?._id || trackingRequests.length > 0 || robotNotifications.length > 0);
+
+	const handleNotificationClick = async () => {
+		closeNotificationPanel();
+		await router.push('/mypage');
+	};
+
+	const dismissNotification = (notificationId: string) => {
+		setRobotNotifications((prev) => {
+			const next = prev.filter((n) => n.id !== notificationId);
+			saveRobotNotifications(next);
+			return next;
+		});
+	};
+
+	const cancelRequestHandler = async (notification: RobotNotification) => {
+		try {
+			setCancellingNotificationId(notification.id);
+			setCancelErrors((prev) => ({ ...prev, [notification.id]: '' }));
+			const { data } = await cancelRequest({
+				variables: { input: { requestId: notification.requestId } },
+			});
+			const cancelledStatus = data?.cancelRequest?.status ?? RequestStatus.CANCELLED;
+			const now = new Date().toISOString();
+			setRobotNotifications((prev) => {
+				const next = prev.map((item) =>
+					item.id === notification.id
+						? {
+								...item,
+								status: cancelledStatus,
+								title: getRobotNotificationTitle(cancelledStatus),
+								timestamp: now,
+						  }
+						: item,
+				);
+				saveRobotNotifications(next);
+				return next;
+			});
+			await sweetTopSmallSuccessAlert('Request cancelled. Robot returning to idle.', 1200);
+		} catch (err: any) {
+			const message = err?.message ?? 'Failed to cancel request';
+			setCancelErrors((prev) => ({ ...prev, [notification.id]: message }));
+			await sweetMixinErrorAlert(message);
+		} finally {
+			setCancellingNotificationId(null);
 		}
 	};
 
-	const handleClose = () => {
-		setAnchorEl(null);
-	};
+	const renderNotificationCard = (notification: RobotNotification) => {
+		const canCancel = cancellableStatuses.has(notification.status);
+		const isCancelling = cancellingNotificationId === notification.id;
+		const cancelError = cancelErrors[notification.id];
 
-	const handleHover = (event: any) => {
-		if (anchorEl !== event.currentTarget) {
-			setAnchorEl(event.currentTarget);
-		} else {
-			setAnchorEl(null);
-		}
+		return (
+			<div key={notification.id} className="robot-notification-card" style={{ display: 'flex', alignItems: 'center' }}>
+				<div
+					role="button"
+					tabIndex={0}
+					onClick={handleNotificationClick}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							handleNotificationClick();
+						}
+					}}
+					style={{ display: 'flex', alignItems: 'center', flex: 1, cursor: 'pointer', padding: 0, textAlign: 'left' }}
+				>
+					<span className="robot-card-icon"><SmartToyOutlinedIcon /></span>
+					<span className="robot-card-copy">
+						<strong>{notification.title}</strong>
+						<em>{notification.status}</em>
+						<small>{notificationTime(notification.timestamp)}</small>
+						{canCancel && (
+							<span style={{ marginTop: 8 }}>
+								<button
+									type="button"
+									onClick={(e) => {
+										e.stopPropagation();
+										cancelRequestHandler(notification);
+									}}
+									disabled={isCancelling}
+									style={{
+										background: '#ffffff',
+										border: '1px solid #EF4444',
+										color: '#EF4444',
+										borderRadius: 8,
+										fontSize: '0.75rem',
+										fontWeight: 700,
+										padding: '4px 10px',
+										cursor: isCancelling ? 'not-allowed' : 'pointer',
+										opacity: isCancelling ? 0.6 : 1,
+									}}
+									onMouseEnter={(e) => {
+										if (isCancelling) return;
+										e.currentTarget.style.background = '#fef2f2';
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.background = '#ffffff';
+									}}
+								>
+									{isCancelling ? (
+										<span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+											<CircularProgress size={12} sx={{ color: '#EF4444' }} />
+											Cancelling...
+										</span>
+									) : (
+										'Cancel Request'
+									)}
+								</button>
+							</span>
+						)}
+						{cancelError && (
+							<small style={{ color: '#EF4444', marginTop: 6 }}>{cancelError}</small>
+						)}
+					</span>
+					<ChevronRightOutlinedIcon className="robot-card-arrow" />
+				</div>
+				<button
+					onClick={(e) => {
+						e.stopPropagation();
+						dismissNotification(notification.id);
+					}}
+					style={{
+						background: 'none',
+						border: 'none',
+						cursor: 'pointer',
+						fontSize: '0.85rem',
+						color: '#9ab0c8',
+						padding: '2px 6px',
+						lineHeight: 1,
+						borderRadius: '4px',
+						flexShrink: 0,
+						transition: 'color 0.2s',
+					}}
+					onMouseEnter={e => (e.currentTarget.style.color = '#d63031')}
+					onMouseLeave={e => (e.currentTarget.style.color = '#9ab0c8')}
+					aria-label="Dismiss notification"
+				>
+					×
+				</button>
+			</div>
+		);
 	};
 
 	const StyledMenu = styled((props: MenuProps) => (
@@ -135,10 +417,6 @@ const Top = () => {
 		},
 	}));
 
-	if (typeof window !== 'undefined') {
-		window.addEventListener('scroll', changeNavbarColor);
-	}
-
 	if (device == 'mobile') {
 		return (
 			<Stack className={'top'}>
@@ -157,6 +435,55 @@ const Top = () => {
 				<Link href={'/cs'}>
 					<div> {t('CS')} </div>
 				</Link>
+				{canShowRobotBell && (
+					<button className="mobile-notification-button" type="button" onClick={openNotificationPanel} aria-label="Open robot notifications">
+						<NotificationsOutlinedIcon />
+						{robotNotifications.length > 0 && <span>{Math.min(robotNotifications.length, 9)}</span>}
+					</button>
+				)}
+				{notificationOpen && <div className="robot-notification-overlay" onClick={closeNotificationPanel} />}
+				<aside className={`robot-notification-panel ${notificationOpen ? 'open' : ''}`} aria-hidden={!notificationOpen}>
+					<div className="robot-panel-head">
+						<div>
+							<p>Robot Updates</p>
+							<span>{trackingConnected ? 'Live connection active' : 'Waiting for robot signal'}</span>
+						</div>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+							{robotNotifications.length > 0 && (
+								<button
+									onClick={() => {
+										setRobotNotifications([]);
+										saveRobotNotifications([]);
+									}}
+									style={{
+										background: 'none',
+										border: 'none',
+										cursor: 'pointer',
+										fontSize: '0.78rem',
+										color: '#5a7a9c',
+										padding: '2px 8px',
+										borderRadius: '4px',
+										transition: 'color 0.2s',
+									}}
+									onMouseEnter={e => (e.currentTarget.style.color = '#1a6fd4')}
+									onMouseLeave={e => (e.currentTarget.style.color = '#5a7a9c')}
+								>
+									Clear all
+								</button>
+							)}
+							<IconButton onClick={closeNotificationPanel} aria-label="Close robot notifications">
+								<CloseOutlinedIcon />
+							</IconButton>
+						</div>
+					</div>
+					<div className="robot-panel-list">
+						{notificationList.length === 0 ? (
+							<div className="robot-panel-empty">No robot updates yet.</div>
+						) : (
+							notificationList.map((notification) => renderNotificationCard(notification))
+						)}
+					</div>
+				</aside>
 			</Stack>
 		);
 	} else {
@@ -234,7 +561,18 @@ const Top = () => {
 							)}
 
 							<div className={'lan-box'}>
-								{user?._id && <NotificationsOutlinedIcon className={'notification-icon'} />}
+								{canShowRobotBell && (
+									<IconButton className="notification-button" onClick={openNotificationPanel} aria-label="Open robot notifications">
+										<Badge
+											badgeContent={robotNotifications.length}
+											color="error"
+											max={9}
+											overlap="circular"
+										>
+											<NotificationsOutlinedIcon className={'notification-icon'} />
+										</Badge>
+									</IconButton>
+								)}
 								<Button
 									disableRipple
 									className="btn-lang"
@@ -286,6 +624,49 @@ const Top = () => {
 						</Box>
 					</Stack>
 				</Stack>
+				{notificationOpen && <div className="robot-notification-overlay" onClick={closeNotificationPanel} />}
+				<aside className={`robot-notification-panel ${notificationOpen ? 'open' : ''}`} aria-hidden={!notificationOpen}>
+					<div className="robot-panel-head">
+						<div>
+							<p>Robot Updates</p>
+							<span>{trackingConnected ? 'Live connection active' : 'Waiting for robot signal'}</span>
+						</div>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+							{robotNotifications.length > 0 && (
+								<button
+									onClick={() => {
+										setRobotNotifications([]);
+										saveRobotNotifications([]);
+									}}
+									style={{
+										background: 'none',
+										border: 'none',
+										cursor: 'pointer',
+										fontSize: '0.78rem',
+										color: '#5a7a9c',
+										padding: '2px 8px',
+										borderRadius: '4px',
+										transition: 'color 0.2s',
+									}}
+									onMouseEnter={e => (e.currentTarget.style.color = '#1a6fd4')}
+									onMouseLeave={e => (e.currentTarget.style.color = '#5a7a9c')}
+								>
+									Clear all
+								</button>
+							)}
+							<IconButton onClick={closeNotificationPanel} aria-label="Close robot notifications">
+								<CloseOutlinedIcon />
+							</IconButton>
+						</div>
+					</div>
+					<div className="robot-panel-list">
+						{notificationList.length === 0 ? (
+							<div className="robot-panel-empty">No robot updates yet.</div>
+						) : (
+							notificationList.map((notification) => renderNotificationCard(notification))
+						)}
+					</div>
+				</aside>
 			</Stack>
 		);
 	}
