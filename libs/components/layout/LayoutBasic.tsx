@@ -58,9 +58,10 @@ const withLayoutBasic = (Component: any) => {
 				// 	bgImage = '/img/community/digital_community.jpeg';
 				// 	break;
 				case '/cs':
-					title = 'CS';
+					title = 'Customer Support';
 					desc = 'We are glad to see you again!';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/property/books-detail-banner-2.jpg';
+					heroOverlay = 'linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.45) 100%), ';
 					break;
 				case '/account/join':
 					title = 'Login/Signup';
@@ -126,13 +127,13 @@ const withLayoutBasic = (Component: any) => {
 
 						{memoizedValues.bgImage && (
 							<Stack
-								className={`header-basic ${authHeader && 'auth'}`}
+								className={`header-basic ${authHeader && 'auth'}${router.pathname === '/cs' ? ' cs-banner' : ''}`}
 								style={{
-									backgroundImage: `url(${memoizedValues.bgImage})`,
+									backgroundImage: `${memoizedValues.heroOverlay}url(${memoizedValues.bgImage})`,
 									backgroundSize: 'cover',
 									...(router.pathname === '/mypage' ? { backgroundPosition: 'center 47%' } : {}),
 									backgroundRepeat: 'no-repeat',
-									boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
+									...(router.pathname !== '/cs' ? { boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)' } : {}),
 								}}
 							>
 								<Stack className={'container'}>
