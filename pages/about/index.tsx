@@ -10,26 +10,17 @@ import AboutHeroSection from '../../libs/components/about/AboutHeroSection';
 import AboutWorkflowSection from '../../libs/components/about/AboutWorkflowSection';
 import AboutArchitectureSection from '../../libs/components/about/AboutArchitectureSection';
 import AboutLogoCloudSection from '../../libs/components/about/AboutLogoCloudSection';
-import SmartToyRoundedIcon from '@mui/icons-material/SmartToyRounded';
-import PrecisionManufacturingRoundedIcon from '@mui/icons-material/PrecisionManufacturingRounded';
-import RouteRoundedIcon from '@mui/icons-material/RouteRounded';
-import SensorsRoundedIcon from '@mui/icons-material/SensorsRounded';
-import SettingsRemoteRoundedIcon from '@mui/icons-material/SettingsRemoteRounded';
-import MenuBookRoundedIcon from '@mui/icons-material/MenuBookRounded';
-import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
-import TrackChangesRoundedIcon from '@mui/icons-material/TrackChangesRounded';
-import ShoppingCartCheckoutRoundedIcon from '@mui/icons-material/ShoppingCartCheckoutRounded';
 
 // ── Static data ───────────────────────────────────────────────────────────────
 const TEAM = [
-	{ name: 'Jaloliddin', role: 'Frontend / Full-stack', photo: '/img/profile/writer2.jpg' },
-	{ name: 'Akhror', role: 'Backend / NestJS', photo: '/img/profile/writer3.jpg' },
-	{ name: 'Aziz', role: 'ROS 2 / Navigation', photo: '/img/profile/writer4.jpg' },
-	{ name: 'Jahongir', role: 'Hardware / TurtleBot', photo: '/img/profile/writer5.jpg' },
-	{ name: 'Ibohim', role: 'Mobile App / React Native', photo: '/img/profile/writer6.jpg' },
-	{ name: 'Zhajaym', role: 'ML / Path Planning', photo: '/img/profile/defaultUser.svg' },
-	{ name: 'Seva', role: 'DevOps / Infrastructure', photo: '/img/profile/defaultUser.svg' },
-	{ name: 'Team Member', role: 'Project Contributor', photo: '/img/profile/defaultUser.svg' },
+	{ name: 'Jaloliddin', role: 'Frontend / Full-stack', photo: '/img/members/jaloliddin2.png' },
+	{ name: 'Akhror', role: 'Backend / NestJS', photo: '/img/members/ahror.png' },
+	{ name: 'Aziz', role: 'ROS 2 / Navigation', photo: '/img/members/aziz.PNG' },
+	{ name: 'Jahongir', role: 'Hardware / TurtleBot', photo: '/img/members/jahongir.png' },
+	{ name: 'Ibrohim', role: 'Mobile App / React Native', photo: '/img/members/ibrohim.png' },
+	{ name: 'Zhazaiym', role: 'ML / Path Planning', photo: '/img/profile/defaultUser.svg' },
+	{ name: 'Sevinch', role: 'DevOps / Infrastructure', photo: '/img/members/sevinch.JPG' },
+	{ name: 'Zubayda', role: 'Project Contributor', photo: '/img/members/zubayda.png' },
 ] as const;
 
 const TECH_ROW1 = ['ROS 2', 'TurtleBot 3', 'LiDAR', 'Python', 'SLAM'];
@@ -42,21 +33,6 @@ const SPEC_ROWS = [
 	{ key: 'Vision Feedback', val: 'Line and QR detection for shelf approach and confirmation' },
 	{ key: 'Communication', val: 'Backend-managed MQTT command and telemetry flow' },
 	{ key: 'Prototype Goal', val: 'Validate request-to-delivery behavior in a school demo setting' },
-] as const;
-
-const ROBOT_VISUAL_POINTS = [
-	{ label: 'Route plan', Icon: RouteRoundedIcon },
-	{ label: 'QR / vision', Icon: SensorsRoundedIcon },
-	{ label: 'Gripper pickup', Icon: PrecisionManufacturingRoundedIcon },
-	{ label: 'Telemetry', Icon: SettingsRemoteRoundedIcon },
-] as const;
-
-const PROTOTYPE_SCOPE = [
-	{ value: '50+', label: 'catalog records', Icon: MenuBookRoundedIcon },
-	{ value: '15-20', label: 'physical demo books', Icon: Inventory2RoundedIcon },
-	{ value: '1', label: 'TurtleBot prototype', Icon: SmartToyRoundedIcon },
-	{ value: 'Borrow + purchase', label: 'request flows', Icon: ShoppingCartCheckoutRoundedIcon },
-	{ value: 'Real-time', label: 'robot telemetry', Icon: TrackChangesRoundedIcon },
 ] as const;
 
 const RobotPrototypeSection = () => (
@@ -72,20 +48,7 @@ const RobotPrototypeSection = () => (
 			<div className={'robot-cols'}>
 				<div className={'robot-visual-col'} aria-label={'Robot prototype visual summary'}>
 					<div className={'robot-visual-card'}>
-						<span className={'robot-visual-status'}>School prototype</span>
-						<div className={'robot-icon-stage'}>
-							<SmartToyRoundedIcon />
-						</div>
-						<strong>TurtleBot delivery assistant</strong>
-						<p>Request handoff, route logic, fixed-gripper pickup, and telemetry feedback in one demo flow.</p>
-						<div className={'robot-visual-points'}>
-							{ROBOT_VISUAL_POINTS.map(({ label, Icon }) => (
-								<div className={'robot-visual-point'} key={label}>
-									<Icon />
-									<span>{label}</span>
-								</div>
-							))}
-						</div>
+						<img className={'robot-frame-image'} src={'/img/logo/robot3.png'} alt={'TurtleBot delivery assistant'} />
 					</div>
 				</div>
 				<div className={'robot-specs-col'}>
@@ -105,23 +68,49 @@ const RobotPrototypeSection = () => (
 );
 
 const PrototypeScopeSection = () => (
-	<section className={'prototype-scope'} aria-labelledby={'prototype-scope-title'}>
-		<div className={'container'}>
-			<div className={'section-header'}>
-				<span className={'scope-eyebrow'}>Prototype Scope</span>
-				<h2 id={'prototype-scope-title'}>What the school project demonstrates</h2>
+	<div className={'prototype-scope'}>
+		<div className={'ps-container'}>
+			<div className={'section-heading'}>
+				<h2>What the School Project Demonstrates</h2>
 				<p>These figures describe the current prototype scope, not commercial deployment metrics.</p>
 			</div>
-			<div className={'scope-grid'}>
-				{PROTOTYPE_SCOPE.map(({ value, label }) => (
-					<article className={'scope-card'} key={label}>
-						<strong>{value}</strong>
-						<span>{label}</span>
-					</article>
-				))}
+
+			<div className={'ps-strip'}>
+				<div className={'ps-stat-item'}>
+					<span className={'ps-number'}>50+</span>
+					<span className={'ps-label'}>Catalog records</span>
+				</div>
+
+				<div className={'ps-divider'} />
+
+				<div className={'ps-stat-item'}>
+					<span className={'ps-number'}>15-20</span>
+					<span className={'ps-label'}>Physical demo books</span>
+				</div>
+
+				<div className={'ps-divider'} />
+
+				<div className={'ps-stat-item'}>
+					<span className={'ps-number'}>1</span>
+					<span className={'ps-label'}>TurtleBot prototype</span>
+				</div>
+
+				<div className={'ps-divider'} />
+
+				<div className={'ps-stat-item'}>
+					<span className={'ps-number'}>2</span>
+					<span className={'ps-label'}>Request flows — borrow and purchase</span>
+				</div>
+
+				<div className={'ps-divider'} />
+
+				<div className={'ps-stat-item'}>
+					<span className={'ps-number'}>Live</span>
+					<span className={'ps-label'}>Real-time robot telemetry</span>
+				</div>
 			</div>
 		</div>
-	</section>
+	</div>
 );
 
 const SimplePricingSection = () => (
@@ -166,7 +155,9 @@ const SimplePricingSection = () => (
 						<span>Analytics dashboard</span>
 						<span>Multi-robot support</span>
 					</div>
-					<div className={'bm-col-details'}>Core platform powering the full delivery lifecycle and management layer</div>
+					<div className={'bm-col-details'}>
+						Core platform powering the full delivery lifecycle and management layer
+					</div>
 					<div className={'bm-col-price'}>$45,000</div>
 				</div>
 
