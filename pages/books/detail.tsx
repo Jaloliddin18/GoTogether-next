@@ -69,6 +69,7 @@ import { LIKE_TARGET_BOOK, CREATE_COMMENT, CREATE_DELIVERY_REQUEST } from '../..
 import { announceTrackingRequest } from '../../libs/library/ws/trackingClient';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert, sweetTopSuccessAlert } from '../../libs/sweetAlert';
 import YouMayAlsoLike from '../../src/components/books/YouMayAlsoLike';
+import BookDetailTabs from '../../src/components/books/BookDetailTabs';
 
 SwiperCore.use([Navigation, Autoplay]);
 
@@ -768,37 +769,21 @@ const BookDetailPage: NextPage = () => {
 					</SafeBox>
 
 
-					<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: { xs: 3, md: 4 } }}>
-						<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
-							<Typography sx={{ ...sectionTitleSx, mb: 2.2 }}>Physical Details</Typography>
-							<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 1.5 }}>
-								{physicalItems.map(({ label, value, icon: Icon }) => (
-									<Stack key={label} spacing={1} sx={{ p: 2, borderRadius: '20px', border: `1px solid ${libraryColors.border}`, background: '#F8FAFC' }}>
-										<SafeBox sx={{ color: libraryColors.muted }}><Icon /></SafeBox>
-										<Typography sx={{ color: libraryColors.muted, fontSize: 13, fontWeight: 800 }}>{label}</Typography>
-										<Typography sx={{ color: libraryColors.ink, fontSize: 21, fontWeight: 900 }}>{value}</Typography>
-									</Stack>
-								))}
-							</SafeBox>
-						</SafeBox>
-
-						<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
-							<Typography sx={{ ...sectionTitleSx, mb: 2.2 }}>Reading Guide</Typography>
-							<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 1.5, mb: 2 }}>
-								{readingItems.map(({ label, value, icon: Icon, color }) => (
-									<Stack key={label} spacing={1} sx={{ p: 2, borderRadius: '20px', border: `1px solid ${libraryColors.border}`, background: '#F8FAFC' }}>
-										<SafeBox sx={{ color: color ?? libraryColors.muted }}><Icon /></SafeBox>
-										<Typography sx={{ color: libraryColors.muted, fontSize: 13, fontWeight: 800 }}>{label}</Typography>
-										<Typography sx={{ color: color ?? libraryColors.ink, fontSize: 18, fontWeight: 900 }}>{value}</Typography>
-									</Stack>
-								))}
-							</SafeBox>
-							<Stack direction="row" gap={1} flexWrap="wrap">
-								{['Best read: Morning', 'Study aid: Yes', 'Note-taking: Recommended'].map((tag) => (
-									<Chip key={tag} label={tag} sx={{ borderRadius: '999px', background: '#F8FAFC', border: '1px solid #E2E8F0', color: libraryColors.muted, fontWeight: 700 }} />
-								))}
-							</Stack>
-						</SafeBox>
+					<SafeBox sx={{ mb: 4 }}>
+						<BookDetailTabs
+							book={book}
+							bookComments={bookComments}
+							commentTotal={commentTotal}
+							commentInquiry={commentInquiry}
+							reviewRating={reviewRating}
+							setReviewRating={setReviewRating}
+							insertCommentData={insertCommentData}
+							setInsertCommentData={setInsertCommentData}
+							createCommentHandler={createCommentHandler}
+							commentPaginationChangeHandler={commentPaginationChangeHandler}
+							user={user}
+							isMobile={isMobile}
+						/>
 					</SafeBox>
 
 					<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 }, mt: 2 }}>
@@ -806,115 +791,6 @@ const BookDetailPage: NextPage = () => {
 							currentBookId={book?._id ?? ''}
 							category={book?.bookCategory ?? ''}
 						/>
-					</SafeBox>
-
-					<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
-						<Typography sx={{ ...sectionTitleSx, mb: 2.2 }}>Borrowing Policy</Typography>
-						<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 1.5 }}>
-							{policyItems.map(({ label, value, icon: Icon }) => (
-								<Stack key={label} direction="row" spacing={1.5} sx={{ p: 2, borderRadius: '20px', border: `1px solid ${libraryColors.border}`, background: '#F8FAFC' }}>
-									<SafeBox sx={{ width: 42, height: 42, borderRadius: '15px', background: '#F8FAFC', border: '1px solid #E2E8F0', color: libraryColors.muted, display: 'grid', placeItems: 'center', flex: '0 0 auto' }}><Icon /></SafeBox>
-									<SafeBox>
-										<Typography sx={{ color: libraryColors.ink, fontWeight: 900 }}>{label}</Typography>
-										<Typography sx={{ color: libraryColors.muted, mt: 0.3 }}>{value}</Typography>
-									</SafeBox>
-								</Stack>
-							))}
-						</SafeBox>
-					</SafeBox>
-
-					<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
-						<Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} gap={1.5} mb={2.5}>
-							<SafeBox>
-								<Typography sx={sectionTitleSx}>Reviews</Typography>
-								<Typography sx={{ color: libraryColors.muted, fontWeight: 600 }}>{reviewLabel}</Typography>
-							</SafeBox>
-						</Stack>
-
-						<Stack spacing={1.5} mb={3}>
-							{bookComments.length === 0 ? (
-								<SafeBox sx={{ p: { xs: 2.5, md: 3 }, borderRadius: '22px', background: '#F8FAFC', border: `1px dashed ${libraryColors.border}`, textAlign: 'center' }}>
-									<Typography sx={{ color: libraryColors.ink, fontWeight: 900, mb: 0.5 }}>No reviews yet</Typography>
-									<Typography sx={{ color: libraryColors.muted }}>Be the first reader to leave a note about this book.</Typography>
-								</SafeBox>
-							) : (
-								bookComments.map((comment: Comment) => {
-									const avatarSrc = resolveMediaUrl(comment?.memberData?.memberImage, '/img/profile/defaultUser.svg');
-									return (
-										<Stack key={comment._id} direction={{ xs: 'column', sm: 'row' }} spacing={1.7} sx={{ p: 2, background: '#F8FAFC', border: `1px solid ${libraryColors.border}`, borderRadius: '22px' }}>
-											<Avatar src={avatarSrc} alt={comment.memberData?.memberNick ?? 'User'} sx={{ width: 48, height: 48 }} />
-											<SafeBox sx={{ flex: 1, minWidth: 0 }}>
-												<Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" gap={0.5} mb={0.6}>
-													<Typography sx={{ color: libraryColors.ink, fontWeight: 900 }}>{comment.memberData?.memberNick ?? 'Anonymous'}</Typography>
-													<Typography sx={{ color: '#93a3b8', fontSize: 13, fontWeight: 700 }}><Moment format="DD MMM, YYYY">{comment.createdAt}</Moment></Typography>
-												</Stack>
-												<Typography sx={{ color: libraryColors.muted, lineHeight: 1.7 }}>{comment.commentContent}</Typography>
-											</SafeBox>
-										</Stack>
-									);
-								})
-							)}
-						</Stack>
-
-						{commentTotal > commentInquiry.limit && (
-							<Stack alignItems="center" mb={3}>
-								<MuiPagination page={commentInquiry.page} count={Math.ceil(commentTotal / commentInquiry.limit)} onChange={commentPaginationChangeHandler} shape="circular" color="primary" />
-							</Stack>
-						)}
-
-						<SafeBox sx={{ p: { xs: 2, md: 2.5 }, borderRadius: '24px', background: '#F8FAFC', border: `1px solid ${libraryColors.border}` }}>
-							<Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.7} alignItems="flex-start">
-								<Avatar src={resolveMediaUrl(user?.memberImage, '/img/profile/defaultUser.svg')} alt={user?.memberNick ?? 'Reader'} sx={{ width: 48, height: 48 }} />
-								<Stack spacing={1.4} sx={{ flex: 1, width: '100%' }}>
-									<Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" gap={1}>
-										<SafeBox>
-											<Typography sx={{ color: libraryColors.ink, fontSize: 18, fontWeight: 900 }}>Leave Review</Typography>
-											<Typography sx={{ color: libraryColors.muted, fontSize: 13 }}>Share a useful note for the next reader.</Typography>
-										</SafeBox>
-										<Rating value={reviewRating} onChange={(_event, value) => setReviewRating(value)} sx={{ '& .MuiRating-iconEmpty': { color: '#E2E8F0' }, '& .MuiRating-iconFilled': { color: '#F59E0B' } }} />
-									</Stack>
-									<TextField
-										multiline
-										minRows={4}
-										placeholder="Share your thoughts about this book..."
-										value={insertCommentData.commentContent}
-										onChange={({ target: { value } }) => setInsertCommentData((prev) => ({ ...prev, commentContent: value }))}
-										sx={{
-											'& .MuiOutlinedInput-root': {
-												height: 'auto',
-												alignItems: 'flex-start',
-												borderRadius: '18px',
-												background: '#fff',
-												'& fieldset': { borderColor: '#E2E8F0' },
-												'&:hover fieldset': { borderColor: '#1B3A6B' },
-												'&.Mui-focused fieldset': { borderColor: '#1B3A6B', borderWidth: '2px' },
-											},
-										}}
-									/>
-									<Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'stretch', sm: 'center' }} gap={1.2}>
-										{!user?._id && <Typography sx={{ fontSize: 13, color: libraryColors.muted }}>Please log in to leave a review.</Typography>}
-										<Button
-											variant="contained"
-											disabled={!insertCommentData.commentContent.trim() || !user?._id}
-											onClick={createCommentHandler}
-											sx={{
-												ml: { sm: 'auto' },
-												px: 3,
-												py: 1.35,
-												background: libraryColors.navy,
-												borderRadius: '16px',
-												textTransform: 'none',
-												fontWeight: 900,
-												'&:hover': { background: '#142d52' },
-												'&.Mui-disabled': { background: '#cbd8e8', color: '#fff' },
-											}}
-										>
-											Submit Review
-										</Button>
-									</Stack>
-								</Stack>
-							</Stack>
-						</SafeBox>
 					</SafeBox>
 
 				</Stack>
