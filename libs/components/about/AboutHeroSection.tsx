@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
-import MenuBookRoundedIcon from '@mui/icons-material/MenuBookRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import SmartToyRoundedIcon from '@mui/icons-material/SmartToyRounded';
 import LocationOnRoundedIcon from '@mui/icons-material/LocationOnRounded';
@@ -90,7 +89,6 @@ const AboutHeroSection = ({ headline, subtitle, ctaLabel }: AboutHeroSectionProp
 								<span className={'visual-kicker'}>Robot Delivery Flow</span>
 								<strong>Catalog to student desk</strong>
 							</div>
-							<MenuBookRoundedIcon />
 						</div>
 						<img src={'/img/homepage/robot_delivery.webp'} alt={'같이Go robot delivery prototype'} />
 						<div className={'delivery-route'} aria-label={'Delivery flow: Search, reserve, robot handoff'}>
