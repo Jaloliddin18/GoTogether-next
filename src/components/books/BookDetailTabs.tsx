@@ -130,14 +130,16 @@ export default function BookDetailTabs(props: BookDetailTabsProps) {
 			<div
 				style={{
 					width: '100%',
-					background: '#FFFFFF',
-					borderBottom: `1px solid ${C.border}`,
-					marginBottom: 24,
 					display: 'flex',
+					alignItems: 'flex-end',
+					position: 'relative',
+					borderBottom: `1px solid ${C.border}`,
 				}}
 			>
 				{(['Additional Information', 'Reviews'] as const).map((label, idx) => {
 					const isActive = activeTab === idx;
+					const isHovered = hoveredTab === idx;
+					const isLast = idx === 1;
 					return (
 						<button
 							key={label}
@@ -147,16 +149,21 @@ export default function BookDetailTabs(props: BookDetailTabsProps) {
 							style={{
 								display: 'inline-flex',
 								alignItems: 'center',
-								padding: '12px 24px',
+								padding: '12px 32px',
 								fontSize: 16,
 								fontWeight: isActive ? 600 : 500,
 								cursor: 'pointer',
-								background: 'none',
-								border: 'none',
-								borderBottom: isActive ? `2px solid ${C.navy}` : '2px solid transparent',
-								color: isActive ? C.navy : hoveredTab === idx ? C.ink : C.muted,
-								transition: 'color 150ms ease',
+								border: `1px solid ${C.border}`,
+								borderBottom: isActive ? '1px solid #FFFFFF' : `1px solid ${C.border}`,
+								borderRadius: '12px 12px 0 0',
+								color: isActive ? C.navy : isHovered ? C.ink : C.muted,
+								background: isActive ? '#FFFFFF' : isHovered ? '#e8eef7' : '#f0f5fc',
+								transition: 'background 150ms ease, color 150ms ease',
 								outline: 'none',
+								position: 'relative',
+								zIndex: isActive ? 10 : 1,
+								marginBottom: isActive ? -1 : 0,
+								marginRight: isLast ? 0 : 4,
 							}}
 						>
 							{label}
@@ -166,6 +173,16 @@ export default function BookDetailTabs(props: BookDetailTabsProps) {
 			</div>
 
 			{/* Tab content */}
+			<div
+				style={{
+					background: '#FFFFFF',
+					border: `1px solid ${C.border}`,
+					borderTop: 'none',
+					borderRadius: '0 0 12px 12px',
+					padding: 24,
+					marginBottom: 24,
+				}}
+			>
 			{activeTab === 0 && (
 				<div>
 					<SectionSubheader title="PHYSICAL DETAILS" />
@@ -206,7 +223,7 @@ export default function BookDetailTabs(props: BookDetailTabsProps) {
 			)}
 
 			{activeTab === 1 && (
-				<Box>
+				<Box sx={{ pt: 0 }}>
 					<Stack
 						direction={{ xs: 'column', sm: 'row' }}
 						justifyContent="space-between"
@@ -380,6 +397,7 @@ export default function BookDetailTabs(props: BookDetailTabsProps) {
 					</Box>
 				</Box>
 			)}
+			</div>
 		</div>
 	);
 }
