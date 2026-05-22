@@ -63,7 +63,7 @@ import { DeliveryDestinationType, RequestType } from '../../libs/enums/request.e
 import { CreateDeliveryRequestInput } from '../../libs/types/request/request.input';
 import { userVar } from '../../apollo/store';
 import { resolveMediaUrl } from '../../libs/utils';
-import { GET_BOOK, GET_BOOKS } from '../../apollo/library/query';
+import { GET_BOOK } from '../../apollo/library/query';
 import { GET_COMMENTS } from '../../apollo/user/query';
 import { LIKE_TARGET_BOOK, CREATE_COMMENT, CREATE_DELIVERY_REQUEST } from '../../apollo/user/mutation';
 import { announceTrackingRequest } from '../../libs/library/ws/trackingClient';
@@ -249,7 +249,6 @@ const BookDetailPage: NextPage = () => {
 		commentRefId: '',
 	});
 
-	const [similarBooks, setSimilarBooks] = useState<Book[]>([]);
 	const [isDeskModalOpen, setIsDeskModalOpen] = useState(false);
 	const [selectedDeskId, setSelectedDeskId] = useState<'A' | 'B' | null>(null);
 	const [isDeskSubmitting, setIsDeskSubmitting] = useState(false);
@@ -278,26 +277,6 @@ const BookDetailPage: NextPage = () => {
 		onCompleted: (data: T) => {
 			if (data?.getComments?.list) setBookComments(data.getComments.list);
 			setCommentTotal(data?.getComments?.metaCounter?.[0]?.total ?? 0);
-		},
-	});
-
-	useQuery(GET_BOOKS, {
-		fetchPolicy: 'cache-and-network',
-		variables: {
-			input: {
-				page: 1,
-				limit: 8,
-				sort: 'createdAt',
-				direction: Direction.DESC,
-				search: { bookCategory: book?.bookCategory },
-			},
-		},
-		skip: !book?.bookCategory,
-		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			if (data?.getBooks?.list) {
-				setSimilarBooks((data.getBooks.list as Book[]).filter((b) => b._id !== bookId));
-			}
 		},
 	});
 
@@ -938,42 +917,6 @@ const BookDetailPage: NextPage = () => {
 						</SafeBox>
 					</SafeBox>
 
-					{similarBooks.length > 0 && (
-						<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
-							<Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'flex-end' }} gap={1.5} mb={2}>
-								<SafeBox>
-									<Typography sx={sectionTitleSx}>Similar Books</Typography>
-									<Typography sx={{ color: libraryColors.muted, mt: 0.4 }}>More in {book?.bookCategory ? formatCategoryName(book.bookCategory) : 'this category'}</Typography>
-								</SafeBox>
-								<Stack direction="row" spacing={1}>
-									<Button className="swiper-book-prev" aria-label="Previous similar books" sx={{ minWidth: 38, width: 38, height: 38, borderRadius: '50%', border: `1px solid ${libraryColors.border}`, color: libraryColors.ink }}>‹</Button>
-									<Button className="swiper-book-next" aria-label="Next similar books" sx={{ minWidth: 38, width: 38, height: 38, borderRadius: '50%', border: `1px solid ${libraryColors.border}`, color: libraryColors.ink }}>›</Button>
-								</Stack>
-							</Stack>
-
-							<Swiper
-								spaceBetween={16}
-								navigation={{ nextEl: '.swiper-book-next', prevEl: '.swiper-book-prev' }}
-								breakpoints={{ 0: { slidesPerView: 1.15 }, 600: { slidesPerView: 2 }, 900: { slidesPerView: 3 }, 1200: { slidesPerView: 4 } }}
-							>
-								{similarBooks.map((b: Book) => {
-									const imgSrc = resolveMediaUrl(b.bookImages?.[0], '/img/banner/books_hero.png');
-									return (
-										<SwiperSlide key={b._id}>
-											<SafeBox onClick={() => router.push(`/books/detail?id=${b._id}`)} sx={{ cursor: 'pointer', background: '#F8FAFC', borderRadius: '22px', overflow: 'hidden', border: `1px solid ${libraryColors.border}`, transition: 'transform 180ms ease, box-shadow 180ms ease', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 16px 32px rgba(15, 31, 51, 0.1)' } }}>
-												<SafeBox component="img" src={imgSrc} alt={b.bookTitle} sx={{ width: '100%', height: 210, objectFit: 'cover', display: 'block' }} />
-												<SafeBox sx={{ p: 1.8 }}>
-													<Typography sx={{ fontSize: 15, fontWeight: 900, color: libraryColors.ink, mb: 0.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.bookTitle}</Typography>
-													<Typography sx={{ fontSize: 13, color: libraryColors.muted, mb: 0.8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.bookAuthor}</Typography>
-													<Typography sx={{ fontSize: 14, fontWeight: 900, color: libraryColors.blue }}>{b.bookPrice?.amount?.toLocaleString()} {b.bookPrice?.currency}</Typography>
-												</SafeBox>
-											</SafeBox>
-										</SwiperSlide>
-									);
-								})}
-							</Swiper>
-						</SafeBox>
-					)}
 				</Stack>
 			</div>
 			<Dialog

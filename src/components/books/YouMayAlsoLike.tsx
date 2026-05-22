@@ -95,7 +95,7 @@ const YouMayAlsoLikeCard = ({ book, likeHandler }: CardProps) => {
 						src={imageUrl}
 						alt={book.bookTitle || 'Book cover'}
 						onError={() => setImageFailed(true)}
-						sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+						sx={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
 					/>
 				) : (
 					<MuiBox
@@ -317,11 +317,21 @@ const YMYL_STYLES = `
   font-size: 18px !important;
 }
 .ymyl-swiper .swiper-pagination-bullet {
-  background-color: #E2E8F0;
-  opacity: 1;
+  background: #E2E8F0 !important;
+  opacity: 1 !important;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
 }
 .ymyl-swiper .swiper-pagination-bullet-active {
-  background-color: #1B3A6B;
+  background: #1B3A6B !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+.ymyl-swiper .swiper-pagination-bullet span,
+.ymyl-swiper .swiper-pagination-bullet::before,
+.ymyl-swiper .swiper-pagination-bullet::after {
+  display: none !important;
 }
 `;
 
@@ -430,31 +440,89 @@ const YouMayAlsoLike = ({ currentBookId, category }: YouMayAlsoLikeProps) => {
 		);
 	}
 
-	if (books.length === 0) return null;
-
 	return (
 		<div style={{ fontFamily: "'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
 			<style>{YMYL_STYLES}</style>
 			<SectionHeader />
-			<Swiper
-				className="ymyl-swiper"
-				modules={[Navigation, Pagination]}
-				spaceBetween={24}
-				navigation
-				pagination={{ clickable: true }}
-				breakpoints={{
-					0: { slidesPerView: 1 },
-					768: { slidesPerView: 2 },
-					1024: { slidesPerView: 3 },
-				}}
-				style={{ paddingBottom: '40px' }}
-			>
-				{books.map((book) => (
-					<SwiperSlide key={book._id}>
-						<YouMayAlsoLikeCard book={book} likeHandler={likeHandler} />
-					</SwiperSlide>
-				))}
-			</Swiper>
+			{books.length === 0 ? (
+				<div
+					style={{
+						height: '280px',
+						backgroundColor: '#f8fafc',
+						border: '1px solid #E2E8F0',
+						borderRadius: '16px',
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						justifyContent: 'center',
+						gap: '12px',
+					}}
+				>
+					<svg
+						width="48"
+						height="48"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="#64748B"
+						strokeWidth="1.5"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
+						<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+						<path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+					</svg>
+					<div style={{ textAlign: 'center' }}>
+						<p style={{ fontSize: '1rem', fontWeight: 600, color: '#1A1A2E', margin: 0 }}>
+							No other books found in this category!
+						</p>
+						<p style={{ fontSize: '0.875rem', color: '#64748B', marginTop: '4px', marginBottom: 0 }}>
+							Check back later or browse all books.
+						</p>
+					</div>
+					<Link
+						href="/books"
+						style={{
+							marginTop: '16px',
+							border: '1px solid #1B3A6B',
+							color: '#1B3A6B',
+							backgroundColor: 'white',
+							padding: '8px 16px',
+							borderRadius: '8px',
+							fontSize: '0.875rem',
+							textDecoration: 'none',
+							display: 'inline-block',
+						}}
+						onMouseEnter={(e) => {
+							(e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#EBF4FF';
+						}}
+						onMouseLeave={(e) => {
+							(e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'white';
+						}}
+					>
+						Browse All Books
+					</Link>
+				</div>
+			) : (
+				<Swiper
+					className="ymyl-swiper"
+					modules={[Navigation, Pagination]}
+					spaceBetween={24}
+					navigation
+					pagination={{ clickable: true }}
+					breakpoints={{
+						0: { slidesPerView: 1 },
+						768: { slidesPerView: 2 },
+						1024: { slidesPerView: 3 },
+					}}
+					style={{ paddingBottom: '40px' }}
+				>
+					{books.map((book) => (
+						<SwiperSlide key={book._id}>
+							<YouMayAlsoLikeCard book={book} likeHandler={likeHandler} />
+						</SwiperSlide>
+					))}
+				</Swiper>
+			)}
 		</div>
 	);
 };
