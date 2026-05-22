@@ -1,53 +1,77 @@
 import React from 'react';
-import { Stack, Box } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
+import { Stack } from '@mui/material';
+
+const notices = [
+	{
+		title: 'Important Notice',
+		date: 'May 23, 2026',
+		description: 'Our library robot assistant now supports faster book pickup scheduling.',
+	},
+	{
+		title: 'New Borrowing Feature',
+		date: 'May 23, 2026',
+		description: 'Users can now reserve books directly through virtual robot assistance.',
+	},
+	{
+		title: 'Maintenance Update',
+		date: 'May 23, 2026',
+		description: 'Book inventory synchronization improvements have been deployed.',
+	},
+	{
+		title: 'Library Hours Update',
+		date: 'May 23, 2026',
+		description: 'Weekend operating hours have been extended.',
+	},
+	{
+		title: 'Mobile Access Improvements',
+		date: 'May 23, 2026',
+		description: 'Better mobile responsiveness is now available.',
+	},
+	{
+		title: 'Book Request Expansion',
+		date: 'May 23, 2026',
+		description: 'Students can now request additional academic resources.',
+	},
+];
 
 const Notice = () => {
-	const device = useDeviceDetect();
-
-	/** APOLLO REQUESTS **/
-	/** LIFECYCLES **/
-	/** HANDLERS **/
-
-	const data = [
-		{
-			no: 1,
-			event: true,
-			title: 'Register to use and get discounts',
-			date: '01.03.2024',
-		},
-		{
-			no: 2,
-			title: "It's absolutely free to upload and trade properties",
-			date: '31.03.2024',
-		},
-	];
-
-	if (device === 'mobile') {
-		return <div>NOTICE MOBILE</div>;
-	} else {
-		return (
-			<Stack className={'notice-content'}>
-				<span className={'title'}>Notice</span>
-				<Stack className={'main'}>
-					<Box component={'div'} className={'top'}>
-						<span>number</span>
-						<span>title</span>
-						<span>date</span>
-					</Box>
-					<Stack className={'bottom'}>
-						{data.map((ele: any) => (
-							<div className={`notice-card ${ele?.event && 'event'}`} key={ele.title}>
-								{ele?.event ? <div>event</div> : <span className={'notice-number'}>{ele.no}</span>}
-								<span className={'notice-title'}>{ele.title}</span>
-								<span className={'notice-date'}>{ele.date}</span>
+	return (
+		<Stack className={'notice-content'}>
+			<div style={{ marginBottom: 24 }}>
+				<h2 style={{ fontSize: 28, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>Notice</h2>
+				<p style={{ fontSize: 14, color: '#64748B', marginTop: 4, marginBottom: 0 }}>
+					Stay updated with our latest announcements and news
+				</p>
+			</div>
+			<Stack className={'notice-cards'}>
+				{notices.map((notice) => (
+					<div
+						key={notice.title}
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							padding: '16px 20px',
+							border: '1px solid #E2E8F0',
+							borderRadius: 12,
+							background: 'white',
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+							<div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+								<NotificationsActiveOutlinedIcon style={{ color: '#1B3A6B', fontSize: 20 }} />
+								<span style={{ fontWeight: 600, color: '#1A1A2E', fontSize: 15 }}>{notice.title}</span>
 							</div>
-						))}
-					</Stack>
-				</Stack>
+							<span style={{ fontSize: 13, color: '#64748B', whiteSpace: 'nowrap' }}>{notice.date}</span>
+						</div>
+						<p style={{ fontSize: 14, color: '#64748B', marginTop: 8, paddingLeft: 30, marginBottom: 0 }}>
+							{notice.description}
+						</p>
+					</div>
+				))}
 			</Stack>
-		);
-	}
+		</Stack>
+	);
 };
 
 export default Notice;
