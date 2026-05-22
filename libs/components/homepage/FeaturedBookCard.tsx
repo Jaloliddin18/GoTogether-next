@@ -6,8 +6,9 @@ import { Book } from '../../types/book/book';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import LanguageIcon from '@mui/icons-material/Language';
 import StarIcon from '@mui/icons-material/Star';
-import { REACT_APP_API_URL } from '../../config';
 import { useRouter } from 'next/router';
+import { resolveMediaUrl } from '../../utils';
+import { REACT_APP_API_URL } from '../../config';
 
 const MuiBox: any = Box;
 const MuiTypography: any = Typography;
@@ -96,12 +97,20 @@ const FeaturedBookCard = (props: FeaturedBookCardProps) => {
 	};
 
 	const imageUrl = book?.bookImages?.[0] ? `${REACT_APP_API_URL}/${book.bookImages[0]}` : '';
+	const availabilityLabel = book.isPurchasable ? 'Purchasable' : book.isBorrowable ? 'Borrowable' : '';
+	const availabilityColor = book.isPurchasable ? '#059669' : '#1a6fd4';
 
 	const card = (
 		<MuiBox className="top-card-box" onClick={() => pushDetailHandler(book._id)} sx={cardSx}>
 			<MuiBox sx={imageWrapSx}>
 				{imageUrl && !imageFailed ? (
-					<Box component="img" src={imageUrl} alt={book.bookTitle || 'Book cover'} onError={() => setImageFailed(true)} sx={imageSx} />
+					<Box
+						component="img"
+						src={imageUrl}
+						alt={book.bookTitle || 'Book cover'}
+						onError={() => setImageFailed(true)}
+						sx={imageSx}
+					/>
 				) : (
 					<MuiBox
 						sx={{
@@ -137,8 +146,12 @@ const FeaturedBookCard = (props: FeaturedBookCardProps) => {
 				</MuiBox>
 				<MuiDivider sx={{ borderColor: '#e8f0fb', margin: '10px 0' }} />
 				<MuiBox sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-					<MuiTypography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.95rem', fontWeight: 700, color: '#000' }}>
-						{book.isPurchasable && book?.bookPrice?.amount ? `₩ ${book.bookPrice.amount.toLocaleString()}` : 'Borrow Only'}
+					<MuiTypography
+						sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.95rem', fontWeight: 700, color: '#000' }}
+					>
+						{book.isPurchasable && book?.bookPrice?.amount
+							? `₩ ${book.bookPrice.amount.toLocaleString()}`
+							: 'Borrow Only'}
 					</MuiTypography>
 					<MuiBox sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						<MuiBox sx={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
@@ -147,7 +160,9 @@ const FeaturedBookCard = (props: FeaturedBookCardProps) => {
 						</MuiBox>
 						<MuiBox sx={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
 							<IconButton onClick={(e) => likeHandler(e, book._id)} sx={{ padding: '2px' }}>
-								<FavoriteIcon sx={{ fontSize: 20, color: liked ? '#ef4444' : '#5a7a9c', transition: 'color 0.2s ease' }} />
+								<FavoriteIcon
+									sx={{ fontSize: 20, color: liked ? '#ef4444' : '#5a7a9c', transition: 'color 0.2s ease' }}
+								/>
 							</IconButton>
 							<MuiTypography sx={{ ...metaTextSx, fontSize: '.8rem' }}>{likeCount}</MuiTypography>
 						</MuiBox>

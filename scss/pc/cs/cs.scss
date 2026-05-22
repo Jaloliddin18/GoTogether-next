@@ -1,223 +1,381 @@
 #pc-wrap {
+  .header-basic.cs-banner {
+    .cs-banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.45) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      margin-top: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+    }
+
+    .header-basic-copy {
+      align-items: center;
+      text-align: center;
+    }
+
+    strong {
+      font-size: 48px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    span {
+      font-size: 18px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.88);
+      margin-top: 12px;
+      font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+  }
+
   .cs-page {
     position: relative;
-    padding: 60px 0px 60px;
     width: 100%;
     height: auto;
+    padding-top: 80px;
+    padding-bottom: 80px;
+
     .container {
+      width: 100%;
+      max-width: 80rem;
+      margin: 0 auto;
+      padding: 0 24px;
       display: flex;
       flex-direction: column;
+      font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
       .cs-main-info {
         display: flex;
         flex-direction: column;
+        align-items: center;
+
         .info {
           display: flex;
           flex-direction: column;
           align-items: center;
+
           span {
-            color: #000;
-            font-family: $font;
-            font-size: 35px;
-            font-style: normal;
+            font-size: 36px;
             font-weight: 700;
-            line-height: normal;
-            letter-spacing: 0.525px;
+            color: #1a1a2e;
+            text-align: center;
           }
+
           p {
-            color: #757575;
-            font-family: $font;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-size: 16px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: normal;
+            color: #64748b;
+
+            a {
+              color: #64748b;
+              text-decoration: none;
+
+              &:hover {
+                color: #1b3a6b;
+              }
+            }
+
+            strong {
+              color: #64748b;
+              font-size: 18px;
+              font-weight: 500;
+            }
+
+            .divider {
+              color: #94a3b8;
+            }
           }
         }
+
         .btns {
-          margin-top: 50px;
+          margin-top: 36px;
           display: flex;
-          flex-direction: row;
+          align-items: center;
           justify-content: center;
-          :first-child {
-            border-radius: 4px 0 0 4px;
+          gap: 10px;
+          flex-wrap: wrap;
+
+          .tab-separator {
+            display: inline-block;
+            width: 1px;
+            height: 24px;
+            background: #e2e8f0;
+            margin: 0 8px;
+            flex-shrink: 0;
           }
-          :last-child {
-            border-radius: 0 4px 4px 0;
-          }
-          div {
-            width: 204px;
-            height: 46px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid #EEE;
+
+          .cs-tab-btn {
+            height: 44px;
+            padding: 0 20px;
+            border-radius: 9999px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #64748b;
             cursor: pointer;
-            color: #BDBDBD;
-            font-family: $font;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             font-size: 14px;
-            font-style: normal;
-            font-weight: 700;
-            line-height: normal;
-            letter-spacing: 0.42px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            outline: none;
+
+            svg {
+              font-size: 20px;
+            }
+
+            &:focus-visible {
+              box-shadow: 0 0 0 3px rgba(27, 58, 107, 0.18);
+            }
+
+            &:hover:not(.active) {
+              background: #ebf4ff;
+              color: #1b3a6b;
+            }
+
             &.active {
-              border: 1px solid #725CE8;
-              background: #EB6753;
-              color: #FFF;
+              background: #1b3a6b;
+              border-color: #1b3a6b;
+              color: #ffffff;
             }
           }
         }
       }
+
       .cs-content {
-        margin-top: 25px;
+        margin-top: 36px;
         display: flex;
         flex-direction: column;
-        .title {
-          margin-bottom: 25px;
-          color: #000;
-          font-family: $font;
-          font-size: 27px;
-          font-style: normal;
+
+        .section-title {
+          margin-bottom: 10px;
+          font-size: 32px;
           font-weight: 700;
-          line-height: normal;
-          letter-spacing: 0.54px;
+          color: #0f172a;
         }
-        .pagination {
-          margin-top: 50px;
-          display: flex;
-          flex-direction: row;
-          justify-content: center;
-        }
-        .notice-content {
-          .main {
-            border: 1px solid #EEE;
-            .top {
-              padding: 25px 33px;
-              display: flex;
-              flex-direction: row;
-              justify-content: space-between;
-              span {
-                color: #000;
-                font-family: $font;
-                font-size: 14px;
-                font-style: normal;
-                font-weight: 400;
-                line-height: normal;
-                text-transform: capitalize;
-              }
-            }
-            .bottom {
-              display: flex;
-              flex-direction: column;
-              .notice-card {
-                padding: 20px 14px 20px 30px;
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-                border: 1px solid #EEE;
-                &.event {
-                  background: #F6D79A;
-                }
-                div {
-                  padding: 6px 9px;
-                  border-radius: 12px;
-                  border: 1px solid #EB6753;
-                  color: #EB6753;
-                  font-family: $font;
-                  font-size: 12px;
-                  font-style: normal;
-                  font-weight: 400;
-                }
-                .notice-number {
-                  margin-left: 18px;
-                  width: 39px;
-                  color: #BDBDBD;
-                  font-family: $font;
-                  font-size: 14px;
-                  font-style: normal;
-                  font-weight: 400;
-                  line-height: normal;
-                }
-                .notice-title {
-                  width: 1060px;
-                  color: #000;
-                  font-family: $font;
-                  font-size: 16px;
-                  font-style: normal;
-                  font-weight: 400;
-                  line-height: normal;
-                }
-                .notice-date {
-                  color: #BDBDBD;
-                  font-family: $font;
-                  font-size: 14px;
-                  font-style: normal;
-                  font-weight: 400;
-                  line-height: normal;
-                }
-              }
-            }
 
-          }
-
+        .section-subtitle {
+          margin-bottom: 28px;
+          font-size: 17px;
+          color: #64748b;
         }
-        .faq-content {
-          margin-top: 25px;
+
+        .notice-cards,
+        .faq-wrap,
+        .terms-cards {
           display: flex;
           flex-direction: column;
-          .categories {
+          gap: 0;
+        }
+
+        .notice-modern-card,
+        .terms-card {
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          background: #ffffff;
+          box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+          padding: 18px 20px;
+        }
+
+        .notice-modern-card {
+          .card-top {
             display: flex;
-            flex-direction: row;
+            align-items: center;
+            gap: 14px;
+          }
+
+          .left {
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
-            div {
-              width: 14%;
-              height: 40px;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              color: #BDBDBD;
-              text-align: center;
-              font-family: $font;
-              font-size: 15px;
-              font-style: normal;
-              font-weight: 400;
-              line-height: normal;
-              letter-spacing: -0.225px;
-              cursor: pointer;
-              &.active {
-                border-bottom: 1px solid #EB6753;
-                color: #EB6753;
-              }
+          }
+
+          .notice-icon {
+            color: #1b3a6b;
+            font-size: 24px;
+          }
+
+          .center {
+            flex: 1;
+            min-width: 0;
+          }
+
+          .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+          }
+
+          .card-date {
+            font-size: 14px;
+            color: #64748b;
+            white-space: nowrap;
+          }
+
+          .card-description {
+            margin-top: 12px;
+            font-size: 15px;
+            line-height: 1.55;
+            color: #475569;
+          }
+        }
+
+        .faq-question-row {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .faq-help-icon {
+          font-size: 20px;
+          color: #1b3a6b;
+          flex-shrink: 0;
+        }
+
+        .faq-question {
+          font-size: 17px;
+          font-weight: 600;
+          color: #0f172a;
+        }
+
+        .faq-answer {
+          font-size: 15px;
+          color: #475569;
+          line-height: 1.6;
+        }
+
+        .MuiAccordionDetails-root {
+          border: 1px solid #e2e8f0;
+          border-top: 0;
+          border-bottom-left-radius: 12px;
+          border-bottom-right-radius: 12px;
+          background: #ffffff;
+          padding: 18px 22px;
+        }
+
+        .terms-top {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .terms-icon {
+          font-size: 23px;
+          color: #1b3a6b;
+          flex-shrink: 0;
+        }
+
+        .terms-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #0f172a;
+        }
+
+        .terms-description {
+          margin-top: 10px;
+          font-size: 15px;
+          color: #475569;
+          line-height: 1.6;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  #pc-wrap {
+    .cs-page {
+      .container {
+        padding: 0 20px;
+
+        .cs-main-info {
+          .info {
+            span {
+              font-size: 30px;
             }
           }
-          .wrap {
-            margin-top: 50px;
-            .MuiAccordionDetails-root {
-              padding: 30px 20px;
-              background: #FAFAFA;
+        }
+
+        .cs-content {
+          .section-title {
+            font-size: 28px;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  #pc-wrap {
+    .cs-page {
+      padding-top: 56px;
+      padding-bottom: 56px;
+
+      .container {
+        padding: 0 16px;
+
+        .cs-main-info {
+          .info {
+            span {
+              font-size: 26px;
             }
-            .badge {
-              margin: 0 24px;
-              display: inline-block;
-              padding: 4px 10px;
-              border: 1px solid #725CE8;
-              border-radius: 7px;
-              color: #725CE8;
+
+            p {
+              font-size: 14px;
             }
-            .question {
-              .badge {
-                background: #e92C28;
-                color: #fff;
-              }
+          }
+
+          .btns {
+            margin-top: 28px;
+            gap: 8px;
+
+            .tab-separator {
+              display: none;
             }
-            .answer {
-              margin-left: 80px;
-              display: flex;
-              white-space: nowrap;
-              align-items: center;
-              flex-direction: row;
-              .badge {
-                color: #EB6753;
-                border: 1px solid #EB6753;
-              }
+
+            .cs-tab-btn {
+              width: 100%;
+              justify-content: center;
+            }
+          }
+        }
+
+        .cs-content {
+          margin-top: 28px;
+
+          .section-title {
+            font-size: 26px;
+          }
+
+          .section-subtitle {
+            font-size: 16px;
+          }
+
+          .notice-modern-card {
+            .card-top {
+              flex-wrap: wrap;
+              row-gap: 8px;
+            }
+
+            .card-date {
+              margin-left: 38px;
             }
           }
         }

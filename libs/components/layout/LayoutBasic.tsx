@@ -58,9 +58,9 @@ const withLayoutBasic = (Component: any) => {
 				// 	bgImage = '/img/community/digital_community.jpeg';
 				// 	break;
 				case '/cs':
-					title = 'CS';
+					title = 'Customer Support';
 					desc = 'We are glad to see you again!';
-					bgImage = '/img/banner/header2.svg';
+					bgImage = '/img/property/customer-support.jpg';
 					break;
 				case '/account/join':
 					title = 'Login/Signup';
@@ -126,15 +126,16 @@ const withLayoutBasic = (Component: any) => {
 
 						{memoizedValues.bgImage && (
 							<Stack
-								className={`header-basic ${authHeader && 'auth'}`}
+								className={`header-basic ${authHeader && 'auth'}${router.pathname === '/cs' ? ' cs-banner' : ''}`}
 								style={{
 									backgroundImage: `url(${memoizedValues.bgImage})`,
 									backgroundSize: 'cover',
-									...(router.pathname === '/mypage' ? { backgroundPosition: 'center 47%' } : {}),
+									backgroundPosition: router.pathname === '/cs' ? 'center 25%' : 'center',
 									backgroundRepeat: 'no-repeat',
-									boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)',
+									...(router.pathname !== '/cs' ? { boxShadow: 'inset 10px 40px 150px 40px rgb(24 22 36)' } : {}),
 								}}
 							>
+								{router.pathname === '/cs' && <div className="cs-banner-overlay" />}
 								<Stack className={'container'}>
 									<Stack className={`header-basic-copy ${needsHeroTextLargeFont ? 'with-large-font' : ''}`}>
 										<strong>{t(memoizedValues.title)}</strong>
