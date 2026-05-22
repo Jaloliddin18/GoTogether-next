@@ -5,6 +5,35 @@
 
 ---
 
+## Today's Session Update (2026-05-22, About logo cloud marquee + team heading placement)
+
+### Completed today
+- Replaced the About robot prototype frame content with the real TurtleBot image (`/img/logo/robot3.png`) inside the existing outer frame.
+- Updated Team section structure in `pages/about/index.tsx`:
+  - heading/subtext moved out of the grid column
+  - structure now uses `team-section` > `team-container` > `section-heading` and `team-grid`
+  - team member cards remained unchanged.
+- Reworked `libs/components/about/AboutLogoCloudSection.tsx`:
+  - removed prev/next button carousel logic (`useState`, `useMemo`, arrow handlers/buttons)
+  - switched to auto-scroll marquee track rendering
+  - duplicated logo list sequence for seamless looping
+  - updated heading to `Built With` and `The technologies powering 같이Go`
+  - kept existing logo URLs unchanged.
+- Reworked `.about-logo-cloud` SCSS in `scss/pc/about/about.scss` (mobile + desktop blocks only):
+  - full-width wrapper with `border-top` and `border-bottom`
+  - stage now full width with no max-width clipping
+  - added `@keyframes marquee` and hover-pause behavior
+  - removed all logo opacity/blur/grayscale/faded-position styling
+  - tightened spacing and increased repeated logos to remove visible gaps in the strip.
+
+### Current stopping point
+- About page logo cloud now uses continuous marquee auto-scroll with full-color logos and denser spacing.
+- Team section heading is centered above the team grid in the requested structure.
+- Robot prototype frame now shows the real TurtleBot image only.
+
+### Exact next task
+- Continue scoped About page cleanup only when requested; keep edits section-bounded and avoid touching i18n or unrelated pages.
+
 ## Today's Session Update (2026-05-22, About hero/intro section)
 
 ### Completed today

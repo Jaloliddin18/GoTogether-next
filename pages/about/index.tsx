@@ -250,11 +250,11 @@ const About: NextPage = () => {
 			</section>
 
 			{/* ── 11. TEAM ─────────────────────────────────────────────────────── */}
-			<section className={'team-section'}>
-				<div className={'container'}>
-					<div className={'section-header'}>
-						<h2>{t('team_title')}</h2>
-						<p>{t('team_subtitle')}</p>
+			<div className={'team-section'}>
+				<div className={'team-container'}>
+					<div className={'section-heading'}>
+						<h2>The Team</h2>
+						<p>Eight students, one robot, one mission.</p>
 					</div>
 					<div className={'team-grid'}>
 						{TEAM.map((member, i) => (
@@ -268,7 +268,7 @@ const About: NextPage = () => {
 						))}
 					</div>
 				</div>
-			</section>
+			</div>
 
 			{/* ── 13. CTA STRIP ────────────────────────────────────────────────── */}
 			<section className={'cta-strip'}>

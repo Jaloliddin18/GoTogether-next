@@ -15,6 +15,33 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-22) — About page logo cloud + team heading + robot frame
+
+### Completed
+- Updated the About robot prototype visual frame to use the real TurtleBot image at `/img/logo/robot3.png` and removed inner placeholder/icon content from the outer frame.
+- Repositioned the About Team heading/subtext above the team card grid using:
+  - wrapper: `team-section` > `team-container`
+  - heading block: `section-heading`
+  - grid block: `team-grid` with all 8 member cards unchanged.
+- Converted `AboutLogoCloudSection` from button-based manual carousel to auto-scroll marquee:
+  - removed `useState`, `useMemo`, visible-window offset logic, and prev/next handlers/buttons
+  - rendered duplicated logo sequence in `logo-cloud-track` for seamless loop
+  - set heading copy to `Built With` and `The technologies powering 같이Go`
+  - kept existing logo URLs unchanged (`svgl.app` sources)
+- Reworked `.about-logo-cloud` rules (mobile and desktop blocks) to full-width strip behavior:
+  - section width 100%, overflow hidden, top/bottom borders, white background
+  - stage width 100% with no max-width constraint
+  - marquee keyframes and hover-pause behavior
+  - removed logo fading/muting/filtering states (no grayscale/opacity blur effects)
+- Tightened marquee density to eliminate visible gaps:
+  - increased repeated logo sequence count
+  - reduced per-logo horizontal margin.
+
+### Key rules
+- About logo cloud should use `logo-cloud-track` marquee logic, not button pagination.
+- Do not apply opacity/grayscale/blur treatment to technology logos unless explicitly requested.
+- Keep existing external logo image URLs unchanged unless the user explicitly asks to replace assets.
+
 ## Session Update (2026-05-21) — Groq AI chatbot frontend + request actions
 
 ### Completed
