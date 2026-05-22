@@ -1,11 +1,19 @@
 #pc-wrap {
   .header-basic.cs-banner {
+    .cs-banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.45) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
     .container {
       margin-top: 0;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+      z-index: 1;
     }
     .header-basic-copy {
       align-items: center;
@@ -16,12 +24,14 @@
       font-weight: 700;
       color: #ffffff;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
     span {
       font-size: 18px;
       font-weight: 400;
       color: rgba(255, 255, 255, 0.88);
       margin-top: 12px;
+      font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
   }
 
