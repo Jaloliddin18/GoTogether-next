@@ -1,0 +1,256 @@
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { NextPage } from 'next';
+import { useRouter } from 'next/router';
+import { useQuery } from '@apollo/client';
+import {
+	Alert,
+	Button,
+	CircularProgress,
+	Pagination,
+	Stack,
+	TextField,
+	Typography,
+} from '@mui/material';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import withLayoutBasic from '../../../libs/components/layout/LayoutBasic';
+import useDeviceDetect from '../../../libs/hooks/useDeviceDetect';
+import { Direction } from '../../../libs/enums/common.enum';
+import { GET_BOOKS } from '../../../apollo/library/query';
+import BookCard from '../../../libs/components/book/BookCard';
+
+const BOOKS_PER_PAGE = 12;
+
+interface BookSearchInput {
+	keyword?: string;
+	bookFormat?: string;
+	bookType?: string;
+	bookCategory?: string;
+	bookAudience?: string;
+	bookLanguage?: string;
+	isBorrowable?: boolean;
+	isPurchasable?: boolean;
+	minRating?: number;
+	minPrice?: number;
+	maxPrice?: number;
+}
+
+interface BooksInquiryInput {
+	page: number;
+	limit: number;
+	sort: string;
+	direction: Direction;
+	search?: BookSearchInput;
+}
+
+interface BookListItem {
+	_id: string;
+	bookTitle: string;
+	bookAuthor: string;
+	bookIsbn: string;
+	bookImages: string[];
+	bookCategory: string;
+	bookStatus: string;
+	isBorrowable: boolean;
+	isPurchasable: boolean;
+	bookPrice: {
+		amount: number;
+		currency: string;
+		discountPercent?: number;
+		isDiscounted: boolean;
+	};
+	bookRating: {
+		average: number;
+		count: number;
+	};
+	bookLikes: number;
+	bookViews: number;
+	bookRank: number;
+	createdAt: string;
+}
+
+interface GetBooksData {
+	getBooks: {
+		list: BookListItem[];
+		metaCounter?: Array<{ total: number }>;
+	};
+}
+
+interface GetBooksVariables {
+	input: BooksInquiryInput;
+}
+
+export const getStaticProps = async ({ locale }: { locale: string }) => ({
+	props: {
+		...(await serverSideTranslations(locale, ['common'])),
+	},
+});
+
+const LibraryBooksPage: NextPage = () => {
+	const router = useRouter();
+	const device = useDeviceDetect();
+	const isMobile = device === 'mobile';
+	const [searchInput, setSearchInput] = useState('');
+	const [inquiry, setInquiry] = useState<BooksInquiryInput>({
+		page: 1,
+		limit: BOOKS_PER_PAGE,
+		sort: 'createdAt',
+		direction: Direction.DESC,
+		search: {},
+	});
+
+	const getSingleQueryValue = (value: string | string[] | undefined): string => {
+		if (Array.isArray(value)) return value[0] ?? '';
+		return value ?? '';
+	};
+
+	useEffect(() => {
+		if (!router.isReady) return;
+
+		const queryPage = getSingleQueryValue(router.query.page);
+		const parsedPage = queryPage ? Math.max(1, Number(queryPage) || 1) : 1;
+		const keyword = getSingleQueryValue(router.query.keyword).trim();
+		const format = getSingleQueryValue(router.query.format).trim();
+		const type = getSingleQueryValue(router.query.type).trim();
+		const category = getSingleQueryValue(router.query.category).trim();
+		const audience = getSingleQueryValue(router.query.audience).trim();
+		const language = getSingleQueryValue(router.query.language).trim();
+		const borrowable = getSingleQueryValue(router.query.borrowable).trim();
+		const purchasable = getSingleQueryValue(router.query.purchasable).trim();
+		const minRatingRaw = getSingleQueryValue(router.query.minRating).trim();
+		const minPriceRaw = getSingleQueryValue(router.query.minPrice).trim();
+		const maxPriceRaw = getSingleQueryValue(router.query.maxPrice).trim();
+		const parsedMinRating = minRatingRaw ? Number(minRatingRaw) : 0;
+		const parsedMinPrice = minPriceRaw ? Number(minPriceRaw) : 0;
+		const parsedMaxPrice = maxPriceRaw ? Number(maxPriceRaw) : 0;
+
+		const search: BookSearchInput = {};
+		if (keyword) search.keyword = keyword;
+		if (format) search.bookFormat = format;
+		if (type) search.bookType = type;
+		if (category) search.bookCategory = category;
+		if (audience) search.bookAudience = audience;
+		if (language) search.bookLanguage = language;
+		if (borrowable === 'true') search.isBorrowable = true;
+		if (purchasable === 'true') search.isPurchasable = true;
+		if (!Number.isNaN(parsedMinRating) && parsedMinRating > 0) search.minRating = parsedMinRating;
+		if (!Number.isNaN(parsedMinPrice) && parsedMinPrice > 0) search.minPrice = parsedMinPrice;
+		if (!Number.isNaN(parsedMaxPrice) && parsedMaxPrice > 0) search.maxPrice = parsedMaxPrice;
+
+		setSearchInput(keyword);
+		setInquiry({
+			page: parsedPage,
+			limit: BOOKS_PER_PAGE,
+			sort: 'createdAt',
+			direction: Direction.DESC,
+			search,
+		});
+	}, [router.isReady, router.query]);
+
+	const { loading, error, data } = useQuery<GetBooksData, GetBooksVariables>(GET_BOOKS, {
+		fetchPolicy: 'network-only',
+		notifyOnNetworkStatusChange: true,
+		variables: { input: inquiry },
+	});
+
+	const books = data?.getBooks?.list ?? [];
+	const total = data?.getBooks?.metaCounter?.[0]?.total ?? 0;
+	const pageCount = useMemo(() => Math.max(1, Math.ceil(total / inquiry.limit)), [total, inquiry.limit]);
+
+	const onSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+		setSearchInput(event.target.value);
+	};
+
+	const searchHandler = async () => {
+		const keyword = searchInput.trim();
+		const query = { ...router.query, ...(keyword ? { keyword } : {}), ...(keyword ? {} : { keyword: undefined }), page: 1 };
+		await router.push({ pathname: '/library/books', query }, undefined, { shallow: true });
+	};
+
+	const paginationHandler = async (_event: ChangeEvent<unknown>, value: number) => {
+		const currentKeyword = searchInput.trim();
+		const query = {
+			...router.query,
+			...(currentKeyword ? { keyword: currentKeyword } : {}),
+			...(currentKeyword ? {} : { keyword: undefined }),
+			page: value,
+		};
+		await router.push({ pathname: '/library/books', query }, undefined, { shallow: true });
+	};
+
+	return (
+		<div id="library-books-page" style={{ position: 'relative' }}>
+			<div className="container">
+				<Stack width={'100%'} spacing={3} py={isMobile ? 3 : 5}>
+					<Stack spacing={1}>
+						<Typography variant={isMobile ? 'h5' : 'h4'} fontWeight={700}>
+							Smart Library Books
+						</Typography>
+						<Typography color={'text.secondary'}>
+							Browse available books and open a title to view full details.
+						</Typography>
+					</Stack>
+
+					<Stack direction={isMobile ? 'column' : 'row'} spacing={1.5}>
+						<TextField
+							fullWidth
+							placeholder="Search by title, author, or ISBN"
+							value={searchInput}
+							onChange={onSearchChange}
+							onKeyDown={(event) => {
+								if (event.key === 'Enter') searchHandler().then();
+							}}
+						/>
+						<Button variant="contained" onClick={() => searchHandler().then()} sx={{ minWidth: isMobile ? '100%' : 120 }}>
+							Search
+						</Button>
+					</Stack>
+
+					{loading && (
+						<Stack alignItems={'center'} py={8}>
+							<CircularProgress />
+						</Stack>
+					)}
+
+					{!loading && error && (
+						<Alert severity="error">Failed to load books. Please refresh and try again.</Alert>
+					)}
+
+					{!loading && !error && books.length === 0 && (
+						<Alert severity="info">No books found for your current search.</Alert>
+					)}
+
+					{!loading && !error && books.length > 0 && (
+						<>
+							<Stack
+								sx={{
+									display: 'grid',
+									gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))',
+									gap: 2,
+								}}
+							>
+								{books.map((book) => (
+									<BookCard key={book._id} book={book} />
+								))}
+							</Stack>
+
+							<Stack alignItems={'center'} py={2}>
+								<Pagination
+									page={inquiry.page}
+									count={pageCount}
+									shape="circular"
+									color="primary"
+									onChange={paginationHandler}
+								/>
+								<Typography mt={1.5} color={'text.secondary'}>
+									Total {total} book{total > 1 ? 's' : ''}
+								</Typography>
+							</Stack>
+						</>
+					)}
+				</Stack>
+			</div>
+		</div>
+	);
+};
+
+export default withLayoutBasic(LibraryBooksPage);

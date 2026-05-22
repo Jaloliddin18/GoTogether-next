@@ -43,3 +43,11 @@ export const likeTargetMemberHandler = async (likeTargetMember: any, id: string)
 		sweetMixinErrorAlert(err.message).then();
 	}
 };
+
+export const resolveMediaUrl = (path?: string, fallback: string = '/img/banner/header1.svg'): string => {
+	if (!path) return fallback;
+	if (path.startsWith('http://') || path.startsWith('https://')) return path;
+	const base = process.env.REACT_APP_API_URL ?? '';
+	if (!base) return path;
+	return `${base.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+};

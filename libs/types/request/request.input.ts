@@ -18,6 +18,7 @@ export interface CreateDeliveryRequestInput {
 	requestType: RequestType;
 	sessionId?: string;
 	sourceInventoryId?: string;
+	destinationType?: DeliveryDestinationType;
 	destinationDeskId?: string;
 	destination?: DestinationInput;
 }
