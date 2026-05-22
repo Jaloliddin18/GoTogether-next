@@ -1,86 +1,107 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-20 | Commit: uncommitted frontend session
-**Current Branch:** `community`
+**Last Updated:** 2026-05-21
+**Current Branch:** `myPage`
 
 ---
 
-## Today's Session Update (2026-05-20, Book Delivery + Robot Notifications)
+## Today's Session Update (2026-05-21, Groq AI chatbot frontend)
 
 ### Completed today
-- Inspected the existing backend request/robot/MQTT/WebSocket flow before frontend edits:
-  - `apps/nestar-api/src/components/request/request.resolver.ts`
-  - `apps/nestar-api/src/components/request/request.service.ts`
-  - `apps/nestar-api/src/components/robot/robot.resolver.ts`
-  - `apps/nestar-api/src/components/robot/robot.service.ts`
-  - `apps/nestar-api/src/robot-comm/mqtt.service.ts`
-  - `apps/nestar-api/src/robot-comm/mqtt.types.ts`
-  - `apps/nestar-api/src/socket/robot.gateway.ts`
-  - request/robot enums and notification model files
-  - `/Users/kko/Downloads/bookinventory-pickup-refactor_20260520_0038.md`
-- Redesigned `pages/books/detail.tsx` presentation in place while preserving existing data sections: title, author, image/gallery, views, likes, category, type, format, language, audience, ISBN, call number, status badges, description, physical details, reading guide, shelf/location, borrowing policy, reviews, and similar books.
-- Added Book Detail CTAs near price/status:
-  - `Borrow` -> calls `CREATE_DELIVERY_REQUEST` with `requestType: BORROW`
-  - `Commercial` -> calls `CREATE_DELIVERY_REQUEST` with `requestType: PURCHASE`
-- Added editable desk destination fields on the detail page: `destinationDeskId`, `floorId`, `x`, `y`, `theta`.
-- Added stable guest `sessionId` storage for unauthenticated delivery requests, matching backend `WithoutGuard` session support.
-- Added robot tracking helpers:
-  - `libs/library/ws/trackingClient.ts`
-  - `libs/library/ws/trackingEvents.ts`
-- Enhanced `libs/components/Top.tsx` notification bell:
-  - opens a right-side robot update panel
-  - joins backend robot WebSocket rooms with `{ event: "joinRequest", data: { requestId } }`
-  - listens for `robotStatus`, `requestUpdated`, `robotOffline`, `bookNotFound`, and `deliveryReady`
-  - maps backend robot/request states to user-readable notification cards
-  - notification cards navigate to `/mypage`
-  - bell can appear for logged-in users or active guest/session-tracked robot requests
-- Added notification panel styles in `scss/pc/main.scss`.
-- Added `REACT_APP_ROBOT_WS` to `next.config.js` and `.env.example`; helper fallback derives `ws://<api-host>:3009` from `REACT_APP_API_URL`.
+- Replaced the old broadcast group chat component with `libs/components/AiChatBubble.tsx`.
+- Deleted `libs/components/Chat.tsx`.
+- Installed `react-markdown` and wired assistant markdown rendering.
+- Added `scss/pc/chat/ai-chat.scss` and imported it from `scss/pc/main.scss`.
+- Updated `LayoutHome.tsx`, `LayoutFull.tsx`, and `LayoutBasic.tsx` to render `<AiChatBubble />`.
+- Fixed chatbot logo path to `/img/logo/final_favicon1.png`.
+- Chat API base uses `REACT_APP_API_URL` from `libs/config.ts`; that value is sourced from `process.env.NEXT_PUBLIC_API_URL`.
+- Frontend consumes backend `/chat/message` response shape `{ reply, books }`.
+- Assistant messages can render structured clickable book cards from `books`.
+- Book cards route to `/books/detail?id=<bookId>`.
+- Added quick prompt chips for common catalog/robot questions.
+- Removed in-chat Borrow/Purchase actions; chat book cards now show only `Open`.
+- Added 15-minute localStorage persistence for active chat history under `gachi_go_ai_chat_state`.
+- Preserved `apollo/client.ts` and did not touch robot websocket code.
 
-### Backend contract notes
-- Existing GraphQL mutation used: `createDeliveryRequest(input: CreateDeliveryRequestInput!): RequestTask`.
-- Frontend payload fields used: `bookId`, `requestType`, `sessionId?`, `destinationDeskId`, and `destination { floorId, x, y, theta }`.
-- `BORROW` requires `destinationDeskId` and `destination.floorId`; backend stores student desk destination, uses `LIBRARY` inventory, `STUDENT_DESK`, and `NOT_REQUIRED`.
-- `PURCHASE` uses `COMMERCIAL` inventory and backend maps destination to `REQUEST_RECEPTION_DESTINATION` with `RECEPTION` and `PAY_AT_RECEPTION`. Current backend does not persist separate student-origin coordinates for purchase requests, so the frontend sends the existing destination fields but cannot force seller-origin storage without backend contract changes.
-- Robot WebSocket gateway is fixed at port `3009`. The backend emits JSON envelopes shaped as `{ event, data }`.
+### Verification
+- Frontend build passed with `yarn build`.
+- Backend build passed from backend repo with `npm run build`.
+- Remaining frontend build noise is pre-existing: `+input` log from `pages/account/join.tsx` and `react-i18next` static-generation warnings.
 
-### Robot state mapping
-- `NAVIGATING_TO_SHELF` -> Robot started moving
-- `ARRIVED_AT_SHELF` -> Robot reached shelf
-- `VERIFYING_BOOK` -> Checking requested book
-- `BOOK_FOUND` -> Book found
-- `PICKING_UP` -> Picking up book
-- `DELIVERING` -> Delivering to your desk
-- `ARRIVED_AT_STUDENT` -> Robot arrived near your desk
-- `READY` -> Your book is ready
+### Key rules from this session
+- Do not hardcode frontend API URLs; `REACT_APP_API_URL` is the compatibility export in `libs/config.ts`, backed by `NEXT_PUBLIC_API_URL`.
+- Do not parse AI prose for actions. Use backend structured fields like `books` for UI cards.
+- Do not create borrow/purchase requests from chat; book cards should only open detail pages.
+- Chat history should persist for 15 minutes across route navigation, then expire automatically.
+- Do not touch `apollo/client.ts` or robot gateway/socket files for chatbot UI work.
+- `/books/detail` is still query-param based: `/books/detail?id=<bookId>`.
 
-### Verification result
-- No build, type-check, lint, or git command was run because `AGENTS.md` forbids build/compile/type-check and git commands unless explicitly requested.
-- Static/code-path checks confirmed frontend uses existing GraphQL mutation/enums and backend WebSocket event names.
-- MQTT virtual robot test was blocked:
-  - `localhost:1883` was not reachable.
-  - Initial `npx --no-install mqtt --help` could not find a local executable.
-  - After approval, `npx mqtt --help` downloaded/ran `mqtt@5.15.1`.
-  - A bounded publish attempt to `robot/robot_01/status` failed with `ECONNREFUSED` on `::1:1883` and `127.0.0.1:1883`.
-  - No MQTT status sequence was successfully published, so live frontend notifications are not end-to-end verified yet.
+### Current stopping point
+- Chatbot UI, book suggestions, Open-only book cards, and 15-minute chat persistence are implemented and build cleanly.
+- Live end-to-end QA with running frontend/backend, MongoDB, and real `GROQ_API_KEY` is still needed.
 
 ### Exact next task
-- Start backend, MQTT broker, and frontend together.
-- Create a real delivery request from `/books/detail?id=<bookId>`.
-- Use the returned request id in the MQTT status publish flow.
-- Verify notification cards appear in chronological state order, panel open/close works, and card click routes to `/mypage`.
+- Runtime QA: ask for books, verify cards appear only when asked, click Open, and verify `/books/detail?id=<bookId>` navigation.
+
+---
+
+## Today's Session Update (2026-05-21, MyFavorites + RecentlyVisited redesign + like wiring)
+
+### Completed today
+- Redesigned `MyFavorites.tsx`: 3-col `.bk-grid` card layout, PAGE_LIMIT=10, MUI Pagination (same pattern as MyArticles). Cards show category label, like badge with count, cover image, title, author.
+- Redesigned `RecentlyVisited.tsx`: same 3-col grid + pagination. Cards show category label + visited date at top, cover, title, author.
+- Wired like button in MyFavorites: `LIKE_TARGET_BOOK` mutation + `refetchFavorites`; `FavoriteIcon`/`FavoriteBorderIcon` toggled by `meLiked[0]?.myFavorite`; `e.stopPropagation()` on heart click.
+- Fixed card navigation in both panels: routes to `/books/detail?id=${book._id}` (not `/books/${book._id}` — no dynamic route exists).
+- Fixed Apollo cache crash (`TypeError: Cannot convert object to primitive value`): added `meLiked { memberId likeRefId myFavorite }` to `LIKE_TARGET_BOOK` mutation return fields in `apollo/user/mutation.ts`. Omitting it caused `writeToStore` to try `String()` on the cached nested object.
+- SCSS: replaced old saved-books and viewed-books styles with shared `.bk-*` classes in `scss/pc/mypage/mypage.scss`. All `$font` and `$color-*` only — no hardcoded hex, no external fonts.
+
+### Current stopping point
+- All changes committed. Working tree clean.
+
+### Exact next task
+- Book detail page (`pages/library/books/[bookId].tsx`) — Smart Library book detail with BORROW/PURCHASE button and `createDeliveryRequest` mutation.
 
 ### Uncommitted/untracked files
-- Modified:
-  - `.env.example`
-  - `MEMORY.md`
-  - `libs/components/Top.tsx`
-  - `next.config.js`
-  - `pages/books/detail.tsx`
-  - `scss/pc/main.scss`
-- Added:
-  - `libs/library/ws/trackingClient.ts`
-  - `libs/library/ws/trackingEvents.ts`
+- None (committed in this session).
+
+---
+
+## Today's Session Update (2026-05-20, Twit posting bug fixes)
+
+### Completed today
+- Fixed image upload URL in `CommunityComposer.tsx`: replaced undefined `process.env.REACT_APP_API_GRAPHQL_URL` with `process.env.NEXT_PUBLIC_API_URL}/graphql`. Any twit post with images was silently failing before this fix.
+- Aligned twit text character limit with backend: changed frontend limit from 500 → 280 → back to 500 after backend was also raised to 500. Both sides now consistently enforce 500 chars.
+  - `CommunityComposer.tsx`: `submitHandler` guard, `/500` counter hint, Post button disabled condition all updated.
+
+### Current stopping point
+- Working tree is clean after commit `fd8a163`.
+
+### Exact next task
+- Test twit posting end-to-end (text-only and with images) against running backend.
+
+### Uncommitted/untracked files
+- None (`git status`: working tree clean).
+
+---
+
+## Today's Session Update (2026-05-19, RobotTracking realtime completion lifecycle + return path)
+
+### Completed today
+- Fixed stale READY override by enforcing terminal-priority request status handling in `libs/hooks/useRobotSocket.ts`.
+- Added requestId-guarded socket event handling and safer timeline updates for `requestUpdated` payloads.
+- Updated `RobotTracking` effective status resolution to be terminal-aware and to avoid regressions from stale non-terminal updates.
+- Changed request selection to prioritize latest request timestamp and avoid fallback to older READY entries.
+- Added auto-refresh behavior for `GET_SESSION_REQUESTS` (`pollInterval`) so request assignment/status changes appear without manual page reload.
+- Kept WebSocket tracking bound to the latest request id to preserve post-completion telemetry visibility.
+- Added post-completion route rendering behavior so map can show return-to-dock path/trail after `COMPLETED` when robot emits `RETURNING`/`DOCKING`/`IDLE`.
+- Preserved planned/live route graph logic and heading behavior while stabilizing terminal lifecycle rendering.
+
+### Current stopping point
+- RobotTracking now updates without manual refresh for request lifecycle changes and can visually follow post-completion return telemetry.
+- Frontend build passes with existing unrelated warnings (`react-i18next` init notice and demo `+input` logs).
+
+### Exact next task
+- Validate end-to-end with persistent simulator listener mode so request creation triggers automatic robot movement without one-shot command runs.
 
 ---
 
@@ -326,6 +347,7 @@ Per CLAUDE.md implementation order:
 ## Recent Commits
 
 ```
+fd8a163 fix: fix twit image upload URL and raise text limit to 500 characters
 d3c5270 feat: add comment threading, edit, delete, and like functionality
 a80f766 fix: community page UI fixes and image grid improvements
 ce808b4 fix: update agents.md

@@ -260,6 +260,27 @@ export const GET_SESSION_REQUESTS = gql`
 					isOnline
 					battery
 					lastSeenAt
+					currentPose {
+						floorId
+						x
+						y
+						theta
+					}
+				}
+				inventoryData {
+					_id
+					bookShelf {
+						section
+						row
+						level
+						slot
+					}
+					bookLocation {
+						floorId
+						x
+						y
+						theta
+					}
 				}
 				timeline {
 					status
@@ -497,6 +518,7 @@ export const GET_MEMBER_TWITS = gql`
 				images
 				meLiked
 				likeCount
+				viewCount
 				deletedAt
 				createdAt
 				updatedAt

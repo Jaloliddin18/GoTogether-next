@@ -165,6 +165,11 @@ export const LIKE_TARGET_BOOK = gql`
 			deletedAt
 			createdAt
 			updatedAt
+			meLiked {
+				memberId
+				likeRefId
+				myFavorite
+			}
 		}
 	}
 `;
@@ -290,7 +295,7 @@ export const DELETE_TWIT = gql`
 			_id
 			memberId
 			text
-			image
+			images
 			meLiked
 			likeCount
 			deletedAt

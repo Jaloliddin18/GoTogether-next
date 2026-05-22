@@ -363,7 +363,7 @@ const MemberProfile: NextPage = () => {
 						{/* Followers tab */}
 						{activeTab === 1 && (
 							<MemberFollowers
-								initialInput={{ page: 1, limit: 5, search: { followingId: memberId } }}
+								initialInput={{ page: 1, limit: 10, search: { followingId: memberId } }}
 								subscribeHandler={subscribeHandler}
 								unsubscribeHandler={unsubscribeHandler}
 								likeMemberHandler={likeMemberHandler}
@@ -376,7 +376,7 @@ const MemberProfile: NextPage = () => {
 						{/* Followings tab */}
 						{activeTab === 2 && (
 							<MemberFollowings
-								initialInput={{ page: 1, limit: 5, search: { followerId: memberId } }}
+								initialInput={{ page: 1, limit: 10, search: { followerId: memberId } }}
 								subscribeHandler={subscribeHandler}
 								unsubscribeHandler={unsubscribeHandler}
 								likeMemberHandler={likeMemberHandler}
