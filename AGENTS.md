@@ -15,6 +15,26 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-22) — About hero stats removal + tech-stack dark/white pill pass
+
+### Completed
+- Removed the About hero stats strip from `libs/components/about/AboutHeroSection.tsx`:
+  - deleted `HERO_STATS` constant (`10k+`, `2`, `3`, `1` summary values)
+  - deleted the `.about-hero-stats` JSX block that rendered those four cards.
+- Removed stats-only styles from `scss/pc/about/about.scss`:
+  - deleted mobile `.about-hero-stats` + nested `.about-stat` block
+  - deleted desktop `.about-hero-stats` + nested `.about-stat` block.
+- Updated About tech-stack section styling in `scss/pc/about/about.scss`:
+  - section background switched to `$color-dark`
+  - heading colors set for tech-stack context (`h2` white, `p` muted)
+  - pills styled as rounded white chips with dark text (`background: $color-white`, `color: $color-dark`, `border-radius: 100px`)
+  - hover keeps pill text dark with primary border emphasis.
+- Applied heading-position safety for tech-stack styling by covering both `.section-heading` and `.section-header` inside `.tech-stack`; JSX already had heading above pill rows, so no structural JSX move was needed.
+
+### Key rules
+- If a requested About heading rule mentions `.section-heading` but JSX uses `.section-header`, style both selectors inside the section scope instead of changing unrelated global heading behavior.
+- For quick visual tweak requests on About sections, keep edits section-scoped in `about.scss` and avoid touching unrelated About blocks or i18n.
+
 ## Session Update (2026-05-22) — About page logo cloud + team heading + robot frame
 
 ### Completed

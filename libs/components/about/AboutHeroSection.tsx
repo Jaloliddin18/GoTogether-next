@@ -49,13 +49,6 @@ const FEATURES = [
 	},
 ] as const;
 
-const HERO_STATS = [
-	{ value: '10k+', label: 'Prototype book catalog' },
-	{ value: '2', label: 'Borrow and purchase modes' },
-	{ value: '3', label: 'Request-to-delivery steps' },
-	{ value: '1', label: 'Robot assistant' },
-] as const;
-
 const AboutHeroSection = ({ headline, subtitle, ctaLabel }: AboutHeroSectionProps) => {
 	const shouldReduceMotion = useReducedMotion();
 	const motionDistance = shouldReduceMotion ? 0 : 18;
@@ -127,15 +120,6 @@ const AboutHeroSection = ({ headline, subtitle, ctaLabel }: AboutHeroSectionProp
 							<p>{description}</p>
 						</div>
 					</motion.article>
-				))}
-			</div>
-
-			<div className={'container about-hero-stats'} aria-label={'Prototype summary'}>
-				{HERO_STATS.map((stat) => (
-					<div className={'about-stat'} key={stat.label}>
-						<strong>{stat.value}</strong>
-						<span>{stat.label}</span>
-					</div>
 				))}
 			</div>
 		</section>

@@ -5,6 +5,29 @@
 
 ---
 
+## Today's Session Update (2026-05-22, About hero stats strip removal + tech stack pills)
+
+### Completed today
+- Removed the About hero stats summary from `libs/components/about/AboutHeroSection.tsx`:
+  - deleted `HERO_STATS` constant
+  - deleted `.about-hero-stats` render block.
+- Removed stats-only style blocks from `scss/pc/about/about.scss`:
+  - mobile `.about-hero-stats` / `.about-stat`
+  - desktop `.about-hero-stats` / `.about-stat`.
+- Updated About tech-stack section style rules in `scss/pc/about/about.scss`:
+  - `.tech-stack` background changed to `$color-dark`
+  - tech heading text colors adjusted (`h2` white, `p` muted)
+  - tech pills now white with dark text (`background: $color-white`, `color: $color-dark`)
+  - pill shape kept rounded (`border-radius: 100px`) with primary border hover emphasis.
+- Added section-scoped heading selector coverage for both `.section-heading` and `.section-header` under `.tech-stack`; no JSX layout change was needed because the heading was already above the pill rows.
+
+### Current stopping point
+- About hero no longer renders the 4-stat strip.
+- Tech stack section uses dark section background with white chips and dark chip text.
+
+### Exact next task
+- Continue About-only visual polish if requested, keeping changes strictly section-scoped.
+
 ## Today's Session Update (2026-05-22, About logo cloud marquee + team heading placement)
 
 ### Completed today

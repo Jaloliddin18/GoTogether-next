@@ -246,47 +246,6 @@
 				}
 			}
 
-			.about-hero-stats {
-				display: grid;
-				grid-template-columns: repeat(2, 1fr);
-				gap: 1px;
-				margin-top: 20px;
-				background: $color-border;
-				border: 1px solid $color-border;
-				border-radius: 10px;
-				overflow: hidden;
-				padding-left: 0;
-				padding-right: 0;
-
-				.about-stat {
-					min-height: 82px;
-					display: flex;
-					flex-direction: column;
-					align-items: center;
-					justify-content: center;
-					background: $color-white;
-					padding: 10px;
-					box-sizing: border-box;
-
-					strong {
-						font-family: $font;
-						font-size: 23px;
-						font-weight: 800;
-						color: $color-dark;
-						margin-bottom: 6px;
-						line-height: 1;
-					}
-
-					span {
-						font-family: $font;
-						font-size: 11px;
-						font-weight: 500;
-						color: $color-muted;
-						text-align: center;
-						line-height: 1.35;
-					}
-				}
-			}
 		}
 
 		.about-workflow-section {
@@ -1209,44 +1168,6 @@
 				}
 			}
 
-			.about-hero-stats {
-				display: grid;
-				grid-template-columns: repeat(4, 1fr);
-				gap: 1px;
-				margin-top: 28px;
-				background: $color-border;
-				border: 1px solid $color-border;
-				border-radius: 10px;
-				overflow: hidden;
-				padding-left: 0;
-				padding-right: 0;
-
-				.about-stat {
-					display: flex;
-					flex-direction: column;
-					align-items: center;
-					justify-content: center;
-					min-height: 94px;
-					background: $color-white;
-
-					strong {
-						font-family: $font;
-						font-size: 26px;
-						font-weight: 800;
-						color: $color-dark;
-						line-height: 1;
-						margin-bottom: 8px;
-					}
-
-					span {
-						font-family: $font;
-						font-size: 12px;
-						font-weight: 500;
-						color: $color-muted;
-						text-align: center;
-					}
-				}
-			}
 		}
 
 		.about-workflow-section {
@@ -1832,10 +1753,21 @@
 		// ─────────────────────────────────────────────────────────────────────
 		.tech-stack {
 			padding: 80px 0;
-			background: $color-bg;
+			background: $color-dark;
 
+			.section-heading,
 			.section-header {
+				width: 100%;
+				text-align: center;
 				margin-bottom: 40px;
+
+				h2 {
+					color: $color-white;
+				}
+
+				p {
+					color: $color-muted;
+				}
 			}
 
 			.pill-rows {
@@ -1850,25 +1782,25 @@
 					gap: 10px;
 					justify-content: center;
 
-					.tech-pill {
+						.tech-pill {
 						display: inline-flex;
 						align-items: center;
 						padding: 8px 18px;
-						background: $color-white;
+							background: $color-white;
 						border: 1px solid $color-border;
-						border-radius: 8px;
+						border-radius: 100px;
 						font-family: $font;
 						font-size: 13px;
 						font-weight: 500;
-						color: $color-dark;
+							color: $color-dark;
 						cursor: default;
-						transition: border-color 0.2s ease, box-shadow 0.2s ease;
+						transition: border-color 0.2s ease, color 0.2s ease;
 
-						&:hover {
-							border-color: $color-primary;
-							box-shadow: 0 2px 8px rgba($color-primary, 0.12);
+							&:hover {
+								border-color: $color-primary;
+								color: $color-dark;
+							}
 						}
-					}
 				}
 			}
 		}
