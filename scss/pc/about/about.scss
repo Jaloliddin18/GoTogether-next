@@ -1993,7 +1993,7 @@
 		// ─────────────────────────────────────────────────────────────────────
 		.cta-strip {
 			padding: 72px 0;
-			background: $color-white;
+			background: $color-dark;
 
 			> .container {
 				display: flex;
@@ -2001,7 +2001,7 @@
 				justify-content: space-between;
 				align-items: center;
 				padding: 52px 60px;
-				background: $color-bg;
+				background: transparent;
 				border-radius: 16px;
 			}
 
@@ -2013,7 +2013,7 @@
 					font-family: $font;
 					font-size: 26px;
 					font-weight: 700;
-					color: $color-dark;
+					color: $color-white;
 					margin-bottom: 8px;
 				}
 
@@ -2046,7 +2046,7 @@
 					font-weight: 600;
 					cursor: pointer;
 					text-decoration: none;
-					transition: transform 0.2s ease, box-shadow 0.2s ease;
+					transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 					white-space: nowrap;
 
 					&:hover {
@@ -2055,22 +2055,22 @@
 				}
 
 				.btn-outline {
-					border: 1.5px solid $color-dark;
-					color: $color-dark;
+					border: 1px solid $color-border;
+					color: $color-white;
 					background: transparent;
 
 					&:hover {
-						box-shadow: 0 4px 14px rgba($color-dark, 0.12);
+						border-color: $color-white;
 					}
 				}
 
 				.btn-filled {
-					background: $color-dark;
+					background: $color-primary;
 					color: $color-white;
 					border: none;
 
 					&:hover {
-						box-shadow: 0 4px 14px rgba($color-dark, 0.28);
+						background: $color-primary-hover;
 					}
 				}
 			}
