@@ -7,7 +7,6 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import AboutHeroSection from '../../libs/components/about/AboutHeroSection';
-import AboutWorkflowSection from '../../libs/components/about/AboutWorkflowSection';
 import AboutArchitectureSection from '../../libs/components/about/AboutArchitectureSection';
 import AboutLogoCloudSection from '../../libs/components/about/AboutLogoCloudSection';
 
@@ -193,7 +192,6 @@ const About: NextPage = () => {
 		return (
 			<Stack className={'about-page'}>
 				<AboutHeroSection headline={t('hero_headline')} subtitle={t('hero_sub')} ctaLabel={t('hero_cta')} />
-				<AboutWorkflowSection />
 				<AboutArchitectureSection />
 				<RobotPrototypeSection />
 				<PrototypeScopeSection />
@@ -208,10 +206,7 @@ const About: NextPage = () => {
 			{/* ── 1. HERO ──────────────────────────────────────────────────────── */}
 			<AboutHeroSection headline={t('hero_headline')} subtitle={t('hero_sub')} ctaLabel={t('hero_cta')} />
 
-			{/* ── 2. WORKFLOW ─────────────────────────────────────────────────── */}
-			<AboutWorkflowSection />
-
-			{/* ── 3. SYSTEM ARCHITECTURE ───────────────────────────────────────── */}
+			{/* ── 2. SYSTEM ARCHITECTURE ───────────────────────────────────────── */}
 			<AboutArchitectureSection />
 
 			{/* ── 4. ROBOT PROTOTYPE ──────────────────────────────────────────── */}

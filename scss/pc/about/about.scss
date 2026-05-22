@@ -562,6 +562,21 @@
 				}
 			}
 
+			.arch-diagram-block {
+				margin-top: 12px;
+				text-align: center;
+			}
+
+			.arch-diagram-img {
+				width: 100%;
+				max-width: 860px;
+				height: auto;
+				border: 1px solid $color-border;
+				border-radius: 8px;
+				display: block;
+				margin: 0 auto;
+			}
+
 			.architecture-flow {
 				display: grid;
 				grid-template-columns: 1fr;
@@ -1498,6 +1513,21 @@
 					color: $color-muted;
 					margin: 0;
 				}
+			}
+
+			.arch-diagram-block {
+				margin-top: 8px;
+				text-align: center;
+			}
+
+			.arch-diagram-img {
+				width: 100%;
+				max-width: 860px;
+				height: auto;
+				border: 1px solid $color-border;
+				border-radius: 8px;
+				display: block;
+				margin: 0 auto;
 			}
 
 			.architecture-flow {
