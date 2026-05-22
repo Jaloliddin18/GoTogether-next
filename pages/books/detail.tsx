@@ -68,6 +68,7 @@ import { GET_COMMENTS } from '../../apollo/user/query';
 import { LIKE_TARGET_BOOK, CREATE_COMMENT, CREATE_DELIVERY_REQUEST } from '../../apollo/user/mutation';
 import { announceTrackingRequest } from '../../libs/library/ws/trackingClient';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert, sweetTopSuccessAlert } from '../../libs/sweetAlert';
+import YouMayAlsoLike from '../../src/components/books/YouMayAlsoLike';
 
 SwiperCore.use([Navigation, Autoplay]);
 
@@ -508,7 +509,7 @@ const BookDetailPage: NextPage = () => {
 				style={{
 					position: 'relative',
 					width: '100%',
-					height: isMobile ? 260 : 380,
+					height: isMobile ? 280 : 420,
 					overflow: 'hidden',
 				}}
 			>
@@ -538,9 +539,9 @@ const BookDetailPage: NextPage = () => {
 							style={{
 								color: '#FFFFFF',
 								fontFamily: "'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-								fontSize: isMobile ? 24 : 36,
+								fontSize: isMobile ? 32 : 48,
 								fontWeight: 700,
-								textShadow: '0 2px 8px rgba(0,0,0,0.35)',
+								textShadow: '0 2px 12px rgba(0,0,0,0.4)',
 								margin: 0,
 							}}
 						>
@@ -548,8 +549,8 @@ const BookDetailPage: NextPage = () => {
 						</h1>
 						<div
 							style={{
-								marginTop: 8,
-								fontSize: 14,
+								marginTop: 12,
+								fontSize: isMobile ? 16 : 18,
 								fontFamily: "'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
 								color: 'rgba(255,255,255,0.85)',
 								display: 'flex',
@@ -680,9 +681,9 @@ const BookDetailPage: NextPage = () => {
 								</Stack>
 
 								<Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
-									{book?.isBorrowable && <Chip label="Borrowable" sx={{ background: '#f0fdf4', color: '#22C55E', fontWeight: 700, border: '1px solid #22C55E', borderRadius: '999px', fontSize: 13, px: 0.5 }} />}
-									{book?.isPurchasable && <Chip label="Purchasable" sx={{ background: '#EBF4FF', color: '#1B3A6B', fontWeight: 700, border: '1px solid #E2E8F0', borderRadius: '999px', fontSize: 13, px: 0.5 }} />}
-									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#fffbeb', color: '#F59E0B', fontWeight: 700, border: '1px solid #F59E0B', borderRadius: '999px', fontSize: 13, px: 0.5 }} />}
+									{book?.isBorrowable && <Chip label="Borrowable" sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
+									{book?.isPurchasable && <Chip label="Purchasable" sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
+									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#f8fafb', color: '#64748B', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
 								</Stack>
 
 								<Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap' }}>
@@ -821,48 +822,11 @@ const BookDetailPage: NextPage = () => {
 						</SafeBox>
 					</SafeBox>
 
-					<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
-						<Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
-							<Stack spacing={2} sx={{ flex: { md: '0 0 280px' } }}>
-								<Typography sx={sectionTitleSx}>Shelf Location</Typography>
-								<Typography sx={{ color: libraryColors.muted, lineHeight: 1.7 }}>
-									Find this title in the main library section. The highlighted block marks the active shelf for this book.
-								</Typography>
-								<Stack direction="row" gap={1} flexWrap="wrap">
-									<Chip label={book?.bookCallNumber ?? 'Call number N/A'} sx={{ background: '#EBF4FF', color: '#1B3A6B', fontWeight: 900, borderRadius: '999px' }} />
-									<Chip label="Good" sx={{ background: '#e6f6ee', color: libraryColors.green, fontWeight: 900, borderRadius: '999px' }} />
-								</Stack>
-							</Stack>
-
-							<SafeBox sx={{ flex: 1, minWidth: 0 }}>
-								<SafeBox sx={{ borderRadius: '24px', border: `1px solid ${libraryColors.border}`, background: '#F8FAFC', p: { xs: 1.5, sm: 2.4 }, overflow: 'hidden' }}>
-									<SafeBox component="svg" viewBox="0 0 720 320" role="img" aria-label="Library shelf map" sx={{ width: '100%', display: 'block' }}>
-										<rect x="24" y="28" width="230" height="82" rx="18" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="2" />
-										<text x="139" y="63" textAnchor="middle" fontSize="18" fontWeight="800" fill="#64748B">Library books</text>
-										<rect x="76" y="80" width="126" height="24" rx="12" fill="#1B3A6B" />
-										<text x="139" y="98" textAnchor="middle" fontSize="13" fontWeight="800" fill="#ffffff">This Book</text>
-
-										<rect x="466" y="28" width="230" height="82" rx="18" fill="#ffffff" stroke="#E2E8F0" strokeWidth="2" />
-										<text x="581" y="76" textAnchor="middle" fontSize="18" fontWeight="800" fill="#64748B">Commercial books</text>
-
-										<rect x="24" y="142" width="672" height="48" rx="18" fill="#ffffff" stroke="#E2E8F0" strokeWidth="2" />
-										<text x="360" y="173" textAnchor="middle" fontSize="16" fontWeight="800" fill="#8a9aae">Aisle</text>
-
-										<rect x="24" y="222" width="150" height="66" rx="18" fill="#ffffff" stroke="#E2E8F0" strokeWidth="2" />
-										<text x="99" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#64748B">Reception</text>
-
-										<rect x="218" y="222" width="150" height="66" rx="18" fill="#ffffff" stroke="#E2E8F0" strokeWidth="2" />
-										<text x="293" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#64748B">Desk A</text>
-
-										<rect x="412" y="222" width="150" height="66" rx="18" fill="#ffffff" stroke="#E2E8F0" strokeWidth="2" />
-										<text x="487" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#64748B">Desk B</text>
-
-										<rect x="604" y="222" width="92" height="66" rx="18" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="2" />
-										<text x="650" y="261" textAnchor="middle" fontSize="16" fontWeight="800" fill="#64748B">Aisle</text>
-									</SafeBox>
-								</SafeBox>
-							</SafeBox>
-						</Stack>
+					<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 }, mt: 2 }}>
+						<YouMayAlsoLike
+							currentBookId={book?._id ?? ''}
+							category={book?.bookCategory ?? ''}
+						/>
 					</SafeBox>
 
 					<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
