@@ -15,6 +15,26 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-23) — Homepage advanced filter wiring + About hero background update
+
+### Completed
+- Wired homepage `HeaderFilter` advanced filter payload to `/books` using the existing `input` JSON contract (`BooksInquiry`) instead of flat query params.
+- Updated `/books` page query handling in `pages/books/index.tsx`:
+  - primary flow: parse `router.query.input` JSON
+  - fallback flow: map legacy flat params (`format`, `type`, `category`, `audience`, `language`, `borrowable`, `purchasable`, `minRating`, `minPrice`, `maxPrice`, `keyword`) into `BooksInquiry.search`.
+- Updated books sidebar filter behavior in `libs/components/property/BookFilter.tsx`:
+  - keyword enter/clear now push router URL (`/books?input=...`) instead of only mutating local component state
+  - local `searchText` and `localRating` now sync from incoming `searchFilter` so homepage -> books state stays visually consistent.
+- Fixed homepage filter category option mismatch in `HeaderFilter` by replacing invalid category value `NOVEL` with valid `COMICS`.
+- Updated About page hero background source in `libs/components/layout/LayoutBasic.tsx`:
+  - `/about` header background changed from `/img/banner/aboutBanner.svg` to `/img/aboutUs.webp`.
+- Added new static asset file: `public/img/aboutUs.webp`.
+
+### Key rules
+- Keep `/books?input=<BooksInquiry JSON>` as the canonical filter-state URL contract for books filtering.
+- If compatibility is needed, support flat query params only as a read-side fallback in `/books`; write-side navigation should continue to emit `input`.
+- When homepage filter enums are manually curated, ensure option values match `BookCategory` / `BookType` enums exactly to avoid silent backend filter misses.
+
 ## Session Update (2026-05-23) — Book detail hero + image resolver + card badge cleanup
 
 ### Completed

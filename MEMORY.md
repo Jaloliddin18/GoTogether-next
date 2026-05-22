@@ -5,6 +5,33 @@
 
 ---
 
+## Today's Session Update (2026-05-23, homepage advanced filter wiring + about hero image replacement)
+
+### Completed today
+- Wired homepage `libs/components/homepage/HeaderFilter.tsx` advanced filter search action to push `/books` with `query.input` as a serialized `BooksInquiry` object (instead of flat query params).
+- Updated `pages/books/index.tsx` to support both query entry paths:
+  - parse canonical `input` JSON when present
+  - fallback-map legacy flat query keys into `BooksInquiry.search` when `input` is absent.
+- Updated `libs/components/property/BookFilter.tsx`:
+  - keyword enter/clear now route through `/books?input=...` so keyword filter actually applies through the same URL contract
+  - local keyword and rating display now sync from `searchFilter` on external navigation changes.
+- Fixed advanced filter category option mismatch in `HeaderFilter` by replacing invalid category value `NOVEL` with `COMICS`.
+- Replaced About hero header background for `/about` in `libs/components/layout/LayoutBasic.tsx`:
+  - from `/img/banner/aboutBanner.svg`
+  - to `/img/aboutUs.webp`.
+- Added the new hero background asset file at `public/img/aboutUs.webp`.
+
+### Current stopping point
+- Homepage advanced filter and books-page filtering now share a unified URL contract (`/books?input=<BooksInquiry JSON>`) with backward-compatible flat-query parsing on read.
+- About page top hero/header uses the new `aboutUs.webp` image.
+- Working tree includes these updated files plus the new image asset.
+
+### Exact next task
+- Frontend runtime QA pass:
+  - from homepage advanced filter -> `/books` result correctness
+  - refresh/deep-link persistence for filter state
+  - `/about` hero visual check (desktop + mobile crop/alignment).
+
 ## Today's Session Update (2026-05-23, Book cards cleanup + image render fix + hero heading alignment)
 
 ### Completed today

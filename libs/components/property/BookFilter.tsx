@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Stack, Typography, Checkbox, OutlinedInput, IconButton, Tooltip, Slider } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { BookCategory, BookFormat, BookLanguage } from '../../enums/book.enum';
@@ -11,7 +11,6 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 interface BookFilterType {
 	searchFilter: BooksInquiry;
-	setSearchFilter: any;
 	initialInput: BooksInquiry;
 }
 
@@ -43,7 +42,7 @@ const CATEGORY_SHOW_MORE_LIMIT = 6;
 const SHOW_MORE_LIMIT = 3;
 
 const BookFilter = (props: BookFilterType) => {
-	const { searchFilter, setSearchFilter, initialInput } = props;
+	const { searchFilter, initialInput } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const [searchText, setSearchText] = useState<string>((searchFilter?.search as any)?.keyword ?? '');
@@ -77,7 +76,7 @@ const BookFilter = (props: BookFilterType) => {
 				console.log('ERROR, singleSelectHandler:', err);
 			}
 		},
-		[searchFilter],
+		[router, searchFilter],
 	);
 
 	const toggleHandler = useCallback(
@@ -99,7 +98,7 @@ const BookFilter = (props: BookFilterType) => {
 				console.log('ERROR, toggleHandler:', err);
 			}
 		},
-		[searchFilter],
+		[router, searchFilter],
 	);
 
 	const priceHandler = useCallback(
@@ -116,7 +115,7 @@ const BookFilter = (props: BookFilterType) => {
 				console.log('ERROR, priceHandler:', err);
 			}
 		},
-		[searchFilter],
+		[router, searchFilter],
 	);
 
 	const ratingHandler = useCallback(
@@ -138,7 +137,7 @@ const BookFilter = (props: BookFilterType) => {
 				console.log('ERROR, ratingHandler:', err);
 			}
 		},
-		[searchFilter],
+		[router, searchFilter],
 	);
 
 	const refreshHandler = async () => {
@@ -154,6 +153,33 @@ const BookFilter = (props: BookFilterType) => {
 			console.log('ERROR, refreshHandler:', err);
 		}
 	};
+
+	const keywordHandler = useCallback(
+		async (value: string) => {
+			try {
+				const currentSearch: any = searchFilter?.search ?? {};
+				const newSearch = { ...currentSearch };
+				const trimmedKeyword = value.trim();
+
+				if (trimmedKeyword) newSearch.keyword = trimmedKeyword;
+				else delete newSearch.keyword;
+
+				await router.push(
+					`/books?input=${JSON.stringify({ ...searchFilter, page: 1, search: newSearch })}`,
+					`/books?input=${JSON.stringify({ ...searchFilter, page: 1, search: newSearch })}`,
+					{ scroll: false },
+				);
+			} catch (err: any) {
+				console.log('ERROR, keywordHandler:', err);
+			}
+		},
+		[router, searchFilter],
+	);
+
+	useEffect(() => {
+		setSearchText((searchFilter?.search as any)?.keyword ?? '');
+		setLocalRating((searchFilter?.search as any)?.minRating ?? 0);
+	}, [searchFilter]);
 
 	if (device === 'mobile') {
 		return <div>BOOKS FILTER</div>;
@@ -173,20 +199,14 @@ const BookFilter = (props: BookFilterType) => {
 							onChange={(e: any) => setSearchText(e.target.value)}
 							onKeyDown={(e: any) => {
 								if (e.key === 'Enter') {
-									setSearchFilter({
-										...searchFilter,
-										search: { ...(searchFilter?.search ?? {}), keyword: searchText },
-									});
+									keywordHandler(searchText).then();
 								}
 							}}
 							endAdornment={
 								<CancelRoundedIcon
 									onClick={() => {
 										setSearchText('');
-										setSearchFilter({
-											...searchFilter,
-											search: { ...(searchFilter?.search ?? {}), keyword: '' },
-										});
+										keywordHandler('').then();
 									}}
 								/>
 							}
