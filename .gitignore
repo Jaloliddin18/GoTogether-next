@@ -54,3 +54,4 @@ skills-lock.json
 .pnp.loader.mjs
 .yarn/unplugged/
 .yarn/install-state.gz
+.yarn/install-state.gz
