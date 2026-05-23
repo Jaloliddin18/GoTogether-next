@@ -14,11 +14,26 @@ export const getStaticProps = async ({ locale }: any) => ({
 	},
 });
 
+const EyeOpen = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+		<circle cx="12" cy="12" r="3" />
+	</svg>
+);
+
+const EyeOff = () => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+		<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+		<line x1="1" y1="1" x2="23" y2="23" />
+	</svg>
+);
+
 const Join: NextPage = () => {
 	const router = useRouter();
 	const device = useDeviceDetect();
 	const [input, setInput] = useState({ nick: '', password: '', phone: '' });
 	const [loginView, setLoginView] = useState<boolean>(true);
+	const [showPassword, setShowPassword] = useState(false);
 
 	/** HANDLERS **/
 	const viewChangeHandler = (state: boolean) => {
@@ -77,21 +92,20 @@ const Join: NextPage = () => {
 				<Stack className={'container'}>
 					<Stack className={'main'}>
 						<Stack className={'left'}>
-							{/* @ts-ignore */}
-							<Box className={'logo'}>
-								<img src="/img/logo/logoText.svg" alt="" />
-								<span>Nestar</span>
-							</Box>
 							<Box className={'info'}>
-								<span>{loginView ? 'login' : 'signup'}</span>
-								<p>{loginView ? 'Login' : 'Sign'} in with this account across the following sites.</p>
+								<span>{loginView ? 'LOGIN' : 'Sign Up'}</span>
+								<p>
+									{loginView
+										? 'Please fill your detail to access your account.'
+										: 'Fill your information below or register with your social account.'}
+								</p>
 							</Box>
 							<Box className={'input-wrap'}>
 								<div className={'input-box'}>
 									<span>Nickname</span>
 									<input
 										type="text"
-										placeholder={'Enter Nickname'}
+										placeholder={'Enter your nickname'}
 										onChange={(e) => handleInput('nick', e.target.value)}
 										required={true}
 										onKeyDown={(event) => {
@@ -102,23 +116,33 @@ const Join: NextPage = () => {
 								</div>
 								<div className={'input-box'}>
 									<span>Password</span>
-									<input
-										type="password"
-										placeholder={'Enter Password'}
-										onChange={(e) => handleInput('password', e.target.value)}
-										required={true}
-										onKeyDown={(event) => {
-											if (event.key == 'Enter' && loginView) doLogin();
-											if (event.key == 'Enter' && !loginView) doSignUp();
-										}}
-									/>
+									<div className={'password-wrap'}>
+										<input
+											type={showPassword ? 'text' : 'password'}
+											placeholder={'Enter your password'}
+											onChange={(e) => handleInput('password', e.target.value)}
+											required={true}
+											onKeyDown={(event) => {
+												if (event.key == 'Enter' && loginView) doLogin();
+												if (event.key == 'Enter' && !loginView) doSignUp();
+											}}
+										/>
+										<button
+											type="button"
+											className={'eye-toggle'}
+											onClick={() => setShowPassword((v) => !v)}
+											aria-label={showPassword ? 'Hide password' : 'Show password'}
+										>
+											{showPassword ? <EyeOpen /> : <EyeOff />}
+										</button>
+									</div>
 								</div>
 								{!loginView && (
 									<div className={'input-box'}>
-										<span>Phone</span>
+										<span>Phone Number</span>
 										<input
 											type="text"
-											placeholder={'Enter Phone'}
+											placeholder={'Enter your phone number'}
 											onChange={(e) => handleInput('phone', e.target.value)}
 											required={true}
 											onKeyDown={(event) => {
@@ -134,7 +158,7 @@ const Join: NextPage = () => {
 										<FormGroup>
 											<FormControlLabel control={<Checkbox defaultChecked size="small" />} label="Remember me" />
 										</FormGroup>
-										<a>Lost your password?</a>
+										<a>Forgot Password?</a>
 									</div>
 								)}
 
@@ -172,13 +196,15 @@ const Join: NextPage = () => {
 									</p>
 								) : (
 									<p>
-										Have account?
+										Already have an account?
 										<b onClick={() => viewChangeHandler(true)}> LOGIN</b>
 									</p>
 								)}
 							</Box>
 						</Stack>
-						<Stack className={'right'}></Stack>
+						<Stack className={'right'}>
+							<img src="/img/banner/login-page_cover.jpeg" alt="Library" />
+						</Stack>
 					</Stack>
 				</Stack>
 			</Stack>

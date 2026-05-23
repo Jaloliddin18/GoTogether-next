@@ -1,194 +1,248 @@
 #pc-wrap {
   .join-page {
     position: relative;
-    padding: 90px 0px;
+    padding-top: 120px;
+    padding-bottom: 80px;
     width: 100%;
     height: auto;
-   .container {
-     align-items: center;
-     .main {
-       width: 1200px;
-       height: 900px;
-       display: flex;
-       flex-direction: row;
-       border-radius: 12px 0px 0px 12px;
-       background: #FFF;
-       box-shadow: 0px 1px 4px 0px rgba(24, 26, 32, 0.07);
-       .left {
-         width: 50%;
-         height: 100%;
-         display: flex;
-         flex-direction: column;
-         align-items: center;
-         justify-content: center;
-         .logo {
-           display: flex;
-           flex-direction: row;
-           align-items: center;
-           img {
-             width: 40px;
-             height: 40px;
-           }
-           span {
-             margin-left: 10px;
-             font-family: $font ;
-             font-size: 22px;
-             font-style: normal;
-             font-weight: 600;
-             line-height: normal;
-             letter-spacing: 0.44px;
-             color:#181A20;
-           }
-         }
-         .info {
-           margin-top: 30px;
-           display: flex;
-           flex-direction: column;
-           align-items: center;
-           span {
-             font-family: $font;
-             font-size: 20px;
-             font-style: normal;
-             font-weight: 600;
-             line-height: normal;
-             text-transform: uppercase;
-             color:  #181A20;
-           }
-           p {
-             margin-top: 5px;
-             font-family: $font;
-             font-size: 14px;
-             font-style: normal;
-             font-weight: 400;
-             line-height: 26px;
-             color: #181A20;
+    background: #f6f6f6;
+    min-height: 100vh;
+    font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-           }
-         }
-         .input-wrap {
-           margin-top: 45px;
-           width: 470px;
-           display: flex;
-           flex-direction: column;
+    .container {
+      align-items: center;
 
-          .input-box {
-            margin-top: 20px;
+      .main {
+        width: 900px;
+        height: 620px;
+        display: flex;
+        flex-direction: row;
+        border-radius: 32px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.10);
+        overflow: hidden;
+
+        .left {
+          width: 50%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: center;
+          padding: 48px 40px;
+          background: #ffffff;
+          border-radius: 32px 0 0 32px;
+
+          .info {
             display: flex;
             flex-direction: column;
-            &:first-child {
-              margin-top: 0px;
-            }
+            align-items: flex-start;
+            text-align: left;
+            width: 100%;
+
             span {
-              margin-bottom: 8px;
-              font-family: $font;
-              font-size: 14px;
+              font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+              font-size: 28px;
               font-style: normal;
-              font-weight: 600;
+              font-weight: 700;
               line-height: normal;
-              color:  #181A20;
+              color: #1a1a2e;
+              margin-bottom: 4px;
             }
-            input {
-              padding: 0px 15px;
-              width: 100%;
-              height: 55px;
-              border-radius: 8px;
-              border: 1px solid #DDD;
-              background:  #FFF;
-              font-family: $font;
+
+            p {
+              margin-top: 4px;
+              margin-bottom: 28px;
+              font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
               font-size: 14px;
               font-style: normal;
               font-weight: 400;
-              line-height: 26px;
-              color: #64748B;
+              line-height: 22px;
+              color: #64748b;
             }
           }
-         }
-         .register {
-           margin-top: 45px;
-           width: 470px;
-           display: flex;
-           flex-direction: column;
-           align-items: center;
-           .type-option {
-             display: flex;
-             flex-direction: row;
-             align-items: center;
-             span.text {
-               font-family: $font;
-               font-size: 14px;
-               font-style: normal;
-               font-weight: 600;
-               line-height: normal;
-               color:  #181A20;
-             }
-             div {
-               margin-left: 20px;
-               display: flex;
-               flex-direction: row;
-               &:nth-child(1){
-                 margin-right: 25px;
-               }
-             }
-           }
-           .remember-info {
-             width: 100%;
-             display: flex;
-             flex-direction: row;
-             justify-content: space-between;
-             align-items: center;
-             a {
-               font-family: $font;
-               font-size: 14px;
-               font-style: normal;
-               font-weight: 400;
-               line-height: 26px;
-               cursor: pointer;
-               color:  #181A20;
-             }
-           }
-           button {
-             margin-top: 25px;
-             width: 100%;
-             height: 55px;
-             border-radius: 12px;
-             background:  #EB6753;
-             font-family: $font;
-             font-size: 15px;
-             font-style: normal;
-             font-weight: 600;
-             line-height: normal;
-             color:  #FFF;
-             img {
-               filter: brightness(0) invert(1);
-             }
-           }
-         }
-         .ask-info {
-           margin-top: 90px;
-           p {
-             font-family: $font;
-             font-size: 20px;
-             font-style: normal;
-             line-height: normal;
-             font-weight: 400;
-             color:  #181A20;
-             b {
-               margin-left: 10px;
-               font-weight: 600;
-               font-size: 32px;
-               cursor: pointer;
-               text-decoration: underline;
-             }
-           }
-         }
-       }
-       .right {
-         width: 50%;
-         height: 100%;
-         background-image: url("/img/banner/joinBg.svg");
-         background-size: cover;
-       }
-     }
-   }
+
+          .input-wrap {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+
+            .input-box {
+              margin-top: 16px;
+              display: flex;
+              flex-direction: column;
+
+              &:first-child {
+                margin-top: 0;
+              }
+
+              span {
+                margin-bottom: 7px;
+                font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: normal;
+                color: #1a1a2e;
+              }
+
+              .password-wrap {
+                position: relative;
+                display: flex;
+                align-items: center;
+
+                input {
+                  padding-right: 48px !important;
+                }
+
+                .eye-toggle {
+                  position: absolute;
+                  right: 14px;
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  color: #64748b;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  padding: 0;
+                  line-height: 0;
+
+                  &:hover {
+                    color: #1b3a6b;
+                  }
+                }
+              }
+
+              input {
+                padding: 12px 16px;
+                width: 100%;
+                height: 48px;
+                border-radius: 10px;
+                border: 1px solid #e2e8f0;
+                background: #fff;
+                font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+                color: #1a1a2e;
+                outline: none;
+                transition: border-color 0.2s;
+
+                &:focus {
+                  border-color: #1b3a6b;
+                }
+
+                &::placeholder {
+                  color: #94a3b8;
+                }
+              }
+            }
+          }
+
+          .register {
+            margin-top: 20px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .remember-info {
+              width: 100%;
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 4px;
+
+              a {
+                font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                font-size: 13px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: 26px;
+                cursor: pointer;
+                color: #64748b;
+
+                &:hover {
+                  color: #1b3a6b;
+                }
+              }
+            }
+
+            button {
+              margin-top: 16px;
+              width: 100%;
+              height: 50px;
+              border-radius: 10px;
+              background: #2e86de;
+              font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+              font-size: 15px;
+              font-style: normal;
+              font-weight: 600;
+              line-height: normal;
+              color: #fff;
+              transition: background 0.2s;
+
+              &:hover {
+                background: #1b3a6b;
+              }
+
+              img {
+                filter: brightness(0) invert(1);
+              }
+            }
+          }
+
+          .ask-info {
+            margin-top: 28px;
+
+            p {
+              font-family: 'Sofia Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+              font-size: 14px;
+              font-style: normal;
+              line-height: normal;
+              font-weight: 400;
+              color: #64748b;
+
+              b {
+                margin-left: 6px;
+                font-weight: 700;
+                font-size: 14px;
+                cursor: pointer;
+                color: #1b3a6b;
+                text-decoration: none;
+
+                &:hover {
+                  text-decoration: underline;
+                }
+              }
+            }
+          }
+        }
+
+        .right {
+          width: 50%;
+          height: 100%;
+          position: relative;
+          overflow: hidden;
+          border-radius: 0 32px 32px 0;
+
+          img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            border-radius: 0 32px 32px 0;
+          }
+        }
+      }
+    }
   }
 }
