@@ -26,6 +26,9 @@ interface BookFormState {
 	bookLanguage: BookLanguage | '';
 	bookPublishedYear: number | '';
 	bookPages: number | '';
+	bookWidthCm: number | '';
+	bookHeightCm: number | '';
+	bookWeightGrams: number | '';
 	bookDescription: string;
 	priceAmount: number | '';
 	priceCurrency: Currency;
@@ -49,6 +52,9 @@ const EMPTY_STATE: BookFormState = {
 	bookLanguage: '',
 	bookPublishedYear: '',
 	bookPages: '',
+	bookWidthCm: '',
+	bookHeightCm: '',
+	bookWeightGrams: '',
 	bookDescription: '',
 	priceAmount: '',
 	priceCurrency: 'KRW',
@@ -121,6 +127,9 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 			bookLanguage: book.bookLanguage ?? '',
 			bookPublishedYear: book.bookPublishedYear ?? '',
 			bookPages: book.bookPages ?? '',
+			bookWidthCm: book.bookDimensions?.widthCm ?? '',
+			bookHeightCm: book.bookDimensions?.heightCm ?? '',
+			bookWeightGrams: book.bookDimensions?.weightGrams ?? '',
 			bookDescription: book.bookDescription ?? '',
 			priceAmount: book.bookPrice?.amount ?? '',
 			priceCurrency: (book.bookPrice?.currency as Currency) ?? 'KRW',
@@ -168,6 +177,18 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 
 		if (form.bookPages !== '' && (!Number.isFinite(form.bookPages) || form.bookPages < 0)) {
 			return 'Pages must be 0 or greater.';
+		}
+
+		if (form.bookWidthCm !== '' && (!Number.isFinite(form.bookWidthCm) || form.bookWidthCm < 0)) {
+			return 'Width (cm) must be 0 or greater.';
+		}
+
+		if (form.bookHeightCm !== '' && (!Number.isFinite(form.bookHeightCm) || form.bookHeightCm < 0)) {
+			return 'Height (cm) must be 0 or greater.';
+		}
+
+		if (form.bookWeightGrams !== '' && (!Number.isFinite(form.bookWeightGrams) || form.bookWeightGrams < 0)) {
+			return 'Weight (g) must be 0 or greater.';
 		}
 
 		if (form.priceAmount === '' || !Number.isFinite(form.priceAmount)) {
@@ -287,31 +308,42 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 		setForm((prev) => ({ ...prev, bookImages: prev.bookImages.filter((_, i) => i !== idx) }));
 	};
 
-	const buildPayload = () => ({
-		bookTitle: form.bookTitle.trim(),
-		bookAuthor: form.bookAuthor.trim(),
-		bookIsbn: form.bookIsbn.trim(),
-		bookCallNumber: form.bookCallNumber.trim() || undefined,
-		bookImages: sanitizeImagePaths(form.bookImages).slice(0, MAX_BOOK_IMAGES),
-		bookType: form.bookType as BookType,
-		bookCategory: form.bookCategory as BookCategory,
-		bookAudience: form.bookAudience as BookAudience,
-		bookFormat: form.bookFormat as BookFormat,
-		bookLanguage: form.bookLanguage as BookLanguage,
-		bookPublishedYear: form.bookPublishedYear === '' ? undefined : Number(form.bookPublishedYear),
-		bookPages: form.bookPages === '' ? undefined : Number(form.bookPages),
-		bookDescription: form.bookDescription.trim() || undefined,
-		bookPrice: {
-			amount: Number(form.priceAmount),
-			currency: form.priceCurrency,
-			isDiscounted: form.priceIsDiscounted,
-			discountPercent:
-				form.priceIsDiscounted && form.priceDiscountPercent !== '' ? Number(form.priceDiscountPercent) : undefined,
-		},
-		isBorrowable: form.isBorrowable,
-		isPurchasable: form.isPurchasable,
-		bookStatus: form.bookStatus,
-	});
+	const buildPayload = () => {
+		const hasDimensions = form.bookWidthCm !== '' || form.bookHeightCm !== '' || form.bookWeightGrams !== '';
+
+		return {
+			bookTitle: form.bookTitle.trim(),
+			bookAuthor: form.bookAuthor.trim(),
+			bookIsbn: form.bookIsbn.trim(),
+			bookCallNumber: form.bookCallNumber.trim() || undefined,
+			bookImages: sanitizeImagePaths(form.bookImages).slice(0, MAX_BOOK_IMAGES),
+			bookType: form.bookType as BookType,
+			bookCategory: form.bookCategory as BookCategory,
+			bookAudience: form.bookAudience as BookAudience,
+			bookFormat: form.bookFormat as BookFormat,
+			bookLanguage: form.bookLanguage as BookLanguage,
+			bookPublishedYear: form.bookPublishedYear === '' ? undefined : Number(form.bookPublishedYear),
+			bookPages: form.bookPages === '' ? undefined : Number(form.bookPages),
+			bookDimensions: hasDimensions
+				? {
+						widthCm: form.bookWidthCm === '' ? undefined : Number(form.bookWidthCm),
+						heightCm: form.bookHeightCm === '' ? undefined : Number(form.bookHeightCm),
+						weightGrams: form.bookWeightGrams === '' ? undefined : Number(form.bookWeightGrams),
+					}
+				: undefined,
+			bookDescription: form.bookDescription.trim() || undefined,
+			bookPrice: {
+				amount: Number(form.priceAmount),
+				currency: form.priceCurrency,
+				isDiscounted: form.priceIsDiscounted,
+				discountPercent:
+					form.priceIsDiscounted && form.priceDiscountPercent !== '' ? Number(form.priceDiscountPercent) : undefined,
+			},
+			isBorrowable: form.isBorrowable,
+			isPurchasable: form.isPurchasable,
+			bookStatus: form.bookStatus,
+		};
+	};
 
 	const submitHandler = async () => {
 		if (submitting) return;
@@ -347,7 +379,7 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 
 	return (
 		<div className="admin-form-shell">
-			<div className="admin-page-header" style={{ padding: 0, marginBottom: 0 }}>
+			<div className="admin-page-header" style={{ padding: 0, marginTop: 12, marginBottom: 0 }}>
 				<div>
 					<h1 className="admin-page-title">{mode === 'edit' ? 'Edit Book' : 'Add Book'}</h1>
 					<div className="admin-page-sub">
@@ -497,6 +529,35 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 							className="admin-input"
 							value={form.bookPages}
 							onChange={(e) => setField('bookPages', e.target.value === '' ? '' : Number(e.target.value))}
+						/>
+					</div>
+				</div>
+				<div className="admin-field-grid" style={{ marginTop: 16 }}>
+					<div className="admin-field">
+						<label className="admin-field-label">Width (cm)</label>
+						<input
+							type="number"
+							className="admin-input"
+							value={form.bookWidthCm}
+							onChange={(e) => setField('bookWidthCm', e.target.value === '' ? '' : Number(e.target.value))}
+						/>
+					</div>
+					<div className="admin-field">
+						<label className="admin-field-label">Height (cm)</label>
+						<input
+							type="number"
+							className="admin-input"
+							value={form.bookHeightCm}
+							onChange={(e) => setField('bookHeightCm', e.target.value === '' ? '' : Number(e.target.value))}
+						/>
+					</div>
+					<div className="admin-field">
+						<label className="admin-field-label">Weight (g)</label>
+						<input
+							type="number"
+							className="admin-input"
+							value={form.bookWeightGrams}
+							onChange={(e) => setField('bookWeightGrams', e.target.value === '' ? '' : Number(e.target.value))}
 						/>
 					</div>
 				</div>
