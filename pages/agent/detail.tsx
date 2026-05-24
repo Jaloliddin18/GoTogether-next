@@ -59,25 +59,6 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 		fetchPolicy: 'network-only',
 		variables: { input: agentId },
 		skip: !agentId,
-		onCompleted: (data: T) => {
-			setAgent(data?.getMember);
-			setSearchFilter({
-				...searchFilter,
-				search: {
-					memberId: data?.getMember?._id,
-				},
-			});
-			setCommentInquiry({
-				...commentInquiry,
-				search: {
-					commentRefId: data?.getMember?._id,
-				},
-			});
-			setInsertCommentData({
-				...insertCommentData,
-				commentRefId: data?.getMember?._id,
-			});
-		},
 	});
 
 	const {
@@ -90,10 +71,6 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 		variables: { input: searchFilter },
 		skip: !searchFilter.search.memberId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setAgentProperties(data?.getProperties?.list ?? []);
-			setPropertyTotal(data?.getProperties?.metaCounter[0]?.total ?? 0);
-		},
 	});
 
 	const {
@@ -106,12 +83,37 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 		variables: { input: commentInquiry },
 		skip: !commentInquiry.search.commentRefId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setAgentComments(data?.getComments?.list ?? []);
-			setCommentTotal(data?.getComments?.metaCounter[0]?.total ?? 0);
-		},
 	});
 	/** LIFECYCLES **/
+	useEffect(() => {
+		const member = getMemberData?.getMember;
+		if (!member?._id) return;
+
+		setAgent(member);
+		setSearchFilter((prev) => {
+			if (prev.search.memberId === member._id) return prev;
+			return { ...prev, search: { ...prev.search, memberId: member._id } };
+		});
+		setCommentInquiry((prev) => {
+			if (prev.search.commentRefId === member._id) return prev;
+			return { ...prev, search: { ...prev.search, commentRefId: member._id } };
+		});
+		setInsertCommentData((prev) => {
+			if (prev.commentRefId === member._id) return prev;
+			return { ...prev, commentRefId: member._id };
+		});
+	}, [getMemberData]);
+
+	useEffect(() => {
+		setAgentProperties(getPropertiesData?.getProperties?.list ?? []);
+		setPropertyTotal(getPropertiesData?.getProperties?.metaCounter[0]?.total ?? 0);
+	}, [getPropertiesData]);
+
+	useEffect(() => {
+		setAgentComments(getCommentsData?.getComments?.list ?? []);
+		setCommentTotal(getCommentsData?.getComments?.metaCounter[0]?.total ?? 0);
+	}, [getCommentsData]);
+
 	useEffect(() => {
 		if (router.query.agentId) setAgentId(router.query.agentId as string);
 	}, [router]);

@@ -10,7 +10,6 @@ import { BooksInquiry } from '../../types/book/book.input';
 import NewArrivalCard from './NewArrivalCard';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { GET_BOOKS } from '../../../apollo/user/query';
-import { T } from '../../types/common';
 import { LIKE_BOOK } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
 import { Message } from '../../../libs/enums/common.enum';
@@ -30,14 +29,15 @@ const NewArrivals = (props: NewArrivalsProps) => {
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
-	const { refetch } = useQuery(GET_BOOKS, {
+	const { data: getBooksData, refetch } = useQuery(GET_BOOKS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setNewArrivals(data?.getBooks?.list ?? []);
-		},
 	});
+
+	useEffect(() => {
+		setNewArrivals(getBooksData?.getBooks?.list ?? []);
+	}, [getBooksData]);
 
 	useEffect(() => {
 		if (likeSyncTick <= 0) return;

@@ -41,15 +41,12 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	/** APOLLO REQUESTS **/
 	const [likeTargetBook] = useMutation(LIKE_TARGET_BOOK);
 	const {
+		data: getBooksData,
 		refetch: getBooksRefetch,
 	} = useQuery(GET_BOOKS, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setBooks(data?.getBooks?.list ?? []);
-			setTotal(data?.getBooks?.metaCounter?.[0]?.total ?? 0);
-		},
 	});
 
 	const getSingleQueryValue = (value: string | string[] | undefined): string => {
@@ -98,6 +95,11 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	/** LIFECYCLES **/
+	useEffect(() => {
+		setBooks(getBooksData?.getBooks?.list ?? []);
+		setTotal(getBooksData?.getBooks?.metaCounter?.[0]?.total ?? 0);
+	}, [getBooksData]);
+
 	useEffect(() => {
 		if (!router.isReady) return;
 

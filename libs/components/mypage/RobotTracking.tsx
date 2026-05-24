@@ -1169,16 +1169,17 @@ const RobotTracking: NextPage = () => {
 	const stableRotationDegRef = useRef<number>(ROBOT_ICON_HEADING_OFFSET_DEG);
 	const terminalRefetchKeyRef = useRef<string>('');
 
-	const { refetch: refetchSessionRequests } = useQuery(GET_SESSION_REQUESTS, {
+	const { data: sessionRequestsData, refetch: refetchSessionRequests } = useQuery(GET_SESSION_REQUESTS, {
 		fetchPolicy: 'network-only',
 		pollInterval: 2500,
 		variables: { input: { page: 1, limit: 20 } },
 		skip: !user._id,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setRequests(data?.getSessionRequests?.list ?? []);
-		},
 	});
+
+	useEffect(() => {
+		setRequests(sessionRequestsData?.getSessionRequests?.list ?? []);
+	}, [sessionRequestsData]);
 
 	// Track the latest request first; do not fall back to older READY requests.
 	const latestRequest = useMemo(() => {

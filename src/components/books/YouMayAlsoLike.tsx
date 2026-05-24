@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useQuery, useMutation, useReactiveVar } from '@apollo/client';
@@ -16,7 +16,6 @@ import { GET_BOOKS } from '../../../apollo/library/query';
 import { LIKE_BOOK } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
 import { Book } from '../../../libs/types/book/book';
-import { T } from '../../../libs/types/common';
 import { Direction, Message } from '../../../libs/enums/common.enum';
 import { resolveMediaUrl } from '../../../libs/utils';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../../libs/sweetAlert';
@@ -394,7 +393,7 @@ const YouMayAlsoLike = ({ currentBookId, category }: YouMayAlsoLikeProps) => {
 	const [likeBook] = useMutation(LIKE_BOOK);
 	const user = useReactiveVar(userVar);
 
-	const { loading } = useQuery(GET_BOOKS, {
+	const { loading, data } = useQuery(GET_BOOKS, {
 		fetchPolicy: 'cache-and-network',
 		variables: {
 			input: {
@@ -407,11 +406,12 @@ const YouMayAlsoLike = ({ currentBookId, category }: YouMayAlsoLikeProps) => {
 		},
 		skip: !category,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			const list = (data?.getBooks?.list as Book[]) ?? [];
-			setBooks(list.filter((b) => b._id !== currentBookId));
-		},
 	});
+
+	useEffect(() => {
+		const list = (data?.getBooks?.list as Book[]) ?? [];
+		setBooks(list.filter((b) => b._id !== currentBookId));
+	}, [data, currentBookId]);
 
 	const likeHandler = async (e: React.MouseEvent, bookId: string) => {
 		e.stopPropagation();

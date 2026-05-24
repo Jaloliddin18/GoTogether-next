@@ -259,27 +259,31 @@ const BookDetailPage: NextPage = () => {
 	const [createComment] = useMutation(CREATE_COMMENT);
 	const [createDeliveryRequest, { loading: createRequestLoading }] = useMutation(CREATE_DELIVERY_REQUEST);
 
-	const { loading: getBookLoading, refetch: getBookRefetch } = useQuery(GET_BOOK, {
+	const { loading: getBookLoading, data: getBookData, refetch: getBookRefetch } = useQuery(GET_BOOK, {
 		fetchPolicy: 'network-only',
 		variables: { input: bookId },
 		skip: !bookId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			if (data?.getBook) setBook(data.getBook);
-			setSlideImage(data?.getBook?.bookImages?.[0] ?? '');
-		},
 	});
 
-	const { refetch: getCommentsRefetch } = useQuery(GET_COMMENTS, {
+	const { data: getCommentsData, refetch: getCommentsRefetch } = useQuery(GET_COMMENTS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: commentInquiry },
 		skip: !commentInquiry.search.commentRefId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			if (data?.getComments?.list) setBookComments(data.getComments.list);
-			setCommentTotal(data?.getComments?.metaCounter?.[0]?.total ?? 0);
-		},
 	});
+
+	useEffect(() => {
+		if (!getBookData) return;
+		if (getBookData?.getBook) setBook(getBookData.getBook);
+		setSlideImage(getBookData?.getBook?.bookImages?.[0] ?? '');
+	}, [getBookData]);
+
+	useEffect(() => {
+		if (!getCommentsData) return;
+		if (getCommentsData?.getComments?.list) setBookComments(getCommentsData.getComments.list);
+		setCommentTotal(getCommentsData?.getComments?.metaCounter?.[0]?.total ?? 0);
+	}, [getCommentsData]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {

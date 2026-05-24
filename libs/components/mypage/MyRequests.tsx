@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Pagination, Stack, Typography } from '@mui/material';
@@ -83,16 +83,17 @@ const MyRequests: NextPage = () => {
 	const [activeTab, setActiveTab] = useState<TabFilter>('ALL');
 
 	/** APOLLO **/
-	useQuery(GET_SESSION_REQUESTS, {
+	const { data: sessionRequestsData } = useQuery(GET_SESSION_REQUESTS, {
 		fetchPolicy: 'network-only',
 		variables: { input: { page, limit: PAGE_LIMIT } },
 		skip: !user._id,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setRequests(data?.getSessionRequests?.list ?? []);
-			setTotal(data?.getSessionRequests?.metaCounter[0]?.total ?? 0);
-		},
 	});
+
+	useEffect(() => {
+		setRequests(sessionRequestsData?.getSessionRequests?.list ?? []);
+		setTotal(sessionRequestsData?.getSessionRequests?.metaCounter[0]?.total ?? 0);
+	}, [sessionRequestsData]);
 
 	const filtered = requests.filter((r) => {
 		if (activeTab === 'ACTIVE')  return ACTIVE_STATUSES.includes(r.status);

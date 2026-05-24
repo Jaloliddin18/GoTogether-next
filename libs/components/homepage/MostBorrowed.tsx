@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { BooksInquiry } from '../../types/book/book.input';
 import { GET_BOOKS } from '../../../apollo/user/query';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
-import { T } from '../../types/common';
 import { LIKE_BOOK } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
 import { Message } from '../../../libs/enums/common.enum';
@@ -31,14 +30,15 @@ const MostBorrowed = (props: MostBorrowedProps) => {
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
-	const { refetch } = useQuery(GET_BOOKS, {
+	const { data: getBooksData, refetch } = useQuery(GET_BOOKS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setPopularBooks(data?.getBooks?.list ?? []);
-		},
 	});
+
+	useEffect(() => {
+		setPopularBooks(getBooksData?.getBooks?.list ?? []);
+	}, [getBooksData]);
 
 	useEffect(() => {
 		if (likeSyncTick <= 0) return;

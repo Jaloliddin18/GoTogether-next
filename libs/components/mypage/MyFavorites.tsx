@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
@@ -36,16 +36,17 @@ const MyFavorites: NextPage = () => {
 
 	const [likeTargetBook] = useMutation(LIKE_TARGET_BOOK);
 
-	const { refetch: refetchFavorites } = useQuery(GET_FAVORITE_BOOKS, {
+	const { data: favoriteBooksData, refetch: refetchFavorites } = useQuery(GET_FAVORITE_BOOKS, {
 		fetchPolicy: 'network-only',
 		variables: { input: { page, limit: PAGE_LIMIT } },
 		skip: !user._id,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setBooks(data?.getFavoriteBooks?.list ?? []);
-			setTotal(data?.getFavoriteBooks?.metaCounter[0]?.total ?? 0);
-		},
 	});
+
+	useEffect(() => {
+		setBooks(favoriteBooksData?.getFavoriteBooks?.list ?? []);
+		setTotal(favoriteBooksData?.getFavoriteBooks?.metaCounter[0]?.total ?? 0);
+	}, [favoriteBooksData]);
 
 	const paginationHandler = (_: T, value: number) => {
 		setPage(value);
