@@ -5,6 +5,27 @@
 
 ---
 
+## Today's Session Update (2026-05-24, admin members/cs page design alignment)
+
+### Completed today
+- Redesigned `/_admin/users` (`pages/_admin/users/index.tsx`) to match the rebuilt admin panel design system used by dashboard/books/community/inventory/requests/robots:
+  - uses `admin-page`, `admin-filters`, `admin-table`, `admin-pagination` structure
+  - preserves real data wiring: `GET_ALL_MEMBERS_BY_ADMIN`
+  - preserves admin actions: `UPDATE_MEMBER_BY_ADMIN` with inline member type/status updates.
+- Redesigned CS admin pages to the same visual system:
+  - `pages/_admin/cs/notice.tsx`
+  - `pages/_admin/cs/faq.tsx`
+  - `pages/_admin/cs/inquiry.tsx`
+- Removed legacy tab/list/table placeholder scaffolding on those CS pages and replaced with consistent table-card style and filter bars matching the other admin pages.
+- Reused existing shared badge classes to keep status/type pill visuals consistent with the current admin theme.
+
+### Current stopping point
+- Members page is visually unified and still fully backend-driven for list/update behavior.
+- CS pages are now design-aligned with the modern admin panel but remain mock-data placeholders (no backend CS wiring yet).
+
+### Exact next task
+- Wire CS admin pages (`notice`, `faq`, `inquiry`) to backend GraphQL queries/mutations and replace local/mock rows with real data/actions.
+
 ## Today's Session Update (2026-05-24, admin panels wiring + community admin moderation)
 
 ### Completed today

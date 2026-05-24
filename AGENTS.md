@@ -15,6 +15,27 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-24) — Admin Members + CS pages layout alignment
+
+### Completed
+- Redesigned `/_admin/users` in `pages/_admin/users/index.tsx` to use the same rebuilt admin layout primitives as other completed pages:
+  - `admin-page`, `admin-page-header`, `admin-filters`, `admin-table-wrap`, `admin-table`, `admin-pagination`
+  - kept real backend wiring with existing GraphQL operations:
+    - query: `GET_ALL_MEMBERS_BY_ADMIN`
+    - mutation: `UPDATE_MEMBER_BY_ADMIN`
+  - added inline member type/status update controls in-table using the new shared table/action visual style.
+- Redesigned CS admin pages to match the same unified admin visual system:
+  - `pages/_admin/cs/notice.tsx`
+  - `pages/_admin/cs/faq.tsx`
+  - `pages/_admin/cs/inquiry.tsx`
+- Removed legacy MUI tab/list/table scaffolding from those pages and replaced with the modern admin layout used by dashboard/books/community/inventory/requests/robots.
+- Applied existing shared badge styles (`badge-*`) across status/visibility labels so Members and CS pages match current admin UI language.
+
+### Key rules
+- Keep `/_admin/users` on real backend data + mutation flow; this page is not placeholder-only.
+- CS pages currently use layout-aligned local/mock rows for design parity until CS backend queries/mutations are explicitly wired.
+- For admin UI consistency work, prefer the shared admin class system (`admin-*`) over older per-page tab-menu scaffolding.
+
 ## Session Update (2026-05-24) — Admin panel real-data wiring + community admin moderation
 
 ### Completed
