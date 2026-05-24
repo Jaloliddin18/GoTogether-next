@@ -5,6 +5,33 @@
 
 ---
 
+## Today's Session Update (2026-05-24, book cover full-image rendering)
+
+### Completed today
+- Fixed book-cover cropping by switching cover media fit from `cover` to `contain` in requested frontend surfaces:
+  - `libs/components/homepage/NewArrivalCard.tsx`
+  - `libs/components/homepage/FeaturedBookCard.tsx`
+  - `libs/components/homepage/MostBorrowedCard.tsx`
+  - `libs/components/book/BookCard.tsx`
+  - `src/components/books/YouMayAlsoLike.tsx`
+  - `pages/books/detail.tsx` (main cover + thumbnails)
+- Added light neutral image-stage backgrounds/padding in those book-cover wrappers so full covers render cleanly without crop.
+- Preserved non-book hero/banner behavior (book-detail top banner remains unchanged).
+- Updated New Arrivals and Featured cards to resolve cover URLs via `resolveMediaUrl(...)` for consistent external/relative cover handling.
+
+### Verification
+- Ran `npm run build` (explicitly requested during the task).
+- Build failed due an unrelated pre-existing type error:
+  - `libs/components/member/MemberArticles.tsx:105`
+  - `currentUserId` prop passed to `TwitCard`, but `TwitCardProps` does not define that prop.
+
+### Current stopping point
+- Book cards and book detail cover areas now show full cover images without cutting off artwork/text.
+- Working tree includes this cover-rendering fix plus memory/agent documentation update.
+
+### Exact next task
+- If requested, fix the unrelated `TwitCardProps` type mismatch so `npm run build` can complete successfully.
+
 ## Today's Session Update (2026-05-24, admin members/cs page design alignment)
 
 ### Completed today

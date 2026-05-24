@@ -15,6 +15,29 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-24) — Book cover full-image rendering
+
+### Completed
+- Fixed cropped book-cover rendering in core book surfaces by switching cover image fit from `cover` to `contain` and keeping image layout clean with a light neutral stage:
+  - `libs/components/homepage/NewArrivalCard.tsx`
+  - `libs/components/homepage/FeaturedBookCard.tsx`
+  - `libs/components/homepage/MostBorrowedCard.tsx`
+  - `libs/components/book/BookCard.tsx`
+  - `src/components/books/YouMayAlsoLike.tsx`
+  - `pages/books/detail.tsx` (main cover + thumbnails)
+- Kept hero/banner behavior unchanged (book-detail top banner remains `objectFit: cover`).
+- Normalized homepage card cover URL handling in New Arrivals and Featured cards to use `resolveMediaUrl(...)` so external URLs and backend-relative paths resolve consistently.
+
+### Verification
+- Ran `npm run build` because it was explicitly requested.
+- Build failed on an existing unrelated type issue:
+  - `libs/components/member/MemberArticles.tsx`
+  - `TwitCard` prop mismatch: `currentUserId` is passed but missing from `TwitCardProps`.
+
+### Key rules
+- For book covers, prefer `object-fit: contain` and a neutral image background to preserve full cover artwork.
+- Do not change global hero/background image behavior when the request is specifically about book-cover rendering.
+
 ## Session Update (2026-05-24) — Admin Members + CS pages layout alignment
 
 ### Completed

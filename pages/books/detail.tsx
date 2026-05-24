@@ -610,7 +610,7 @@ const BookDetailPage: NextPage = () => {
 									sx={{
 										borderRadius: '20px',
 										overflow: 'hidden',
-										background: '#ffffff',
+										background: '#f5f7fa',
 										border: `1px solid ${libraryColors.border}`,
 										height: { xs: 360, sm: 520, lg: 600 },
 										display: 'grid',
@@ -622,7 +622,7 @@ const BookDetailPage: NextPage = () => {
 										component="img"
 										src={resolveMediaUrl(currentImage, '/img/banner/books_hero.png')}
 										alt={book?.bookTitle ?? 'Book cover'}
-										sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: '14px' }}
+										sx={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', display: 'block', borderRadius: '14px' }}
 									/>
 								</SafeBox>
 								<Stack
@@ -644,7 +644,7 @@ const BookDetailPage: NextPage = () => {
 													p: '4px',
 													borderRadius: '12px',
 													border: isActive ? `2px solid ${libraryColors.navy}` : `1px solid ${libraryColors.border}`,
-													background: '#fff',
+													background: '#f5f7fa',
 													cursor: 'pointer',
 													flex: '0 0 auto',
 													'&:hover': { borderColor: libraryColors.navy },
@@ -654,7 +654,15 @@ const BookDetailPage: NextPage = () => {
 													component="img"
 													src={resolveMediaUrl(img, '/img/banner/books_hero.png')}
 													alt="Book thumbnail"
-													sx={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', display: 'block' }}
+													sx={{
+														width: '100%',
+														height: '100%',
+														objectFit: 'contain',
+														objectPosition: 'center',
+														borderRadius: '8px',
+														display: 'block',
+														background: '#f5f7fa',
+													}}
 												/>
 											</SafeBox>
 										);

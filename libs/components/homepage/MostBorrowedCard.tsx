@@ -34,14 +34,19 @@ const imageWrapSx: any = {
 	height: '240px',
 	position: 'relative',
 	overflow: 'hidden',
-	background: 'linear-gradient(135deg, #0d1b2e 0%, #1a3a6e 100%)',
+	background: '#f5f7fa',
+	display: 'grid',
+	placeItems: 'center',
+	padding: '14px',
 };
 
 const imageSx: any = {
 	width: '100%',
 	height: '100%',
-	objectFit: 'cover',
+	objectFit: 'contain',
+	objectPosition: 'center',
 	display: 'block',
+	borderRadius: '10px',
 };
 
 const badgeBaseSx: any = {

@@ -84,7 +84,10 @@ const YouMayAlsoLikeCard = ({ book, likeHandler }: CardProps) => {
 					height: '240px',
 					position: 'relative',
 					overflow: 'hidden',
-					background: 'linear-gradient(135deg, #0d1b2e 0%, #1a3a6e 100%)',
+					background: '#f5f7fa',
+					display: 'grid',
+					placeItems: 'center',
+					padding: '14px',
 				}}
 			>
 				{imageUrl && !imageFailed ? (
@@ -93,7 +96,14 @@ const YouMayAlsoLikeCard = ({ book, likeHandler }: CardProps) => {
 						src={imageUrl}
 						alt={book.bookTitle || 'Book cover'}
 						onError={() => setImageFailed(true)}
-						sx={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+						sx={{
+							width: '100%',
+							height: '100%',
+							objectFit: 'contain',
+							objectPosition: 'center',
+							display: 'block',
+							borderRadius: '10px',
+						}}
 					/>
 				) : (
 					<MuiBox

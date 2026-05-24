@@ -8,7 +8,6 @@ import LanguageIcon from '@mui/icons-material/Language';
 import StarIcon from '@mui/icons-material/Star';
 import { useRouter } from 'next/router';
 import { resolveMediaUrl } from '../../utils';
-import { REACT_APP_API_URL } from '../../config';
 
 const MuiBox: any = Box;
 const MuiTypography: any = Typography;
@@ -39,14 +38,19 @@ const imageWrapSx: any = {
 	height: '240px',
 	position: 'relative',
 	overflow: 'hidden',
-	background: 'linear-gradient(135deg, #0d1b2e 0%, #1a3a6e 100%)',
+	background: '#f5f7fa',
+	display: 'grid',
+	placeItems: 'center',
+	padding: '14px',
 };
 
 const imageSx: any = {
 	width: '100%',
 	height: '100%',
-	objectFit: 'cover',
+	objectFit: 'contain',
+	objectPosition: 'center',
 	display: 'block',
+	borderRadius: '10px',
 };
 
 const titleSx: any = {
@@ -96,7 +100,7 @@ const FeaturedBookCard = (props: FeaturedBookCardProps) => {
 		await router.push(`/books/detail?id=${bookId}`);
 	};
 
-	const imageUrl = book?.bookImages?.[0] ? `${REACT_APP_API_URL}/${book.bookImages[0]}` : '';
+	const imageUrl = resolveMediaUrl(book?.bookImages?.[0], '');
 	const availabilityLabel = book.isPurchasable ? 'Purchasable' : book.isBorrowable ? 'Borrowable' : '';
 	const availabilityColor = book.isPurchasable ? '#059669' : '#1a6fd4';
 
