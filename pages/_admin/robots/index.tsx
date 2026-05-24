@@ -9,9 +9,14 @@ import { RobotStatus } from '../../../libs/enums/robot.enum';
 import { Robot } from '../../../libs/types/robot/robot';
 import { CreateRobotInput, RobotsInquiry } from '../../../libs/types/robot/robot.input';
 import { UpdateRobotInput } from '../../../libs/types/robot/robot.update';
-import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
+import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
 
 const PAGE_LIMIT = 10;
+const ROBOT_ID_MIN_LENGTH = 2;
+const ROBOT_ID_MAX_LENGTH = 40;
+const ROBOT_NAME_MIN_LENGTH = 2;
+const ROBOT_NAME_MAX_LENGTH = 120;
+const MONGO_OBJECT_ID_REGEX = /^[a-fA-F0-9]{24}$/;
 
 type StatusFilter = 'ALL' | RobotStatus;
 type OnlineFilter = 'ALL' | 'ONLINE' | 'OFFLINE';
@@ -118,8 +123,25 @@ const AdminRobots: NextPage = () => {
 		try {
 			const robotId = createRobotId.trim();
 			const name = createRobotName.trim();
-			if (!robotId || !name) {
-				throw new Error('Robot ID and name are required.');
+			if (!robotId) {
+				await sweetMixinErrorAlert('Robot ID is required.');
+				return;
+			}
+			if (robotId.length < ROBOT_ID_MIN_LENGTH || robotId.length > ROBOT_ID_MAX_LENGTH) {
+				await sweetMixinErrorAlert(
+					`Robot ID must be ${ROBOT_ID_MIN_LENGTH}-${ROBOT_ID_MAX_LENGTH} characters.`,
+				);
+				return;
+			}
+			if (!name) {
+				await sweetMixinErrorAlert('Robot name is required.');
+				return;
+			}
+			if (name.length < ROBOT_NAME_MIN_LENGTH || name.length > ROBOT_NAME_MAX_LENGTH) {
+				await sweetMixinErrorAlert(
+					`Robot name must be ${ROBOT_NAME_MIN_LENGTH}-${ROBOT_NAME_MAX_LENGTH} characters.`,
+				);
+				return;
 			}
 
 			const input: CreateRobotInput = {
@@ -156,13 +178,27 @@ const AdminRobots: NextPage = () => {
 	const saveEditHandler = async () => {
 		try {
 			if (!editingId) return;
+			const trimmedName = editDraft.name.trim();
+			if (trimmedName && (trimmedName.length < ROBOT_NAME_MIN_LENGTH || trimmedName.length > ROBOT_NAME_MAX_LENGTH)) {
+				await sweetMixinErrorAlert(
+					`Robot name must be ${ROBOT_NAME_MIN_LENGTH}-${ROBOT_NAME_MAX_LENGTH} characters.`,
+				);
+				return;
+			}
+
+			const trimmedCurrentRequestId = editDraft.currentRequestId.trim();
+			if (trimmedCurrentRequestId && !MONGO_OBJECT_ID_REGEX.test(trimmedCurrentRequestId)) {
+				await sweetMixinErrorAlert('Current Request ID must be a valid 24-character hex ObjectId.');
+				return;
+			}
+
 			const input: UpdateRobotInput = {
 				_id: editingId,
-				name: editDraft.name.trim() || undefined,
+				name: trimmedName || undefined,
 				status: editDraft.status,
 				battery: toBatteryValue(editDraft.battery),
 				isOnline: editDraft.isOnline,
-				currentRequestId: editDraft.currentRequestId.trim() || undefined,
+				currentRequestId: trimmedCurrentRequestId || '',
 			};
 			await updateRobot({ variables: { input } });
 			setEditingId('');

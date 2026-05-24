@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import { useMutation, useQuery } from '@apollo/client';
+import { useApolloClient, useMutation, useQuery } from '@apollo/client';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { getJwtToken } from '../../../auth';
@@ -9,7 +9,7 @@ import { REACT_APP_API_URL } from '../../../config';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../../sweetAlert';
 import { BookAudience, BookCategory, BookFormat, BookLanguage, BookStatus, BookType } from '../../../enums/book.enum';
 import { CREATE_BOOK, UPDATE_BOOK } from '../../../../apollo/admin/mutation';
-import { GET_BOOK } from '../../../../apollo/user/query';
+import { GET_BOOK, GET_BOOKS } from '../../../../apollo/user/query';
 import { T } from '../../../types/common';
 
 type Currency = 'KRW' | 'USD';
@@ -60,6 +60,9 @@ const EMPTY_STATE: BookFormState = {
 	bookImages: [],
 };
 
+const MAX_BOOK_IMAGES = 5;
+const ALLOWED_IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/jpg', 'image/png']);
+
 const titleize = (raw?: string): string => {
 	if (!raw) return '';
 	return raw.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
@@ -71,12 +74,21 @@ const resolveImage = (path: string): string => {
 	return `${REACT_APP_API_URL}/${path}`;
 };
 
+const sanitizeImagePaths = (raw: unknown): string[] => {
+	if (!Array.isArray(raw)) return [];
+	return raw
+		.filter((path): path is string => typeof path === 'string')
+		.map((path) => path.trim())
+		.filter((path) => path.length > 0);
+};
+
 interface Props {
 	mode: 'create' | 'edit';
 }
 
 const AddBook: React.FC<Props> = ({ mode }) => {
 	const router = useRouter();
+	const apolloClient = useApolloClient();
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const token = getJwtToken();
 	const [form, setForm] = useState<BookFormState>(EMPTY_STATE);
@@ -125,33 +137,101 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 		setForm((prev) => ({ ...prev, [key]: value }));
 	};
 
-	const isValid = useMemo(() => {
-		return (
-			form.bookTitle.trim() &&
-			form.bookAuthor.trim() &&
-			form.bookIsbn.trim() &&
-			form.bookType &&
-			form.bookCategory &&
-			form.bookAudience &&
-			form.bookFormat &&
-			form.bookLanguage &&
-			form.priceAmount !== '' &&
-			Number(form.priceAmount) >= 0 &&
-			form.bookImages.length > 0
-		);
-	}, [form]);
+	const validateForm = (): string | null => {
+		const title = form.bookTitle.trim();
+		if (!title) return 'Title is required.';
+		if (title.length > 200) return 'Title must be 1 to 200 characters.';
+
+		const author = form.bookAuthor.trim();
+		if (!author) return 'Author is required.';
+		if (author.length > 120) return 'Author must be 1 to 120 characters.';
+
+		const isbn = form.bookIsbn.trim();
+		if (!isbn) return 'ISBN is required.';
+		if (isbn.length < 3 || isbn.length > 40) return 'ISBN must be 3 to 40 characters.';
+
+		const callNumber = form.bookCallNumber.trim();
+		if (callNumber.length > 80) return 'Call Number must be 80 characters or fewer.';
+
+		if (!form.bookType) return 'Book type is required.';
+		if (!form.bookCategory) return 'Book category is required.';
+		if (!form.bookAudience) return 'Book audience is required.';
+		if (!form.bookFormat) return 'Book format is required.';
+		if (!form.bookLanguage) return 'Book language is required.';
+
+		const description = form.bookDescription.trim();
+		if (description.length > 1000) return 'Description must be 1000 characters or fewer.';
+
+		if (form.bookPublishedYear !== '' && (!Number.isFinite(form.bookPublishedYear) || form.bookPublishedYear < 0)) {
+			return 'Published Year must be 0 or greater.';
+		}
+
+		if (form.bookPages !== '' && (!Number.isFinite(form.bookPages) || form.bookPages < 0)) {
+			return 'Pages must be 0 or greater.';
+		}
+
+		if (form.priceAmount === '' || !Number.isFinite(form.priceAmount)) {
+			return 'Price amount is required.';
+		}
+		if (form.priceAmount < 0) return 'Price amount must be 0 or greater.';
+
+		if (
+			form.priceIsDiscounted &&
+			form.priceDiscountPercent !== '' &&
+			(!Number.isFinite(form.priceDiscountPercent) || form.priceDiscountPercent < 0)
+		) {
+			return 'Discount % must be 0 or greater.';
+		}
+
+		const imagePaths = sanitizeImagePaths(form.bookImages);
+		if (imagePaths.length < 1) return 'At least one image is required.';
+		if (imagePaths.length > MAX_BOOK_IMAGES) return `Maximum ${MAX_BOOK_IMAGES} images are allowed.`;
+
+		return null;
+	};
+
+	const checkDuplicateIsbn = async (bookIsbn: string): Promise<boolean> => {
+		const { data } = await apolloClient.query({
+			query: GET_BOOKS,
+			fetchPolicy: 'network-only',
+			variables: {
+				input: {
+					page: 1,
+					limit: 1,
+					sort: 'createdAt',
+					direction: 'DESC',
+					search: { bookIsbn },
+				},
+			},
+		});
+		const total = data?.getBooks?.metaCounter?.[0]?.total ?? 0;
+		return total > 0;
+	};
 
 	async function uploadImages() {
 		try {
 			const files = inputRef.current?.files;
 			if (!files || files.length === 0) return;
-
-			const remainingSlots = 5 - form.bookImages.length;
-			if (remainingSlots <= 0) {
-				await sweetMixinErrorAlert('Maximum 5 images.');
+			const selectedFiles = Array.from(files);
+			const invalidFile = selectedFiles.find((file) => !ALLOWED_IMAGE_MIME_TYPES.has(file.type.toLowerCase()));
+			if (invalidFile) {
+				if (inputRef.current) inputRef.current.value = '';
+				await sweetMixinErrorAlert('Only JPG and PNG images are allowed.');
 				return;
 			}
-			const toUpload = Array.from(files).slice(0, remainingSlots);
+
+			const remainingSlots = MAX_BOOK_IMAGES - form.bookImages.length;
+			if (remainingSlots <= 0) {
+				if (inputRef.current) inputRef.current.value = '';
+				await sweetMixinErrorAlert(`Maximum ${MAX_BOOK_IMAGES} images are allowed.`);
+				return;
+			}
+			const toUpload = selectedFiles.slice(0, remainingSlots);
+			if (selectedFiles.length > remainingSlots) {
+				await sweetMixinErrorAlert(
+					`Only ${remainingSlots} image(s) can be uploaded now. Maximum ${MAX_BOOK_IMAGES} images are allowed.`,
+				);
+			}
 
 			const formData = new FormData();
 			const nulls = toUpload.map(() => null);
@@ -184,8 +264,19 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 				},
 			});
 
-			const uploaded: string[] = response.data?.data?.imagesUploader ?? [];
-			setForm((prev) => ({ ...prev, bookImages: [...prev.bookImages, ...uploaded].slice(0, 5) }));
+			const uploaded = sanitizeImagePaths(response.data?.data?.imagesUploader);
+			if (uploaded.length === 0) {
+				await sweetMixinErrorAlert('Image upload failed. No images were uploaded.');
+				if (inputRef.current) inputRef.current.value = '';
+				return;
+			}
+
+			setForm((prev) => ({ ...prev, bookImages: [...prev.bookImages, ...uploaded].slice(0, MAX_BOOK_IMAGES) }));
+			if (uploaded.length < toUpload.length) {
+				await sweetMixinErrorAlert(
+					`Some images failed to upload (${uploaded.length}/${toUpload.length}). Please retry the failed files.`,
+				);
+			}
 			if (inputRef.current) inputRef.current.value = '';
 		} catch (err: any) {
 			await sweetMixinErrorAlert(err?.message ?? 'Upload failed');
@@ -201,7 +292,7 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 		bookAuthor: form.bookAuthor.trim(),
 		bookIsbn: form.bookIsbn.trim(),
 		bookCallNumber: form.bookCallNumber.trim() || undefined,
-		bookImages: form.bookImages,
+		bookImages: sanitizeImagePaths(form.bookImages).slice(0, MAX_BOOK_IMAGES),
 		bookType: form.bookType as BookType,
 		bookCategory: form.bookCategory as BookCategory,
 		bookAudience: form.bookAudience as BookAudience,
@@ -223,7 +314,12 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 	});
 
 	const submitHandler = async () => {
-		if (!isValid || submitting) return;
+		if (submitting) return;
+		const validationError = validateForm();
+		if (validationError) {
+			await sweetMixinErrorAlert(validationError);
+			return;
+		}
 		setSubmitting(true);
 		try {
 			const payload = buildPayload();
@@ -231,6 +327,11 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 				await updateBook({ variables: { input: { _id: editingId, ...payload } } });
 				await sweetMixinSuccessAlert('Book updated');
 			} else {
+				const duplicateIsbn = await checkDuplicateIsbn(payload.bookIsbn);
+				if (duplicateIsbn) {
+					await sweetMixinErrorAlert('ISBN already exists in catalog.');
+					return;
+				}
 				await createBook({ variables: { input: payload } });
 				await sweetMixinSuccessAlert('Book created');
 			}
@@ -502,7 +603,9 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 
 			{/* Section 6 — Images */}
 			<section className="admin-form-section">
-				<h2 className="admin-form-section-title">Images ({form.bookImages.length}/5)</h2>
+				<h2 className="admin-form-section-title">
+					Images ({form.bookImages.length}/{MAX_BOOK_IMAGES})
+				</h2>
 				<div
 					className="admin-upload-box"
 					onClick={() => inputRef.current?.click()}
@@ -511,7 +614,7 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 				>
 					<CloudUploadOutlinedIcon />
 					<div className="admin-upload-title">Click to upload</div>
-					<div className="admin-upload-hint">JPG or PNG, up to 5 images</div>
+					<div className="admin-upload-hint">JPG or PNG, up to {MAX_BOOK_IMAGES} images</div>
 					<input
 						ref={inputRef}
 						type="file"
@@ -547,7 +650,7 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 				<button
 					type="button"
 					className="admin-btn admin-btn--primary"
-					disabled={!isValid || submitting}
+					disabled={submitting}
 					onClick={submitHandler}
 				>
 					{submitting ? 'Saving…' : mode === 'edit' ? 'Save changes' : 'Save Book'}
