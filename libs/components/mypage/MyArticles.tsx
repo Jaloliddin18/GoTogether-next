@@ -105,7 +105,7 @@ const MyArticles: NextPage = () => {
 
 			{!loading && !error && twits.length > 0 ? (
 				<Stack className="twit-list">
-					{twits.map((twit) => <TwitCard key={twit._id} twit={twit} currentUserId={user?._id} onDelete={deleteTwitHandler} />)}
+					{twits.map((twit) => <TwitCard key={twit._id} twit={twit} canDelete={twit.memberId === user?._id} onDelete={deleteTwitHandler} />)}
 				</Stack>
 			) : null}
 

@@ -11,6 +11,7 @@ import { REACT_APP_API_URL } from '../../../libs/config';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
 import { Book } from '../../../libs/types/book/book';
 import { T } from '../../../libs/types/common';
+import AddInventoryModal from '../../../libs/components/admin/books/AddInventoryModal';
 
 const PAGE_LIMIT = 10;
 
@@ -49,6 +50,7 @@ const AdminBooks: NextPage = () => {
 	const [searchTextDraft, setSearchTextDraft] = useState('');
 	const [statusFilter, setStatusFilter] = useState<'ALL' | BookStatus>('ALL');
 	const [categoryFilter, setCategoryFilter] = useState<'ALL' | BookCategory>('ALL');
+	const [inventoryBook, setInventoryBook] = useState<Book | null>(null);
 
 	const inquiryInput = useMemo(() => {
 		const search: T = {};
@@ -219,6 +221,13 @@ const AdminBooks: NextPage = () => {
 											</Link>
 											<button
 												type="button"
+												className="admin-link-btn"
+												onClick={() => setInventoryBook(book)}
+											>
+												Add Inventory
+											</button>
+											<button
+												type="button"
 												className="admin-link-btn is-muted"
 												onClick={() => toggleStatusHandler(book)}
 											>
@@ -246,6 +255,14 @@ const AdminBooks: NextPage = () => {
 						color="standard"
 					/>
 				</div>
+			)}
+
+			{inventoryBook && (
+				<AddInventoryModal
+					book={inventoryBook}
+					onClose={() => setInventoryBook(null)}
+					onSuccess={() => refetch({ input: inquiryInput })}
+				/>
 			)}
 		</div>
 	);

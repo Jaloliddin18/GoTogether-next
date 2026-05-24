@@ -232,15 +232,15 @@ const AdminRequests: NextPage = () => {
 				<table className="admin-table">
 					<thead>
 						<tr>
-							<th style={{ width: 220 }}>Request</th>
-							<th style={{ width: 150 }}>Member</th>
+							<th style={{ width: 150 }}>Request</th>
+							<th style={{ width: 105 }}>Member</th>
 							<th>Book</th>
-							<th style={{ width: 120 }}>Robot</th>
-							<th style={{ width: 110 }}>Type</th>
-							<th style={{ width: 150 }}>Status</th>
-							<th style={{ width: 150 }}>Payment</th>
-							<th style={{ width: 180 }}>Updated</th>
-							<th style={{ width: 240, textAlign: 'right' }}>Actions</th>
+							<th style={{ width: 80 }}>Robot</th>
+							<th style={{ width: 70 }}>Type</th>
+							<th style={{ width: 130 }}>Status</th>
+							<th style={{ width: 80 }}>Payment</th>
+							<th style={{ width: 125 }}>Updated</th>
+							<th style={{ width: 190, textAlign: 'right' }}>Actions</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -266,8 +266,13 @@ const AdminRequests: NextPage = () => {
 								);
 							return (
 								<tr key={request._id}>
-									<td>
-										<div className="admin-cell-title admin-mono">{request._id}</div>
+									<td style={{ maxWidth: 150 }}>
+										<div
+											className="admin-cell-title admin-mono"
+											style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+										>
+											{request._id}
+										</div>
 										<div className="admin-cell-meta">{latestTimelineMessage(request)}</div>
 										{request.error?.message && (
 											<div className="admin-cell-meta" style={{ color: '#D14343' }}>
@@ -277,15 +282,14 @@ const AdminRequests: NextPage = () => {
 									</td>
 									<td>
 										<div className="admin-cell-title">{request.memberData?.memberNick ?? '—'}</div>
-										<div className="admin-cell-meta admin-mono">{request.memberId ?? '—'}</div>
 									</td>
 									<td>
 										<div className="admin-cell-title">{request.bookData?.bookTitle ?? '—'}</div>
-										<div className="admin-cell-meta admin-mono">{request.bookId}</div>
 									</td>
 									<td>
-										<div className="admin-cell-title">{request.robotData?.robotId ?? '-'}</div>
-										<div className="admin-cell-meta admin-mono">{request.robotId ?? '-'}</div>
+										<div className="admin-cell-title admin-mono" style={{ fontSize: 11 }}>
+											{request.robotData?.robotId ?? '-'}
+										</div>
 									</td>
 									<td>{titleize(request.requestType)}</td>
 									<td>
@@ -296,11 +300,11 @@ const AdminRequests: NextPage = () => {
 									</td>
 									<td>{titleize(request.paymentStatus)}</td>
 									<td className="admin-cell-meta">{formatDate(request.updatedAt)}</td>
-									<td>
+									<td style={{ whiteSpace: 'nowrap' }}>
 										<div className="admin-cell-actions">
 											<select
 												className="admin-select"
-												style={{ minWidth: 140 }}
+												style={{ minWidth: 120 }}
 												value={actionStatusById[request._id] ?? ''}
 												disabled={isBusy || allowedTransitions.length === 0}
 												onChange={async (e) => {

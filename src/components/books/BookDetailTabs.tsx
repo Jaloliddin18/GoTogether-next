@@ -375,6 +375,7 @@ export default function BookDetailTabs(props: BookDetailTabsProps) {
 											px: 3,
 											py: 1.35,
 											background: C.navy,
+											color: '#fff',
 											borderRadius: '16px',
 											textTransform: 'none',
 											fontWeight: 900,
