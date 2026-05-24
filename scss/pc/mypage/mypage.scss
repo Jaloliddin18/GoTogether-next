@@ -407,7 +407,7 @@ $transition: 0.18s ease;
 		transform: translateY(-2px);
 	}
 
-	&:hover .bk-card-image img { transform: scale(1.03); }
+	&:hover .bk-card-image img { transform: none; }
 }
 
 .bk-card-top {
@@ -453,15 +453,19 @@ $transition: 0.18s ease;
 
 .bk-card-image {
 	width: 100%;
-	height: 160px;
+	height: 220px;
 	overflow: hidden;
 	background: $color-bg;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px;
 
 	img {
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
-		transition: transform 0.3s ease;
+		object-fit: contain;
+		object-position: center;
 	}
 }
 
@@ -809,11 +813,17 @@ $transition: 0.18s ease;
 		border-radius: 3px;
 		overflow: hidden;
 		flex-shrink: 0;
+		background: $color-bg;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 3px;
 
 		img {
 			width: 100%;
 			height: 100%;
-			object-fit: cover;
+			object-fit: contain;
+			object-position: center;
 			display: block;
 		}
 
