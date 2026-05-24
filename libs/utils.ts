@@ -47,7 +47,7 @@ export const likeTargetMemberHandler = async (likeTargetMember: any, id: string)
 export const resolveMediaUrl = (path?: string, fallback: string = '/img/banner/header1.svg'): string => {
 	if (!path) return fallback;
 	if (path.startsWith('http://') || path.startsWith('https://')) return path;
-	const base = process.env.NEXT_PUBLIC_API_URL ?? process.env.REACT_APP_API_URL ?? '';
+	const base = process.env.NEXT_PUBLIC_API_URL ?? '';
 	if (!base) return path;
 	return `${base.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 };

@@ -14,7 +14,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 import { logOut } from '../../auth';
 import { sweetConfirmAlert } from '../../sweetAlert';
 import { MemberType } from '../../enums/member.enum';
@@ -53,7 +53,7 @@ const MyMenu = () => {
 				<div className="my-menu-avatar-wrap">
 					<img
 						className="my-menu-avatar"
-						src={user?.memberImage ? `${REACT_APP_API_URL}/${user.memberImage}` : '/img/profile/defaultUser.svg'}
+						src={user?.memberImage ? `${API_BASE_URL}/${user.memberImage}` : '/img/profile/defaultUser.svg'}
 						alt="profile"
 					/>
 				</div>

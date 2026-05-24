@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Stack, Typography } from '@mui/material';
 import Moment from 'react-moment';
 import { Twit } from '../../types/twit/twit';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 
 interface TwitAuthorRowProps {
 	twit: Twit;
@@ -16,7 +16,7 @@ const TwitAuthorRow = ({ twit }: TwitAuthorRowProps) => {
 	const getMemberImage = (imageUrl: string | undefined) => {
 		if (!imageUrl) return '/img/profile/defaultUser.svg';
 		if (imageUrl.startsWith('/img') || imageUrl.startsWith('http')) return imageUrl;
-		return `${REACT_APP_API_URL}/${imageUrl}`;
+		return `${API_BASE_URL}/${imageUrl}`;
 	};
 
 	const goMemberPage = (event: React.SyntheticEvent) => {

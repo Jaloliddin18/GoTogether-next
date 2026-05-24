@@ -15,7 +15,7 @@ import {
 import Avatar from '@mui/material/Avatar';
 import { Stack } from '@mui/material';
 import { Property } from '../../../types/property/property';
-import { REACT_APP_API_URL } from '../../../config';
+import { API_BASE_URL } from '../../../config';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Typography from '@mui/material/Typography';
 import { PropertyStatus } from '../../../enums/property.enum';
@@ -149,7 +149,7 @@ export const PropertyPanelList = (props: PropertyPanelListType) => {
 
 						{properties.length !== 0 &&
 							properties.map((property: Property, index: number) => {
-								const propertyImage = `${REACT_APP_API_URL}/${property?.propertyImages[0]}`;
+								const propertyImage = `${API_BASE_URL}/${property?.propertyImages[0]}`;
 
 								return (
 									<TableRow hover key={property?._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>

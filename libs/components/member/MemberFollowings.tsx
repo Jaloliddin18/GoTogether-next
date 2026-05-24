@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { FollowInquiry } from '../../types/follow/follow.input';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Following } from '../../types/follow/follow';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { userVar } from '../../../apollo/store';
@@ -25,7 +25,7 @@ interface MemberFollowingsProps {
 const resolveAvatar = (img?: string): string => {
 	if (!img) return '/img/profile/defaultUser.svg';
 	if (img.startsWith('/img') || img.startsWith('http')) return img;
-	return `${REACT_APP_API_URL}/${img}`;
+	return `${API_BASE_URL}/${img}`;
 };
 
 const toId = (raw: any): string => {

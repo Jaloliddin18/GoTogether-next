@@ -9,7 +9,7 @@ import { userVar } from '../../../apollo/store';
 import { T } from '../../types/common';
 import { Book } from '../../types/book/book';
 import { GET_VISITED_BOOKS } from '../../../apollo/user/query';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 
 const PAGE_LIMIT = 10;
 
@@ -64,7 +64,7 @@ const RecentlyVisited: NextPage = () => {
 					<div className="bk-grid">
 						{books.map((book) => {
 							const cover = book.bookImages?.[0]
-								? `${REACT_APP_API_URL}/${book.bookImages[0]}`
+								? `${API_BASE_URL}/${book.bookImages[0]}`
 								: '/img/profile/defaultUser.svg';
 							return (
 								<div

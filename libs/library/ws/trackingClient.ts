@@ -25,10 +25,10 @@ const uniqueRequests = (requests: RobotTrackingRequest[]): RobotTrackingRequest[
 };
 
 export const getRobotTrackingWsUrl = (): string => {
-	const explicitUrl = process.env.REACT_APP_ROBOT_WS;
+	const explicitUrl = process.env.NEXT_PUBLIC_WS_URL;
 	if (explicitUrl) return explicitUrl;
 
-	const apiUrl = process.env.REACT_APP_API_URL;
+	const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 	if (apiUrl) {
 		try {
 			const url = new URL(apiUrl);
@@ -39,21 +39,7 @@ export const getRobotTrackingWsUrl = (): string => {
 			url.hash = '';
 			return url.toString().replace(/\/$/, '');
 		} catch {
-			// Fall through to the existing WebSocket env.
-		}
-	}
-
-	const existingWsUrl = process.env.REACT_APP_API_WS;
-	if (existingWsUrl) {
-		try {
-			const url = new URL(existingWsUrl);
-			url.port = '3009';
-			url.pathname = '';
-			url.search = '';
-			url.hash = '';
-			return url.toString().replace(/\/$/, '');
-		} catch {
-			return existingWsUrl.replace(':3007', ':3009');
+			// Fall through to default.
 		}
 	}
 	return 'ws://localhost:3009';

@@ -22,7 +22,7 @@ import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
-import { REACT_APP_API_URL } from '../config';
+import { API_BASE_URL } from '../config';
 import { CANCEL_REQUEST } from '../../apollo/user/mutation';
 import {
 	getRobotTrackingWsUrl,
@@ -528,7 +528,7 @@ const Top = () => {
 									<div className={'login-user'} onClick={(event: any) => setLogoutAnchor(event.currentTarget)}>
 										<img
 											src={
-												user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
+												user?.memberImage ? `${API_BASE_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
 											}
 											alt=""
 										/>

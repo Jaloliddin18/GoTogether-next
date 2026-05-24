@@ -3,7 +3,7 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Stack, Box, Typography } from '@mui/material';
 import { Comment } from '../../types/comment/comment';
 import Moment from 'react-moment';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 
 interface ReviewCardProps {
 	fromMyPage?: string;
@@ -13,7 +13,7 @@ const ReviewCard = (props: ReviewCardProps) => {
 	const { fromMyPage, comment } = props;
 	const device = useDeviceDetect();
 	const imagePath: string = comment?.memberData?.memberImage
-		? `${REACT_APP_API_URL}/${comment?.memberData?.memberImage}`
+		? `${API_BASE_URL}/${comment?.memberData?.memberImage}`
 		: '/img/profile/defaultUser.svg';
 
 	if (device === 'mobile') {

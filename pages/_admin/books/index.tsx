@@ -7,7 +7,7 @@ import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import { GET_ALL_BOOKS_BY_ADMIN } from '../../../apollo/admin/query';
 import { REMOVE_BOOK_BY_ADMIN, UPDATE_BOOK } from '../../../apollo/admin/mutation';
 import { BookCategory, BookStatus } from '../../../libs/enums/book.enum';
-import { REACT_APP_API_URL } from '../../../libs/config';
+import { API_BASE_URL } from '../../../libs/config';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
 import { Book } from '../../../libs/types/book/book';
 import { T } from '../../../libs/types/common';
@@ -32,7 +32,7 @@ const resolveCover = (book: Book): string | null => {
 	const raw = book.bookImages?.[0];
 	if (!raw) return null;
 	if (raw.startsWith('http')) return raw;
-	return `${REACT_APP_API_URL}/${raw}`;
+	return `${API_BASE_URL}/${raw}`;
 };
 
 const formatPrice = (book: Book): string => {

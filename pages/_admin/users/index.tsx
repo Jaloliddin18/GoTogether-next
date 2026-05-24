@@ -6,7 +6,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
 import { GET_ALL_MEMBERS_BY_ADMIN } from '../../../apollo/admin/query';
 import { UPDATE_MEMBER_BY_ADMIN } from '../../../apollo/admin/mutation';
-import { REACT_APP_API_URL } from '../../../libs/config';
+import { API_BASE_URL } from '../../../libs/config';
 import { Direction } from '../../../libs/enums/common.enum';
 import { MemberStatus, MemberType } from '../../../libs/enums/member.enum';
 import { Member } from '../../../libs/types/member/member';
@@ -36,7 +36,7 @@ const formatDate = (value?: string | Date): string => {
 const resolveAvatar = (memberImage?: string): string => {
 	if (!memberImage) return '/img/profile/defaultUser.svg';
 	if (memberImage.startsWith('http')) return memberImage;
-	return `${REACT_APP_API_URL}/${memberImage}`;
+	return `${API_BASE_URL}/${memberImage}`;
 };
 
 const typeBadgeClass = (type?: MemberType): string => {

@@ -7,7 +7,7 @@ import { userVar } from '../../../apollo/store';
 import { T } from '../../types/common';
 import { GET_SESSION_REQUESTS } from '../../../apollo/user/query';
 import { RequestStatus } from '../../enums/request.enum';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 
 const PAGE_LIMIT = 8;
 
@@ -132,7 +132,7 @@ const MyRequests: NextPage = () => {
 							};
 							const hasCover = !!req.bookData?.bookImages?.[0];
 							const coverSrc = hasCover
-								? `${REACT_APP_API_URL}/${req.bookData.bookImages[0]}`
+								? `${API_BASE_URL}/${req.bookData.bookImages[0]}`
 								: null;
 							const rawType = (req.requestType as string) ?? '';
 							const type = rawType.charAt(0).toUpperCase() + rawType.slice(1).toLowerCase();

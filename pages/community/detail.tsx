@@ -18,7 +18,7 @@ import CommentCard from '../../libs/components/community/CommentCard';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import Moment from 'react-moment';
-import { REACT_APP_API_URL } from '../../libs/config';
+import { API_BASE_URL } from '../../libs/config';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberType } from '../../libs/enums/member.enum';
 
@@ -146,7 +146,7 @@ const CommunityDetail: NextPage = () => {
 	const getMemberImage = (imageUrl: string | undefined) => {
 		if (!imageUrl) return '/img/profile/defaultUser.svg';
 		if (imageUrl.startsWith('/img') || imageUrl.startsWith('http')) return imageUrl;
-		return `${REACT_APP_API_URL}/${imageUrl}`;
+		return `${API_BASE_URL}/${imageUrl}`;
 	};
 
 	return (

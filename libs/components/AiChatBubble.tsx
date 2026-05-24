@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
-import { REACT_APP_API_URL } from '../config';
+import { API_BASE_URL } from '../config';
 
 interface ChatBookSuggestion {
 	bookId: string;
@@ -28,7 +28,7 @@ interface StoredChatState {
 	updatedAt: number;
 }
 
-const CHAT_API = `${REACT_APP_API_URL}/chat/message`;
+const CHAT_API = `${API_BASE_URL}/chat/message`;
 const BOOK_FALLBACK_IMAGE = '/img/profile/defaultUser.svg';
 const CHAT_STORAGE_KEY = 'gachi_go_ai_chat_state';
 const CHAT_TTL_MS = 15 * 60 * 1000;
@@ -45,7 +45,7 @@ const resolveBookImage = (image?: string): string => {
 	if (image.startsWith('/img/')) return image;
 
 	const normalized = image.startsWith('/') ? image.slice(1) : image;
-	return `${REACT_APP_API_URL}/${normalized}`;
+	return `${API_BASE_URL}/${normalized}`;
 };
 
 const formatBookLabel = (value?: string): string => {

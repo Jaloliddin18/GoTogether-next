@@ -9,7 +9,7 @@ import { GET_SESSION_REQUESTS } from '../../../apollo/user/query';
 import { useRobotSocket, TimelineEntry } from '../../hooks/useRobotSocket';
 import { DeliveryDestinationType, RequestStatus, RequestType } from '../../enums/request.enum';
 import { RobotStatus } from '../../enums/robot.enum';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 import { sweetMixinSuccessAlert } from '../../sweetAlert';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { T } from '../../types/common';
@@ -1034,7 +1034,7 @@ const TrackingPanel = ({
 
 	const cover =
 		bookData?.bookImages?.[0]
-			? `${REACT_APP_API_URL}/${bookData.bookImages[0]}`
+			? `${API_BASE_URL}/${bookData.bookImages[0]}`
 			: '/img/profile/defaultUser.svg';
 
 	const robotStatus = liveRobotStatus ?? robotData?.status ?? null;

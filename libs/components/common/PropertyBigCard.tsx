@@ -4,7 +4,7 @@ import IconButton from '@mui/material/IconButton';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Property } from '../../types/property/property';
-import { REACT_APP_API_URL, topPropertyRank } from '../../config';
+import { API_BASE_URL, topPropertyRank } from '../../config';
 import { formatterStr } from '../../utils';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
@@ -35,7 +35,7 @@ const PropertyBigCard = (props: PropertyBigCardProps) => {
 				<Box
 					component={'div'}
 					className={'card-img'}
-					style={{ backgroundImage: `url(${REACT_APP_API_URL}/${property?.propertyImages?.[0]})` }}
+					style={{ backgroundImage: `url(${API_BASE_URL}/${property?.propertyImages?.[0]})` }}
 				>
 					{property && property?.propertyRank >= topPropertyRank && (
 						<div className={'status'}>

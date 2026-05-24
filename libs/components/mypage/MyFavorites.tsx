@@ -12,7 +12,7 @@ import { T } from '../../types/common';
 import { Book } from '../../types/book/book';
 import { GET_FAVORITE_BOOKS } from '../../../apollo/user/query';
 import { LIKE_TARGET_BOOK } from '../../../apollo/user/mutation';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 import { Message } from '../../enums/common.enum';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
 
@@ -80,7 +80,7 @@ const MyFavorites: NextPage = () => {
 					<div className="bk-grid">
 						{books.map((book) => {
 							const cover = book.bookImages?.[0]
-								? `${REACT_APP_API_URL}/${book.bookImages[0]}`
+								? `${API_BASE_URL}/${book.bookImages[0]}`
 								: '/img/profile/defaultUser.svg';
 							const isLiked = book.meLiked?.[0]?.myFavorite ?? false;
 							return (

@@ -16,7 +16,7 @@ import { PropertiesInquiry } from '../../libs/types/property/property.input';
 import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
 import { Comment } from '../../libs/types/comment/comment';
 import { CommentGroup } from '../../libs/enums/comment.enum';
-import { REACT_APP_API_URL } from '../../libs/config';
+import { API_BASE_URL } from '../../libs/config';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { CREATE_COMMENT, LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
 import { GET_COMMENTS, GET_MEMBER, GET_PROPERTIES } from '../../apollo/user/query';
@@ -187,7 +187,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 				<Stack className={'container'}>
 					<Stack className={'agent-info'}>
 						<img
-							src={agent?.memberImage ? `${REACT_APP_API_URL}/${agent?.memberImage}` : '/img/profile/defaultUser.svg'}
+							src={agent?.memberImage ? `${API_BASE_URL}/${agent?.memberImage}` : '/img/profile/defaultUser.svg'}
 							alt=""
 						/>
 						<Box component={'div'} className={'info'} onClick={() => redirectToMemberPageHandler(agent?._id as string)}>

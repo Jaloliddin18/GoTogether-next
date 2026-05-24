@@ -5,7 +5,7 @@ import { useApolloClient, useMutation, useQuery } from '@apollo/client';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { getJwtToken } from '../../../auth';
-import { REACT_APP_API_URL } from '../../../config';
+import { API_BASE_URL } from '../../../config';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../../sweetAlert';
 import { BookAudience, BookCategory, BookFormat, BookLanguage, BookStatus, BookType } from '../../../enums/book.enum';
 import { CREATE_BOOK, UPDATE_BOOK } from '../../../../apollo/admin/mutation';
@@ -77,7 +77,7 @@ const titleize = (raw?: string): string => {
 const resolveImage = (path: string): string => {
 	if (!path) return '';
 	if (path.startsWith('http')) return path;
-	return `${REACT_APP_API_URL}/${path}`;
+	return `${API_BASE_URL}/${path}`;
 };
 
 const sanitizeImagePaths = (raw: unknown): string[] => {

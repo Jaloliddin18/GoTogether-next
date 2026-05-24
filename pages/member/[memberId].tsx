@@ -20,7 +20,7 @@ import { Member } from '../../libs/types/member/member';
 import { Twit } from '../../libs/types/twit/twit';
 import { Direction } from '../../libs/enums/common.enum';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
-import { Messages, REACT_APP_API_URL } from '../../libs/config';
+import { Messages, API_BASE_URL } from '../../libs/config';
 import { getJwtToken } from '../../libs/auth';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import MemberFollowings from '../../libs/components/member/MemberFollowings';
@@ -47,7 +47,7 @@ const WHO_TO_FOLLOW = [
 const resolveAvatar = (img?: string): string => {
 	if (!img) return '/img/profile/defaultUser.svg';
 	if (img.startsWith('/img') || img.startsWith('http')) return img;
-	return `${REACT_APP_API_URL}/${img}`;
+	return `${API_BASE_URL}/${img}`;
 };
 
 
