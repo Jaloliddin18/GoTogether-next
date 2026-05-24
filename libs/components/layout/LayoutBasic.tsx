@@ -21,7 +21,7 @@ const withLayoutBasic = (Component: any) => {
 		const device = useDeviceDetect();
 		const [authHeader, setAuthHeader] = useState<boolean>(false);
 		const user = useReactiveVar(userVar);
-		const needsHeroTextLargeFont = ['/about', '/community', '/mypage', '/books'].includes(router.pathname);
+		const needsHeroTextLargeFont = ['/about', '/community', '/mypage', '/books', '/cs'].includes(router.pathname);
 
 		const memoizedValues = useMemo(() => {
 			let title = '',
