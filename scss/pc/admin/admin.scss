@@ -686,6 +686,23 @@
 			background: $color-bg;
 		}
 	}
+
+	&--sm {
+		padding: 5px 10px;
+		font-size: 12px;
+	}
+}
+
+.admin-request-final-badge {
+	font-family: $font;
+	font-size: 11px;
+	font-weight: 500;
+	color: $color-muted;
+	font-style: italic;
+	padding: 4px 8px;
+	background: $color-bg;
+	border-radius: 4px;
+	white-space: nowrap;
 }
 
 .admin-link-btn {

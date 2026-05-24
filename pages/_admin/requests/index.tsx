@@ -19,6 +19,12 @@ import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetA
 
 const PAGE_LIMIT = 10;
 
+const TERMINAL_STATUSES: ReadonlySet<RequestStatus> = new Set([
+	RequestStatus.COMPLETED,
+	RequestStatus.CANCELLED,
+	RequestStatus.FAILED,
+]);
+
 type StatusFilter = 'ALL' | RequestStatus;
 type TypeFilter = 'ALL' | RequestType;
 type PaymentFilter = 'ALL' | PaymentStatus;
@@ -86,8 +92,13 @@ const AdminRequests: NextPage = () => {
 	const [destinationFilter, setDestinationFilter] = useState<DestinationFilter>('ALL');
 	const [searchDraft, setSearchDraft] = useState('');
 	const [searchText, setSearchText] = useState('');
-	const [actionStatusById, setActionStatusById] = useState<Record<string, string>>({});
 	const [mutatingId, setMutatingId] = useState('');
+
+	// Status modal state
+	const [modalRequest, setModalRequest] = useState<RequestTask | null>(null);
+	const [modalNextStatus, setModalNextStatus] = useState<string>('');
+	const [modalMessage, setModalMessage] = useState<string>('');
+	const [modalSubmitting, setModalSubmitting] = useState(false);
 
 	const inquiryInput = useMemo<RequestsInquiry>(() => {
 		const search: RequestsInquiry['search'] = {};
@@ -123,42 +134,71 @@ const AdminRequests: NextPage = () => {
 	const list = useMemo(() => {
 		const query = searchText.trim().toLowerCase();
 		if (!query) return rawList;
-		return rawList.filter((request) => {
-			return [
-				request._id,
-				request.bookId,
-				request.memberId,
-				request.robotId,
-				request.memberData?.memberNick,
-				request.bookData?.bookTitle,
-			]
+		return rawList.filter((request) =>
+			[request._id, request.bookId, request.memberId, request.robotId, request.memberData?.memberNick, request.bookData?.bookTitle]
 				.filter(Boolean)
-				.some((value) => String(value).toLowerCase().includes(query));
-		});
+				.some((value) => String(value).toLowerCase().includes(query)),
+		);
 	}, [rawList, searchText]);
 
-	const updateStatusHandler = async (request: RequestTask, nextStatus: RequestStatus, paymentStatus?: PaymentStatus) => {
+	const openStatusModal = (request: RequestTask) => {
+		setModalRequest(request);
+		setModalNextStatus('');
+		setModalMessage('');
+	};
+
+	const closeModal = () => {
+		setModalRequest(null);
+		setModalNextStatus('');
+		setModalMessage('');
+	};
+
+	const executeStatusUpdate = async (request: RequestTask, nextStatus: RequestStatus, paymentStatus?: PaymentStatus, customMessage?: string): Promise<boolean> => {
 		try {
 			setMutatingId(request._id);
 			const input: UpdateRequestStatusInput = {
 				requestId: request._id,
 				status: nextStatus,
-				message: buildUpdateMessage(nextStatus, paymentStatus),
+				message: customMessage ?? buildUpdateMessage(nextStatus, paymentStatus),
 				...(paymentStatus ? { paymentStatus } : {}),
 			};
 			if (nextStatus === RequestStatus.FAILED && request.error?.code) {
 				input.errorCode = request.error.code as RequestErrorCode;
 			}
 			await updateRequestStatus({ variables: { input } });
-			setActionStatusById((prev) => ({ ...prev, [request._id]: '' }));
 			await refetch({ input: inquiryInput });
-			await sweetMixinSuccessAlert('Request updated');
+			return true;
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
+			return false;
 		} finally {
 			setMutatingId('');
 		}
 	};
+
+	const handleModalSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!modalRequest || !modalNextStatus) return;
+		setModalSubmitting(true);
+		const ok = await executeStatusUpdate(
+			modalRequest,
+			modalNextStatus as RequestStatus,
+			undefined,
+			modalMessage.trim() || undefined,
+		);
+		setModalSubmitting(false);
+		if (ok) {
+			closeModal();
+			await sweetMixinSuccessAlert('Request updated');
+		}
+	};
+
+	const handleMarkPaid = async (request: RequestTask) => {
+		const ok = await executeStatusUpdate(request, request.status, PaymentStatus.PAID);
+		if (ok) await sweetMixinSuccessAlert('Marked as paid');
+	};
+
+	const modalAllowedTransitions = modalRequest ? (REQUEST_TRANSITIONS[modalRequest.status] ?? []) : [];
 
 	return (
 		<div className="admin-page">
@@ -182,65 +222,45 @@ const AdminRequests: NextPage = () => {
 						}
 					}}
 				/>
-				<select
-					className="admin-select"
-					value={statusFilter}
-					onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-				>
+				<select className="admin-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}>
 					<option value="ALL">All statuses</option>
 					{Object.values(RequestStatus).map((status) => (
-						<option key={status} value={status}>
-							{titleize(status)}
-						</option>
+						<option key={status} value={status}>{titleize(status)}</option>
 					))}
 				</select>
 				<select className="admin-select" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}>
 					<option value="ALL">All types</option>
 					{Object.values(RequestType).map((type) => (
-						<option key={type} value={type}>
-							{titleize(type)}
-						</option>
+						<option key={type} value={type}>{titleize(type)}</option>
 					))}
 				</select>
-				<select
-					className="admin-select"
-					value={paymentFilter}
-					onChange={(e) => setPaymentFilter(e.target.value as PaymentFilter)}
-				>
+				<select className="admin-select" value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value as PaymentFilter)}>
 					<option value="ALL">All payments</option>
 					{Object.values(PaymentStatus).map((status) => (
-						<option key={status} value={status}>
-							{titleize(status)}
-						</option>
+						<option key={status} value={status}>{titleize(status)}</option>
 					))}
 				</select>
-				<select
-					className="admin-select"
-					value={destinationFilter}
-					onChange={(e) => setDestinationFilter(e.target.value as DestinationFilter)}
-				>
+				<select className="admin-select" value={destinationFilter} onChange={(e) => setDestinationFilter(e.target.value as DestinationFilter)}>
 					<option value="ALL">All destinations</option>
 					{Object.values(DeliveryDestinationType).map((destination) => (
-						<option key={destination} value={destination}>
-							{titleize(destination)}
-						</option>
+						<option key={destination} value={destination}>{titleize(destination)}</option>
 					))}
 				</select>
 			</div>
 
-			<div className="admin-table-wrap">
-				<table className="admin-table">
+			<div className="admin-table-wrap" style={{ overflowX: 'auto' }}>
+				<table className="admin-table" style={{ minWidth: 1200 }}>
 					<thead>
 						<tr>
-							<th style={{ width: 150 }}>Request</th>
-							<th style={{ width: 105 }}>Member</th>
-							<th>Book</th>
-							<th style={{ width: 80 }}>Robot</th>
-							<th style={{ width: 70 }}>Type</th>
-							<th style={{ width: 130 }}>Status</th>
-							<th style={{ width: 80 }}>Payment</th>
-							<th style={{ width: 125 }}>Updated</th>
-							<th style={{ width: 190, textAlign: 'right' }}>Actions</th>
+							<th style={{ width: 180 }}>Request</th>
+							<th style={{ width: 130 }}>Member</th>
+							<th style={{ width: 180 }}>Book</th>
+							<th style={{ width: 100 }}>Robot</th>
+							<th style={{ width: 90 }}>Type</th>
+							<th style={{ width: 150 }}>Status</th>
+							<th style={{ width: 100 }}>Payment</th>
+							<th style={{ width: 150 }}>Updated</th>
+							<th style={{ width: 160, textAlign: 'right' }}>Actions</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -257,16 +277,15 @@ const AdminRequests: NextPage = () => {
 							</tr>
 						)}
 						{list.map((request) => {
-							const allowedTransitions = REQUEST_TRANSITIONS[request.status] ?? [];
+							const isTerminal = TERMINAL_STATUSES.has(request.status);
 							const isBusy = mutatingId === request._id;
 							const canMarkPaid =
 								request.requestType === RequestType.PURCHASE &&
-								![PaymentStatus.PAID, PaymentStatus.CANCELLED, PaymentStatus.REFUNDED].includes(
-									request.paymentStatus,
-								);
+								![PaymentStatus.PAID, PaymentStatus.CANCELLED, PaymentStatus.REFUNDED].includes(request.paymentStatus);
+
 							return (
 								<tr key={request._id}>
-									<td style={{ maxWidth: 150 }}>
+									<td style={{ maxWidth: 180 }}>
 										<div
 											className="admin-cell-title admin-mono"
 											style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
@@ -300,33 +319,26 @@ const AdminRequests: NextPage = () => {
 									</td>
 									<td>{titleize(request.paymentStatus)}</td>
 									<td className="admin-cell-meta">{formatDate(request.updatedAt)}</td>
-									<td style={{ whiteSpace: 'nowrap' }}>
-										<div className="admin-cell-actions">
-											<select
-												className="admin-select"
-												style={{ minWidth: 120 }}
-												value={actionStatusById[request._id] ?? ''}
-												disabled={isBusy || allowedTransitions.length === 0}
-												onChange={async (e) => {
-													const nextStatus = e.target.value as RequestStatus;
-													setActionStatusById((prev) => ({ ...prev, [request._id]: nextStatus }));
-													if (!nextStatus) return;
-													await updateStatusHandler(request, nextStatus);
-												}}
-											>
-												<option value="">Set status</option>
-												{allowedTransitions.map((status) => (
-													<option key={status} value={status}>
-														{titleize(status)}
-													</option>
-												))}
-											</select>
+									<td style={{ whiteSpace: 'nowrap', textAlign: 'right' }}>
+										<div className="admin-cell-actions" style={{ justifyContent: 'flex-end' }}>
+											{isTerminal ? (
+												<span className="admin-request-final-badge">Final</span>
+											) : (
+												<button
+													type="button"
+													className="admin-btn admin-btn--ghost admin-btn--sm"
+													disabled={isBusy}
+													onClick={() => openStatusModal(request)}
+												>
+													Set status
+												</button>
+											)}
 											{canMarkPaid && (
 												<button
 													type="button"
 													className="admin-link-btn"
 													disabled={isBusy}
-													onClick={() => updateStatusHandler(request, request.status, PaymentStatus.PAID)}
+													onClick={() => handleMarkPaid(request)}
 												>
 													Mark Paid
 												</button>
@@ -349,6 +361,68 @@ const AdminRequests: NextPage = () => {
 						shape="rounded"
 						color="standard"
 					/>
+				</div>
+			)}
+
+			{/* Set status modal */}
+			{modalRequest && (
+				<div className="admin-modal-overlay" onClick={closeModal}>
+					<div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+						<div className="admin-modal-header">
+							<h2 className="admin-modal-title">Update Request Status</h2>
+							<button type="button" className="admin-modal-close" onClick={closeModal} aria-label="Close">✕</button>
+						</div>
+						<form onSubmit={handleModalSubmit}>
+							<div className="admin-modal-body">
+								<div className="admin-field">
+									<label className="admin-field-label">Request ID</label>
+									<input className="admin-input admin-mono" value={modalRequest._id} readOnly style={{ fontSize: 12 }} />
+								</div>
+								<div className="admin-field">
+									<label className="admin-field-label">Current Status</label>
+									<span className="admin-status" style={{ display: 'inline-flex', padding: '6px 0' }}>
+										<span className={`admin-status-dot admin-status-dot--${statusVariant(modalRequest.status)}`} />
+										{titleize(modalRequest.status)}
+									</span>
+								</div>
+								<div className="admin-field">
+									<label className="admin-field-label">New Status</label>
+									<select
+										className="admin-select"
+										value={modalNextStatus}
+										onChange={(e) => setModalNextStatus(e.target.value)}
+										required
+									>
+										<option value="">— select —</option>
+										{modalAllowedTransitions.map((status) => (
+											<option key={status} value={status}>{titleize(status)}</option>
+										))}
+									</select>
+								</div>
+								<div className="admin-field">
+									<label className="admin-field-label">Message (optional)</label>
+									<input
+										className="admin-input"
+										placeholder="Leave blank for default message"
+										value={modalMessage}
+										onChange={(e) => setModalMessage(e.target.value)}
+									/>
+								</div>
+							</div>
+							<div className="admin-modal-footer">
+								<button type="button" className="admin-btn admin-btn--ghost" onClick={closeModal} disabled={modalSubmitting}>
+									Cancel
+								</button>
+								<button
+									type="submit"
+									className="admin-btn admin-btn--primary"
+									disabled={modalSubmitting || !modalNextStatus}
+								>
+									{modalSubmitting ? 'Updating…' : 'Update'}
+								</button>
+							</div>
+						</form>
+					</div>
 				</div>
 			)}
 		</div>
