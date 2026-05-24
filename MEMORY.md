@@ -1,9 +1,55 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-23
-**Current Branch:** `aboutUs`
+**Last Updated:** 2026-05-24
+**Current Branch:** `admin`
 
 ---
+
+## Today's Session Update (2026-05-24, admin panels wiring + community admin moderation)
+
+### Completed today
+- Implemented real-data admin panels for:
+  - `/_admin/inventory` (`pages/_admin/inventory/index.tsx`)
+  - `/_admin/requests` (`pages/_admin/requests/index.tsx`)
+  - `/_admin/robots` (`pages/_admin/robots/index.tsx`)
+- Inventory panel:
+  - wired `GET_BOOK_INVENTORIES`
+  - added filters (status/type/zone), ID search, pagination
+  - added actions: `UPDATE_BOOK_INVENTORY_STATUS`, `UPDATE_BOOK_INVENTORY`, `removeBookInventoryByAdmin`.
+- Requests panel:
+  - wired `GET_REQUESTS`
+  - added filters (status/type/payment/destination), search, pagination
+  - added guarded transition actions via `UPDATE_REQUEST_STATUS`
+  - added purchase payment update action (`Mark Paid`).
+- Robots panel:
+  - wired `GET_ROBOTS`
+  - added filters (status/online), search, pagination
+  - added create robot flow via `CREATE_ROBOT`
+  - added inline robot updates via `UPDATE_ROBOT` (name/status/online/battery/currentRequestId).
+- Community public moderation:
+  - admins can delete non-owned twits from `/community` and `/community/detail`
+  - delete handler attempts `DELETE_TWIT` first, then `REMOVE_TWIT_BY_ADMIN` fallback when backend enforces admin-only removal for non-owners.
+- Twit contract and rendering fixes:
+  - admin GraphQL twit docs updated from `image` to `images` and include `viewCount`:
+    - `apollo/admin/query.ts`
+    - `apollo/admin/mutation.ts`
+  - twit update type aligned to images array (`libs/types/twit/twit.update.ts`)
+  - removed localStorage like-state workaround from `libs/components/community/TwitActionRow.tsx`; now uses server `meLiked`/`likeCount` with optimistic UI.
+- Community component prop wiring updated:
+  - `CommunityFeed` and `TwitCard` now use `canDelete` instead of owner-only delete prop.
+- Admin community list typed cleanup:
+  - `pages/_admin/community/index.tsx` now reads `twit.viewCount` directly.
+
+### Current stopping point
+- Inventory, Requests, and Robots admin pages are now live and mutation-enabled (core scope).
+- Public community moderation now supports admin delete behavior with backend-safe fallback.
+- Twit media/like handling is aligned to current backend contract (`images`, `meLiked`, `likeCount`).
+
+### Exact next task
+- Runtime QA pass against live backend data:
+  - verify inventory/request/robot mutations and table refresh behavior
+  - verify admin delete on non-owned twits from both feed and detail pages
+  - verify twit likes remain consistent across navigation/reload.
 
 ## Today's Session Update (2026-05-23, homepage advanced filter wiring + about hero image replacement)
 

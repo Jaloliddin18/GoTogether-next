@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IconButton, Stack, Typography } from '@mui/material';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { useRouter } from 'next/router';
@@ -14,28 +14,9 @@ import { userVar } from '../../../apollo/store';
 import { sweetTopSmallSuccessAlert } from '../../sweetAlert';
 import { Twit } from '../../types/twit/twit';
 
-// Persist liked-twit IDs in localStorage so state survives page refreshes.
-// The server's getMemberTwits resolver doesn't reliably compute meLiked for
-// the authenticated user on list queries, so we maintain our own truth here.
-const LS_KEY = 'liked_twits';
-
-const getLikedSet = (): Set<string> => {
-	try {
-		return new Set(JSON.parse(localStorage.getItem(LS_KEY) ?? '[]'));
-	} catch {
-		return new Set();
-	}
-};
-
-const saveLikedSet = (s: Set<string>): void => {
-	try {
-		localStorage.setItem(LS_KEY, JSON.stringify(Array.from(s)));
-	} catch {}
-};
-
 interface TwitActionRowProps {
 	twit: Twit;
-	isOwner: boolean;
+	canDelete: boolean;
 	repostCount?: number;
 	viewCount?: number;
 	onComment: () => void;
@@ -44,7 +25,7 @@ interface TwitActionRowProps {
 
 const TwitActionRow = ({
 	twit,
-	isOwner,
+	canDelete,
 	repostCount = 0,
 	viewCount = 0,
 	onComment,
@@ -53,16 +34,17 @@ const TwitActionRow = ({
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const twitId = twit?._id;
-
-	// If server returned meLiked=true, trust it; otherwise fall back to localStorage.
-	const [isLiked, setIsLiked] = useState<boolean>(
-		() => twit?.meLiked === true || getLikedSet().has(twitId),
-	);
+	const [isLiked, setIsLiked] = useState<boolean>(Boolean(twit?.meLiked));
 	const [likeCount, setLikeCount] = useState<number>(twit?.likeCount ?? 0);
 
 	const [likeTwit] = useMutation(LIKE_TWIT, {
-		onError: (err) => console.error(err),
+		onError: () => undefined,
 	});
+
+	useEffect(() => {
+		setIsLiked(Boolean(twit?.meLiked));
+		setLikeCount(twit?.likeCount ?? 0);
+	}, [twit?._id, twit?.meLiked, twit?.likeCount]);
 
 	const commentHandler = (e: React.SyntheticEvent) => {
 		e.preventDefault();
@@ -84,35 +66,36 @@ const TwitActionRow = ({
 		const nextLiked = !isLiked;
 		const nextCount = nextLiked ? likeCount + 1 : Math.max(0, likeCount - 1);
 
-		// Optimistic local update
 		setIsLiked(nextLiked);
 		setLikeCount(nextCount);
-		const s = getLikedSet();
-		nextLiked ? s.add(twitId) : s.delete(twitId);
-		saveLikedSet(s);
 
 		try {
-			const { data } = await likeTwit({ variables: { twitId } });
+			const { data } = await likeTwit({
+				variables: { twitId },
+				optimisticResponse: {
+					likeTwit: {
+						__typename: 'Twit',
+						_id: twitId,
+						memberId: twit.memberId,
+						text: twit.text,
+						images: twit.images ?? [],
+						meLiked: nextLiked,
+						likeCount: nextCount,
+						viewCount: twit.viewCount ?? 0,
+						deletedAt: twit.deletedAt ?? null,
+						createdAt: twit.createdAt,
+						updatedAt: twit.updatedAt,
+					},
+				},
+			});
 			const serverLiked: boolean | undefined = data?.likeTwit?.meLiked;
 			const serverCount: number | undefined = data?.likeTwit?.likeCount;
-
-			// Reconcile with server response
-			if (serverLiked !== undefined && serverLiked !== null) {
-				setIsLiked(serverLiked);
-				const s2 = getLikedSet();
-				serverLiked ? s2.add(twitId) : s2.delete(twitId);
-				saveLikedSet(s2);
-			}
-			if (serverCount != null) setLikeCount(serverCount);
-
+			if (typeof serverLiked === 'boolean') setIsLiked(serverLiked);
+			if (typeof serverCount === 'number') setLikeCount(serverCount);
 			sweetTopSmallSuccessAlert('Success!', 750).then();
 		} catch {
-			// Revert to pre-click state
 			setIsLiked(prevLiked);
 			setLikeCount(prevCount);
-			const s3 = getLikedSet();
-			prevLiked ? s3.add(twitId) : s3.delete(twitId);
-			saveLikedSet(s3);
 		}
 	};
 
@@ -176,7 +159,7 @@ const TwitActionRow = ({
 				</IconButton>
 			</Stack>
 
-			{isOwner && (
+			{canDelete && (
 				<Stack className="twit-action delete-action">
 					<IconButton onClick={deleteHandler} aria-label="Delete">
 						<DeleteOutlineIcon />

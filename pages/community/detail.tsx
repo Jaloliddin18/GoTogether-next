@@ -9,6 +9,7 @@ import { userVar } from '../../apollo/store';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GET_TWIT, GET_TWIT_COMMENTS } from '../../apollo/user/query';
 import { CREATE_TWIT_COMMENT, DELETE_TWIT } from '../../apollo/user/mutation';
+import { REMOVE_TWIT_BY_ADMIN } from '../../apollo/admin/mutation';
 import { TwitComment } from '../../libs/types/twit-comment/twit-comment';
 import TwitAuthorRow from '../../libs/components/community/TwitAuthorRow';
 import TwitBody from '../../libs/components/community/TwitBody';
@@ -19,6 +20,7 @@ import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import Moment from 'react-moment';
 import { REACT_APP_API_URL } from '../../libs/config';
 import { Direction, Message } from '../../libs/enums/common.enum';
+import { MemberType } from '../../libs/enums/member.enum';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -37,6 +39,7 @@ const CommunityDetail: NextPage = () => {
 	const replyInputRef = useRef<HTMLInputElement>(null);
 
 	const [deleteTwit] = useMutation(DELETE_TWIT);
+	const [removeTwitByAdmin] = useMutation(REMOVE_TWIT_BY_ADMIN);
 	const [createTwitComment] = useMutation(CREATE_TWIT_COMMENT);
 
 	const {
@@ -74,7 +77,8 @@ const CommunityDetail: NextPage = () => {
 	const depth0 = comments.filter((c) => c.depth === 0);
 	const depth1 = comments.filter((c) => c.depth === 1);
 	const depth2 = comments.filter((c) => c.depth === 2);
-	const isOwner = !!user?._id && user._id === twit?.memberId;
+	const isAdmin = user?.memberType === MemberType.ADMIN;
+	const canDelete = Boolean(user?._id && (user._id === twit?.memberId || isAdmin));
 
 	const goCommunityPage = async () => {
 		await router.push('/community');
@@ -89,7 +93,15 @@ const CommunityDetail: NextPage = () => {
 			}
 			const confirmation = await sweetConfirmAlert('Delete this post?');
 			if (!confirmation) return;
-			await deleteTwit({ variables: { input: id } });
+			if (isAdmin) {
+				try {
+					await deleteTwit({ variables: { input: id } });
+				} catch {
+					await removeTwitByAdmin({ variables: { input: id } });
+				}
+			} else {
+				await deleteTwit({ variables: { input: id } });
+			}
 			await sweetTopSmallSuccessAlert('Deleted', 800);
 			await goCommunityPage();
 		} catch (err: any) {
@@ -202,7 +214,7 @@ const CommunityDetail: NextPage = () => {
 								<TwitActionRow
 									twit={twit}
 									viewCount={twit?.viewCount ?? 0}
-									isOwner={isOwner}
+									canDelete={canDelete}
 									onComment={() => replyInputRef.current?.focus()}
 									onDelete={deleteTwitHandler}
 								/>

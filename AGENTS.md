@@ -15,6 +15,43 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-24) — Admin panel real-data wiring + community admin moderation
+
+### Completed
+- Replaced placeholder `Coming Soon` pages with real admin panels:
+  - `pages/_admin/inventory/index.tsx`
+  - `pages/_admin/requests/index.tsx`
+  - `pages/_admin/robots/index.tsx`
+- Inventory panel wiring:
+  - query: `GET_BOOK_INVENTORIES`
+  - actions: `UPDATE_BOOK_INVENTORY_STATUS`, `UPDATE_BOOK_INVENTORY`, `removeBookInventoryByAdmin`
+  - features: filters (status/type/zone), ID search, inline quantity edit, pagination.
+- Requests panel wiring:
+  - query: `GET_REQUESTS`
+  - action: `UPDATE_REQUEST_STATUS`
+  - features: filters (status/type/payment/destination), request/member/robot/book search, guarded next-status transitions, payment update action (`Mark Paid` for purchase requests), pagination.
+- Robots panel wiring:
+  - query: `GET_ROBOTS`
+  - actions: `CREATE_ROBOT`, `UPDATE_ROBOT`
+  - features: filters (status/online), ID/name/request search, create form, inline edit (name/status/online/battery/currentRequestId), pagination, battery indicator.
+- Community admin moderation on public pages:
+  - updated `pages/community/index.tsx` and `pages/community/detail.tsx` so admins can delete non-owned twits
+  - deletion path tries `DELETE_TWIT` first, then falls back to `REMOVE_TWIT_BY_ADMIN` when needed by backend policy.
+- Twit rendering/contract cleanup:
+  - admin GraphQL twit docs changed from `image` to `images` and now include `viewCount`:
+    - `apollo/admin/query.ts`
+    - `apollo/admin/mutation.ts`
+  - aligned twit update type `libs/types/twit/twit.update.ts` (`images?: string[]`).
+- Community like-state logic cleanup:
+  - removed localStorage fallback state from `TwitActionRow`
+  - now uses server truth (`meLiked`, `likeCount`) with optimistic mutation update only.
+- `pages/_admin/community/index.tsx` now reads typed `twit.viewCount` directly.
+
+### Key rules
+- Twit media contract in current frontend/backend flow is `images` (array), not legacy `image`.
+- For admin moderation on public community, keep delete available to `owner OR admin`; do not expose admin edit controls unless explicitly requested.
+- Keep inventory/requests/robots admin scope at core operations in list views unless user asks for full CRUD flows.
+
 ## Session Update (2026-05-23) — Homepage advanced filter wiring + About hero background update
 
 ### Completed

@@ -8,13 +8,12 @@ import { Twit } from '../../types/twit/twit';
 
 interface TwitCardProps {
 	twit: Twit;
-	currentUserId?: string;
+	canDelete: boolean;
 	onDelete: (id: string) => Promise<void>;
 }
 
-const TwitCard = ({ twit, currentUserId, onDelete }: TwitCardProps) => {
+const TwitCard = ({ twit, canDelete, onDelete }: TwitCardProps) => {
 	const router = useRouter();
-	const isOwner = !!currentUserId && currentUserId === twit?.memberId;
 
 	const goDetailPage = () => {
 		router.push({
@@ -30,7 +29,7 @@ const TwitCard = ({ twit, currentUserId, onDelete }: TwitCardProps) => {
 			<TwitActionRow
 				twit={twit}
 				viewCount={twit?.viewCount ?? 0}
-				isOwner={isOwner}
+				canDelete={canDelete}
 				onComment={goDetailPage}
 				onDelete={onDelete}
 			/>

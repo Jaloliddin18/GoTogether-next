@@ -379,9 +379,10 @@ export const UPDATE_TWIT_BY_ADMIN = gql`
 			_id
 			memberId
 			text
-			image
+			images
 			meLiked
 			likeCount
+			viewCount
 			deletedAt
 			createdAt
 			updatedAt
@@ -395,9 +396,10 @@ export const REMOVE_TWIT_BY_ADMIN = gql`
 			_id
 			memberId
 			text
-			image
+			images
 			meLiked
 			likeCount
+			viewCount
 			deletedAt
 			createdAt
 			updatedAt

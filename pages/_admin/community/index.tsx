@@ -138,7 +138,7 @@ const AdminCommunity: NextPage = () => {
 										</Link>
 									</td>
 									<td>{twit.likeCount ?? 0}</td>
-									<td>{(twit as any).viewCount ?? 0}</td>
+									<td>{twit.viewCount ?? 0}</td>
 									<td>
 										<span className="admin-status">
 											<span className={`admin-status-dot admin-status-dot--${isDeleted ? 'danger' : 'success'}`} />

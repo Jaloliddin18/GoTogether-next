@@ -98,9 +98,10 @@ export const GET_ALL_TWITS_BY_ADMIN = gql`
 				_id
 				memberId
 				text
-				image
+				images
 				meLiked
 				likeCount
+				viewCount
 				deletedAt
 				createdAt
 				updatedAt

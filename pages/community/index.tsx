@@ -15,8 +15,10 @@ import { CreateTwitInput, TwitFeedType, TwitsInquiry } from '../../libs/types/tw
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { CREATE_TWIT, DELETE_TWIT } from '../../apollo/user/mutation';
 import { GET_TWITS } from '../../apollo/user/query';
+import { REMOVE_TWIT_BY_ADMIN } from '../../apollo/admin/mutation';
 import { userVar } from '../../apollo/store';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import { MemberType } from '../../libs/enums/member.enum';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -33,6 +35,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	/** APOLLO REQUESTS **/
 	const [createTwit, { loading: createTwitLoading }] = useMutation(CREATE_TWIT);
 	const [deleteTwit] = useMutation(DELETE_TWIT);
+	const [removeTwitByAdmin] = useMutation(REMOVE_TWIT_BY_ADMIN);
 	const {
 		loading: twitsLoading,
 		error: getTwitsError,
@@ -45,6 +48,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	});
 	const twits: Twit[] = twitsData?.getTwits?.list ?? [];
 	const totalCount: number = twitsData?.getTwits?.metaCounter?.[0]?.total ?? 0;
+	const isAdmin = user?.memberType === MemberType.ADMIN;
 
 	/** HANDLERS **/
 	const createTwitHandler = async (input: CreateTwitInput): Promise<boolean> => {
@@ -84,9 +88,15 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 			const confirmation = await sweetConfirmAlert('Delete this post?');
 			if (!confirmation) return;
 
-			await deleteTwit({
-				variables: { input: id },
-			});
+			if (isAdmin) {
+				try {
+					await deleteTwit({ variables: { input: id } });
+				} catch {
+					await removeTwitByAdmin({ variables: { input: id } });
+				}
+			} else {
+				await deleteTwit({ variables: { input: id } });
+			}
 
 			await twitsRefetch({ input: searchCommunity });
 			await sweetTopSmallSuccessAlert('Deleted', 800);
@@ -128,6 +138,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 						loading={twitsLoading}
 						error={getTwitsError}
 						currentUserId={user?._id}
+						isAdmin={isAdmin}
 						onDelete={deleteTwitHandler}
 					/>
 					{totalCount > searchCommunity.limit && (
