@@ -776,6 +776,40 @@ body::-webkit-scrollbar {
 				line-height: 26px;
 			}
 		}
+
+		&.books-banner {
+			align-items: center;
+
+			.container {
+				height: 100%;
+				margin-top: 0;
+				display: flex;
+				justify-content: center;
+				align-items: flex-end;
+				padding-right: clamp(24px, 7vw, 120px);
+			}
+
+			.header-basic-copy {
+				max-width: min(460px, 38vw);
+				align-items: flex-end;
+				text-align: right;
+			}
+		}
+	}
+
+	@media (max-width: 900px) {
+		.header-basic.books-banner {
+			.container {
+				justify-content: center;
+				padding-right: 0;
+			}
+
+			.header-basic-copy {
+				max-width: min(620px, calc(100% - 64px));
+				align-items: center;
+				text-align: center;
+			}
+		}
 	}
 
 	.review-card {

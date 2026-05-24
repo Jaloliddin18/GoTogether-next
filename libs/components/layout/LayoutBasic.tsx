@@ -22,6 +22,7 @@ const withLayoutBasic = (Component: any) => {
 		const [authHeader, setAuthHeader] = useState<boolean>(false);
 		const user = useReactiveVar(userVar);
 		const needsHeroTextLargeFont = ['/about', '/community', '/mypage', '/books', '/cs'].includes(router.pathname);
+		const isBooksRoute = router.pathname === '/books';
 
 		const memoizedValues = useMemo(() => {
 			let title = '',
@@ -33,7 +34,7 @@ const withLayoutBasic = (Component: any) => {
 				case '/books':
 					title = 'Books';
 					desc = 'Browse and discover books';
-					bgImage = '/img/banner/books_hero.png';
+					bgImage = '/img/booksPage.jpg';
 					heroOverlay =
 						'linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.25) 45%, rgba(0, 0, 0, 0.1) 100%), ';
 					break;
@@ -122,7 +123,7 @@ const withLayoutBasic = (Component: any) => {
 
 						{memoizedValues.bgImage && (
 							<Stack
-								className={`header-basic ${authHeader && 'auth'}${router.pathname === '/cs' ? ' cs-banner' : ''}`}
+								className={`header-basic ${authHeader && 'auth'}${router.pathname === '/cs' ? ' cs-banner' : ''}${isBooksRoute ? ' books-banner' : ''}`}
 								style={{
 									backgroundImage: `url(${memoizedValues.bgImage})`,
 									backgroundSize: 'cover',
