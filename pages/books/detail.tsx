@@ -441,6 +441,19 @@ const BookDetailPage: NextPage = () => {
 	const difficulty = getDifficulty(book?.bookAudience ?? '');
 	const reviewLabel = `${commentTotal} Review${commentTotal === 1 ? '' : 's'}`;
 	const bookDescription = book?.bookDescription?.trim() ?? '';
+	const headlineMetaBadges = useMemo(
+		() =>
+			[
+				{ label: 'Category', value: formatLabel(book?.bookCategory) },
+				{ label: 'Language', value: formatLabel(book?.bookLanguage) },
+				{ label: 'Format', value: formatLabel(book?.bookFormat) },
+			].filter((item) => item.value !== '—'),
+		[book?.bookCategory, book?.bookLanguage, book?.bookFormat],
+	);
+	const robotDeliveryHeadline = book?.isBorrowable ? 'Available for desk delivery' : 'Delivery route activates after request';
+	const robotDeliverySubline = book?.isPurchasable
+		? 'Library pickup route is prepared after request.'
+		: 'Desk delivery route is prepared after request.';
 
 	const metaItems = [
 		{ label: 'Category', value: formatLabel(book?.bookCategory), icon: CategoryIcon },
@@ -610,29 +623,53 @@ const BookDetailPage: NextPage = () => {
 								alignItems: 'start',
 							}}
 						>
-							<Stack spacing={2}>
-								<SafeBox
-									sx={{
-										borderRadius: '20px',
-										overflow: 'hidden',
-										background: '#f5f7fa',
-										border: `1px solid ${libraryColors.border}`,
-										height: { xs: 360, sm: 520, lg: 600 },
-										display: 'grid',
-										placeItems: 'center',
-										p: { xs: 1.2, sm: 1.6 },
-									}}
-								>
-									<SafeBox
-										component="img"
-										src={resolveMediaUrl(currentImage, '/img/banner/books_hero.png')}
-										alt={book?.bookTitle ?? 'Book cover'}
-										sx={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center', display: 'block', borderRadius: '14px' }}
-									/>
-								</SafeBox>
-								<Stack
-									direction="row"
-									spacing={1.5}
+								<Stack spacing={2}>
+										<SafeBox
+											sx={{
+												borderRadius: '20px',
+												overflow: 'hidden',
+												background: 'linear-gradient(180deg, #F8FAFD 0%, #F3F6FB 100%)',
+												border: `1px solid ${libraryColors.border}`,
+												width: '100%',
+												minHeight: { xs: 500, sm: 620, lg: 700 },
+												display: 'grid',
+												placeItems: 'center',
+												p: { xs: 1.6, sm: 2.2 },
+											}}
+										>
+										<SafeBox
+											sx={{
+												width: '100%',
+												height: '100%',
+												borderRadius: '16px',
+												background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)',
+												border: '1px solid #E8EDF5',
+												display: 'grid',
+												placeItems: 'center',
+												p: { xs: 1.2, sm: 2 },
+												boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9)',
+											}}
+										>
+												<SafeBox
+													component="img"
+													src={resolveMediaUrl(currentImage, '/img/banner/books_hero.png')}
+													alt={book?.bookTitle ?? 'Book cover'}
+													sx={{
+														width: 'auto',
+														height: 'auto',
+														maxWidth: '100%',
+														maxHeight: { xs: 460, sm: 580, lg: 660 },
+														objectFit: 'contain',
+														objectPosition: 'center',
+														display: 'block',
+														borderRadius: '12px',
+													}}
+											/>
+										</SafeBox>
+									</SafeBox>
+									<Stack
+										direction="row"
+										spacing={1.5}
 									sx={{ overflowX: 'auto', pb: 1, WebkitOverflowScrolling: 'touch' }}
 								>
 									{imageList.map((img: string, index: number) => {
@@ -676,14 +713,40 @@ const BookDetailPage: NextPage = () => {
 							</Stack>
 
 							<Stack spacing={3}>
-								<Stack spacing={1} sx={{ minWidth: 0 }}>
-									<Typography variant={isMobile ? 'h4' : 'h2'} sx={{ color: libraryColors.ink, fontWeight: 800, lineHeight: 1.2, overflowWrap: 'break-word' }}>
-										{book?.bookTitle ?? 'Book title unavailable'}
-									</Typography>
-									<Typography sx={{ color: libraryColors.muted, fontSize: 18, fontWeight: 500 }}>
-										{book?.bookAuthor ? `by ${book.bookAuthor}` : 'Author unavailable'}
-									</Typography>
-								</Stack>
+									<Stack spacing={1} sx={{ minWidth: 0 }}>
+										<Typography variant={isMobile ? 'h4' : 'h2'} sx={{ color: libraryColors.ink, fontWeight: 800, lineHeight: 1.2, overflowWrap: 'break-word' }}>
+											{book?.bookTitle ?? 'Book title unavailable'}
+										</Typography>
+										<Typography sx={{ color: libraryColors.muted, fontSize: 18, fontWeight: 500 }}>
+											{book?.bookAuthor ? `by ${book.bookAuthor}` : 'Author unavailable'}
+										</Typography>
+										{headlineMetaBadges.length > 0 && (
+											<Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ pt: 0.5 }}>
+												{headlineMetaBadges.map((item) => (
+													<SafeBox
+														key={item.label}
+														sx={{
+															display: 'inline-flex',
+															alignItems: 'center',
+															gap: 0.8,
+															px: 1.2,
+															py: 0.65,
+															borderRadius: '999px',
+															border: '1px solid #E6EDF7',
+															backgroundColor: '#F7FAFF',
+														}}
+													>
+														<Typography sx={{ color: '#5A6C84', fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+															{item.label}
+														</Typography>
+														<Typography sx={{ color: libraryColors.ink, fontSize: 12, fontWeight: 600 }}>
+															{item.value}
+														</Typography>
+													</SafeBox>
+												))}
+											</Stack>
+										)}
+									</Stack>
 
 								<Stack direction="row" spacing={2} alignItems="center">
 									<Typography sx={{ color: libraryColors.ink, fontSize: 32, fontWeight: 800 }}>
@@ -731,11 +794,20 @@ const BookDetailPage: NextPage = () => {
 								</Stack>
 
 								{bookDescription.length > 0 && (
-									<Stack spacing={1} sx={{ mt: { xs: 2.25, md: 2.5 } }}>
+									<SafeBox
+										sx={{
+											mt: { xs: 2.25, md: 2.5 },
+											p: { xs: 1.6, sm: 1.9 },
+											borderRadius: '12px',
+											border: '1px solid #E8EEF7',
+											background: 'linear-gradient(180deg, #FCFDFF 0%, #F8FAFC 100%)',
+										}}
+									>
+										<Stack spacing={1}>
 										<Typography
 											sx={{
 												color: libraryColors.ink,
-												fontSize: 13,
+												fontSize: 12.5,
 												fontWeight: 700,
 												letterSpacing: '0.04em',
 												textTransform: 'uppercase',
@@ -755,26 +827,57 @@ const BookDetailPage: NextPage = () => {
 										>
 											{bookDescription}
 										</Typography>
-									</Stack>
+										</Stack>
+									</SafeBox>
 								)}
+
+									<SafeBox
+										sx={{
+											p: { xs: 1.5, sm: 1.8 },
+											borderRadius: '12px',
+											border: '1px solid #DCE9FA',
+											background: 'linear-gradient(135deg, #F8FBFF 0%, #F2F7FF 100%)',
+										}}
+									>
+										<Stack direction="row" spacing={1.3} alignItems="flex-start">
+											<LocalShippingOutlinedIcon sx={{ color: libraryColors.navy, fontSize: 20, mt: 0.15 }} />
+											<Stack spacing={0.45}>
+												<Typography sx={{ color: libraryColors.ink, fontSize: 14, fontWeight: 800 }}>
+													Robot Delivery
+												</Typography>
+												<Typography sx={{ color: '#30425D', fontSize: 13.5, fontWeight: 600 }}>
+													{robotDeliveryHeadline}
+												</Typography>
+												<Typography sx={{ color: '#4E647F', fontSize: 12.5, lineHeight: 1.45 }}>
+													{robotDeliverySubline}
+												</Typography>
+											</Stack>
+										</Stack>
+									</SafeBox>
 
 								<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 									<Button
-										variant="outlined"
+										variant="contained"
 										startIcon={<LocalShippingOutlinedIcon />}
 										disabled={createRequestLoading || !book?.isBorrowable}
 										onClick={openDeskSelectionModal}
 										sx={{
 											flex: 1,
 											height: 52,
-											background: '#FFFFFF',
-											borderColor: '#E2E8F0',
-											color: '#1A1A2E',
+											background: '#1B3A6B',
+											border: '1px solid #1B3A6B',
+											color: '#FFFFFF',
 											borderRadius: '12px',
 											textTransform: 'none',
 											fontSize: 16,
 											fontWeight: 700,
-											'&:hover': { background: '#F8FAFC', borderColor: '#1B3A6B' },
+											boxShadow: '0 10px 24px rgba(27,58,107,0.2)',
+											'&:hover': { background: '#17345F', borderColor: '#17345F', boxShadow: '0 12px 26px rgba(23,52,95,0.26)' },
+											'&.Mui-disabled': {
+												background: '#D5DDE8',
+												borderColor: '#D5DDE8',
+												color: '#7A8DA8',
+											},
 										}}
 									>
 										Borrow
@@ -805,8 +908,8 @@ const BookDetailPage: NextPage = () => {
 									</Button>
 								</Stack>
 
-								<SafeBox sx={{ border: `1px solid ${libraryColors.border}`, borderRadius: '16px', overflow: 'hidden' }}>
-									<SafeBox sx={{ px: 2, py: 1.5, background: '#F8FAFC', borderBottom: `1px solid ${libraryColors.border}` }}>
+								<SafeBox sx={{ border: '1px solid #E7EDF5', borderRadius: '16px', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
+									<SafeBox sx={{ px: 2, py: 1.4, background: '#FBFCFE', borderBottom: '1px solid #E7EDF5' }}>
 										<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>Catalog Record</Typography>
 									</SafeBox>
 									<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' } }}>
@@ -814,9 +917,10 @@ const BookDetailPage: NextPage = () => {
 											<SafeBox
 												key={label}
 												sx={{
-													p: 2,
-													borderRight: { sm: (index + 1) % (isMobile ? 2 : 3) === 0 ? 'none' : `1px solid ${libraryColors.border}` },
-													borderBottom: index < metaItems.length - (isMobile ? 1 : 3) ? `1px solid ${libraryColors.border}` : 'none',
+													p: 1.9,
+													backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#FCFDFE',
+													borderRight: { sm: (index + 1) % (isMobile ? 2 : 3) === 0 ? 'none' : '1px solid #EEF2F7' },
+													borderBottom: index < metaItems.length - (isMobile ? 1 : 3) ? '1px solid #EEF2F7' : 'none',
 												}}
 											>
 												<Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
