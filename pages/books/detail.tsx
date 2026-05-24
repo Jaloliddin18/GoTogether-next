@@ -440,6 +440,7 @@ const BookDetailPage: NextPage = () => {
 	const pagesPerDay = pages > 0 ? Math.ceil(pages / 14) : 0;
 	const difficulty = getDifficulty(book?.bookAudience ?? '');
 	const reviewLabel = `${commentTotal} Review${commentTotal === 1 ? '' : 's'}`;
+	const bookDescription = book?.bookDescription?.trim() ?? '';
 
 	const metaItems = [
 		{ label: 'Category', value: formatLabel(book?.bookCategory), icon: CategoryIcon },
@@ -698,7 +699,7 @@ const BookDetailPage: NextPage = () => {
 								<Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
 									{book?.isBorrowable && <Chip label="Borrowable" sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
 									{book?.isPurchasable && <Chip label="Purchasable" sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
-									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#f8fafb', color: '#64748B', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
+									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#E6F5EF', color: '#4DA882', fontWeight: 500, border: 'none', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
 								</Stack>
 
 								<Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap' }}>
@@ -728,6 +729,34 @@ const BookDetailPage: NextPage = () => {
 										<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>{book?.bookLikes ?? 0}</Typography>
 									</Stack>
 								</Stack>
+
+								{bookDescription.length > 0 && (
+									<Stack spacing={1} sx={{ mt: { xs: 2.25, md: 2.5 } }}>
+										<Typography
+											sx={{
+												color: libraryColors.ink,
+												fontSize: 13,
+												fontWeight: 700,
+												letterSpacing: '0.04em',
+												textTransform: 'uppercase',
+											}}
+										>
+											Description
+										</Typography>
+										<Typography
+											sx={{
+												color: '#111827',
+												fontSize: { xs: 14.5, sm: 15.5 },
+												lineHeight: 1.6,
+												fontWeight: 400,
+												whiteSpace: 'pre-line',
+												overflowWrap: 'anywhere',
+											}}
+										>
+											{bookDescription}
+										</Typography>
+									</Stack>
+								)}
 
 								<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 									<Button
