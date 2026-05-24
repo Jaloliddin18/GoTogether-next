@@ -23,6 +23,7 @@ const withLayoutBasic = (Component: any) => {
 		const user = useReactiveVar(userVar);
 		const needsHeroTextLargeFont = ['/about', '/community', '/mypage', '/books', '/cs'].includes(router.pathname);
 		const isBooksRoute = router.pathname === '/books';
+		const hasHeroReadabilityRoute = ['/community', '/mypage', '/cs'].includes(router.pathname);
 
 		const memoizedValues = useMemo(() => {
 			let title = '',
@@ -123,7 +124,7 @@ const withLayoutBasic = (Component: any) => {
 
 						{memoizedValues.bgImage && (
 							<Stack
-								className={`header-basic ${authHeader && 'auth'}${router.pathname === '/cs' ? ' cs-banner' : ''}${isBooksRoute ? ' books-banner' : ''}`}
+								className={`header-basic ${authHeader && 'auth'}${router.pathname === '/cs' ? ' cs-banner' : ''}${isBooksRoute ? ' books-banner' : ''}${hasHeroReadabilityRoute ? ' hero-readable-banner' : ''}`}
 								style={{
 									backgroundImage: `url(${memoizedValues.bgImage})`,
 									backgroundSize: 'cover',
