@@ -1,238 +1,184 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { NextPage } from 'next';
-import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
-import { Box, Stack, MenuItem } from '@mui/material';
-import { List, ListItem } from '@mui/material';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import Select from '@mui/material/Select';
-import { TabContext } from '@mui/lab';
-import TablePagination from '@mui/material/TablePagination';
-import CommunityArticleList from '../../../libs/components/admin/community/CommunityArticleList';
-import { AllBoardArticlesInquiry } from '../../../libs/types/board-article/board-article.input';
-import { BoardArticle } from '../../../libs/types/board-article/board-article';
-import { BoardArticleCategory, BoardArticleStatus } from '../../../libs/enums/board-article.enum';
-import { sweetConfirmAlert, sweetErrorHandling } from '../../../libs/sweetAlert';
-import { BoardArticleUpdate } from '../../../libs/types/board-article/board-article.update';
+import Link from 'next/link';
+import Moment from 'react-moment';
+import Pagination from '@mui/material/Pagination';
 import { useMutation, useQuery } from '@apollo/client';
-import { REMOVE_BOARD_ARTICLE_BY_ADMIN, UPDATE_BOARD_ARTICLE_BY_ADMIN } from '../../../apollo/admin/mutation';
-import { GET_ALL_BOARD_ARTICLES_BY_ADMIN } from '../../../apollo/admin/query';
+import withAdminLayout from '../../../libs/components/layout/LayoutAdmin';
+import { GET_ALL_TWITS_BY_ADMIN } from '../../../apollo/admin/query';
+import { REMOVE_TWIT_BY_ADMIN } from '../../../apollo/admin/mutation';
+import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
+import { Twit } from '../../../libs/types/twit/twit';
 import { T } from '../../../libs/types/common';
 
-const AdminCommunity: NextPage = ({ initialInquiry, ...props }: any) => {
-	const [anchorEl, setAnchorEl] = useState<any>([]);
-	const [communityInquiry, setCommunityInquiry] = useState<AllBoardArticlesInquiry>(initialInquiry);
-	const [articles, setArticles] = useState<BoardArticle[]>([]);
-	const [articleTotal, setArticleTotal] = useState<number>(0);
-	const [value, setValue] = useState(
-		communityInquiry?.search?.articleStatus ? communityInquiry?.search?.articleStatus : 'ALL',
-	);
-	const [searchType, setSearchType] = useState('ALL');
+const PAGE_LIMIT = 10;
 
-	/** APOLLO REQUESTS **/
-	const [updateBoardArticleByAdmin] = useMutation(UPDATE_BOARD_ARTICLE_BY_ADMIN);
-	const [removeBoardArticleByAdmin] = useMutation(REMOVE_BOARD_ARTICLE_BY_ADMIN);
-	const {
-		loading: getAllBoardArticlesByAdminLoading,
-		data: getAllBoardArticlesByAdminData,
-		error: getAllBoardArticlesByAdminError,
-		refetch: getAllBoardArticlesByAdminRefetch,
-	} = useQuery(GET_ALL_BOARD_ARTICLES_BY_ADMIN, {
-		fetchPolicy: 'network-only',
-		variables: { input: communityInquiry },
-		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setArticles(data?.getAllBoardArticlesByAdmin?.list ?? []);
-			setArticleTotal(data?.getAllBoardArticlesByAdmin?.metaCounter[0]?.total ?? 0);
-		},
-	});
-
-	/** LIFECYCLES **/
-	useEffect(() => {
-		getAllBoardArticlesByAdminRefetch({ input: communityInquiry }).then();
-	}, [communityInquiry]);
-
-	/** HANDLERS **/
-	const changePageHandler = async (event: unknown, newPage: number) => {
-		communityInquiry.page = newPage + 1;
-		await getAllBoardArticlesByAdminRefetch({ input: communityInquiry });
-		setCommunityInquiry({ ...communityInquiry });
-	};
-
-	const changeRowsPerPageHandler = async (event: React.ChangeEvent<HTMLInputElement>) => {
-		communityInquiry.limit = parseInt(event.target.value, 10);
-		communityInquiry.page = 1;
-		await getAllBoardArticlesByAdminRefetch({ input: communityInquiry });
-		setCommunityInquiry({ ...communityInquiry });
-	};
-
-	const menuIconClickHandler = (e: any, index: number) => {
-		const tempAnchor = anchorEl.slice();
-		tempAnchor[index] = e.currentTarget;
-		setAnchorEl(tempAnchor);
-	};
-
-	const menuIconCloseHandler = () => {
-		setAnchorEl([]);
-	};
-
-	const tabChangeHandler = async (event: any, newValue: string) => {
-		setValue(newValue);
-
-		setCommunityInquiry({ ...communityInquiry, page: 1, sort: 'createdAt' });
-
-		switch (newValue) {
-			case 'ACTIVE':
-				setCommunityInquiry({ ...communityInquiry, search: { articleStatus: BoardArticleStatus.ACTIVE } });
-				break;
-			case 'DELETE':
-				setCommunityInquiry({ ...communityInquiry, search: { articleStatus: BoardArticleStatus.DELETE } });
-				break;
-			default:
-				delete communityInquiry?.search?.articleStatus;
-				setCommunityInquiry({ ...communityInquiry });
-				break;
-		}
-	};
-
-	const searchTypeHandler = async (newValue: string) => {
-		try {
-			setSearchType(newValue);
-
-			if (newValue !== 'ALL') {
-				setCommunityInquiry({
-					...communityInquiry,
-					page: 1,
-					sort: 'createdAt',
-					search: {
-						...communityInquiry.search,
-						articleCategory: newValue as BoardArticleCategory,
-					},
-				});
-			} else {
-				delete communityInquiry?.search?.articleCategory;
-				setCommunityInquiry({ ...communityInquiry });
-			}
-		} catch (err: any) {
-			console.log('searchTypeHandler: ', err.message);
-		}
-	};
-
-	const updateArticleHandler = async (updateData: BoardArticleUpdate) => {
-		try {
-			console.log('+updateData: ', updateData);
-			await updateBoardArticleByAdmin({
-				variables: {
-					input: updateData,
-				},
-			});
-
-			menuIconCloseHandler();
-			await getAllBoardArticlesByAdminRefetch({ input: communityInquiry });
-		} catch (err: any) {
-			menuIconCloseHandler();
-			sweetErrorHandling(err).then();
-		}
-	};
-
-	const removeArticleHandler = async (id: string) => {
-		try {
-			if (await sweetConfirmAlert('Are you sure to remove?')) {
-				await removeBoardArticleByAdmin({
-					variables: {
-						input: id,
-					},
-				});
-				await getAllBoardArticlesByAdminRefetch({ input: communityInquiry });
-			}
-		} catch (err: any) {
-			sweetErrorHandling(err).then();
-		}
-	};
-
-	console.log('+communityInquiry', communityInquiry);
-	console.log('+articles', articles);
-
-	return (
-		<Box component={'div'} className={'content'}>
-			<Typography variant={'h2'} className={'tit'} sx={{ mb: '24px' }}>
-				Arricle List
-			</Typography>
-			<Box component={'div'} className={'table-wrap'}>
-				<Box component={'div'} sx={{ width: '100%', typography: 'body1' }}>
-					<TabContext value={value}>
-						<Box component={'div'}>
-							<List className={'tab-menu'}>
-								<ListItem
-									onClick={(e: any) => tabChangeHandler(e, 'ALL')}
-									value="ALL"
-									className={value === 'ALL' ? 'li on' : 'li'}
-								>
-									All
-								</ListItem>
-								<ListItem
-									onClick={(e: any) => tabChangeHandler(e, 'ACTIVE')}
-									value="ACTIVE"
-									className={value === 'ACTIVE' ? 'li on' : 'li'}
-								>
-									Active
-								</ListItem>
-								<ListItem
-									onClick={(e: any) => tabChangeHandler(e, 'DELETE')}
-									value="DELETE"
-									className={value === 'DELETE' ? 'li on' : 'li'}
-								>
-									Delete
-								</ListItem>
-							</List>
-							<Divider />
-							<Stack className={'search-area'} sx={{ m: '24px' }}>
-								<Select sx={{ width: '160px', mr: '20px' }} value={searchType}>
-									<MenuItem value={'ALL'} onClick={() => searchTypeHandler('ALL')}>
-										ALL
-									</MenuItem>
-									{Object.values(BoardArticleCategory).map((category: string) => (
-										<MenuItem value={category} onClick={() => searchTypeHandler(category)} key={category}>
-											{category}
-										</MenuItem>
-									))}
-								</Select>
-							</Stack>
-							<Divider />
-						</Box>
-						<CommunityArticleList
-							articles={articles}
-							anchorEl={anchorEl}
-							menuIconClickHandler={menuIconClickHandler}
-							menuIconCloseHandler={menuIconCloseHandler}
-							updateArticleHandler={updateArticleHandler}
-							removeArticleHandler={removeArticleHandler}
-						/>
-
-						<TablePagination
-							rowsPerPageOptions={[10, 20, 40, 60]}
-							component="div"
-							count={articleTotal}
-							rowsPerPage={communityInquiry?.limit}
-							page={communityInquiry?.page - 1}
-							onPageChange={changePageHandler}
-							onRowsPerPageChange={changeRowsPerPageHandler}
-						/>
-					</TabContext>
-				</Box>
-			</Box>
-		</Box>
-	);
+const truncate = (s: string | undefined, max = 80) => {
+	if (!s) return '';
+	if (s.length <= max) return s;
+	return s.slice(0, max).trimEnd() + '…';
 };
 
-AdminCommunity.defaultProps = {
-	initialInquiry: {
-		page: 1,
-		limit: 10,
-		sort: 'createdAt',
-		direction: 'DESC',
-		search: {},
-	},
+const AdminCommunity: NextPage = () => {
+	const [page, setPage] = useState(1);
+	const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'DELETED'>('ALL');
+	const [searchDraft, setSearchDraft] = useState('');
+	const [searchText, setSearchText] = useState('');
+
+	const inquiryInput = useMemo(() => {
+		const search: T = {};
+		if (statusFilter === 'ACTIVE') search.isDeleted = false;
+		if (statusFilter === 'DELETED') search.isDeleted = true;
+		if (searchText.trim()) search.text = searchText.trim();
+		return {
+			page,
+			limit: PAGE_LIMIT,
+			sort: 'createdAt',
+			direction: 'DESC',
+			search,
+		};
+	}, [page, statusFilter, searchText]);
+
+	const { data, refetch } = useQuery(GET_ALL_TWITS_BY_ADMIN, {
+		fetchPolicy: 'network-only',
+		variables: { input: inquiryInput },
+		notifyOnNetworkStatusChange: true,
+	});
+
+	const [removeTwitByAdmin] = useMutation(REMOVE_TWIT_BY_ADMIN);
+
+	useEffect(() => {
+		setPage(1);
+	}, [statusFilter, searchText]);
+
+	const list: Twit[] = data?.getAllTwitsByAdmin?.list ?? [];
+	const total: number = data?.getAllTwitsByAdmin?.metaCounter?.[0]?.total ?? 0;
+	const pageCount = Math.max(1, Math.ceil(total / PAGE_LIMIT));
+
+	const removeHandler = async (twit: Twit) => {
+		try {
+			const ok = await sweetConfirmAlert('Remove this twit? This cannot be undone.');
+			if (!ok) return;
+			await removeTwitByAdmin({ variables: { input: twit._id } });
+			await refetch({ input: inquiryInput });
+			await sweetMixinSuccessAlert('Twit removed');
+		} catch (err: any) {
+			sweetErrorHandling(err).then();
+		}
+	};
+
+	return (
+		<div className="admin-page">
+			<div className="admin-page-header">
+				<div>
+					<h1 className="admin-page-title">Twit List</h1>
+					<div className="admin-page-sub">{total.toLocaleString()} total</div>
+				</div>
+			</div>
+
+			<div className="admin-filters">
+				<input
+					className="admin-input is-search"
+					placeholder="Search twit text"
+					value={searchDraft}
+					onChange={(e) => setSearchDraft(e.target.value)}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter') setSearchText(searchDraft);
+					}}
+				/>
+				<select
+					className="admin-select"
+					value={statusFilter}
+					onChange={(e) => setStatusFilter(e.target.value as any)}
+				>
+					<option value="ALL">All</option>
+					<option value="ACTIVE">Active</option>
+					<option value="DELETED">Deleted</option>
+				</select>
+			</div>
+
+			<div className="admin-table-wrap">
+				<table className="admin-table">
+					<thead>
+						<tr>
+							<th style={{ width: 180 }}>Author</th>
+							<th>Text</th>
+							<th style={{ width: 80 }}>Likes</th>
+							<th style={{ width: 80 }}>Views</th>
+							<th style={{ width: 120 }}>Status</th>
+							<th style={{ width: 110 }}>Date</th>
+							<th style={{ width: 120, textAlign: 'right' }}>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{list.length === 0 && (
+							<tr>
+								<td colSpan={7}>
+									<div style={{ padding: '32px 0', textAlign: 'center' }}>
+										<span className="admin-status">
+											<span className="admin-status-dot admin-status-dot--muted" />
+											No twits found
+										</span>
+									</div>
+								</td>
+							</tr>
+						)}
+						{list.map((twit: Twit) => {
+							const isDeleted = !!twit.deletedAt;
+							const author = twit.memberData?.memberNick ?? '—';
+							return (
+								<tr key={twit._id}>
+									<td>
+										<div className="admin-cell-title">{author}</div>
+										<div className="admin-cell-meta">{twit.memberData?.memberFullName ?? ''}</div>
+									</td>
+									<td>
+										<Link href={`/community/detail?id=${twit._id}`} legacyBehavior>
+											<a style={{ color: 'inherit', textDecoration: 'none' }}>{truncate(twit.text, 80)}</a>
+										</Link>
+									</td>
+									<td>{twit.likeCount ?? 0}</td>
+									<td>{(twit as any).viewCount ?? 0}</td>
+									<td>
+										<span className="admin-status">
+											<span className={`admin-status-dot admin-status-dot--${isDeleted ? 'danger' : 'success'}`} />
+											{isDeleted ? 'Deleted' : 'Active'}
+										</span>
+									</td>
+									<td>
+										<span className="admin-cell-meta" style={{ marginTop: 0 }}>
+											<Moment format="MMM D, YYYY">{twit.createdAt}</Moment>
+										</span>
+									</td>
+									<td>
+										<div className="admin-cell-actions">
+											{!isDeleted && (
+												<button type="button" className="admin-link-btn is-danger" onClick={() => removeHandler(twit)}>
+													Remove
+												</button>
+											)}
+										</div>
+									</td>
+								</tr>
+							);
+						})}
+					</tbody>
+				</table>
+			</div>
+
+			{pageCount > 1 && (
+				<div className="admin-pagination">
+					<Pagination
+						count={pageCount}
+						page={page}
+						onChange={(_e, p) => setPage(p)}
+						shape="rounded"
+						color="standard"
+					/>
+				</div>
+			)}
+		</div>
+	);
 };
 
 export default withAdminLayout(AdminCommunity);
