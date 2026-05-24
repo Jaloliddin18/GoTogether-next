@@ -5,6 +5,25 @@
 
 ---
 
+## Today's Session Update (2026-05-24, book detail hierarchy cleanup + Apollo error 17 fix)
+
+### Completed today
+- Removed the top-card `Catalog Record` block from `pages/books/detail.tsx` to reduce crowding in the main decision area.
+- Updated lower metadata tabs in `src/components/books/BookDetailTabs.tsx`:
+  - renamed tab title to `Library Information`
+  - moved/kept catalog fields under `CATALOG RECORD` (category, type, format, language, audience, pages, published year, ISBN, call number)
+  - retained `PHYSICAL DETAILS` (width, height, weight)
+  - removed `READING GUIDE` and `BORROWING POLICY` sections
+- Fixed recurring Apollo runtime invariant error code `17` in `apollo/client.ts` by ensuring `createIsomorphicLink()` always returns a valid link chain in SSR and client paths.
+
+### Current stopping point
+- Book detail top card is now lighter and no longer duplicates catalog-heavy metadata.
+- Catalog/physical details are centralized in the lower Library Information tab.
+- Apollo client initialization now has a guaranteed link path in SSR, which addresses the reported runtime error loop.
+
+### Exact next task
+- If requested, run a focused browser QA pass on `/books/detail?id=<bookId>` to confirm tab content, spacing, and query stability in both first-load and client-navigation flows.
+
 ## Today's Session Update (2026-05-24, book cover full-image rendering)
 
 ### Completed today

@@ -20,30 +20,12 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import AutorenewIcon from '@mui/icons-material/Autorenew';
-import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import CategoryIcon from '@mui/icons-material/Category';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import FlagIcon from '@mui/icons-material/Flag';
-import HeightIcon from '@mui/icons-material/Height';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import NumbersIcon from '@mui/icons-material/Numbers';
 import PinDropOutlinedIcon from '@mui/icons-material/PinDropOutlined';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import ScaleIcon from '@mui/icons-material/Scale';
-import SchoolIcon from '@mui/icons-material/School';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
-import StraightenIcon from '@mui/icons-material/Straighten';
-import StyleIcon from '@mui/icons-material/Style';
-import TranslateIcon from '@mui/icons-material/Translate';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import SwiperCore, { Navigation, Autoplay } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -58,7 +40,6 @@ import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.
 import { CommentGroup } from '../../libs/enums/comment.enum';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { BookAudience } from '../../libs/enums/book.enum';
 import { DeliveryDestinationType, RequestType } from '../../libs/enums/request.enum';
 import { CreateDeliveryRequestInput } from '../../libs/types/request/request.input';
 import { userVar } from '../../apollo/store';
@@ -101,13 +82,6 @@ const cardSx = {
 	boxShadow: '0 18px 50px rgba(15, 31, 51, 0.07)',
 };
 
-const sectionTitleSx = {
-	fontSize: { xs: 20, md: 24 },
-	fontWeight: 800,
-	color: libraryColors.ink,
-	letterSpacing: '-0.02em',
-};
-
 const DESK_SESSION_STORAGE_KEY = 'gotogether.delivery.sessionId';
 const AUTO_DESTINATION_STORAGE_KEYS = [
 	'gotogether.delivery.destination',
@@ -134,18 +108,6 @@ function formatLabel(value?: string | number | null): string {
 		.replace(/_/g, ' ')
 		.toLowerCase()
 		.replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
-function formatCategoryName(cat: string): string {
-	return formatLabel(cat);
-}
-
-function getDifficulty(audience: string): { label: string; color: string } {
-	if (audience === BookAudience.CHILDREN || audience === BookAudience.TEEN)
-		return { label: 'Beginner', color: '#22C55E' };
-	if (audience === BookAudience.GRADUATE || audience === BookAudience.PROFESSIONAL)
-		return { label: 'Advanced', color: '#F59E0B' };
-	return { label: 'Intermediate', color: '#64748B' };
 }
 
 function formatPrice(book?: Book | null): string {
@@ -435,11 +397,6 @@ const BookDetailPage: NextPage = () => {
 	}, [book?.bookImages]);
 
 	const currentImage = slideImage || imageList[0];
-	const pages = book?.bookPages ?? 0;
-	const readTimeHours = pages > 0 ? Math.max(1, Math.round(pages / 40)) : 0;
-	const pagesPerDay = pages > 0 ? Math.ceil(pages / 14) : 0;
-	const difficulty = getDifficulty(book?.bookAudience ?? '');
-	const reviewLabel = `${commentTotal} Review${commentTotal === 1 ? '' : 's'}`;
 	const bookDescription = book?.bookDescription?.trim() ?? '';
 	const headlineMetaBadges = useMemo(
 		() =>
@@ -454,37 +411,6 @@ const BookDetailPage: NextPage = () => {
 	const robotDeliverySubline = book?.isPurchasable
 		? 'Library pickup route is prepared after request.'
 		: 'Desk delivery route is prepared after request.';
-
-	const metaItems = [
-		{ label: 'Category', value: formatLabel(book?.bookCategory), icon: CategoryIcon },
-		{ label: 'Type', value: formatLabel(book?.bookType), icon: AutoStoriesIcon },
-		{ label: 'Format', value: formatLabel(book?.bookFormat), icon: StyleIcon },
-		{ label: 'Language', value: formatLabel(book?.bookLanguage), icon: TranslateIcon },
-		{ label: 'Audience', value: formatLabel(book?.bookAudience), icon: SchoolIcon },
-		{ label: 'Pages', value: book?.bookPages ? `${book.bookPages.toLocaleString()} pages` : '—', icon: MenuBookIcon },
-		{ label: 'Published year', value: book?.bookPublishedYear ?? '—', icon: CalendarMonthIcon },
-		{ label: 'ISBN', value: book?.bookIsbn ?? '—', icon: NumbersIcon },
-		{ label: 'Call Number', value: book?.bookCallNumber ?? '—', icon: BookmarkAddedIcon },
-	];
-
-	const physicalItems = [
-		{ label: 'Width', value: book?.bookDimensions?.widthCm ? `${book.bookDimensions.widthCm}cm` : '—', icon: StraightenIcon },
-		{ label: 'Height', value: book?.bookDimensions?.heightCm ? `${book.bookDimensions.heightCm}cm` : '—', icon: HeightIcon },
-		{ label: 'Weight', value: book?.bookDimensions?.weightGrams ? `${book.bookDimensions.weightGrams}g` : '—', icon: ScaleIcon },
-	];
-
-	const readingItems = [
-		{ label: 'Estimated read time', value: readTimeHours > 0 ? `~${readTimeHours} hours` : '—', icon: AccessTimeIcon },
-		{ label: 'Finish target', value: pagesPerDay > 0 ? `${pagesPerDay} pages/day` : '—', icon: FlagIcon },
-		{ label: 'Difficulty', value: difficulty.label, icon: SchoolIcon, color: difficulty.color },
-	];
-
-	const policyItems = [
-		{ label: 'Borrow period', value: '14 days maximum', icon: CalendarTodayIcon },
-		{ label: 'Renewals', value: '1 renewal allowed before due date', icon: AutorenewIcon },
-		{ label: 'Late fee', value: '₩100 per day after due date', icon: WarningAmberIcon },
-		{ label: 'Return method', value: 'Reception desk or library return station', icon: AssignmentReturnIcon },
-	];
 
 	if (getBookLoading) {
 		return (
@@ -908,31 +834,7 @@ const BookDetailPage: NextPage = () => {
 									</Button>
 								</Stack>
 
-								<SafeBox sx={{ border: '1px solid #E7EDF5', borderRadius: '16px', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
-									<SafeBox sx={{ px: 2, py: 1.4, background: '#FBFCFE', borderBottom: '1px solid #E7EDF5' }}>
-										<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>Catalog Record</Typography>
-									</SafeBox>
-									<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' } }}>
-										{metaItems.map(({ label, value, icon: Icon }, index) => (
-											<SafeBox
-												key={label}
-												sx={{
-													p: 1.9,
-													backgroundColor: index % 2 === 0 ? '#FFFFFF' : '#FCFDFE',
-													borderRight: { sm: (index + 1) % (isMobile ? 2 : 3) === 0 ? 'none' : '1px solid #EEF2F7' },
-													borderBottom: index < metaItems.length - (isMobile ? 1 : 3) ? '1px solid #EEF2F7' : 'none',
-												}}
-											>
-												<Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
-													<Icon sx={{ fontSize: 18, color: libraryColors.muted }} />
-													<Typography sx={{ color: libraryColors.muted, fontSize: 12, fontWeight: 600, textTransform: 'uppercase' }}>{label}</Typography>
-												</Stack>
-												<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>{value}</Typography>
-											</SafeBox>
-										))}
-									</SafeBox>
-								</SafeBox>
-							</Stack>
+								</Stack>
 						</SafeBox>
 					</SafeBox>
 

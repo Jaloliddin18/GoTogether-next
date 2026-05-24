@@ -15,6 +15,21 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-24) — Book detail hierarchy cleanup + Apollo error 17 fix
+
+### Completed
+- Removed the top-card `Catalog Record` table from `pages/books/detail.tsx` so the upper detail card stays focused on decision-making content.
+- Kept detailed metadata in the lower tabs by updating `src/components/books/BookDetailTabs.tsx`:
+  - renamed tab label from `Additional Information` to `Library Information`
+  - added `CATALOG RECORD` rows (category, type, format, language, audience, pages, published year, ISBN, call number)
+  - kept `PHYSICAL DETAILS` rows (width, height, weight)
+  - removed `READING GUIDE` and `BORROWING POLICY` blocks
+- Fixed recurring Apollo runtime error code `17` in `apollo/client.ts` by making `createIsomorphicLink()` always return a valid link chain during SSR as well as browser runtime.
+
+### Key rules
+- Keep the top book detail card lightweight; catalog-heavy fields should stay in the lower Library Information tab.
+- Apollo client initialization must always provide a link on both server and client paths to avoid runtime invariant errors.
+
 ## Session Update (2026-05-24) — Book cover full-image rendering
 
 ### Completed

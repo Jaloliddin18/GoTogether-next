@@ -62,23 +62,28 @@ class LoggingWebSocket {
 function createIsomorphicLink() {
 	// createApolloClient calls: createIsomorphicLink()
 	// A link chain is like an assembly line where your GraphQL request passes through multiple steps before reaching the server.
+	// @ts-ignore
+	const uploadLink = new createUploadLink({
+		uri: process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL + '/graphql' : 'http://localhost:3007/graphql',
+	});
+
+	const authLink = new ApolloLink((operation, forward) => {
+		operation.setContext(({ headers = {} }) => ({
+			headers: {
+				...headers,
+				...getHeaders(),
+			},
+		}));
+		console.warn('requesting.. ', operation);
+		return forward(operation);
+	});
+
+	// ApolloClient must always receive a link (including SSR).
+	if (typeof window === 'undefined') {
+		return from([tokenRefreshLink, authLink.concat(uploadLink)]);
+	}
+
 	if (typeof window !== 'undefined') {
-		const authLink = new ApolloLink((operation, forward) => {
-			operation.setContext(({ headers = {} }) => ({
-				headers: {
-					...headers,
-					...getHeaders(),
-				},
-			}));
-			console.warn('requesting.. ', operation);
-			return forward(operation);
-		});
-
-		// @ts-ignore
-		const link = new createUploadLink({
-			uri: process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL + '/graphql' : 'http://localhost:3007/graphql',
-		});
-
 		/* WEBSOCKET SUBSCRIPTION LINK */
 		const wsLink = new WebSocketLink({
 			uri: process.env.REACT_APP_API_WS ?? 'ws://127.0.0.1:3007',
@@ -114,7 +119,7 @@ function createIsomorphicLink() {
 				// In GraphQL, there are 3 types of operations: query, mutation, and subscription - listen for real-time updates
 			},
 			wsLink,
-			authLink.concat(link),
+			authLink.concat(uploadLink),
 		);
 
 		return from([errorLink, tokenRefreshLink, splitLink]); // !errror => token time check => split the request

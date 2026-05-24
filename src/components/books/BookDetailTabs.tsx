@@ -4,7 +4,6 @@ import Moment from 'react-moment';
 import { Book } from '../../../libs/types/book/book';
 import { Comment } from '../../../libs/types/comment/comment';
 import { CommentInput, CommentsInquiry } from '../../../libs/types/comment/comment.input';
-import { BookAudience } from '../../../libs/enums/book.enum';
 import { resolveMediaUrl } from '../../../libs/utils';
 
 interface BookDetailTabsProps {
@@ -28,6 +27,14 @@ const C = {
 	navy: '#1B3A6B',
 	border: '#E2E8F0',
 	page: '#F8FAFC',
+};
+
+const formatLabel = (value?: string | number | null): string => {
+	if (value === undefined || value === null || value === '') return '—';
+	return String(value)
+		.replace(/_/g, ' ')
+		.toLowerCase()
+		.replace(/\b\w/g, (letter) => letter.toUpperCase());
 };
 
 const sectionTitleSx = {
@@ -111,17 +118,6 @@ export default function BookDetailTabs(props: BookDetailTabsProps) {
 	const [activeTab, setActiveTab] = useState<0 | 1>(0);
 	const [hoveredTab, setHoveredTab] = useState<number | null>(null);
 
-	const pages = book?.bookPages ?? 0;
-	const readTimeHours = pages > 0 ? Math.max(1, Math.round(pages / 40)) : 0;
-	const pagesPerDay = pages > 0 ? Math.ceil(pages / 14) : 0;
-
-	function getDifficulty(audience: string): string {
-		if (audience === BookAudience.CHILDREN || audience === BookAudience.TEEN) return 'Beginner';
-		if (audience === BookAudience.GRADUATE || audience === BookAudience.PROFESSIONAL) return 'Advanced';
-		return 'Intermediate';
-	}
-
-	const difficulty = getDifficulty(book?.bookAudience ?? '');
 	const reviewLabel = `${commentTotal} Review${commentTotal === 1 ? '' : 's'}`;
 
 	return (
@@ -136,7 +132,7 @@ export default function BookDetailTabs(props: BookDetailTabsProps) {
 					borderBottom: `1px solid ${C.border}`,
 				}}
 			>
-				{(['Additional Information', 'Reviews'] as const).map((label, idx) => {
+					{(['Library Information', 'Reviews'] as const).map((label, idx) => {
 					const isActive = activeTab === idx;
 					const isHovered = hoveredTab === idx;
 					const isLast = idx === 1;
@@ -183,44 +179,41 @@ export default function BookDetailTabs(props: BookDetailTabsProps) {
 					marginBottom: 24,
 				}}
 			>
-			{activeTab === 0 && (
-				<div>
-					<SectionSubheader title="PHYSICAL DETAILS" />
-					<InfoRow
-						label="Width"
-						value={book?.bookDimensions?.widthCm ? `${book.bookDimensions.widthCm} cm` : '—'}
-					/>
-					<InfoRow
-						label="Height"
-						value={book?.bookDimensions?.heightCm ? `${book.bookDimensions.heightCm} cm` : '—'}
-					/>
-					<InfoRow
-						label="Weight"
-						value={book?.bookDimensions?.weightGrams ? `${book.bookDimensions.weightGrams} g` : '—'}
-						isLast
-					/>
+				{activeTab === 0 && (
+					<div>
+						<SectionSubheader title="CATALOG RECORD" />
+						<InfoRow label="Category" value={formatLabel(book?.bookCategory)} />
+						<InfoRow label="Type" value={formatLabel(book?.bookType)} />
+						<InfoRow label="Format" value={formatLabel(book?.bookFormat)} />
+						<InfoRow label="Language" value={formatLabel(book?.bookLanguage)} />
+						<InfoRow label="Audience" value={formatLabel(book?.bookAudience)} />
+						<InfoRow
+							label="Pages"
+							value={book?.bookPages ? `${book.bookPages.toLocaleString()} pages` : '—'}
+						/>
+						<InfoRow
+							label="Published Year"
+							value={book?.bookPublishedYear ? String(book.bookPublishedYear) : '—'}
+						/>
+						<InfoRow label="ISBN" value={book?.bookIsbn ?? '—'} />
+						<InfoRow label="Call Number" value={book?.bookCallNumber ?? '—'} isLast />
 
-					<SectionSubheader title="READING GUIDE" />
-					<InfoRow
-						label="Estimated Read Time"
-						value={readTimeHours > 0 ? `~${readTimeHours} hours` : '—'}
+						<SectionSubheader title="PHYSICAL DETAILS" />
+						<InfoRow
+							label="Width"
+							value={book?.bookDimensions?.widthCm ? `${book.bookDimensions.widthCm} cm` : '—'}
 					/>
-					<InfoRow
-						label="Finish Target"
-						value={pagesPerDay > 0 ? `${pagesPerDay} pages/day` : '—'}
-					/>
-					<InfoRow label="Difficulty" value={difficulty} />
-					<InfoRow label="Best Read" value="Morning" />
-					<InfoRow label="Study Aid" value="Yes" />
-					<InfoRow label="Note-taking" value="Recommended" isLast />
-
-					<SectionSubheader title="BORROWING POLICY" />
-					<InfoRow label="Borrow Period" value="14 days maximum" />
-					<InfoRow label="Renewals" value="1 renewal allowed before due date" />
-					<InfoRow label="Late Fee" value="₩100 per day after due date" />
-					<InfoRow label="Return Method" value="Reception desk or library return station" isLast />
-				</div>
-			)}
+							<InfoRow
+								label="Height"
+								value={book?.bookDimensions?.heightCm ? `${book.bookDimensions.heightCm} cm` : '—'}
+							/>
+							<InfoRow
+								label="Weight"
+								value={book?.bookDimensions?.weightGrams ? `${book.bookDimensions.weightGrams} g` : '—'}
+								isLast
+							/>
+						</div>
+					)}
 
 			{activeTab === 1 && (
 				<Box sx={{ pt: 0 }}>
