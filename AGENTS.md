@@ -782,3 +782,26 @@ Full spec in `WORKFLOW.md`.
 
 ### Operational rule from this session
 - For RobotTracking, avoid tying WebSocket subscription strictly to “active request only”; keep latest-request room continuity when post-completion telemetry is expected.
+
+---
+
+## Session Update (2026-05-24) — Admin dashboard Monolith layout + MyPage admin entry
+
+### Completed
+- Wired the MyPage `ADMIN` status badge/menu entry to route admins into `/_admin/dashboard`.
+- Rebuilt `pages/_admin/dashboard/index.tsx` to follow the Monolith admin dashboard structure:
+  - 4-card stat row: Total Books, Total Members, Active Requests, Robots Online.
+  - 2-column chart row: Member Growth line chart and Requests by Status donut chart.
+  - 2-column ranked row: Top Viewed Books and Top Liked Books.
+  - Recent Members table with avatar/name, type, status, joined date, and `View all -> /_admin/users`.
+- Implemented dashboard charts with `chart.js/auto` canvas components because this frontend uses Chart.js, not Recharts.
+- Pinned `chart.js` to exact `3.8.0` in `package.json` and `yarn.lock`.
+- Improved Chart.js text clarity by setting `devicePixelRatio`, raising chart label font size to 12, and removing forced CSS canvas stretching.
+- Updated admin dashboard badge pills:
+  - USER, DESIGNER, ACTIVE, BLOCK use background-only pills with the requested soft colors, 20px radius, 12px uppercase text, and weight 500.
+
+### Key rules
+- Dashboard data uses existing admin GraphQL operations only: `GET_ALL_BOOKS_BY_ADMIN`, `GET_ALL_MEMBERS_BY_ADMIN`, `GET_REQUESTS`, `GET_ROBOTS`.
+- Keep admin dashboard layout changes scoped to `pages/_admin/dashboard/index.tsx` and dashboard/admin rules in `scss/pc/admin/admin.scss` unless explicitly asked to touch other admin pages.
+- If Chart.js text looks blurry, avoid CSS-stretching canvas dimensions; let Chart.js manage the backing canvas and set `devicePixelRatio`.
+- `Top Liked Books` requires backend support for sorting `GET_ALL_BOOKS_BY_ADMIN` by `bookLikes`.

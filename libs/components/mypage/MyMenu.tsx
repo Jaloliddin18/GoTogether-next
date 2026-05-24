@@ -17,6 +17,7 @@ import { userVar } from '../../../apollo/store';
 import { REACT_APP_API_URL } from '../../config';
 import { logOut } from '../../auth';
 import { sweetConfirmAlert } from '../../sweetAlert';
+import { MemberType } from '../../enums/member.enum';
 
 const NAV_ITEMS = [
 	{ category: 'myProfile', label: 'My Profile', Icon: PersonOutlineIcon },
@@ -34,6 +35,7 @@ const MyMenu = () => {
 	const router = useRouter();
 	const active: string = (router.query.category as string) ?? 'myProfile';
 	const user = useReactiveVar(userVar);
+	const isAdmin = user?.memberType === MemberType.ADMIN;
 
 	const logoutHandler = async () => {
 		try {
@@ -56,7 +58,13 @@ const MyMenu = () => {
 					/>
 				</div>
 				<Typography className="my-menu-nick">{user?.memberNick}</Typography>
-				<span className="my-menu-type-badge">{user?.memberType}</span>
+				{isAdmin ? (
+					<Link href="/_admin/dashboard" className="my-menu-type-badge my-menu-type-badge--admin">
+						{user?.memberType}
+					</Link>
+				) : (
+					<span className="my-menu-type-badge">{user?.memberType}</span>
+				)}
 			</Stack>
 
 			<div className="my-menu-divider" />

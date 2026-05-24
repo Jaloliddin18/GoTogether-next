@@ -102,6 +102,19 @@ $transition: 0.18s ease;
 	font-weight: 600;
 	letter-spacing: 0.5px;
 	text-transform: uppercase;
+	text-decoration: none;
+}
+
+.my-menu-type-badge--admin {
+	cursor: pointer;
+	transition:
+		background $transition,
+		color $transition;
+
+	&:hover {
+		background: $color-primary;
+		color: $color-white;
+	}
 }
 
 .my-menu-divider {

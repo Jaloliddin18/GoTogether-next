@@ -513,3 +513,26 @@ b711118 fix: remove Library tab from community feed
 38481a8 feat: community feed tabs wired to getTwits feedType (FOR_YOU / FOLLOWING)
 99aa9c4 feat: finalize twit community updates and image url resolution
 ```
+
+---
+
+## Session Update (2026-05-24) — Admin dashboard layout and admin entry
+
+### Completed
+- MyPage admin status/role entry now links admins to `/_admin/dashboard`.
+- Admin dashboard was redesigned to match the Monolith admin dashboard structure while using 같이Go data:
+  - 4 stat cards: Total Books, Total Members, Active Requests, Robots Online.
+  - Chart row: Member Growth line chart and Requests by Status donut chart.
+  - Ranked lists: Top Viewed Books and Top Liked Books.
+  - Recent Members table with `View all -> /_admin/users`.
+- Dashboard charts use `chart.js/auto`; `chart.js` is pinned to exact `3.8.0`.
+- Chart blur fix applied by using Chart.js `devicePixelRatio`, 12px chart labels, and no forced canvas width/height stretching in SCSS.
+- Dashboard badge styles updated to requested soft pill colors for USER, DESIGNER, ACTIVE, and BLOCK.
+
+### Verification
+- Frontend build was not run because project instructions and the task explicitly said not to run build.
+- Backend build was run from the backend repo after enabling `bookLikes` admin sorting and passed.
+
+### Current stopping point
+- Frontend dashboard UI changes are implemented and ready for runtime browser QA.
+- Backend must be restarted after the `bookLikes` sort validation change for `Top Liked Books` to stop returning `Bad Request Exception`.
