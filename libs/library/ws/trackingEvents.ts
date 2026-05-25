@@ -56,6 +56,11 @@ const getStatus = (event: string, data: any): string => {
 	return data?.status ?? data?.state ?? 'ASSIGNED';
 };
 
+const resolveRequestKey = (data: any): string => {
+	const key = data?.requestId ?? data?.deliveryRequestId ?? data?._id ?? data?.currentRequestId;
+	return typeof key === 'string' ? key.trim() : '';
+};
+
 export const getRobotNotificationTitle = (status: string, event?: string): string => {
 	if (event && eventTitles[event]) return eventTitles[event];
 	return statusTitles[status] ?? 'Robot status updated';
@@ -69,13 +74,13 @@ export const createRobotNotification = (
 		return null;
 	}
 
-	const requestId = data?.requestId;
+	const requestId = resolveRequestKey(data);
 	if (!requestId) return null;
 
 	const status = getStatus(event, data);
 	const timestamp = toIsoTimestamp(data?.timestamp);
 	return {
-		id: `${requestId}-${event}-${status}-${timestamp}`,
+		id: requestId,
 		requestId,
 		robotId: data?.robotId,
 		title: getRobotNotificationTitle(status, event),

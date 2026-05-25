@@ -21,7 +21,7 @@ import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
 import { API_BASE_URL } from '../config';
-import { CANCEL_REQUEST } from '../../apollo/user/mutation';
+import { CANCEL_REQUEST, CONFIRM_REQUEST_PICKUP } from '../../apollo/user/mutation';
 import { GET_SESSION_REQUESTS } from '../../apollo/user/query';
 import {
 	getRobotTrackingWsUrl,
@@ -42,6 +42,80 @@ import { RequestStatus, RequestType } from '../enums/request.enum';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../sweetAlert';
 import { resolveMediaUrl } from '../utils';
 
+const MAX_ROBOT_NOTIFICATIONS = 30;
+const DELIVERY_SESSION_STORAGE_KEY = 'gotogether.delivery.sessionId';
+
+const getTimestampValue = (timestamp?: string): number => {
+	if (!timestamp) return 0;
+	const parsed = new Date(timestamp).getTime();
+	return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+const resolveNotificationRequestKey = (notification: Partial<RobotNotification>): string =>
+	(notification.requestId ?? notification.id ?? '').trim();
+
+const mergeRobotNotification = (
+	existing: RobotNotification | undefined,
+	incoming: RobotNotification,
+): RobotNotification => {
+	const status = incoming.status || existing?.status || 'ASSIGNED';
+	const event = incoming.event || existing?.event || 'robotStatus';
+	return {
+		...(existing ?? incoming),
+		...incoming,
+		id: incoming.requestId,
+		requestId: incoming.requestId,
+		status,
+		event,
+		title: incoming.title || getRobotNotificationTitle(status, event),
+		timestamp: incoming.timestamp || existing?.timestamp || new Date().toISOString(),
+		message: incoming.message ?? existing?.message,
+		robotId: incoming.robotId ?? existing?.robotId,
+		requestType: incoming.requestType ?? existing?.requestType,
+		destinationDeskId: incoming.destinationDeskId ?? existing?.destinationDeskId,
+		bookTitle: incoming.bookTitle ?? existing?.bookTitle,
+		bookImage: incoming.bookImage ?? existing?.bookImage,
+	};
+};
+
+const upsertRobotNotifications = (
+	previous: RobotNotification[],
+	incomingRaw: RobotNotification,
+): RobotNotification[] => {
+	const requestKey = resolveNotificationRequestKey(incomingRaw);
+	if (!requestKey) return previous;
+
+	const incoming: RobotNotification = {
+		...incomingRaw,
+		id: requestKey,
+		requestId: requestKey,
+	};
+
+	const existingIndex = previous.findIndex((item) => item.requestId === requestKey);
+	if (existingIndex === -1) {
+		return [...previous, mergeRobotNotification(undefined, incoming)].slice(-MAX_ROBOT_NOTIFICATIONS);
+	}
+
+	const existing = previous[existingIndex];
+	const isDuplicateEvent = existing.status === incoming.status && existing.timestamp === incoming.timestamp;
+	if (isDuplicateEvent) return previous;
+
+	const existingTime = getTimestampValue(existing.timestamp);
+	const incomingTime = getTimestampValue(incoming.timestamp);
+	if (existingTime && incomingTime && incomingTime < existingTime) return previous;
+
+	const merged = mergeRobotNotification(existing, incoming);
+	const next = [...previous];
+	next[existingIndex] = merged;
+	return next.slice(-MAX_ROBOT_NOTIFICATIONS);
+};
+
+const readDeliverySessionId = (): string | undefined => {
+	if (typeof window === 'undefined') return undefined;
+	const sessionId = window.localStorage.getItem(DELIVERY_SESSION_STORAGE_KEY)?.trim();
+	return sessionId ? sessionId : undefined;
+};
+
 const Top = () => {
 	const NOTIFICATION_BOOK_FALLBACK = '/img/banner/books_hero.png';
 	const device = useDeviceDetect();
@@ -60,10 +134,13 @@ const Top = () => {
 	const [trackingRequests, setTrackingRequests] = useState<RobotTrackingRequest[]>([]);
 	const [trackingConnected, setTrackingConnected] = useState<boolean>(false);
 	const [cancellingNotificationId, setCancellingNotificationId] = useState<string | null>(null);
+	const [completingNotificationId, setCompletingNotificationId] = useState<string | null>(null);
 	const [cancelErrors, setCancelErrors] = useState<Record<string, string>>({});
+	const [completeErrors, setCompleteErrors] = useState<Record<string, string>>({});
 	const robotSocketRef = useRef<WebSocket | null>(null);
 	const joinedRequestIdsRef = useRef<Set<string>>(new Set<string>());
 	const [cancelRequest] = useMutation(CANCEL_REQUEST);
+	const [confirmRequestPickup] = useMutation(CONFIRM_REQUEST_PICKUP);
 	const shouldLoadRequestContext = Boolean(user?._id) && (trackingRequests.length > 0 || robotNotifications.length > 0);
 	const { data: sessionRequestsData } = useQuery(GET_SESSION_REQUESTS, {
 		variables: { input: { page: 1, limit: 100 } },
@@ -85,8 +162,8 @@ const Top = () => {
 
 	const addRobotNotification = useCallback((notification: RobotNotification) => {
 		setRobotNotifications((prev) => {
-			if (prev.some((item) => item.id === notification.id)) return prev;
-			const next = [...prev, notification].slice(-30);
+			const next = upsertRobotNotifications(prev, notification);
+			if (next === prev) return prev;
 			saveRobotNotifications(next);
 			return next;
 		});
@@ -123,7 +200,12 @@ const Top = () => {
 
 	useEffect(() => {
 		setTrackingRequests(loadTrackingRequests());
-		setRobotNotifications(loadRobotNotifications());
+		const normalizedNotifications = loadRobotNotifications().reduce(
+			(acc, notification) => upsertRobotNotifications(acc, notification),
+			[] as RobotNotification[],
+		);
+		saveRobotNotifications(normalizedNotifications);
+		setRobotNotifications(normalizedNotifications);
 	}, []);
 
 	useEffect(() => {
@@ -135,7 +217,7 @@ const Top = () => {
 
 			setTrackingRequests(loadTrackingRequests());
 			addRobotNotification({
-				id: `${detail.requestId}-local-${detail.status ?? 'ASSIGNED'}-${detail.createdAt ?? new Date().toISOString()}`,
+				id: detail.requestId,
 				requestId: detail.requestId,
 				title: getRobotNotificationTitle(detail.status ?? 'ASSIGNED'),
 				status: detail.status ?? 'ASSIGNED',
@@ -294,9 +376,9 @@ const Top = () => {
 		await router.push({ pathname: '/mypage', query: { category: 'myRequests' } });
 	};
 
-	const dismissNotification = (notificationId: string) => {
+	const dismissNotification = (requestId: string) => {
 		setRobotNotifications((prev) => {
-			const next = prev.filter((n) => n.id !== notificationId);
+			const next = prev.filter((n) => n.requestId !== requestId);
 			saveRobotNotifications(next);
 			return next;
 		});
@@ -304,8 +386,8 @@ const Top = () => {
 
 	const cancelRequestHandler = async (notification: RobotNotification) => {
 		try {
-			setCancellingNotificationId(notification.id);
-			setCancelErrors((prev) => ({ ...prev, [notification.id]: '' }));
+			setCancellingNotificationId(notification.requestId);
+			setCancelErrors((prev) => ({ ...prev, [notification.requestId]: '' }));
 			const { data } = await cancelRequest({
 				variables: { input: { requestId: notification.requestId } },
 			});
@@ -313,7 +395,7 @@ const Top = () => {
 			const now = new Date().toISOString();
 			setRobotNotifications((prev) => {
 				const next = prev.map((item) =>
-					item.id === notification.id
+					item.requestId === notification.requestId
 						? {
 								...item,
 								status: cancelledStatus,
@@ -328,20 +410,65 @@ const Top = () => {
 			await sweetTopSmallSuccessAlert('Request cancelled. Robot returning to idle.', 1200);
 		} catch (err: any) {
 			const message = err?.message ?? 'Failed to cancel request';
-			setCancelErrors((prev) => ({ ...prev, [notification.id]: message }));
+			setCancelErrors((prev) => ({ ...prev, [notification.requestId]: message }));
 			await sweetMixinErrorAlert(message);
 		} finally {
 			setCancellingNotificationId(null);
 		}
 	};
 
+	const completeRequestHandler = async (notification: RobotNotification) => {
+		try {
+			setCompletingNotificationId(notification.requestId);
+			setCompleteErrors((prev) => ({ ...prev, [notification.requestId]: '' }));
+			const { data } = await confirmRequestPickup({
+				variables: {
+					input: {
+						requestId: notification.requestId,
+						sessionId: readDeliverySessionId(),
+					},
+				},
+			});
+			const completedStatus = data?.confirmRequestPickup?.status ?? RequestStatus.COMPLETED;
+			const completedAt = data?.confirmRequestPickup?.updatedAt ?? new Date().toISOString();
+			setRobotNotifications((prev) => {
+				const next = prev.map((item) =>
+					item.requestId === notification.requestId
+						? {
+								...item,
+								status: completedStatus,
+								title: getRobotNotificationTitle(completedStatus),
+								timestamp: completedAt,
+						  }
+						: item,
+				);
+				saveRobotNotifications(next);
+				return next;
+			});
+			await sweetTopSmallSuccessAlert('Request marked as completed.', 1100);
+		} catch (err: any) {
+			const message = err?.message ?? 'Failed to mark request as completed';
+			setCompleteErrors((prev) => ({ ...prev, [notification.requestId]: message }));
+			await sweetMixinErrorAlert(message);
+		} finally {
+			setCompletingNotificationId(null);
+		}
+	};
+
 	const renderNotificationCard = (notification: RobotNotification) => {
 		const canCancel = cancellableStatuses.has(notification.status);
+		const canConfirmReady =
+			notification.status === RequestStatus.READY ||
+			notification.status === RequestStatus.ARRIVED_AT_STUDENT;
 		const canDismiss =
+			notification.status === RequestStatus.COMPLETED ||
 			notification.status === RequestStatus.CANCELLED ||
 			notification.status === RequestStatus.FAILED;
-		const isCancelling = cancellingNotificationId === notification.id;
-		const cancelError = cancelErrors[notification.id];
+		const isCancelling = cancellingNotificationId === notification.requestId;
+		const isCompleting = completingNotificationId === notification.requestId;
+		const cancelError = cancelErrors[notification.requestId];
+		const completeError = completeErrors[notification.requestId];
+		const actionError = cancelError || completeError;
 		const requestContext = requestContextById.get(notification.requestId);
 		const requestData = requestDataById.get(notification.requestId);
 		const requestType = notification.requestType ?? requestContext?.requestType ?? requestData?.requestType;
@@ -354,7 +481,7 @@ const Top = () => {
 		const requestDetail = getRequestDetailText(requestType, destinationDeskId, notification.message ?? notification.title);
 
 		return (
-			<div key={notification.id} className="robot-notification-card">
+			<div key={notification.requestId} className="robot-notification-card">
 				<div
 					className="robot-card-main"
 					role="button"
@@ -410,7 +537,29 @@ const Top = () => {
 								</button>
 							</div>
 						)}
-						{cancelError && <small className="robot-card-error">{cancelError}</small>}
+						{canConfirmReady && (
+							<div className="robot-card-actions">
+								<button
+									className="robot-card-confirm-btn"
+									type="button"
+									onClick={(e) => {
+										e.stopPropagation();
+										completeRequestHandler(notification);
+									}}
+									disabled={isCompleting}
+								>
+									{isCompleting ? (
+										<span className="robot-card-cancel-loading">
+											<CircularProgress size={12} sx={{ color: '#ffffff' }} />
+											Confirming...
+										</span>
+									) : (
+										'Confirm Pickup'
+									)}
+								</button>
+							</div>
+						)}
+						{actionError && <small className="robot-card-error">{actionError}</small>}
 					</div>
 				</div>
 				<div className="robot-card-side">
@@ -420,7 +569,7 @@ const Top = () => {
 							className="robot-card-dismiss"
 							onClick={(e) => {
 								e.stopPropagation();
-								dismissNotification(notification.id);
+								dismissNotification(notification.requestId);
 							}}
 							aria-label="Dismiss notification"
 						>
