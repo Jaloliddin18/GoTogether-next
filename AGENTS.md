@@ -15,6 +15,34 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-25) — Robot notification cards with book context + My Requests routing
+
+### Completed
+- Upgraded navbar robot notification cards to include request-specific context in:
+  - `libs/components/Top.tsx`
+  - `scss/pc/main.scss`
+- Card content now renders:
+  - left book cover thumbnail (with fallback)
+  - book title
+  - request detail line (`Borrow request · Desk X` / `Purchase request · Reception delivery`)
+  - status badge + timestamp
+  - conditional `Cancel Request` action.
+- Extended frontend notification/request context types:
+  - `libs/library/ws/trackingEvents.ts`
+  - `libs/library/ws/trackingClient.ts`
+- Passed additional request context from book detail request creation:
+  - `pages/books/detail.tsx` now announces `bookImage` and `destinationDeskId` with tracking request events.
+- Fixed missing cover rendering in notification cards by enriching card data from `GET_SESSION_REQUESTS` (matched by `requestId`) and adding safe image URL + onError fallback handling.
+- Notification card click behavior now routes directly to My Requests:
+  - `/mypage?category=myRequests`
+- Outer notification card frame is now rectangular (no rounded corners).
+- Restored `Cancel Request` visual style to the previous solid red button with white text and white loading spinner.
+
+### Key rules
+- Keep robot notification behavior unchanged (WebSocket events, cancel mutation flow, clear/close/dismiss logic); scope changes to UI rendering and frontend display context only.
+- For notification cover images, resolve from available request/notification context first and always provide a safe fallback to avoid broken image tiles.
+- Clicking a notification card should navigate to the requests surface (`/mypage?category=myRequests`), not the generic MyPage default tab.
+
 ## Session Update (2026-05-25) — Navbar robot notification drawer polish
 
 ### Completed

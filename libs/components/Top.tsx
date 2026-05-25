@@ -17,11 +17,12 @@ import useDeviceDetect from '../hooks/useDeviceDetect';
 import Link from 'next/link';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
 import { API_BASE_URL } from '../config';
 import { CANCEL_REQUEST } from '../../apollo/user/mutation';
+import { GET_SESSION_REQUESTS } from '../../apollo/user/query';
 import {
 	getRobotTrackingWsUrl,
 	joinRobotRequestRoom,
@@ -37,10 +38,12 @@ import {
 	RobotNotification,
 	saveRobotNotifications,
 } from '../library/ws/trackingEvents';
-import { RequestStatus } from '../enums/request.enum';
+import { RequestStatus, RequestType } from '../enums/request.enum';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../sweetAlert';
+import { resolveMediaUrl } from '../utils';
 
 const Top = () => {
+	const NOTIFICATION_BOOK_FALLBACK = '/img/banner/books_hero.png';
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const { t } = useTranslation('common');
@@ -61,6 +64,12 @@ const Top = () => {
 	const robotSocketRef = useRef<WebSocket | null>(null);
 	const joinedRequestIdsRef = useRef<Set<string>>(new Set<string>());
 	const [cancelRequest] = useMutation(CANCEL_REQUEST);
+	const shouldLoadRequestContext = Boolean(user?._id) && (trackingRequests.length > 0 || robotNotifications.length > 0);
+	const { data: sessionRequestsData } = useQuery(GET_SESSION_REQUESTS, {
+		variables: { input: { page: 1, limit: 100 } },
+		skip: !shouldLoadRequestContext,
+		fetchPolicy: 'network-only',
+	});
 
 	const cancellableStatuses = new Set<RequestStatus | string>([
 		RequestStatus.QUEUED,
@@ -131,6 +140,10 @@ const Top = () => {
 				title: getRobotNotificationTitle(detail.status ?? 'ASSIGNED'),
 				status: detail.status ?? 'ASSIGNED',
 				message: detail.bookTitle ? `${detail.bookTitle} request is now active.` : 'Delivery request is now active.',
+				requestType: detail.requestType,
+				destinationDeskId: detail.destinationDeskId,
+				bookTitle: detail.bookTitle,
+				bookImage: detail.bookImage,
 				timestamp: detail.createdAt ?? new Date().toISOString(),
 				event: 'localRequest',
 			});
@@ -233,11 +246,52 @@ const Top = () => {
 		() => [...robotNotifications].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
 		[robotNotifications],
 	);
+	const requestContextById = React.useMemo(() => {
+		const next = new Map<string, RobotTrackingRequest>();
+		trackingRequests.forEach((request) => {
+			if (!request.requestId) return;
+			next.set(request.requestId, request);
+		});
+		return next;
+	}, [trackingRequests]);
+	const requestDataById = React.useMemo(() => {
+		const next = new Map<string, any>();
+		const list = sessionRequestsData?.getSessionRequests?.list ?? [];
+		list.forEach((request: any) => {
+			if (!request?._id) return;
+			next.set(request._id, request);
+		});
+		return next;
+	}, [sessionRequestsData]);
 	const canShowRobotBell = Boolean(user?._id || trackingRequests.length > 0 || robotNotifications.length > 0);
+
+	const getRequestDetailText = (requestType?: string, destinationDeskId?: string, fallbackMessage?: string): string => {
+		const normalizedDeskId = destinationDeskId?.trim();
+		if (requestType === RequestType.BORROW) {
+			return normalizedDeskId ? `Borrow request · Desk ${normalizedDeskId}` : 'Borrow request · Student desk delivery';
+		}
+		if (requestType === RequestType.PURCHASE) {
+			return 'Purchase request · Reception delivery';
+		}
+		if (fallbackMessage?.trim()) return fallbackMessage.trim();
+		return 'Delivery request update';
+	};
+
+	const resolveNotificationBookImage = (path?: string): string => {
+		if (!path) return '';
+		if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/img/')) return path;
+		if (API_BASE_URL) return `${API_BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+		const resolved = resolveMediaUrl(path, '');
+		if (!resolved) return '';
+		if (!resolved.startsWith('http://') && !resolved.startsWith('https://') && !resolved.startsWith('/')) {
+			return `/${resolved}`;
+		}
+		return resolved;
+	};
 
 	const handleNotificationClick = async () => {
 		closeNotificationPanel();
-		await router.push('/mypage');
+		await router.push({ pathname: '/mypage', query: { category: 'myRequests' } });
 	};
 
 	const dismissNotification = (notificationId: string) => {
@@ -288,6 +342,16 @@ const Top = () => {
 			notification.status === RequestStatus.FAILED;
 		const isCancelling = cancellingNotificationId === notification.id;
 		const cancelError = cancelErrors[notification.id];
+		const requestContext = requestContextById.get(notification.requestId);
+		const requestData = requestDataById.get(notification.requestId);
+		const requestType = notification.requestType ?? requestContext?.requestType ?? requestData?.requestType;
+		const destinationDeskId = notification.destinationDeskId ?? requestContext?.destinationDeskId ?? requestData?.destinationDeskId;
+		const bookTitle =
+			notification.bookTitle ?? requestContext?.bookTitle ?? requestData?.bookData?.bookTitle ?? 'Book delivery request';
+		const bookImagePath =
+			notification.bookImage ?? requestContext?.bookImage ?? requestData?.bookData?.bookImages?.[0];
+		const bookImage = resolveNotificationBookImage(bookImagePath);
+		const requestDetail = getRequestDetailText(requestType, destinationDeskId, notification.message ?? notification.title);
 
 		return (
 			<div key={notification.id} className="robot-notification-card">
@@ -303,12 +367,29 @@ const Top = () => {
 						}
 					}}
 				>
-					<span className="robot-card-copy">
-						<strong>{notification.title}</strong>
-						<em>{notification.status}</em>
-						<small>{notificationTime(notification.timestamp)}</small>
+					<div className="robot-card-cover">
+						{bookImage ? (
+							<img
+								src={bookImage}
+								alt={bookTitle}
+								onError={(event) => {
+									event.currentTarget.onerror = null;
+									event.currentTarget.src = NOTIFICATION_BOOK_FALLBACK;
+								}}
+							/>
+						) : (
+							<span>Book</span>
+						)}
+					</div>
+					<div className="robot-card-copy">
+						<strong>{bookTitle}</strong>
+						<p className="robot-card-detail">{requestDetail}</p>
+						<div className="robot-card-meta">
+							<em>{notification.status}</em>
+							<small>{notificationTime(notification.timestamp)}</small>
+						</div>
 						{canCancel && (
-							<span className="robot-card-actions">
+							<div className="robot-card-actions">
 								<button
 									className="robot-card-cancel-btn"
 									type="button"
@@ -327,10 +408,10 @@ const Top = () => {
 										'Cancel Request'
 									)}
 								</button>
-							</span>
+							</div>
 						)}
 						{cancelError && <small className="robot-card-error">{cancelError}</small>}
-					</span>
+					</div>
 				</div>
 				<div className="robot-card-side">
 					{canDismiss && (

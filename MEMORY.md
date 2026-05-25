@@ -5,6 +5,42 @@
 
 ---
 
+## Today's Session Update (2026-05-25, robot notification book context + request-tab navigation)
+
+### Completed today
+- Redesigned robot notification cards to include request-specific book context:
+  - thumbnail cover
+  - book title
+  - request detail line
+  - status + timestamp
+  - conditional cancel action.
+- Extended notification/request context payload types:
+  - `libs/library/ws/trackingEvents.ts` (`bookTitle`, `bookImage`, `requestType`, `destinationDeskId`)
+  - `libs/library/ws/trackingClient.ts` (`bookImage`, `destinationDeskId`)
+- Updated request announce payload in `pages/books/detail.tsx` to include:
+  - `bookImage`
+  - `destinationDeskId`.
+- Fixed notification cover rendering reliability by merging request context from `GET_SESSION_REQUESTS` by `requestId` in `libs/components/Top.tsx`, then resolving image source with fallback handling.
+- Added image error fallback for notification covers to avoid broken/missing tiles.
+- Updated notification-card click route to open My Requests directly:
+  - `/mypage?category=myRequests`
+- Restored cancel button visual style to prior state:
+  - solid red background
+  - white label and loading spinner.
+- Changed notification outer card frame to rectangle (removed rounded corners) in `scss/pc/main.scss`.
+
+### Verification
+- `npm run build` was run earlier in this task chain when explicitly requested and passed.
+- Final follow-up styling/navigation tweaks after that build were not rebuilt in this turn.
+
+### Current stopping point
+- Notification drawer now shows book/request context and routes users to the Requests panel when a notification card is clicked.
+- Cover rendering now uses request-linked fallback data and image fallback protection.
+- Cancel button is back to the previous red style; card outer frame is rectangular.
+
+### Exact next task
+- If requested, run a final visual/browser QA pass for notification cards across desktop/mobile and then run a confirmation build.
+
 ## Today's Session Update (2026-05-25, navbar robot notification drawer polish)
 
 ### Completed today

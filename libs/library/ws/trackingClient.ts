@@ -3,6 +3,8 @@ export interface RobotTrackingRequest {
 	requestType?: string;
 	status?: string;
 	bookTitle?: string;
+	bookImage?: string;
+	destinationDeskId?: string;
 	createdAt?: string;
 }
 

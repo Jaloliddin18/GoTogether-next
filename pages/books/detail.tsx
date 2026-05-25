@@ -334,6 +334,8 @@ const BookDetailPage: NextPage = () => {
 					requestType,
 					status: request.status,
 					bookTitle: book.bookTitle,
+					bookImage: book.bookImages?.[0],
+					destinationDeskId: destination?.destinationDeskId,
 					createdAt: request.createdAt,
 				});
 			}

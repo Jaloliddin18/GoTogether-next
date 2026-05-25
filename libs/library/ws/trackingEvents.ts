@@ -10,6 +10,10 @@ export interface RobotNotification {
 	title: string;
 	status: string;
 	message?: string;
+	requestType?: string;
+	destinationDeskId?: string;
+	bookTitle?: string;
+	bookImage?: string;
 	timestamp: string;
 	event: string;
 }
@@ -77,6 +81,10 @@ export const createRobotNotification = (
 		title: getRobotNotificationTitle(status, event),
 		status,
 		message: data?.message,
+		requestType: data?.requestType,
+		destinationDeskId: data?.destinationDeskId,
+		bookTitle: data?.bookTitle ?? data?.bookData?.bookTitle,
+		bookImage: data?.bookImage ?? data?.bookImages?.[0] ?? data?.bookData?.bookImages?.[0],
 		timestamp,
 		event,
 	};
