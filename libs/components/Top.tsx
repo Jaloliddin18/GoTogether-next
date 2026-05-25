@@ -17,8 +17,6 @@ import useDeviceDetect from '../hooks/useDeviceDetect';
 import Link from 'next/link';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
-import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
@@ -285,12 +283,16 @@ const Top = () => {
 
 	const renderNotificationCard = (notification: RobotNotification) => {
 		const canCancel = cancellableStatuses.has(notification.status);
+		const canDismiss =
+			notification.status === RequestStatus.CANCELLED ||
+			notification.status === RequestStatus.FAILED;
 		const isCancelling = cancellingNotificationId === notification.id;
 		const cancelError = cancelErrors[notification.id];
 
 		return (
-			<div key={notification.id} className="robot-notification-card" style={{ display: 'flex', alignItems: 'center' }}>
+			<div key={notification.id} className="robot-notification-card">
 				<div
+					className="robot-card-main"
 					role="button"
 					tabIndex={0}
 					onClick={handleNotificationClick}
@@ -300,44 +302,25 @@ const Top = () => {
 							handleNotificationClick();
 						}
 					}}
-					style={{ display: 'flex', alignItems: 'center', flex: 1, cursor: 'pointer', padding: 0, textAlign: 'left' }}
 				>
-					<span className="robot-card-icon"><SmartToyOutlinedIcon /></span>
 					<span className="robot-card-copy">
 						<strong>{notification.title}</strong>
 						<em>{notification.status}</em>
 						<small>{notificationTime(notification.timestamp)}</small>
 						{canCancel && (
-							<span style={{ marginTop: 8 }}>
+							<span className="robot-card-actions">
 								<button
+									className="robot-card-cancel-btn"
 									type="button"
 									onClick={(e) => {
 										e.stopPropagation();
 										cancelRequestHandler(notification);
 									}}
 									disabled={isCancelling}
-									style={{
-										background: '#ffffff',
-										border: '1px solid #EF4444',
-										color: '#EF4444',
-										borderRadius: 8,
-										fontSize: '0.75rem',
-										fontWeight: 700,
-										padding: '4px 10px',
-										cursor: isCancelling ? 'not-allowed' : 'pointer',
-										opacity: isCancelling ? 0.6 : 1,
-									}}
-									onMouseEnter={(e) => {
-										if (isCancelling) return;
-										e.currentTarget.style.background = '#fef2f2';
-									}}
-									onMouseLeave={(e) => {
-										e.currentTarget.style.background = '#ffffff';
-									}}
 								>
 									{isCancelling ? (
-										<span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-											<CircularProgress size={12} sx={{ color: '#EF4444' }} />
+										<span className="robot-card-cancel-loading">
+											<CircularProgress size={12} sx={{ color: '#ffffff' }} />
 											Cancelling...
 										</span>
 									) : (
@@ -346,35 +329,24 @@ const Top = () => {
 								</button>
 							</span>
 						)}
-						{cancelError && (
-							<small style={{ color: '#EF4444', marginTop: 6 }}>{cancelError}</small>
-						)}
+						{cancelError && <small className="robot-card-error">{cancelError}</small>}
 					</span>
-					<ChevronRightOutlinedIcon className="robot-card-arrow" />
 				</div>
-				<button
-					onClick={(e) => {
-						e.stopPropagation();
-						dismissNotification(notification.id);
-					}}
-					style={{
-						background: 'none',
-						border: 'none',
-						cursor: 'pointer',
-						fontSize: '0.85rem',
-						color: '#9ab0c8',
-						padding: '2px 6px',
-						lineHeight: 1,
-						borderRadius: '4px',
-						flexShrink: 0,
-						transition: 'color 0.2s',
-					}}
-					onMouseEnter={e => (e.currentTarget.style.color = '#d63031')}
-					onMouseLeave={e => (e.currentTarget.style.color = '#9ab0c8')}
-					aria-label="Dismiss notification"
-				>
-					×
-				</button>
+				<div className="robot-card-side">
+					{canDismiss && (
+						<button
+							type="button"
+							className="robot-card-dismiss"
+							onClick={(e) => {
+								e.stopPropagation();
+								dismissNotification(notification.id);
+							}}
+							aria-label="Dismiss notification"
+						>
+							×
+						</button>
+					)}
+				</div>
 			</div>
 		);
 	};
@@ -448,37 +420,30 @@ const Top = () => {
 							<p>Robot Updates</p>
 							<span>{trackingConnected ? 'Live connection active' : 'Waiting for robot signal'}</span>
 						</div>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+						<div className="robot-panel-tools">
 							{robotNotifications.length > 0 && (
 								<button
+									type="button"
+									className="robot-clear-all"
 									onClick={() => {
 										setRobotNotifications([]);
 										saveRobotNotifications([]);
 									}}
-									style={{
-										background: 'none',
-										border: 'none',
-										cursor: 'pointer',
-										fontSize: '0.78rem',
-										color: '#5a7a9c',
-										padding: '2px 8px',
-										borderRadius: '4px',
-										transition: 'color 0.2s',
-									}}
-									onMouseEnter={e => (e.currentTarget.style.color = '#1a6fd4')}
-									onMouseLeave={e => (e.currentTarget.style.color = '#5a7a9c')}
 								>
 									Clear all
 								</button>
 							)}
-							<IconButton onClick={closeNotificationPanel} aria-label="Close robot notifications">
+							<IconButton className="robot-panel-close" onClick={closeNotificationPanel} aria-label="Close robot notifications">
 								<CloseOutlinedIcon />
 							</IconButton>
 						</div>
 					</div>
 					<div className="robot-panel-list">
 						{notificationList.length === 0 ? (
-							<div className="robot-panel-empty">No robot updates yet.</div>
+							<div className="robot-panel-empty">
+								<p>No robot updates yet</p>
+								<span>Delivery updates will appear here.</span>
+							</div>
 						) : (
 							notificationList.map((notification) => renderNotificationCard(notification))
 						)}
@@ -631,37 +596,30 @@ const Top = () => {
 							<p>Robot Updates</p>
 							<span>{trackingConnected ? 'Live connection active' : 'Waiting for robot signal'}</span>
 						</div>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+						<div className="robot-panel-tools">
 							{robotNotifications.length > 0 && (
 								<button
+									type="button"
+									className="robot-clear-all"
 									onClick={() => {
 										setRobotNotifications([]);
 										saveRobotNotifications([]);
 									}}
-									style={{
-										background: 'none',
-										border: 'none',
-										cursor: 'pointer',
-										fontSize: '0.78rem',
-										color: '#5a7a9c',
-										padding: '2px 8px',
-										borderRadius: '4px',
-										transition: 'color 0.2s',
-									}}
-									onMouseEnter={e => (e.currentTarget.style.color = '#1a6fd4')}
-									onMouseLeave={e => (e.currentTarget.style.color = '#5a7a9c')}
 								>
 									Clear all
 								</button>
 							)}
-							<IconButton onClick={closeNotificationPanel} aria-label="Close robot notifications">
+							<IconButton className="robot-panel-close" onClick={closeNotificationPanel} aria-label="Close robot notifications">
 								<CloseOutlinedIcon />
 							</IconButton>
 						</div>
 					</div>
 					<div className="robot-panel-list">
 						{notificationList.length === 0 ? (
-							<div className="robot-panel-empty">No robot updates yet.</div>
+							<div className="robot-panel-empty">
+								<p>No robot updates yet</p>
+								<span>Delivery updates will appear here.</span>
+							</div>
 						) : (
 							notificationList.map((notification) => renderNotificationCard(notification))
 						)}

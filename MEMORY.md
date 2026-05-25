@@ -1,9 +1,40 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-24
+**Last Updated:** 2026-05-25
 **Current Branch:** `admin`
 
 ---
+
+## Today's Session Update (2026-05-25, navbar robot notification drawer polish)
+
+### Completed today
+- Polished the navbar robot notification drawer UI in:
+  - `libs/components/Top.tsx`
+  - `scss/pc/main.scss`
+- Replaced inline/loud visuals with cleaner class-based styling:
+  - minimal light panel look, subtle border/shadow, tighter spacing
+  - refined header typography and smaller close control
+  - subtle `Clear all` text button styling
+  - compact notification card/list-item styling with restrained hover.
+- Notification card structure/style updates:
+  - removed robot icon from cards
+  - removed right-side chevron arrow
+  - kept title/status/timestamp hierarchy
+  - styled `Cancel Request` as solid red with white text
+  - kept `Cancel Request` in the same content flow (under timestamp) and right-aligned near the card’s right side while inside frame.
+- Dismiss behavior update:
+  - `x` dismiss control now renders only for terminal statuses `CANCELLED` or `FAILED`.
+
+### Verification
+- `npm run build` was run during this task when explicitly requested and passed successfully.
+- Build still showed the known join-page static-generation `+input` console logs.
+
+### Current stopping point
+- Notification drawer now matches a cleaner smart-library visual direction and keeps existing data behavior unchanged.
+- `Cancel Request` remains available on active statuses; dismiss `x` appears only after cancelled/failed statuses.
+
+### Exact next task
+- If requested, do a final pixel-tune pass for the notification card right-side spacing (small offset-only adjustments), without changing any request/tracking logic.
 
 ## Today's Session Update (2026-05-24, book detail hierarchy cleanup + Apollo error 17 fix)
 

@@ -15,6 +15,34 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-25) — Navbar robot notification drawer polish
+
+### Completed
+- Redesigned the navbar robot notification drawer UI to a cleaner smart-library style in:
+  - `libs/components/Top.tsx`
+  - `scss/pc/main.scss`
+- Replaced loud/inline visual styling with class-based muted styling:
+  - cleaner header spacing/typography
+  - smaller close control
+  - subtle Clear all text control
+  - compact list cards, softer borders/shadows/hover states
+  - improved empty state messaging:
+    - `No robot updates yet`
+    - `Delivery updates will appear here.`
+- Notification card cleanup:
+  - removed robot MUI icon
+  - removed right-side chevron arrow
+  - kept status/timestamp structure
+  - styled `Cancel Request` as a red button with white text
+  - positioned `Cancel Request` under timestamp and right-aligned while staying inside card frame.
+- Dismiss behavior update:
+  - `x` dismiss button now renders only when request status is `CANCELLED` or `FAILED`.
+
+### Key rules
+- For navbar robot notifications, change UI only in `libs/components/Top.tsx` + `scss/pc/main.scss`; do not alter WebSocket/tracking/cancel-request data logic.
+- Keep `Cancel Request` right-aligned under timestamp but inside the notification card frame (no overflow offsets that push it outside).
+- Keep dismiss `x` hidden for active/in-progress states; render it only for terminal `CANCELLED` or `FAILED` notifications.
+
 ## Session Update (2026-05-24) — Book detail hierarchy cleanup + Apollo error 17 fix
 
 ### Completed
