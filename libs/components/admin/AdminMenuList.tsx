@@ -9,6 +9,7 @@ import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
 import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
+import NightlightRoundOutlinedIcon from '@mui/icons-material/NightlightRoundOutlined';
 
 type MenuItem = {
 	key: string;
@@ -46,6 +47,13 @@ const MENU_ITEMS: MenuItem[] = [
 		href: '/_admin/requests',
 		icon: <AssignmentOutlinedIcon />,
 		match: (p) => p.startsWith('/_admin/requests'),
+	},
+	{
+		key: 'lost-items',
+		label: 'Lost Items',
+		href: '/_admin/lost-items',
+		icon: <NightlightRoundOutlinedIcon />,
+		match: (p) => p.startsWith('/_admin/lost-items'),
 	},
 	{
 		key: 'robots',

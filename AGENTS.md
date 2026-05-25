@@ -15,6 +15,47 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-26) — Admin lost-items review dashboard integration
+
+### Completed
+- Added a new admin lost-items review route:
+  - `pages/_admin/lost-items/index.tsx`
+- Wired new admin GraphQL operations:
+  - query: `GET_LOST_ITEMS` (`apollo/admin/query.ts`)
+  - mutation: `UPDATE_LOST_ITEM_STATUS` (`apollo/admin/mutation.ts`)
+- Added frontend lost-item domain contracts:
+  - `libs/enums/lost-item.enum.ts`
+  - `libs/types/lost-item/lost-item.ts`
+  - `libs/types/lost-item/lost-item.input.ts`
+  - `libs/types/lost-item/lost-item.update.ts`
+- Added admin sidebar navigation item:
+  - `Lost Items` -> `/_admin/lost-items` (`libs/components/admin/AdminMenuList.tsx`)
+- Built a full review dashboard surface:
+  - summary cards: Pending Review, High Priority, Collected, Dismissed
+  - filters: status, object type, priority, robot ID, detected date range, clear filters
+  - list table rows with snapshot thumbnail, object type, priority, confidence, detected time, robot ID, location, status, notes
+  - status actions:
+    - `PENDING_REVIEW` -> `Mark Collected` / `Dismiss`
+    - `COLLECTED`/`DISMISSED` -> `Set Pending`
+  - pagination: page 1, limit 20 by default
+- Snapshot rendering now uses existing media helper:
+  - `resolveMediaUrl(...)` for relative `snapshotUrl`/`snapshotPath`
+  - fallback tile: `No snapshot`
+- Styled lost-item-specific UI in:
+  - `scss/pc/admin/admin.scss`
+- Fixed follow-up layout issue where the main frame became horizontally scrollable:
+  - removed forced table overflow/min-width behavior on lost-items page
+  - applied fixed-table layout + text wrapping classes so content stays inside the frame
+
+### Verification
+- Ran `npm run build` (explicitly requested in task) and build passed.
+- Existing static-generation `+input` logs from account join page are still printed during build.
+
+### Key rules
+- For lost-item snapshots, always resolve relative upload paths via `resolveMediaUrl(...)`; do not hardcode base URLs in page code.
+- Keep lost-item admin behavior scoped to `/_admin/lost-items` plus admin query/mutation/nav wiring; do not modify robot MQTT, backend modules, or unrelated admin pages.
+- Lost-items table/content must not force horizontal scrolling on the main admin frame; prefer wrapping/truncation inside the table layout.
+
 ## Session Update (2026-05-25) — Robot notification cards with book context + My Requests routing
 
 ### Completed

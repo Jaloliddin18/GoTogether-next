@@ -326,6 +326,20 @@ export const UPDATE_REQUEST_STATUS = gql`
 `;
 
 /**************************
+ *       LOST ITEM        *
+ *************************/
+
+export const UPDATE_LOST_ITEM_STATUS = gql`
+	mutation UpdateLostItemStatus($input: UpdateLostItemStatusInput!) {
+		updateLostItemStatus(input: $input) {
+			_id
+			status
+			updatedAt
+		}
+	}
+`;
+
+/**************************
  *         ROBOT        *
  *************************/
 

@@ -1,9 +1,54 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-25
+**Last Updated:** 2026-05-26
 **Current Branch:** `admin`
 
 ---
+
+## Today's Session Update (2026-05-26, admin lost-items dashboard + frame-scroll fix)
+
+### Completed today
+- Added a new admin lost-items review page:
+  - `pages/_admin/lost-items/index.tsx`
+- Added new admin GraphQL operations for lost-item management:
+  - `GET_LOST_ITEMS` in `apollo/admin/query.ts`
+  - `UPDATE_LOST_ITEM_STATUS` in `apollo/admin/mutation.ts`
+- Added frontend lost-item enums/types:
+  - `libs/enums/lost-item.enum.ts`
+  - `libs/types/lost-item/lost-item.ts`
+  - `libs/types/lost-item/lost-item.input.ts`
+  - `libs/types/lost-item/lost-item.update.ts`
+- Added admin sidebar route entry:
+  - `Lost Items` -> `/_admin/lost-items` in `libs/components/admin/AdminMenuList.tsx`
+- Implemented lost-items dashboard UI/features:
+  - header: `Night Patrol Lost Items`
+  - subtitle for overnight patrol review context
+  - summary cards: Pending Review / High Priority / Collected / Dismissed
+  - filters: status, object type, priority, robot ID, detected date range, clear filters
+  - table rows with snapshot thumbnail, object type, priority badge, confidence, detected time, robot ID, location summary, status, notes
+  - status actions:
+    - pending -> collected/dismissed
+    - collected/dismissed -> set back to pending
+  - pagination defaults: `page=1`, `limit=20`
+- Snapshot image handling:
+  - uses `resolveMediaUrl(...)` for relative `snapshotUrl`/`snapshotPath`
+  - shows `No snapshot` placeholder when missing/broken.
+- Added lost-item specific SCSS blocks in `scss/pc/admin/admin.scss`.
+- Follow-up fix applied after UI review:
+  - removed forced horizontal scroll behavior (`overflowX` + oversized `minWidth`) on lost-items table
+  - added fixed table layout and cell wrapping classes so the main admin frame is not horizontally scrollable.
+
+### Verification
+- Ran `npm run build` and it passed.
+- Build still includes the known account-join static-generation `+input` console logs.
+
+### Current stopping point
+- Lost-items admin dashboard is integrated and build-verified.
+- Main frame non-scroll requirement for this page is applied.
+- Working tree includes lost-items dashboard implementation plus AGENTS/MEMORY documentation updates.
+
+### Exact next task
+- If requested, run runtime browser QA on `/_admin/lost-items` with live backend data to validate filters, status updates, and snapshot rendering end-to-end.
 
 ## Today's Session Update (2026-05-25, robot notification book context + request-tab navigation)
 

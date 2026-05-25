@@ -854,6 +854,97 @@
 	display: block;
 }
 
+.admin-lost-thumb {
+	width: 88px;
+	height: 88px;
+	border-radius: 8px;
+	object-fit: cover;
+	background: $color-bg;
+	border: 1px solid $color-border;
+	display: block;
+}
+
+.admin-lost-table {
+	width: 100%;
+	table-layout: fixed;
+}
+
+.admin-lost-id {
+	word-break: break-all;
+}
+
+.admin-lost-location {
+	white-space: normal;
+	word-break: break-word;
+}
+
+.admin-lost-note {
+	white-space: normal;
+	word-break: break-word;
+}
+
+.admin-lost-thumb-placeholder {
+	width: 88px;
+	height: 88px;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding: 8px;
+	font-family: $font;
+	font-size: 11px;
+	color: $color-muted;
+	background: $color-bg;
+	border: 1px dashed $color-border;
+}
+
+.admin-lost-priority {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px 10px;
+	border-radius: 999px;
+	font-family: $font;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	border: 1px solid transparent;
+
+	&.is-high {
+		color: $color-danger;
+		background: rgba($color-danger, 0.1);
+		border-color: rgba($color-danger, 0.24);
+	}
+
+	&.is-medium {
+		color: $color-warning;
+		background: rgba($color-warning, 0.1);
+		border-color: rgba($color-warning, 0.24);
+	}
+
+	&.is-low {
+		color: $color-muted;
+		background: rgba($color-muted, 0.1);
+		border-color: rgba($color-muted, 0.2);
+	}
+}
+
+.admin-lost-dismiss-btn {
+	color: $color-danger;
+	border-color: rgba($color-danger, 0.35);
+
+	&:hover {
+		background: rgba($color-danger, 0.06);
+	}
+}
+
+.admin-lost-empty {
+	padding: 32px 0;
+	text-align: center;
+}
+
 // ─── Add / Edit book form ─────────────────────────────────────────────────────
 
 .admin-form-shell {
