@@ -333,16 +333,16 @@ const AdminLostItems: NextPage = () => {
 				<table className="admin-table admin-lost-table">
 					<thead>
 						<tr>
-							<th style={{ width: 100 }}>Snapshot</th>
-							<th style={{ width: 160 }}>Object Type</th>
-							<th style={{ width: 105 }}>Priority</th>
-							<th style={{ width: 90 }}>Confidence</th>
-							<th style={{ width: 160 }}>Detected At</th>
-							<th style={{ width: 110 }}>Robot ID</th>
-							<th style={{ width: 190 }}>Location</th>
-							<th style={{ width: 140 }}>Status</th>
-							<th>Notes</th>
-							<th style={{ width: 180, textAlign: 'right' }}>Actions</th>
+							<th style={{ width: 92 }}>Snapshot</th>
+							<th style={{ width: 146 }}>Object Type</th>
+							<th style={{ width: 100 }}>Priority</th>
+							<th style={{ width: 86 }}>Confidence</th>
+							<th style={{ width: 140 }}>Detected At</th>
+							<th style={{ width: 98 }}>Robot ID</th>
+							<th style={{ width: 170 }}>Location</th>
+							<th style={{ width: 128 }}>Status</th>
+							<th style={{ width: '26%' }}>Notes</th>
+							<th style={{ width: 146, textAlign: 'right' }}>Actions</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -441,12 +441,12 @@ const AdminLostItems: NextPage = () => {
 										</td>
 										<td className="admin-cell-meta admin-lost-note">{lostItem.notes?.trim() || '—'}</td>
 										<td>
-											<div className="admin-cell-actions">
+											<div className="admin-cell-actions admin-lost-actions">
 												{lostItem.status === LostItemStatus.PENDING_REVIEW ? (
 													<>
 														<button
 															type="button"
-															className="admin-btn admin-btn--primary admin-btn--sm"
+															className="admin-btn admin-btn--primary admin-btn--sm admin-lost-action-btn"
 															disabled={isBusy}
 															onClick={() =>
 																updateStatusHandler(lostItem, LostItemStatus.COLLECTED)
@@ -456,7 +456,7 @@ const AdminLostItems: NextPage = () => {
 														</button>
 														<button
 															type="button"
-															className="admin-btn admin-btn--ghost admin-btn--sm admin-lost-dismiss-btn"
+															className="admin-btn admin-btn--sm admin-lost-action-btn admin-lost-dismiss-btn"
 															disabled={isBusy}
 															onClick={() =>
 																updateStatusHandler(lostItem, LostItemStatus.DISMISSED)
@@ -468,7 +468,7 @@ const AdminLostItems: NextPage = () => {
 												) : (
 													<button
 														type="button"
-														className="admin-link-btn is-muted"
+														className="admin-btn admin-btn--ghost admin-btn--sm admin-lost-action-btn"
 														disabled={isBusy}
 														onClick={() =>
 															updateStatusHandler(lostItem, LostItemStatus.PENDING_REVIEW)
