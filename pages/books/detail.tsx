@@ -40,7 +40,7 @@ import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.
 import { CommentGroup } from '../../libs/enums/comment.enum';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { DeliveryDestinationType, RequestType } from '../../libs/enums/request.enum';
+import { RequestType } from '../../libs/enums/request.enum';
 import { CreateDeliveryRequestInput } from '../../libs/types/request/request.input';
 import { userVar } from '../../apollo/store';
 import { resolveMediaUrl } from '../../libs/utils';
@@ -299,17 +299,11 @@ const BookDetailPage: NextPage = () => {
 		requestType: RequestType,
 		options?: {
 			deskId?: 'A' | 'B';
-			destinationType?: DeliveryDestinationType;
 			skipSuccessToast?: boolean;
 		},
 	): Promise<boolean> => {
 		try {
 			if (!book?._id) return false;
-			const destinationType =
-				options?.destinationType ??
-				(requestType === RequestType.BORROW
-					? DeliveryDestinationType.STUDENT_DESK
-					: DeliveryDestinationType.RECEPTION);
 			const selectedDeskDestination = options?.deskId ? DESK_DESTINATION_MAP[options.deskId] : null;
 			const autoDestination = requestType === RequestType.BORROW ? resolveAutoDeskDestination(user) : null;
 			const destination = selectedDeskDestination ?? autoDestination;
@@ -317,7 +311,6 @@ const BookDetailPage: NextPage = () => {
 			const input: CreateDeliveryRequestInput = {
 				bookId: book._id,
 				requestType,
-				destinationType,
 			};
 			if (destination) {
 				input.destinationDeskId = destination.destinationDeskId;
@@ -375,7 +368,6 @@ const BookDetailPage: NextPage = () => {
 		setIsDeskSubmitting(true);
 		const success = await createDeliveryRequestHandler(RequestType.BORROW, {
 			deskId: selectedDeskId,
-			destinationType: DeliveryDestinationType.STUDENT_DESK,
 			skipSuccessToast: true,
 		});
 
@@ -812,11 +804,7 @@ const BookDetailPage: NextPage = () => {
 										variant="outlined"
 										startIcon={<ShoppingBagOutlinedIcon />}
 										disabled={createRequestLoading || !book?.isPurchasable}
-										onClick={() =>
-											createDeliveryRequestHandler(RequestType.PURCHASE, {
-												destinationType: DeliveryDestinationType.RECEPTION,
-											})
-										}
+										onClick={() => createDeliveryRequestHandler(RequestType.PURCHASE)}
 										sx={{
 											flex: 1,
 											height: 52,
