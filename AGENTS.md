@@ -15,6 +15,30 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-27) — MyPage live-tracking simulation fallback + notification status label cleanup
+
+### Completed
+- Updated MyPage live tracking movement behavior in:
+  - `libs/components/mypage/RobotTracking.tsx`
+- Added route-based fallback movement simulation when fresh live pose is unavailable:
+  - treats socket pose as fresh for `LIVE_POSE_STALE_MS = 3000`
+  - when stale/missing, robot pose advances along the planned map polyline with status-driven target distances/speeds
+  - supports both delivery route simulation and return-to-dock simulation.
+- Improved return-route handling for canceled deliveries:
+  - return route now applies to request terminal statuses `COMPLETED` and `CANCELLED`
+  - return path starts from the nearest map node to the robot’s latest pose, then routes back to `CHARGING_DOCK` (instead of assuming reception origin).
+- Preserved map trail/heading continuity while switching between live and simulated pose.
+- Updated robot notification status text rendering in:
+  - `libs/components/Top.tsx`
+- Added display formatter so notification states render human-readable labels without underscores:
+  - example: `ARRIVED_AT_STUDENT` -> `Arrived At Student`
+  - logic checks still use raw enum values for cancel/confirm/dismiss behavior.
+
+### Key rules
+- In MyPage tracking, do not freeze robot position when websocket pose is temporarily missing; fall back to planned-route simulation driven by request state.
+- Return-to-dock visualization must include canceled requests and should start from robot’s nearest current map node, not a hardcoded destination node.
+- In notification UI, format request status only for display; keep raw status enums for all behavioral conditions.
+
 ## Session Update (2026-05-26) — Admin lost-items review dashboard integration
 
 ### Completed

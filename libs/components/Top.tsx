@@ -359,6 +359,16 @@ const Top = () => {
 		return 'Delivery request update';
 	};
 
+	const getStatusLabel = (status?: string): string => {
+		if (!status?.trim()) return 'Unknown';
+		return status
+			.toLowerCase()
+			.split('_')
+			.filter(Boolean)
+			.map((chunk) => chunk.charAt(0).toUpperCase() + chunk.slice(1))
+			.join(' ');
+	};
+
 	const resolveNotificationBookImage = (path?: string): string => {
 		if (!path) return '';
 		if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/img/')) return path;
@@ -479,6 +489,7 @@ const Top = () => {
 			notification.bookImage ?? requestContext?.bookImage ?? requestData?.bookData?.bookImages?.[0];
 		const bookImage = resolveNotificationBookImage(bookImagePath);
 		const requestDetail = getRequestDetailText(requestType, destinationDeskId, notification.message ?? notification.title);
+		const statusLabel = getStatusLabel(notification.status);
 
 		return (
 			<div key={notification.requestId} className="robot-notification-card">
@@ -512,7 +523,7 @@ const Top = () => {
 						<strong>{bookTitle}</strong>
 						<p className="robot-card-detail">{requestDetail}</p>
 						<div className="robot-card-meta">
-							<em>{notification.status}</em>
+							<em>{statusLabel}</em>
 							<small>{notificationTime(notification.timestamp)}</small>
 						</div>
 						{canCancel && (

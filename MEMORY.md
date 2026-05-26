@@ -1,9 +1,43 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-26
+**Last Updated:** 2026-05-27
 **Current Branch:** `admin`
 
 ---
+
+## Today's Session Update (2026-05-27, mypage live-tracking simulation fallback + notification status label format)
+
+### Completed today
+- Updated MyPage robot tracking behavior in `libs/components/mypage/RobotTracking.tsx` to mimic movement from state updates when reliable live pose is missing:
+  - introduced a live-pose freshness window (`LIVE_POSE_STALE_MS = 3000`)
+  - if socket pose goes stale/missing, tracker now simulates movement along planned corridor polylines using status-driven target distances and speeds
+  - simulation supports both delivery-progress phases and return-to-dock phases
+  - heading/trail rendering now follows whichever pose source is active (live or simulated), preserving smooth UX continuity.
+- Return-route behavior for canceled requests is now represented in map movement:
+  - return routing applies for terminal request statuses `COMPLETED` and `CANCELLED`
+  - route back to dock starts from the nearest map node to the robot’s current/latest pose, not a fixed reception-origin path.
+- Updated notification panel status text in `libs/components/Top.tsx`:
+  - added `getStatusLabel(...)` display formatter to replace underscore tokens with human-readable words (title-cased)
+  - rendered status example: `ARRIVED_AT_STUDENT` -> `Arrived At Student`
+  - left all raw status enum checks unchanged for cancel/confirm/dismiss logic.
+
+### Verification
+- Did not run `npm run build` in this session (not explicitly requested).
+- Confirmed frontend working-tree changes are scoped to:
+  - `libs/components/mypage/RobotTracking.tsx`
+  - `libs/components/Top.tsx`
+  - plus docs updates in `AGENTS.md` and `MEMORY.md`.
+
+### Current stopping point
+- MyPage live tracking now has a deterministic visual fallback path progression when robot telemetry pose is intermittent.
+- Notification status labels are user-friendly and no longer show underscore enum tokens.
+
+### Exact next task
+- If requested, run browser QA on `/mypage?category=myRequests` and live-tracking panel flows for:
+  - normal delivery progression,
+  - cancellation mid-route,
+  - return-to-dock animation continuity,
+  - notification status label readability.
 
 ## Today's Session Update (2026-05-26, admin lost-items dashboard + frame-scroll fix)
 
