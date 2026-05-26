@@ -15,6 +15,33 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-27) — MyPage pointer direction, speed-aware progression, and stutter reduction
+
+### Completed
+- Refined MyPage live tracking movement/heading behavior in:
+  - `libs/components/mypage/RobotTracking.tsx`
+  - `libs/hooks/useRobotSocket.ts`
+  - `scss/pc/mypage/mypage.scss`
+- Pointer direction now follows route heading more reliably:
+  - heading is derived from polyline tangent using current route distance
+  - when simulated movement is active, heading uses `simulatedDistance` directly to avoid segment snap jitter.
+- Added speed-aware simulation progression:
+  - `useRobotSocket` now captures `linearSpeed` from telemetry fields when present (`linearSpeed`, `speed`, `velocity`, `linearVelocity`, `speedMps`)
+  - when explicit speed is absent, speed is inferred from pose delta over time
+  - tracking simulation speed now scales from this live speed signal with safe clamps.
+- Improved state-driven route seeding to reduce status jump mismatches:
+  - seed distance can be derived from status timeline timestamp + speed so `NAVIGATING_TO_SHELF` does not visually jump near shelf.
+- Reduced pointer stutter:
+  - removed robot-arrow transform transition
+  - simulation loop now keeps continuous RAF and updates target/speed through refs (no loop restart on each state/speed tweak).
+- Added optional override for deterministic tuning:
+  - `NEXT_PUBLIC_TRACKING_SPEED_FLOOR_UNITS_PER_SEC`.
+
+### Key rules
+- For MyPage map UX, keep marker progression tied to route distance + timing/speed, not just discrete request status labels.
+- Use route-tangent heading as the primary orientation source when a route is rendered.
+- Avoid CSS transform transitions on per-frame marker updates; use animation-frame motion with stable loop state.
+
 ## Session Update (2026-05-27) — MyPage live-tracking simulation fallback + notification status label cleanup
 
 ### Completed

@@ -5,6 +5,42 @@
 
 ---
 
+## Today's Session Update (2026-05-27, pointer heading alignment + speed-aware route simulation + stutter fix)
+
+### Completed today
+- Improved live tracking pointer direction in `libs/components/mypage/RobotTracking.tsx`:
+  - heading now prefers route tangent direction on the active polyline
+  - when simulation is active, heading derives from `simulatedDistance` directly to avoid heading jitter at segment boundaries.
+- Added speed-aware movement signal to tracking fallback:
+  - `libs/hooks/useRobotSocket.ts` now exposes `linearSpeed`
+  - speed is read from telemetry payload keys (`linearSpeed`, `speed`, `velocity`, `linearVelocity`, `speedMps`) when available
+  - if missing, speed is inferred from pose delta/time and smoothed.
+- Updated map fallback progression to mimic real robot timing better:
+  - simulation seed distance can use status timeline timestamp + speed window
+  - helps prevent `NAVIGATING_TO_SHELF` visuals from jumping ahead to shelf.
+- Reduced pointer stutter:
+  - removed transform transition from `.robot-arrow` in `scss/pc/mypage/mypage.scss`
+  - simulation loop now maintains one continuous RAF and reads target/speed from refs instead of restarting on each directive change.
+- Added optional speed tuning env support:
+  - `NEXT_PUBLIC_TRACKING_SPEED_FLOOR_UNITS_PER_SEC` in `RobotTracking.tsx`.
+
+### Verification
+- Did not run `npm run build` in frontend (not explicitly requested).
+- Verified working-tree frontend changes for this session are in:
+  - `libs/components/mypage/RobotTracking.tsx`
+  - `libs/hooks/useRobotSocket.ts`
+  - `scss/pc/mypage/mypage.scss`
+  - `AGENTS.md`
+  - `MEMORY.md`.
+
+### Current stopping point
+- Pointer orientation now tracks route heading direction consistently.
+- Movement progression is speed-aware and less state-jumpy.
+- Marker stutter is reduced by removing transform transition and stabilizing RAF updates.
+
+### Exact next task
+- If requested, run browser QA on `/mypage?category=myRequests` with a full delivery + return-to-dock flow and tune `NEXT_PUBLIC_TRACKING_SPEED_FLOOR_UNITS_PER_SEC` for your robot profile.
+
 ## Today's Session Update (2026-05-27, mypage live-tracking simulation fallback + notification status label format)
 
 ### Completed today

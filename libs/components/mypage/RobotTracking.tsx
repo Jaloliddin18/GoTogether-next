@@ -24,6 +24,12 @@ const ROBOT_FLOOR_Y_RANGE: [number, number] = [0, 100];
 const MIN_HEADING_MOVEMENT_PX = 1.2;
 const ROBOT_ICON_HEADING_OFFSET_DEG = 90;
 const LIVE_POSE_STALE_MS = 3000;
+const DEFAULT_ROUTE_SPEED_PX_PER_SEC = 28;
+const MIN_ROUTE_SPEED_PX_PER_SEC = 8;
+const MAX_ROUTE_SPEED_PX_PER_SEC = 72;
+const ROUTE_SPEED_OVERRIDE_FLOOR_UNITS_PER_SEC = Number.parseFloat(
+	process.env.NEXT_PUBLIC_TRACKING_SPEED_FLOOR_UNITS_PER_SEC ?? '',
+);
 type Point = { x: number; y: number };
 type ShelfKey = keyof typeof SHELF_KEY_TO_NODE;
 type InventoryShelfLike = {
@@ -83,11 +89,7 @@ const TERMINAL_REQUEST_STATUSES = new Set([
 const RETURN_ROUTE_REQUEST_STATUSES = new Set([
 	RequestStatus.COMPLETED,
 	RequestStatus.CANCELLED,
-]);
-const RETURNING_ROBOT_STATUSES = new Set([
-	RobotStatus.RETURNING,
-	RobotStatus.DOCKING,
-	RobotStatus.IDLE,
+	RequestStatus.BOOK_NOT_FOUND,
 ]);
 
 function resolveEffectiveRequestStatus(
@@ -609,6 +611,33 @@ function findClosestDistanceAlongPolyline(
 	return bestDistanceAlong;
 }
 
+function getHeadingDegAlongPolyline(
+	polyline: Array<{ x: number; y: number }>,
+	distanceAlong: number,
+	totalDistance: number,
+	lookaheadPx = 8,
+): number | null {
+	if (polyline.length < 2 || totalDistance <= 0) return null;
+
+	const currentDistance = clamp(distanceAlong, 0, totalDistance);
+	const forwardDistance = clamp(currentDistance + lookaheadPx, 0, totalDistance);
+	const backwardDistance = clamp(currentDistance - lookaheadPx, 0, totalDistance);
+
+	const currentPoint = pointAtDistanceOnPolyline(polyline, currentDistance);
+	const forwardPoint = pointAtDistanceOnPolyline(polyline, forwardDistance);
+	let dx = forwardPoint.x - currentPoint.x;
+	let dy = forwardPoint.y - currentPoint.y;
+
+	if (Math.hypot(dx, dy) < 0.01) {
+		const backPoint = pointAtDistanceOnPolyline(polyline, backwardDistance);
+		dx = currentPoint.x - backPoint.x;
+		dy = currentPoint.y - backPoint.y;
+	}
+
+	if (Math.hypot(dx, dy) < 0.01) return null;
+	return radiansToDegrees(Math.atan2(dy, dx));
+}
+
 function resolveSimulationDirective(
 	mode: RouteSimulationMode,
 	status: string | null,
@@ -616,16 +645,21 @@ function resolveSimulationDirective(
 	destinationDistance: number,
 	totalDistance: number,
 	liveRobotStatus: string | null,
+	routeSpeedPxPerSec: number,
 ): SimulationDirective | null {
 	if (mode === 'none' || totalDistance <= 0) return null;
+	const speed = clamp(routeSpeedPxPerSec, MIN_ROUTE_SPEED_PX_PER_SEC, MAX_ROUTE_SPEED_PX_PER_SEC);
 
 	if (mode === 'return') {
-		const speedPxPerSec =
+		const speedPxPerSec = clamp(
 			liveRobotStatus === RobotStatus.DOCKING
-				? 36
+				? speed * 0.64
 				: liveRobotStatus === RobotStatus.IDLE
-				? 20
-				: 56;
+				? speed * 0.36
+				: speed,
+			MIN_ROUTE_SPEED_PX_PER_SEC,
+			MAX_ROUTE_SPEED_PX_PER_SEC,
+		);
 		return {
 			targetDistance: totalDistance,
 			speedPxPerSec,
@@ -634,35 +668,150 @@ function resolveSimulationDirective(
 
 	switch (status as RequestStatus | null) {
 		case RequestStatus.QUEUED:
-			return { targetDistance: 0, speedPxPerSec: 18 };
+			return { targetDistance: 0, speedPxPerSec: speed * 0.5 };
 		case RequestStatus.ASSIGNED:
-			return { targetDistance: Math.min(shelfDistance * 0.22, totalDistance), speedPxPerSec: 26 };
+			return { targetDistance: Math.min(shelfDistance * 0.22, totalDistance), speedPxPerSec: speed * 0.62 };
 		case RequestStatus.DISPATCHED:
-			return { targetDistance: Math.min(shelfDistance * 0.45, totalDistance), speedPxPerSec: 44 };
+			return { targetDistance: Math.min(shelfDistance * 0.45, totalDistance), speedPxPerSec: speed * 0.78 };
 		case RequestStatus.NAVIGATING_TO_SHELF:
-			return { targetDistance: shelfDistance, speedPxPerSec: 66 };
+			return { targetDistance: shelfDistance, speedPxPerSec: speed };
 		case RequestStatus.ARRIVED_AT_SHELF:
-			return { targetDistance: shelfDistance, speedPxPerSec: 30 };
+			return { targetDistance: shelfDistance, speedPxPerSec: speed * 0.48 };
 		case RequestStatus.VERIFYING_BOOK:
-			return { targetDistance: shelfDistance, speedPxPerSec: 18 };
+			return { targetDistance: shelfDistance, speedPxPerSec: speed * 0.34 };
 		case RequestStatus.BOOK_FOUND:
-			return { targetDistance: shelfDistance, speedPxPerSec: 22 };
+			return { targetDistance: shelfDistance, speedPxPerSec: speed * 0.42 };
 		case RequestStatus.PICKING_UP:
 			return {
 				targetDistance: shelfDistance + (destinationDistance - shelfDistance) * 0.2,
-				speedPxPerSec: 34,
+				speedPxPerSec: speed * 0.6,
 			};
 		case RequestStatus.DELIVERING:
-			return { targetDistance: destinationDistance, speedPxPerSec: 60 };
+			return { targetDistance: destinationDistance, speedPxPerSec: speed };
 		case RequestStatus.ARRIVED_AT_STUDENT:
-			return { targetDistance: destinationDistance, speedPxPerSec: 28 };
+			return { targetDistance: destinationDistance, speedPxPerSec: speed * 0.5 };
 		case RequestStatus.READY:
-			return { targetDistance: destinationDistance, speedPxPerSec: 22 };
+			return { targetDistance: destinationDistance, speedPxPerSec: speed * 0.38 };
 		case RequestStatus.COMPLETED:
-			return { targetDistance: destinationDistance, speedPxPerSec: 22 };
+			return { targetDistance: destinationDistance, speedPxPerSec: speed * 0.38 };
 		default:
-			return { targetDistance: destinationDistance, speedPxPerSec: 40 };
+			return { targetDistance: destinationDistance, speedPxPerSec: speed * 0.8 };
 	}
+}
+
+function timelineTimestampMs(value: unknown): number | null {
+	if (value == null) return null;
+	const normalized =
+		typeof value === 'string'
+			? value
+			: value instanceof Date
+			? value.toISOString()
+			: String(value);
+	const ts = Date.parse(normalized);
+	return Number.isFinite(ts) ? ts : null;
+}
+
+function getLatestTimelineStatusTimestampMs(
+	timeline: TimelineEntry[],
+	status: string | null,
+): number | null {
+	if (!status) return null;
+	for (let i = timeline.length - 1; i >= 0; i--) {
+		const entry = timeline[i];
+		if (entry.status === status) {
+			return timelineTimestampMs(entry.timestamp);
+		}
+	}
+	return null;
+}
+
+function getDeliveryDistanceRangeForStatus(
+	status: string | null,
+	shelfDistance: number,
+	destinationDistance: number,
+): { start: number; end: number } {
+	const legDistance = Math.max(destinationDistance - shelfDistance, 0);
+	switch (status as RequestStatus | null) {
+		case RequestStatus.QUEUED:
+			return { start: 0, end: 0 };
+		case RequestStatus.ASSIGNED:
+			return { start: 0, end: Math.max(shelfDistance * 0.08, 0) };
+		case RequestStatus.DISPATCHED:
+			return { start: shelfDistance * 0.05, end: shelfDistance * 0.22 };
+		case RequestStatus.NAVIGATING_TO_SHELF:
+			return { start: shelfDistance * 0.12, end: shelfDistance };
+		case RequestStatus.ARRIVED_AT_SHELF:
+		case RequestStatus.VERIFYING_BOOK:
+		case RequestStatus.BOOK_FOUND:
+			return { start: shelfDistance, end: shelfDistance };
+		case RequestStatus.PICKING_UP:
+			return {
+				start: shelfDistance,
+				end: shelfDistance + legDistance * 0.22,
+			};
+		case RequestStatus.DELIVERING:
+			return {
+				start: shelfDistance + legDistance * 0.18,
+				end: destinationDistance,
+			};
+		case RequestStatus.ARRIVED_AT_STUDENT:
+		case RequestStatus.READY:
+		case RequestStatus.COMPLETED:
+			return { start: destinationDistance, end: destinationDistance };
+		default:
+			return { start: 0, end: destinationDistance };
+	}
+}
+
+function resolveSeedDistanceFromStatusTimeline(
+	mode: RouteSimulationMode,
+	status: string | null,
+	timeline: TimelineEntry[],
+	shelfDistance: number,
+	destinationDistance: number,
+	totalDistance: number,
+	routeSpeedPxPerSec: number,
+): number | null {
+	if (totalDistance <= 0) return 0;
+	if (mode === 'return') return 0;
+	if (mode !== 'delivery') return null;
+
+	const range = getDeliveryDistanceRangeForStatus(
+		status,
+		shelfDistance,
+		destinationDistance,
+	);
+	const start = clamp(range.start, 0, totalDistance);
+	const end = clamp(Math.max(range.end, range.start), 0, totalDistance);
+	if (Math.abs(end - start) < 0.25) return end;
+
+	const enteredAtMs = getLatestTimelineStatusTimestampMs(timeline, status);
+	if (!enteredAtMs) return start;
+
+	const elapsedSec = Math.max((Date.now() - enteredAtMs) / 1000, 0);
+	return clamp(
+		start + elapsedSec * clamp(routeSpeedPxPerSec, MIN_ROUTE_SPEED_PX_PER_SEC, MAX_ROUTE_SPEED_PX_PER_SEC),
+		start,
+		end,
+	);
+}
+
+function resolveRouteSpeedPxPerSec(linearSpeed: number | null): number {
+	if (
+		Number.isFinite(ROUTE_SPEED_OVERRIDE_FLOOR_UNITS_PER_SEC) &&
+		ROUTE_SPEED_OVERRIDE_FLOOR_UNITS_PER_SEC > 0
+	) {
+		return clamp(
+			ROUTE_SPEED_OVERRIDE_FLOOR_UNITS_PER_SEC * SCALE,
+			MIN_ROUTE_SPEED_PX_PER_SEC,
+			MAX_ROUTE_SPEED_PX_PER_SEC,
+		);
+	}
+	if (linearSpeed == null || !Number.isFinite(linearSpeed) || linearSpeed < 0) {
+		return DEFAULT_ROUTE_SPEED_PX_PER_SEC;
+	}
+	const raw = linearSpeed * SCALE;
+	return clamp(raw, MIN_ROUTE_SPEED_PX_PER_SEC, MAX_ROUTE_SPEED_PX_PER_SEC);
 }
 
 // ─── Delivery tracker model ───────────────────────────────────────────────────
@@ -1059,7 +1208,6 @@ const FloorMap = ({
 			<g
 				className="robot-arrow"
 				transform={`translate(${svgX}, ${svgY}) rotate(${robotRotationDeg}, 0, 0)`}
-				style={{ transition: 'transform 0.8s ease' }}
 			>
 				<polygon points="0,-10 6,6 0,3 -6,6" className="rt-robot-arrow" />
 			</g>
@@ -1330,9 +1478,14 @@ const RobotTracking: NextPage = () => {
 	const previousRobotSvgPointRef = useRef<Point | null>(null);
 	const stableRotationDegRef = useRef<number>(ROBOT_ICON_HEADING_OFFSET_DEG);
 	const terminalRefetchKeyRef = useRef<string>('');
+	const returnRouteSeedKeyRef = useRef<string>('');
+	const returnRouteSeedPoseRef = useRef<Point | null>(null);
+	const routeSimulationSeedKeyRef = useRef<string>('');
 	const livePoseStaleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const simFrameRef = useRef<number | null>(null);
 	const simLastFrameAtRef = useRef<number | null>(null);
+	const simTargetDistanceRef = useRef<number>(0);
+	const simSpeedPxPerSecRef = useRef<number>(0);
 	const [hasFreshLivePose, setHasFreshLivePose] = useState(false);
 	const [simulatedDistance, setSimulatedDistance] = useState(0);
 
@@ -1366,6 +1519,7 @@ const RobotTracking: NextPage = () => {
 		pose: socketPose,
 		robotStatus: liveRobotStatus,
 		battery: liveBattery,
+		linearSpeed: liveLinearSpeed,
 		requestStatus: liveRequestStatus,
 		timeline: liveTimeline,
 		robotOffline,
@@ -1385,14 +1539,16 @@ const RobotTracking: NextPage = () => {
 		liveRobotStatus ?? latestRequest?.robotData?.status ?? null;
 	const shouldShowReturnRoute =
 		!!latestRequest &&
+		!hasActiveDisplayRequest &&
 		!!latestRequestStatus &&
-		RETURN_ROUTE_REQUEST_STATUSES.has(latestRequestStatus as RequestStatus) &&
-		!!effectiveLatestRobotStatus &&
-		RETURNING_ROBOT_STATUSES.has(effectiveLatestRobotStatus as RobotStatus);
+		RETURN_ROUTE_REQUEST_STATUSES.has(latestRequestStatus as RequestStatus);
 
 	useEffect(() => {
 		setHasFreshLivePose(false);
 		if (livePoseStaleTimerRef.current) clearTimeout(livePoseStaleTimerRef.current);
+		returnRouteSeedKeyRef.current = '';
+		returnRouteSeedPoseRef.current = null;
+		routeSimulationSeedKeyRef.current = '';
 	}, [trackingRequestId]);
 
 	useEffect(() => {
@@ -1426,6 +1582,29 @@ const RobotTracking: NextPage = () => {
 
 	// Base pose before fallback simulation is applied.
 	const baseRobotPose = socketPose ?? snapshotPose;
+
+	const returnRouteSeedKey =
+		shouldShowReturnRoute && latestRequest?._id
+			? `${latestRequest._id}:${latestRequestStatus ?? ''}`
+			: '';
+
+	if (!returnRouteSeedKey && returnRouteSeedKeyRef.current) {
+		returnRouteSeedKeyRef.current = '';
+		returnRouteSeedPoseRef.current = null;
+	}
+
+	if (returnRouteSeedKey && returnRouteSeedKeyRef.current !== returnRouteSeedKey) {
+		returnRouteSeedKeyRef.current = returnRouteSeedKey;
+		returnRouteSeedPoseRef.current = {
+			x: baseRobotPose.x,
+			y: baseRobotPose.y,
+		};
+	}
+
+	const returnRouteSeedPose = returnRouteSeedPoseRef.current ?? {
+		x: baseRobotPose.x,
+		y: baseRobotPose.y,
+	};
 
 	// Timeline: merge DB timeline with live socket updates (deduplicate by status)
 	const mergedTimeline = useMemo(() => {
@@ -1494,30 +1673,30 @@ const RobotTracking: NextPage = () => {
 				activeRequest.destinationType,
 				activeRequest.destinationDeskId,
 			);
-		}
-		if (shouldShowReturnRoute && latestRequest) {
-			const startNodeId = findNearestMapNodeId({
-				x: baseRobotPose.x,
-				y: baseRobotPose.y,
-			});
-			return dedupeConsecutive(
-				toSvgPoints(getShortestPath(startNodeId, 'CHARGING_DOCK')),
-			);
-		}
+			}
+			if (shouldShowReturnRoute && latestRequest) {
+				const startNodeId = findNearestMapNodeId({
+					x: returnRouteSeedPose.x,
+					y: returnRouteSeedPose.y,
+				});
+				return dedupeConsecutive(
+					toSvgPoints(getShortestPath(startNodeId, 'CHARGING_DOCK')),
+				);
+			}
 		return [];
 	}, [
-		baseRobotPose.x,
-		baseRobotPose.y,
-		activeRequest?._id,
-		activeRequest?.sourceInventoryData,
-		activeRequest?.inventoryData,
-		activeRequest?.bookData?.bookCallNumber,
-		activeRequest?.requestType,
+			activeRequest?._id,
+			activeRequest?.sourceInventoryData,
+			activeRequest?.inventoryData,
+			activeRequest?.bookData?.bookCallNumber,
+			activeRequest?.requestType,
 		activeRequest?.destinationType,
-		activeRequest?.destinationDeskId,
-		latestRequest?._id,
-		shouldShowReturnRoute,
-	]);
+			activeRequest?.destinationDeskId,
+			latestRequest?._id,
+			returnRouteSeedPose.x,
+			returnRouteSeedPose.y,
+			shouldShowReturnRoute,
+		]);
 
 	const shouldRenderRoute = hasActiveDisplayRequest || shouldShowReturnRoute;
 
@@ -1582,6 +1761,7 @@ const RobotTracking: NextPage = () => {
 
 	const simulationDirective = useMemo(() => {
 		if (routeMode === 'none' || routeMetrics.totalDistance <= 0) return null;
+		const routeSpeedPxPerSec = resolveRouteSpeedPxPerSec(liveLinearSpeed);
 		const shelfDistance = getDistanceAtWaypointIndex(
 			routeMetrics.cumulative,
 			routeAnchors.shelfWaypointIndex,
@@ -1597,6 +1777,7 @@ const RobotTracking: NextPage = () => {
 			destinationDistance,
 			routeMetrics.totalDistance,
 			effectiveLatestRobotStatus,
+			routeSpeedPxPerSec,
 		);
 	}, [
 		routeMode,
@@ -1604,51 +1785,130 @@ const RobotTracking: NextPage = () => {
 		routeAnchors,
 		simulationStatus,
 		effectiveLatestRobotStatus,
+		liveLinearSpeed,
 	]);
 
 	const shouldUseSimulatedPose =
-		!isLivePoseUsable &&
 		shouldRenderRoute &&
 		plannedWaypoints.length > 1 &&
 		!!simulationDirective;
 
+	const routeSimulationSeedKey = useMemo(() => {
+		if (!shouldRenderRoute || plannedWaypoints.length < 2) return '';
+		const start = plannedWaypoints[0];
+		const end = plannedWaypoints[plannedWaypoints.length - 1];
+		const routeOwnerId = routeMode === 'delivery'
+			? activeRequest?._id ?? 'active'
+			: latestRequest?._id ?? 'latest';
+		return [
+			routeMode,
+			routeOwnerId,
+			plannedWaypoints.length,
+			start?.x.toFixed(2),
+			start?.y.toFixed(2),
+			end?.x.toFixed(2),
+			end?.y.toFixed(2),
+		].join(':');
+	}, [
+		shouldRenderRoute,
+		plannedWaypoints,
+		routeMode,
+		activeRequest?._id,
+		latestRequest?._id,
+	]);
+
 	useEffect(() => {
 		if (plannedWaypoints.length < 2 || !shouldRenderRoute) {
+			routeSimulationSeedKeyRef.current = '';
 			setSimulatedDistance(0);
+			simTargetDistanceRef.current = 0;
+			simSpeedPxPerSecRef.current = 0;
 			return;
 		}
-		const seedSvgPoint = convertRobotPoseToSvgPoint({
-			x: baseRobotPose.x,
-			y: baseRobotPose.y,
-		});
-		const seedDistance = clamp(
-			findClosestDistanceAlongPolyline(plannedWaypoints, seedSvgPoint),
-			0,
-			routeMetrics.totalDistance,
+		if (routeSimulationSeedKeyRef.current === routeSimulationSeedKey) return;
+		routeSimulationSeedKeyRef.current = routeSimulationSeedKey;
+
+		const routeSpeedPxPerSec = resolveRouteSpeedPxPerSec(liveLinearSpeed);
+		const shelfDistance = getDistanceAtWaypointIndex(
+			routeMetrics.cumulative,
+			routeAnchors.shelfWaypointIndex,
 		);
+		const destinationDistance = getDistanceAtWaypointIndex(
+			routeMetrics.cumulative,
+			routeAnchors.destinationWaypointIndex,
+		);
+		const timelineSeedDistance = resolveSeedDistanceFromStatusTimeline(
+			routeMode,
+			simulationStatus,
+			mergedTimeline,
+			shelfDistance,
+			destinationDistance,
+			routeMetrics.totalDistance,
+			routeSpeedPxPerSec,
+		);
+		const seedDistance = timelineSeedDistance != null
+			? timelineSeedDistance
+			: clamp(
+				findClosestDistanceAlongPolyline(
+					plannedWaypoints,
+					convertRobotPoseToSvgPoint({
+						x: baseRobotPose.x,
+						y: baseRobotPose.y,
+					}),
+				),
+				0,
+				routeMetrics.totalDistance,
+			);
 		setSimulatedDistance(seedDistance);
 	}, [
-		trackingRequestId,
+		routeSimulationSeedKey,
 		shouldRenderRoute,
 		plannedWaypoints,
 		routeMetrics.totalDistance,
+		routeMetrics.cumulative,
+		routeAnchors.shelfWaypointIndex,
+		routeAnchors.destinationWaypointIndex,
+		routeMode,
+		simulationStatus,
+		mergedTimeline,
+		liveLinearSpeed,
 		baseRobotPose.x,
 		baseRobotPose.y,
 	]);
 
 	useEffect(() => {
-		if (!shouldUseSimulatedPose || !simulationDirective || routeMetrics.totalDistance <= 0) {
-			if (simFrameRef.current) cancelAnimationFrame(simFrameRef.current);
-			simLastFrameAtRef.current = null;
+		if (!simulationDirective || routeMetrics.totalDistance <= 0) {
+			simTargetDistanceRef.current = clamp(
+				simulatedDistance,
+				0,
+				routeMetrics.totalDistance,
+			);
+			simSpeedPxPerSecRef.current = 0;
 			return;
 		}
 
-		const targetDistance = clamp(
+		simTargetDistanceRef.current = clamp(
 			simulationDirective.targetDistance,
 			0,
 			routeMetrics.totalDistance,
 		);
-		const speedPxPerSec = Math.max(simulationDirective.speedPxPerSec, 0);
+		simSpeedPxPerSecRef.current = Math.max(
+			simulationDirective.speedPxPerSec,
+			0,
+		);
+	}, [
+		simulationDirective,
+		routeMetrics.totalDistance,
+		simulatedDistance,
+	]);
+
+	useEffect(() => {
+		if (!shouldUseSimulatedPose || routeMetrics.totalDistance <= 0) {
+			if (simFrameRef.current) cancelAnimationFrame(simFrameRef.current);
+			simFrameRef.current = null;
+			simLastFrameAtRef.current = null;
+			return;
+		}
 
 		const animate = (now: number) => {
 			if (simLastFrameAtRef.current == null) {
@@ -1661,6 +1921,8 @@ const RobotTracking: NextPage = () => {
 			simLastFrameAtRef.current = now;
 
 			setSimulatedDistance((prev) => {
+				const targetDistance = simTargetDistanceRef.current;
+				const speedPxPerSec = simSpeedPxPerSecRef.current;
 				const remaining = targetDistance - prev;
 				if (Math.abs(remaining) < 0.25) return targetDistance;
 				const step = speedPxPerSec * deltaSec;
@@ -1684,7 +1946,6 @@ const RobotTracking: NextPage = () => {
 		};
 	}, [
 		shouldUseSimulatedPose,
-		simulationDirective,
 		routeMetrics.totalDistance,
 	]);
 
@@ -1711,8 +1972,41 @@ const RobotTracking: NextPage = () => {
 	]);
 
 	const robotPose = isLivePoseUsable
-		? socketPose
-		: simulatedPose ?? baseRobotPose;
+		? shouldUseSimulatedPose
+			? simulatedPose ?? socketPose
+			: socketPose
+		: shouldUseSimulatedPose
+			? simulatedPose ?? baseRobotPose
+			: baseRobotPose;
+
+	const routeHeadingDeg = useMemo(() => {
+		if (!shouldRenderRoute || plannedWaypoints.length < 2 || routeMetrics.totalDistance <= 0) {
+			return null;
+		}
+		const routeDistance = shouldUseSimulatedPose
+			? clamp(simulatedDistance, 0, routeMetrics.totalDistance)
+			: clamp(
+				findClosestDistanceAlongPolyline(
+					plannedWaypoints,
+					convertRobotPoseToSvgPoint({ x: robotPose.x, y: robotPose.y }),
+				),
+				0,
+				routeMetrics.totalDistance,
+			);
+		return getHeadingDegAlongPolyline(
+			plannedWaypoints,
+			routeDistance,
+			routeMetrics.totalDistance,
+		);
+	}, [
+		shouldRenderRoute,
+		shouldUseSimulatedPose,
+		simulatedDistance,
+		plannedWaypoints,
+		routeMetrics.totalDistance,
+		robotPose.x,
+		robotPose.y,
+	]);
 
 	useEffect(() => {
 		previousRobotSvgPointRef.current = null;
@@ -1737,26 +2031,30 @@ const RobotTracking: NextPage = () => {
 			previousPoint,
 			robotPose.theta ?? 0,
 		);
+		const preferredHeadingDeg = routeHeadingDeg ?? nextHeadingDeg;
 
-		if (previousPoint) {
+		if (routeHeadingDeg != null) {
+			stableRotationDegRef.current =
+				preferredHeadingDeg + ROBOT_ICON_HEADING_OFFSET_DEG;
+		} else if (previousPoint) {
 			const travelPx = Math.hypot(
 				currentSvgPoint.x - previousPoint.x,
 				currentSvgPoint.y - previousPoint.y,
 			);
 			if (travelPx >= MIN_HEADING_MOVEMENT_PX) {
 				stableRotationDegRef.current =
-					nextHeadingDeg + ROBOT_ICON_HEADING_OFFSET_DEG;
+					preferredHeadingDeg + ROBOT_ICON_HEADING_OFFSET_DEG;
 			}
 		} else {
 			stableRotationDegRef.current =
-				nextHeadingDeg + ROBOT_ICON_HEADING_OFFSET_DEG;
+				preferredHeadingDeg + ROBOT_ICON_HEADING_OFFSET_DEG;
 		}
 
 		setRobotRotationDeg(stableRotationDegRef.current);
 		previousRobotSvgPointRef.current = currentSvgPoint;
-	}, [robotPose.x, robotPose.y, robotPose.theta]);
+	}, [robotPose.x, robotPose.y, robotPose.theta, routeHeadingDeg]);
 
-	const routePose = isLivePoseUsable ? socketPose : simulatedPose;
+	const routePose = shouldRenderRoute ? robotPose : null;
 
 	// Trail snaps to the planned polyline so visual path follows corridor graph exactly.
 	const liveTrailPoints = useMemo(() => {
