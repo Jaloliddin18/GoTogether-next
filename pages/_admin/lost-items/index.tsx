@@ -32,6 +32,22 @@ const titleize = (raw?: string): string => {
 	return raw.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
+const LOST_ITEM_OBJECT_TYPE_LABELS: Record<LostItemObjectType, string> = {
+	[LostItemObjectType.ID_CARD]: 'ID Card',
+	[LostItemObjectType.AIRPODS]: 'AirPods',
+	[LostItemObjectType.WATCH]: 'Watch',
+	[LostItemObjectType.PHONE]: 'Phone',
+	[LostItemObjectType.WALLET]: 'Wallet',
+	[LostItemObjectType.BOTTLE]: 'Bottle',
+	[LostItemObjectType.BOOK]: 'Book',
+	[LostItemObjectType.UNKNOWN]: 'Unknown',
+};
+
+const getLostItemObjectTypeLabel = (type?: string): string => {
+	if (!type) return '—';
+	return LOST_ITEM_OBJECT_TYPE_LABELS[type as LostItemObjectType] ?? titleize(type);
+};
+
 const formatDate = (value?: string | Date): string => {
 	if (!value) return '—';
 	return new Date(value).toLocaleString('en-US', {
@@ -275,7 +291,7 @@ const AdminLostItems: NextPage = () => {
 					<option value="ALL">All object types</option>
 					{Object.values(LostItemObjectType).map((type) => (
 						<option key={type} value={type}>
-							{titleize(type)}
+							{getLostItemObjectTypeLabel(type)}
 						</option>
 					))}
 				</select>
@@ -406,7 +422,7 @@ const AdminLostItems: NextPage = () => {
 												<img
 													className="admin-lost-thumb"
 													src={resolveMediaUrl(snapshotRaw as string, '')}
-													alt={lostItem.objectType}
+													alt={getLostItemObjectTypeLabel(lostItem.objectType)}
 													onError={() =>
 														setSnapshotErrors((prev) => ({ ...prev, [lostItem._id]: true }))
 													}
@@ -416,7 +432,9 @@ const AdminLostItems: NextPage = () => {
 											)}
 										</td>
 										<td>
-											<div className="admin-cell-title">{titleize(lostItem.objectType)}</div>
+											<div className="admin-cell-title">
+												{getLostItemObjectTypeLabel(lostItem.objectType)}
+											</div>
 											<div className="admin-cell-meta admin-mono admin-lost-id">{lostItem._id}</div>
 										</td>
 										<td>

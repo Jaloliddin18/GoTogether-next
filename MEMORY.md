@@ -1,9 +1,48 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-27
+**Last Updated:** 2026-05-28
 **Current Branch:** `admin`
 
 ---
+
+## Today's Session Update (2026-05-28, admin lost-items WATCH/AIRPODS object-type support)
+
+### Completed today
+- Expanded frontend lost-item object enum in `libs/enums/lost-item.enum.ts`:
+  - added `AIRPODS`
+  - added `WATCH`.
+- Updated `pages/_admin/lost-items/index.tsx` object-type UI behavior:
+  - object-type filter dropdown now includes `WATCH` and `AIRPODS` through `LostItemObjectType` values
+  - added explicit object-type label mapping for required display names:
+    - `ID_CARD -> ID Card`
+    - `AIRPODS -> AirPods`
+    - `WATCH -> Watch`
+    - `PHONE -> Phone`
+    - `WALLET -> Wallet`
+    - `BOTTLE -> Bottle`
+    - `BOOK -> Book`
+    - `UNKNOWN -> Unknown`
+  - applied that formatter in:
+    - object-type filter option labels
+    - object-type text in table rows
+    - snapshot image alt text.
+- Scope kept frontend-only and lost-items-only:
+  - no backend changes
+  - no Python vision module changes
+  - no unrelated page changes.
+- Checked for enum-assumption hotspots:
+  - `apollo/admin/query.ts` and `apollo/admin/mutation.ts` required no update
+  - `libs/types/lost-item/*` remained compatible because types already reference the enum.
+
+### Verification
+- Ran `npm run build` and it passed.
+- Build output still includes the known `+input` static-generation logs from account join page.
+
+### Current stopping point
+- Admin lost-items UI now supports and cleanly renders `WATCH` and `AIRPODS` records end-to-end in filter and list surfaces.
+
+### Exact next task
+- If requested, run runtime browser QA at `/_admin/lost-items` with live data and validate WATCH/AIRPODS filtering behavior interactively.
 
 ## Today's Session Update (2026-05-27, pointer heading alignment + speed-aware route simulation + stutter fix)
 

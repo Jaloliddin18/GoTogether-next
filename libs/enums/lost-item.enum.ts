@@ -4,6 +4,8 @@ export enum LostItemEventType {
 
 export enum LostItemObjectType {
 	ID_CARD = 'ID_CARD',
+	AIRPODS = 'AIRPODS',
+	WATCH = 'WATCH',
 	BOTTLE = 'BOTTLE',
 	WALLET = 'WALLET',
 	PHONE = 'PHONE',

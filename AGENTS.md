@@ -15,6 +15,40 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-28) — Admin Lost Items object-type expansion (WATCH/AIRPODS)
+
+### Completed
+- Updated lost-item object type enum in:
+  - `libs/enums/lost-item.enum.ts`
+  - added `AIRPODS` and `WATCH` to `LostItemObjectType`.
+- Updated lost-items admin display/filter behavior in:
+  - `pages/_admin/lost-items/index.tsx`
+  - object-type dropdown now includes `WATCH` and `AIRPODS` automatically from enum values.
+- Added explicit object-type label formatting for required display names:
+  - `ID_CARD -> ID Card`
+  - `AIRPODS -> AirPods`
+  - `WATCH -> Watch`
+  - `PHONE -> Phone`
+  - `WALLET -> Wallet`
+  - `BOTTLE -> Bottle`
+  - `BOOK -> Book`
+  - `UNKNOWN -> Unknown`
+- Applied the same formatter to table rendering and snapshot alt text so new object types render safely and consistently.
+- Confirmed no backend/Python/unrelated page changes were made.
+- Confirmed no hardcoded enum assumptions required changes in:
+  - `apollo/admin/query.ts`
+  - `apollo/admin/mutation.ts`
+  - `libs/types/lost-item/*` (types already follow `LostItemObjectType`).
+
+### Verification
+- Ran `npm run build` (explicitly requested) and build passed.
+- Existing static-generation `+input` logs from account join page still appear during build.
+
+### Key rules
+- Keep lost-item object-type display names explicit in UI when humanized casing is non-generic (`ID Card`, `AirPods`).
+- Keep filter options sourced from `LostItemObjectType` enum values to stay aligned with backend enum expansion.
+- Keep this scope limited to lost-items frontend enum/types/UI only unless explicitly requested otherwise.
+
 ## Session Update (2026-05-27) — MyPage pointer direction, speed-aware progression, and stutter reduction
 
 ### Completed
