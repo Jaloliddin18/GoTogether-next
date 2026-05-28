@@ -87,8 +87,8 @@ const TERMINAL_REQUEST_STATUSES = new Set([
 	RequestStatus.CANCELLED,
 ]);
 const RETURN_ROUTE_REQUEST_STATUSES = new Set([
-	RequestStatus.COMPLETED,
 	RequestStatus.CANCELLED,
+	RequestStatus.FAILED,
 	RequestStatus.BOOK_NOT_FOUND,
 ]);
 
@@ -129,8 +129,8 @@ const MAP_NODES: Record<string, Point> = {
 	DESK_B_CORRIDOR_TURN: { x: 150, y: 55 },
 	DESK_A_ENDPOINT: convertSvgPointToRobotPose({ x: 496, y: 68 }),
 	DESK_B_ENDPOINT: convertSvgPointToRobotPose({ x: 496, y: 262 }),
-	SERVICE_CORRIDOR_TURN: { x: 28, y: 40 },
-	SERVICE_POINT_ENDPOINT: convertSvgPointToRobotPose({ x: 96, y: 282 }),
+	RECEPTION_CORRIDOR_TURN: { x: 28, y: 40 },
+	RECEPTION_ENDPOINT: convertSvgPointToRobotPose({ x: 96, y: 282 }),
 };
 
 // Demo pose anchors for simulator calibration (robot floor coordinates).
@@ -144,13 +144,13 @@ export const DEMO_POSE_ANCHORS: Record<string, Point> = {
 	COM_6_SHELF: MAP_NODES.COM_6_SHELF,
 	DESK_A_ENDPOINT: MAP_NODES.DESK_A_ENDPOINT,
 	DESK_B_ENDPOINT: MAP_NODES.DESK_B_ENDPOINT,
-	SERVICE_POINT_ENDPOINT: MAP_NODES.SERVICE_POINT_ENDPOINT,
+	RECEPTION_ENDPOINT: MAP_NODES.RECEPTION_ENDPOINT,
 };
 
 const MAP_EDGES: Record<string, string[]> = {
 	CHARGING_DOCK: ['CHARGING_DOCK_EXIT'],
 	CHARGING_DOCK_EXIT: ['CHARGING_DOCK', 'AISLE_LEFT'],
-	AISLE_LEFT: ['CHARGING_DOCK_EXIT', 'AISLE_MIDDLE', 'LIB_1_APPROACH', 'LIB_2_APPROACH', 'LIB_3_APPROACH', 'SERVICE_CORRIDOR_TURN'],
+	AISLE_LEFT: ['CHARGING_DOCK_EXIT', 'AISLE_MIDDLE', 'LIB_1_APPROACH', 'LIB_2_APPROACH', 'LIB_3_APPROACH', 'RECEPTION_CORRIDOR_TURN'],
 	AISLE_MIDDLE: ['AISLE_LEFT', 'AISLE_RIGHT', 'COM_4_APPROACH', 'COM_5_APPROACH', 'COM_6_APPROACH'],
 	AISLE_RIGHT: ['AISLE_MIDDLE', 'DESK_A_CORRIDOR_TURN', 'DESK_B_CORRIDOR_TURN'],
 
@@ -172,8 +172,8 @@ const MAP_EDGES: Record<string, string[]> = {
 	DESK_B_CORRIDOR_TURN: ['AISLE_RIGHT', 'DESK_B_ENDPOINT'],
 	DESK_A_ENDPOINT: ['DESK_A_CORRIDOR_TURN'],
 	DESK_B_ENDPOINT: ['DESK_B_CORRIDOR_TURN'],
-	SERVICE_CORRIDOR_TURN: ['AISLE_LEFT', 'SERVICE_POINT_ENDPOINT'],
-	SERVICE_POINT_ENDPOINT: ['SERVICE_CORRIDOR_TURN'],
+	RECEPTION_CORRIDOR_TURN: ['AISLE_LEFT', 'RECEPTION_ENDPOINT'],
+	RECEPTION_ENDPOINT: ['RECEPTION_CORRIDOR_TURN'],
 };
 
 const SHELF_KEY_TO_NODE: Record<string, string> = {
@@ -373,7 +373,7 @@ function resolveDestinationNodeId(
 	destinationDeskId: string | null | undefined,
 ): string {
 	if (destinationType === DeliveryDestinationType.RECEPTION || requestType === RequestType.PURCHASE) {
-		return 'SERVICE_POINT_ENDPOINT';
+		return 'RECEPTION_ENDPOINT';
 	}
 	if (destinationType === DeliveryDestinationType.STUDENT_DESK) {
 		const deskToken = normalizeToken(destinationDeskId);
@@ -381,7 +381,7 @@ function resolveDestinationNodeId(
 		if (deskToken.includes('DESKA') || deskToken.startsWith('A')) return 'DESK_A_ENDPOINT';
 		return 'DESK_A_ENDPOINT';
 	}
-	return requestType === RequestType.PURCHASE ? 'SERVICE_POINT_ENDPOINT' : 'DESK_A_ENDPOINT';
+	return requestType === RequestType.PURCHASE ? 'RECEPTION_ENDPOINT' : 'DESK_A_ENDPOINT';
 }
 
 function toSvgPoints(points: Point[]): Array<{ x: number; y: number }> {
@@ -447,6 +447,20 @@ function buildPlannedWaypoints(
 	}
 
 	return dedupeConsecutive(toSvgPoints(merged));
+}
+
+function buildReturnWaypointsFromPose(startPose: Point): Array<{ x: number; y: number }> {
+	const safeStartPose =
+		Number.isFinite(startPose.x) && Number.isFinite(startPose.y)
+			? startPose
+			: MAP_NODES.CHARGING_DOCK;
+	const startNodeId = findNearestMapNodeId(safeStartPose);
+	const routeToDock = getShortestPath(startNodeId, 'CHARGING_DOCK');
+	const routePoints = routeToDock.length > 0 ? routeToDock : [MAP_NODES.CHARGING_DOCK];
+	return dedupeConsecutive([
+		convertRobotPoseToSvgPoint(safeStartPose),
+		...toSvgPoints(routePoints),
+	]);
 }
 
 function findNearestWaypointIndex(
@@ -670,9 +684,9 @@ function resolveSimulationDirective(
 		case RequestStatus.QUEUED:
 			return { targetDistance: 0, speedPxPerSec: speed * 0.5 };
 		case RequestStatus.ASSIGNED:
-			return { targetDistance: Math.min(shelfDistance * 0.22, totalDistance), speedPxPerSec: speed * 0.62 };
+			return { targetDistance: 0, speedPxPerSec: speed * 0.45 };
 		case RequestStatus.DISPATCHED:
-			return { targetDistance: Math.min(shelfDistance * 0.45, totalDistance), speedPxPerSec: speed * 0.78 };
+			return { targetDistance: Math.min(shelfDistance * 0.16, totalDistance), speedPxPerSec: speed * 0.78 };
 		case RequestStatus.NAVIGATING_TO_SHELF:
 			return { targetDistance: shelfDistance, speedPxPerSec: speed };
 		case RequestStatus.ARRIVED_AT_SHELF:
@@ -682,10 +696,7 @@ function resolveSimulationDirective(
 		case RequestStatus.BOOK_FOUND:
 			return { targetDistance: shelfDistance, speedPxPerSec: speed * 0.42 };
 		case RequestStatus.PICKING_UP:
-			return {
-				targetDistance: shelfDistance + (destinationDistance - shelfDistance) * 0.2,
-				speedPxPerSec: speed * 0.6,
-			};
+			return { targetDistance: shelfDistance, speedPxPerSec: speed * 0.45 };
 		case RequestStatus.DELIVERING:
 			return { targetDistance: destinationDistance, speedPxPerSec: speed };
 		case RequestStatus.ARRIVED_AT_STUDENT:
@@ -730,28 +741,23 @@ function getDeliveryDistanceRangeForStatus(
 	shelfDistance: number,
 	destinationDistance: number,
 ): { start: number; end: number } {
-	const legDistance = Math.max(destinationDistance - shelfDistance, 0);
 	switch (status as RequestStatus | null) {
 		case RequestStatus.QUEUED:
 			return { start: 0, end: 0 };
 		case RequestStatus.ASSIGNED:
-			return { start: 0, end: Math.max(shelfDistance * 0.08, 0) };
+			return { start: 0, end: 0 };
 		case RequestStatus.DISPATCHED:
-			return { start: shelfDistance * 0.05, end: shelfDistance * 0.22 };
+			return { start: 0, end: shelfDistance * 0.16 };
 		case RequestStatus.NAVIGATING_TO_SHELF:
-			return { start: shelfDistance * 0.12, end: shelfDistance };
+			return { start: 0, end: shelfDistance };
 		case RequestStatus.ARRIVED_AT_SHELF:
 		case RequestStatus.VERIFYING_BOOK:
 		case RequestStatus.BOOK_FOUND:
-			return { start: shelfDistance, end: shelfDistance };
 		case RequestStatus.PICKING_UP:
-			return {
-				start: shelfDistance,
-				end: shelfDistance + legDistance * 0.22,
-			};
+			return { start: shelfDistance, end: shelfDistance };
 		case RequestStatus.DELIVERING:
 			return {
-				start: shelfDistance + legDistance * 0.18,
+				start: shelfDistance,
 				end: destinationDistance,
 			};
 		case RequestStatus.ARRIVED_AT_STUDENT:
@@ -958,10 +964,10 @@ function deriveTrackerViewModel(
 		alertText = 'Book not found at shelf — robot returning to dock';
 		alertClass = 'warning';
 	} else if (mode === 'failed') {
-		alertText = 'Delivery failed — robot requires operator attention';
+		alertText = 'Delivery failed — robot rerouting to charging dock';
 		alertClass = 'danger';
 	} else if (mode === 'cancelled') {
-		alertText = 'Delivery cancelled — tracking session ended';
+		alertText = 'Delivery cancelled — robot rerouting to charging dock';
 		alertClass = 'danger';
 	}
 
@@ -1200,7 +1206,7 @@ const FloorMap = ({
 				className="rt-service-diamond"
 			/>
 			<text x={96} y={304} className="rt-service-label" textAnchor="middle">
-				<tspan x={96} dy={0}>Service</tspan>
+				<tspan x={96} dy={0}>Reception</tspan>
 				<tspan x={96} dy={8}>Point</tspan>
 			</text>
 
@@ -1480,6 +1486,7 @@ const RobotTracking: NextPage = () => {
 	const terminalRefetchKeyRef = useRef<string>('');
 	const returnRouteSeedKeyRef = useRef<string>('');
 	const returnRouteSeedPoseRef = useRef<Point | null>(null);
+	const lastSimulatedPositionRef = useRef<Point | null>(null);
 	const routeSimulationSeedKeyRef = useRef<string>('');
 	const livePoseStaleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const simFrameRef = useRef<number | null>(null);
@@ -1548,6 +1555,7 @@ const RobotTracking: NextPage = () => {
 		if (livePoseStaleTimerRef.current) clearTimeout(livePoseStaleTimerRef.current);
 		returnRouteSeedKeyRef.current = '';
 		returnRouteSeedPoseRef.current = null;
+		lastSimulatedPositionRef.current = null;
 		routeSimulationSeedKeyRef.current = '';
 	}, [trackingRequestId]);
 
@@ -1587,6 +1595,11 @@ const RobotTracking: NextPage = () => {
 		shouldShowReturnRoute && latestRequest?._id
 			? `${latestRequest._id}:${latestRequestStatus ?? ''}`
 			: '';
+	const fallbackReturnSeedPose =
+		lastSimulatedPositionRef.current ??
+		(Number.isFinite(baseRobotPose.x) && Number.isFinite(baseRobotPose.y)
+			? { x: baseRobotPose.x, y: baseRobotPose.y }
+			: MAP_NODES.CHARGING_DOCK);
 
 	if (!returnRouteSeedKey && returnRouteSeedKeyRef.current) {
 		returnRouteSeedKeyRef.current = '';
@@ -1595,16 +1608,10 @@ const RobotTracking: NextPage = () => {
 
 	if (returnRouteSeedKey && returnRouteSeedKeyRef.current !== returnRouteSeedKey) {
 		returnRouteSeedKeyRef.current = returnRouteSeedKey;
-		returnRouteSeedPoseRef.current = {
-			x: baseRobotPose.x,
-			y: baseRobotPose.y,
-		};
+		returnRouteSeedPoseRef.current = fallbackReturnSeedPose;
 	}
 
-	const returnRouteSeedPose = returnRouteSeedPoseRef.current ?? {
-		x: baseRobotPose.x,
-		y: baseRobotPose.y,
-	};
+	const returnRouteSeedPose = returnRouteSeedPoseRef.current ?? fallbackReturnSeedPose;
 
 	// Timeline: merge DB timeline with live socket updates (deduplicate by status)
 	const mergedTimeline = useMemo(() => {
@@ -1673,30 +1680,24 @@ const RobotTracking: NextPage = () => {
 				activeRequest.destinationType,
 				activeRequest.destinationDeskId,
 			);
-			}
-			if (shouldShowReturnRoute && latestRequest) {
-				const startNodeId = findNearestMapNodeId({
-					x: returnRouteSeedPose.x,
-					y: returnRouteSeedPose.y,
-				});
-				return dedupeConsecutive(
-					toSvgPoints(getShortestPath(startNodeId, 'CHARGING_DOCK')),
-				);
-			}
+		}
+		if (shouldShowReturnRoute && latestRequest) {
+			return buildReturnWaypointsFromPose(returnRouteSeedPose);
+		}
 		return [];
 	}, [
-			activeRequest?._id,
-			activeRequest?.sourceInventoryData,
-			activeRequest?.inventoryData,
-			activeRequest?.bookData?.bookCallNumber,
-			activeRequest?.requestType,
+		activeRequest?._id,
+		activeRequest?.sourceInventoryData,
+		activeRequest?.inventoryData,
+		activeRequest?.bookData?.bookCallNumber,
+		activeRequest?.requestType,
 		activeRequest?.destinationType,
-			activeRequest?.destinationDeskId,
-			latestRequest?._id,
-			returnRouteSeedPose.x,
-			returnRouteSeedPose.y,
-			shouldShowReturnRoute,
-		]);
+		activeRequest?.destinationDeskId,
+		latestRequest?._id,
+		returnRouteSeedPose.x,
+		returnRouteSeedPose.y,
+		shouldShowReturnRoute,
+	]);
 
 	const shouldRenderRoute = hasActiveDisplayRequest || shouldShowReturnRoute;
 
@@ -1971,13 +1972,52 @@ const RobotTracking: NextPage = () => {
 		simulatedDistance,
 	]);
 
-	const robotPose = isLivePoseUsable
-		? shouldUseSimulatedPose
-			? simulatedPose ?? socketPose
-			: socketPose
-		: shouldUseSimulatedPose
-			? simulatedPose ?? baseRobotPose
-			: baseRobotPose;
+	const completedDestinationPose = useMemo(() => {
+		if (!latestRequest || latestRequestStatus !== RequestStatus.COMPLETED) return null;
+		const destinationNodeId = resolveDestinationNodeId(
+			latestRequest.destinationType,
+			latestRequest.requestType ?? null,
+			latestRequest.destinationDeskId,
+		);
+		const destinationNode = MAP_NODES[destinationNodeId];
+		return destinationNode
+			? {
+				x: destinationNode.x,
+				y: destinationNode.y,
+				theta: 0,
+			}
+			: null;
+	}, [
+		latestRequest?._id,
+		latestRequestStatus,
+		latestRequest?.destinationType,
+		latestRequest?.requestType,
+		latestRequest?.destinationDeskId,
+	]);
+
+	const robotPose = latestRequestStatus === RequestStatus.QUEUED
+		? CHARGING_DOCK_POSE
+		: latestRequestStatus === RequestStatus.COMPLETED && completedDestinationPose
+			? completedDestinationPose
+			: isLivePoseUsable
+				? shouldUseSimulatedPose
+					? simulatedPose ?? socketPose
+					: socketPose
+				: shouldUseSimulatedPose
+					? simulatedPose ?? baseRobotPose
+					: baseRobotPose;
+
+	useEffect(() => {
+		if (!trackingRequestId || !hasActiveDisplayRequest) return;
+		if (!Number.isFinite(robotPose.x) || !Number.isFinite(robotPose.y)) return;
+		// Demo simulation only until real LiDAR/SLAM pose feeds are available.
+		lastSimulatedPositionRef.current = { x: robotPose.x, y: robotPose.y };
+	}, [
+		trackingRequestId,
+		hasActiveDisplayRequest,
+		robotPose.x,
+		robotPose.y,
+	]);
 
 	const routeHeadingDeg = useMemo(() => {
 		if (!shouldRenderRoute || plannedWaypoints.length < 2 || routeMetrics.totalDistance <= 0) {
@@ -2112,15 +2152,15 @@ const RobotTracking: NextPage = () => {
 							<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5" /><circle cx="8" cy="8" r="7" className="map-legend-pulse" /></svg>
 							Target shelf
 						</span>
-						<span className="map-legend-item">
-							<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5" /></svg>
-							Stop point
-						</span>
-						<span className="map-legend-item">
-							<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,1 15,8 8,15 1,8" /></svg>
-							Service point
-						</span>
-					</div>
+							<span className="map-legend-item">
+								<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5" /></svg>
+								Stop point
+							</span>
+							<span className="map-legend-item">
+								<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,1 15,8 8,15 1,8" /></svg>
+								Reception point
+							</span>
+						</div>
 
 					<DeliveryTimeline
 						timeline={mergedTimeline}

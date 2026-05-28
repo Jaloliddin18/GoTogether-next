@@ -5,6 +5,45 @@
 
 ---
 
+## Today's Session Update (2026-05-28, live tracking dock-origin simulation fix + terminal reroute correction)
+
+### Completed today
+- Updated `libs/components/mypage/RobotTracking.tsx` to correct demo live-tracking path behavior.
+- Status-to-position simulation mapping now matches current robot plan assumptions:
+  - `QUEUED`, `ASSIGNED`: robot remains at charging dock
+  - `DISPATCHED`: progression begins from dock-side start of route
+  - `NAVIGATING_TO_SHELF`: interpolates dock -> shelf
+  - `ARRIVED_AT_SHELF`, `VERIFYING_BOOK`, `BOOK_FOUND`, `PICKING_UP`: robot stays at shelf
+  - `DELIVERING`: interpolates shelf -> destination
+  - `ARRIVED_AT_STUDENT`, `READY`: robot stays at destination
+  - `COMPLETED`: robot freezes at destination (no return animation).
+- Corrected terminal reroute policy:
+  - return route now applies to `CANCELLED`, `FAILED`, and `BOOK_NOT_FOUND`
+  - removed `COMPLETED` from return-route triggers.
+- Added per-request/session simulated-position memory:
+  - stores `lastSimulatedPosition` while active simulation is running
+  - `CANCELLED` / `FAILED` reroute starts from `lastSimulatedPosition`
+  - fallback chain: `lastSimulatedPosition` -> latest known base pose -> charging dock.
+- Added explicit helper for return path generation from current simulated pose to dock:
+  - `buildReturnWaypointsFromPose(...)`.
+- Replaced service-point route semantics with reception-point semantics in node naming and destination mapping (`RECEPTION_ENDPOINT`) to align with current model assumptions.
+- Updated failure/cancel timeline alert copy to state reroute-to-dock behavior.
+
+### Verification
+- Ran `npm run build` and it passed.
+- Build output still includes the known `+input` static-generation logs from account join page.
+
+### Current stopping point
+- Live tracking now starts from charging dock correctly, avoids ASSIGNED shelf-jump behavior, freezes completed deliveries at destination, and reroutes cancelled/failed deliveries from the last displayed simulated position.
+
+### Exact next task
+- Runtime QA on `/mypage?category=robotTracking` with status transition scenarios:
+  - ASSIGNED -> no movement from dock
+  - NAVIGATING_TO_SHELF -> dock to shelf progression
+  - DELIVERING -> shelf to destination progression
+  - COMPLETED -> destination freeze
+  - CANCELLED/FAILED mid-route -> reroute to dock from current displayed position.
+
 ## Today's Session Update (2026-05-28, admin lost-items WATCH/AIRPODS object-type support)
 
 ### Completed today

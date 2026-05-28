@@ -15,6 +15,37 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-28) — Live tracking dock-origin simulation and terminal reroute correction
+
+### Completed
+- Updated live tracking simulation logic in:
+  - `libs/components/mypage/RobotTracking.tsx`
+- Corrected request-status route progression for demo simulation:
+  - `QUEUED` and `ASSIGNED` now stay at charging dock
+  - `DISPATCHED` now starts from dock-origin progression (no shelf jump)
+  - `NAVIGATING_TO_SHELF` now progresses dock -> shelf
+  - `ARRIVED_AT_SHELF` / `VERIFYING_BOOK` / `BOOK_FOUND` / `PICKING_UP` now stay at shelf
+  - `DELIVERING` now progresses shelf -> destination
+  - `ARRIVED_AT_STUDENT` / `READY` remain at destination
+  - `COMPLETED` now freezes at destination and does not auto-return to dock.
+- Corrected terminal exception reroute behavior:
+  - return-route simulation triggers for `CANCELLED`, `FAILED`, and `BOOK_NOT_FOUND`
+  - `COMPLETED` removed from return-route triggers
+  - added `lastSimulatedPosition` session tracking and use it as reroute start for `CANCELLED` / `FAILED`
+  - fallback chain for reroute seed: `lastSimulatedPosition` -> last known base pose -> charging dock.
+- Replaced service-point route naming with reception-point semantics in route nodes/destination mapping to match robot plan assumptions (no service point start semantics).
+- Updated tracking alerts so `FAILED` / `CANCELLED` clearly indicate reroute-to-dock behavior.
+
+### Verification
+- Ran `npm run build` (explicitly requested) and build passed.
+- Existing static-generation `+input` logs from account join page still appear during build.
+
+### Key rules
+- For live tracking demo simulation, the canonical normal path is `charging dock -> shelf -> destination`.
+- `ASSIGNED` must not advance toward shelf; keep distance at dock origin until dispatch/navigation.
+- `COMPLETED` must freeze at destination; do not auto-render a return-to-dock path.
+- `CANCELLED` and `FAILED` reroute must start from the latest displayed simulated position, not from shelf/dock assumptions or full-route midpoint indices.
+
 ## Session Update (2026-05-28) — Admin Lost Items object-type expansion (WATCH/AIRPODS)
 
 ### Completed
