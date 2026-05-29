@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next';
 import WestIcon from '@mui/icons-material/West';
 import EastIcon from '@mui/icons-material/East';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -24,6 +25,7 @@ interface FeaturedBooksProps {
 const FeaturedBooks = (props: FeaturedBooksProps) => {
 	const { initialInput, likeSyncTick = 0, onBookLikeToggled } = props;
 	const device = useDeviceDetect();
+	const { t } = useTranslation('books');
 	const [featuredBooks, setFeaturedBooks] = useState<Book[]>([]);
 	const [likeBook] = useMutation(LIKE_BOOK);
 	const user = useReactiveVar(userVar);
@@ -66,7 +68,7 @@ const FeaturedBooks = (props: FeaturedBooksProps) => {
 			<Stack className={'top-properties'}>
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
-						<span>Featured Books</span>
+						<span>{t('featured_title')}</span>
 					</Stack>
 					<Stack className={'card-box'} sx={{ mt: '18px' }}>
 						<Swiper
@@ -94,8 +96,8 @@ const FeaturedBooks = (props: FeaturedBooksProps) => {
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
 						<Box component={'div'} className={'left'}>
-							<span>Featured Books</span>
-							<p>Highest rated books in our collection</p>
+							<span>{t('featured_title')}</span>
+							<p>{t('featured_subtitle')}</p>
 						</Box>
 						<Box component={'div'} className={'right'}>
 							<div className={'pagination-box'}>

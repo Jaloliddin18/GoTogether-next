@@ -34,6 +34,7 @@ import 'swiper/css/navigation';
 import Moment from 'react-moment';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next';
 import { Book } from '../../libs/types/book/book';
 import { Comment } from '../../libs/types/comment/comment';
 import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
@@ -58,7 +59,7 @@ const SafeBox = Box as any;
 
 export const getServerSideProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common', 'layout', 'books'])),
 	},
 });
 
@@ -110,9 +111,9 @@ function formatLabel(value?: string | number | null): string {
 		.replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function formatPrice(book?: Book | null): string {
+function computePrice(book?: Book | null): string | null {
 	const price = book?.bookPrice;
-	if (!price) return 'Price unavailable';
+	if (!price) return null;
 	const amount = price.isDiscounted && price.discountPercent
 		? Math.round(price.amount * (1 - price.discountPercent / 100))
 		: price.amount;
@@ -196,6 +197,7 @@ const resolveAutoDeskDestination = (user: any): AutoDeskDestination | null => {
 const BookDetailPage: NextPage = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const { t } = useTranslation('books');
 	const user = useReactiveVar(userVar);
 	const isMobile = device === 'mobile';
 
@@ -342,9 +344,9 @@ const BookDetailPage: NextPage = () => {
 
 			if (!options?.skipSuccessToast) {
 				if (requestType === RequestType.PURCHASE) {
-					await sweetTopSuccessAlert('Request sent successfully — Book will be delivered to Reception', 1800);
+					await sweetTopSuccessAlert(t('toast_desk_success'), 1800);
 				} else {
-					await sweetTopSuccessAlert('Request sent successfully', 1800);
+					await sweetTopSuccessAlert(t('toast_success'), 1800);
 				}
 			}
 
@@ -378,7 +380,7 @@ const BookDetailPage: NextPage = () => {
 			setSelectedDeskId(null);
 			setIsDeskSubmitting(false);
 			await new Promise((resolve) => setTimeout(resolve, 150));
-			await sweetTopSuccessAlert('Request sent successfully', 1800);
+			await sweetTopSuccessAlert(t('toast_success'), 1800);
 			return;
 		}
 
@@ -395,16 +397,17 @@ const BookDetailPage: NextPage = () => {
 	const headlineMetaBadges = useMemo(
 		() =>
 			[
-				{ label: 'Category', value: formatLabel(book?.bookCategory) },
-				{ label: 'Language', value: formatLabel(book?.bookLanguage) },
-				{ label: 'Format', value: formatLabel(book?.bookFormat) },
+				{ label: t('category_label'), value: formatLabel(book?.bookCategory) },
+				{ label: t('language_label'), value: formatLabel(book?.bookLanguage) },
+				{ label: t('format_detail_label'), value: formatLabel(book?.bookFormat) },
 			].filter((item) => item.value !== '—'),
-		[book?.bookCategory, book?.bookLanguage, book?.bookFormat],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[book?.bookCategory, book?.bookLanguage, book?.bookFormat, t],
 	);
-	const robotDeliveryHeadline = book?.isBorrowable ? 'Available for desk delivery' : 'Delivery route activates after request';
+	const robotDeliveryHeadline = book?.isBorrowable ? t('delivery_available') : t('delivery_activates');
 	const robotDeliverySubline = book?.isPurchasable
-		? 'Library pickup route is prepared after request.'
-		: 'Desk delivery route is prepared after request.';
+		? t('delivery_pickup_sub')
+		: t('delivery_desk_sub');
 
 	if (getBookLoading) {
 		return (
@@ -483,7 +486,7 @@ const BookDetailPage: NextPage = () => {
 										margin: 0,
 									}}
 								>
-									Book Detail
+									{t('page_title')}
 								</h1>
 								<div
 									style={{
@@ -501,17 +504,17 @@ const BookDetailPage: NextPage = () => {
 										onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
 										onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
 									>
-										Home
+										{t('breadcrumb_home')}
 									</Link>
 									<span>/</span>
 									<Link href="/books" style={{ color: '#FFFFFF', textDecoration: 'none' }}
 										onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
 										onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
 									>
-										Books
+										{t('breadcrumb_books')}
 									</Link>
 									<span>/</span>
-									<span>Book Detail</span>
+									<span>{t('breadcrumb_detail')}</span>
 								</div>
 							</div>
 						</div>
@@ -635,10 +638,10 @@ const BookDetailPage: NextPage = () => {
 							<Stack spacing={3}>
 									<Stack spacing={1} sx={{ minWidth: 0 }}>
 										<Typography variant={isMobile ? 'h4' : 'h2'} sx={{ color: libraryColors.ink, fontWeight: 800, lineHeight: 1.2, overflowWrap: 'break-word' }}>
-											{book?.bookTitle ?? 'Book title unavailable'}
+											{book?.bookTitle ?? t('title_unavailable')}
 										</Typography>
 										<Typography sx={{ color: libraryColors.muted, fontSize: 18, fontWeight: 500 }}>
-											{book?.bookAuthor ? `by ${book.bookAuthor}` : 'Author unavailable'}
+											{book?.bookAuthor ? t('author_by', { author: book.bookAuthor }) : t('author_unavailable')}
 										</Typography>
 										{headlineMetaBadges.length > 0 && (
 											<Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ pt: 0.5 }}>
@@ -670,7 +673,7 @@ const BookDetailPage: NextPage = () => {
 
 								<Stack direction="row" spacing={2} alignItems="center">
 									<Typography sx={{ color: libraryColors.ink, fontSize: 32, fontWeight: 800 }}>
-										{formatPrice(book)}
+										{computePrice(book) ?? t('price_unavailable')}
 									</Typography>
 									{book?.bookPrice?.isDiscounted && book?.bookPrice?.discountPercent ? (
 										<Typography sx={{ color: libraryColors.muted, textDecoration: 'line-through', fontSize: 18 }}>
@@ -680,8 +683,8 @@ const BookDetailPage: NextPage = () => {
 								</Stack>
 
 								<Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
-									{book?.isBorrowable && <Chip label="Borrowable" sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
-									{book?.isPurchasable && <Chip label="Purchasable" sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
+									{book?.isBorrowable && <Chip label={t('chip_borrowable')} sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
+									{book?.isPurchasable && <Chip label={t('chip_purchasable')} sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
 									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#E6F5EF', color: '#4DA882', fontWeight: 500, border: 'none', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
 								</Stack>
 
@@ -733,7 +736,7 @@ const BookDetailPage: NextPage = () => {
 												textTransform: 'uppercase',
 											}}
 										>
-											Description
+											{t('description_label')}
 										</Typography>
 										<Typography
 											sx={{
@@ -763,7 +766,7 @@ const BookDetailPage: NextPage = () => {
 											<LocalShippingOutlinedIcon sx={{ color: libraryColors.navy, fontSize: 20, mt: 0.15 }} />
 											<Stack spacing={0.45}>
 												<Typography sx={{ color: libraryColors.ink, fontSize: 14, fontWeight: 800 }}>
-													Robot Delivery
+													{t('delivery_heading')}
 												</Typography>
 												<Typography sx={{ color: '#30425D', fontSize: 13.5, fontWeight: 600 }}>
 													{robotDeliveryHeadline}
@@ -800,7 +803,7 @@ const BookDetailPage: NextPage = () => {
 											},
 										}}
 									>
-										Borrow
+										{t('btn_borrow')}
 									</Button>
 									<Button
 										variant="outlined"
@@ -820,7 +823,7 @@ const BookDetailPage: NextPage = () => {
 											'&:hover': { background: '#F8FAFC', borderColor: '#1B3A6B' },
 										}}
 									>
-										Commercial
+										{t('btn_purchase')}
 									</Button>
 								</Stack>
 
@@ -874,7 +877,7 @@ const BookDetailPage: NextPage = () => {
 				}}
 			>
 				<DialogTitle sx={{ color: libraryColors.ink, fontWeight: 700, pb: 1 }}>
-					Where would you like the book delivered?
+					{t('modal_title')}
 				</DialogTitle>
 				<DialogContent sx={{ pt: '8px !important' }}>
 					<Stack spacing={1.2}>
@@ -899,7 +902,7 @@ const BookDetailPage: NextPage = () => {
 										},
 									}}
 								>
-									Desk {deskId}
+									{deskId === 'A' ? t('modal_desk_a') : t('modal_desk_b')}
 								</Button>
 							);
 						})}
@@ -911,7 +914,7 @@ const BookDetailPage: NextPage = () => {
 						disabled={isDeskSubmitting}
 						sx={{ textTransform: 'none', color: libraryColors.muted, fontWeight: 700 }}
 					>
-						Cancel
+						{t('modal_cancel')}
 					</Button>
 					<Button
 						variant="contained"
@@ -930,7 +933,7 @@ const BookDetailPage: NextPage = () => {
 							},
 						}}
 					>
-						{isDeskSubmitting ? 'Sending...' : 'Confirm'}
+						{isDeskSubmitting ? t('modal_sending') : t('modal_confirm')}
 					</Button>
 				</DialogActions>
 			</Dialog>

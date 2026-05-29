@@ -24,10 +24,11 @@ import { Messages, API_BASE_URL } from '../../libs/config';
 import { getJwtToken } from '../../libs/auth';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import MemberFollowings from '../../libs/components/member/MemberFollowings';
+import { useTranslation } from 'next-i18next';
 
 export const getServerSideProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common', 'layout', 'member'])),
 	},
 });
 
@@ -54,6 +55,7 @@ const resolveAvatar = (img?: string): string => {
 const LIMIT = 10;
 
 const MemberProfile: NextPage = () => {
+	const { t } = useTranslation('member');
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
@@ -135,7 +137,7 @@ const MemberProfile: NextPage = () => {
 			if (!user._id) throw new Error(Messages.error2);
 			await subscribe({ variables: { memberId: id } });
 			await refetch({ input: query });
-			await sweetTopSmallSuccessAlert('Subscribed!', 800);
+			await sweetTopSmallSuccessAlert(t('subscribed'), 800);
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -147,7 +149,7 @@ const MemberProfile: NextPage = () => {
 			if (!user._id) throw new Error(Messages.error2);
 			await unsubscribe({ variables: { memberId: id } });
 			await refetch({ input: query });
-			await sweetTopSmallSuccessAlert('Unsubscribed!', 800);
+			await sweetTopSmallSuccessAlert(t('unsubscribed'), 800);
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -159,7 +161,7 @@ const MemberProfile: NextPage = () => {
 			if (!user._id) throw new Error(Messages.error2);
 			await likeTargetMember({ variables: { input: id } });
 			await refetch({ input: query });
-			await sweetTopSmallSuccessAlert('Success', 800);
+			await sweetTopSmallSuccessAlert(t('common:success'), 800);
 		} catch (err: any) {
 			sweetMixinErrorAlert(err.message).then();
 		}
@@ -190,7 +192,7 @@ const MemberProfile: NextPage = () => {
 			await new Promise(resolve => setTimeout(resolve, 300));
 			setFollowersRefetchTrigger((k) => k + 1);
 			// onCompleted handles memberRefetch; just show the alert here
-			await sweetTopSmallSuccessAlert('Updated!', 800);
+			await sweetTopSmallSuccessAlert(prevFollowing ? t('unsubscribed') : t('subscribed'), 800);
 		} catch (err: any) {
 			setIsFollowing(prevFollowing); // rollback toggle
 			sweetErrorHandling(err).then();
@@ -202,13 +204,13 @@ const MemberProfile: NextPage = () => {
 		setTwitsPage(1);
 	};
 
-	const TABS = ['Posts', 'Followers', 'Followings'];
+	const TABS = [t('tab_posts'), t('tab_followers'), t('tab_followings')];
 
 	// TwitCard requires onDelete — no-op since owner posts don't appear here
 	const deleteTwitHandler = async (_id: string): Promise<void> => {};
 
 	if (device === 'mobile') {
-		return <div id="member-page">MEMBER PROFILE MOBILE</div>;
+		return <div id="member-page">{t('placeholder')}</div>;
 	}
 
 	return (
@@ -220,12 +222,12 @@ const MemberProfile: NextPage = () => {
 
 					{/* Center: profile column */}
 					<Stack className="member-feed-column">
-						{/* Sticky back header */}
-						<div className="member-back-header">
-							<IconButton className="member-back-btn" onClick={() => router.back()} aria-label="Go back">
-								<ArrowBackOutlinedIcon />
-							</IconButton>
-							<Typography className="member-back-title">{memberData?.memberNick ?? 'Profile'}</Typography>
+							{/* Sticky back header */}
+							<div className="member-back-header">
+								<IconButton className="member-back-btn" onClick={() => router.back()} aria-label={t('aria_go_back')}>
+									<ArrowBackOutlinedIcon />
+								</IconButton>
+							<Typography className="member-back-title">{memberData?.memberNick ?? t('default_profile')}</Typography>
 						</div>
 
 						{/* Banner */}
@@ -259,7 +261,7 @@ const MemberProfile: NextPage = () => {
 										'&:hover': { backgroundColor: '#1a1a2e' },
 									}}
 								>
-									{isFollowing ? 'Following' : 'Follow'}
+									{isFollowing ? t('btn_following') : t('btn_follow')}
 								</Button>
 							</div>
 
@@ -278,26 +280,26 @@ const MemberProfile: NextPage = () => {
 										{memberData.memberAddress}
 									</span>
 								)}
-								{memberData?.createdAt && (
-									<span className="member-meta-item">
-										<CalendarTodayOutlinedIcon sx={{ fontSize: 15 }} />
-										Joined <Moment format="MMM YYYY">{memberData.createdAt}</Moment>
-									</span>
-								)}
+									{memberData?.createdAt && (
+										<span className="member-meta-item">
+											<CalendarTodayOutlinedIcon sx={{ fontSize: 15 }} />
+											{t('joined_label')} <Moment format="MMM YYYY">{memberData.createdAt}</Moment>
+										</span>
+									)}
 							</div>
 
 							<div className="member-stats-row">
 								<span className="member-stat">
 									<strong className="member-stat-count">{memberData?.memberTwits ?? 0}</strong>
-									<span className="member-stat-label">Posts</span>
+									<span className="member-stat-label">{t('stat_posts')}</span>
 								</span>
 								<span className="member-stat clickable" onClick={() => handleTabChange(2)}>
 									<strong className="member-stat-count">{memberData?.memberFollowings ?? 0}</strong>
-									<span className="member-stat-label">Following</span>
+									<span className="member-stat-label">{t('stat_following')}</span>
 								</span>
 								<span className="member-stat clickable" onClick={() => handleTabChange(1)}>
 									<strong className="member-stat-count">{memberData?.memberFollowers ?? 0}</strong>
-									<span className="member-stat-label">Followers</span>
+									<span className="member-stat-label">{t('stat_followers')}</span>
 								</span>
 							</div>
 						</Stack>
@@ -320,14 +322,14 @@ const MemberProfile: NextPage = () => {
 							<>
 								{twitsLoading && (
 									<Stack className="member-feed-state">
-										<Typography className="member-state-text">Loading...</Typography>
+										<Typography className="member-state-text">{t('loading')}</Typography>
 									</Stack>
 								)}
 								{!twitsLoading && twits.length === 0 && (
 									<Stack className="member-feed-state">
-										<Typography className="member-state-title">No posts yet</Typography>
+										<Typography className="member-state-title">{t('no_posts_title')}</Typography>
 										<Typography className="member-state-copy">
-											Posts from this member will appear here.
+											{t('no_posts_desc')}
 										</Typography>
 									</Stack>
 								)}
@@ -349,12 +351,12 @@ const MemberProfile: NextPage = () => {
 												color="primary"
 												onChange={(_e, val) => setTwitsPage(val)}
 											/>
-										</Stack>
-										<Stack className="total-result">
-											<Typography>
-												{twitsTotal} post{twitsTotal !== 1 ? 's' : ''}
-											</Typography>
-										</Stack>
+											</Stack>
+											<Stack className="total-result">
+												<Typography>
+													{t('posts_count', { count: twitsTotal })}
+												</Typography>
+											</Stack>
 									</Stack>
 								)}
 							</>
@@ -391,14 +393,14 @@ const MemberProfile: NextPage = () => {
 						<Stack className="rail-section">
 							<OutlinedInput
 								className="rail-search-bar"
-								placeholder="Search community"
+								placeholder={t('search_community')}
 								startAdornment={<SearchIcon sx={{ color: '#64748b', fontSize: 18, mr: 0.5 }} />}
 								size="small"
 							/>
 						</Stack>
 
 						<Stack className="rail-section">
-							<Typography className="rail-section-title">Trending at library</Typography>
+							<Typography className="rail-section-title">{t('trending_title')}</Typography>
 							{TRENDING.map((item) => (
 								<Stack key={item.label} className="rail-trend-item">
 									<Typography className="trend-label">{item.label}</Typography>
@@ -408,7 +410,7 @@ const MemberProfile: NextPage = () => {
 						</Stack>
 
 						<Stack className="rail-section">
-							<Typography className="rail-section-title">Who to follow</Typography>
+							<Typography className="rail-section-title">{t('who_to_follow')}</Typography>
 							{WHO_TO_FOLLOW.map((m) => (
 								<Stack key={m.nick} className="rail-follow-item">
 									<img src={m.image} alt="" className="rail-follow-avatar" />
@@ -417,7 +419,7 @@ const MemberProfile: NextPage = () => {
 										<Typography className="rail-follow-nick">{m.nick}</Typography>
 									</Stack>
 									<Button className="rail-follow-btn" variant="outlined" size="small">
-										Follow
+										{t('btn_follow')}
 									</Button>
 								</Stack>
 							))}

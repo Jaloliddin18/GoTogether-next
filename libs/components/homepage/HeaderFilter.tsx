@@ -69,20 +69,20 @@ type IconFilterOption = {
 const BOOK_FORMAT_OPTIONS: IconFilterOption[] = [
 	{
 		value: 'PAPERBACK',
-		label: 'Printed Books',
-		description: 'Physical books available for robot delivery.',
+		label: 'format_printed',
+		description: 'format_printed_desc',
 		Icon: MenuBookOutlinedIcon,
 	},
 	{
 		value: 'EBOOK',
-		label: 'E-Books',
-		description: 'Digital reading resources for quick access.',
+		label: 'format_ebook',
+		description: 'format_ebook_desc',
 		Icon: TabletMacOutlinedIcon,
 	},
 	{
 		value: 'AUDIOBOOK',
-		label: 'Audio Books',
-		description: 'Listen and learn anywhere.',
+		label: 'format_audio',
+		description: 'format_audio_desc',
 		Icon: HeadphonesOutlinedIcon,
 	},
 ];
@@ -90,123 +90,123 @@ const BOOK_FORMAT_OPTIONS: IconFilterOption[] = [
 const BOOK_TYPE_OPTIONS: IconFilterOption[] = [
 	{
 		value: 'TEXTBOOK',
-		label: 'Textbook',
-		description: 'Course learning materials.',
+		label: 'type_textbook',
+		description: 'type_textbook_desc',
 		Icon: MenuBookOutlinedIcon,
 	},
 	{
 		value: 'REFERENCE',
-		label: 'Reference',
-		description: 'Quick lookup resources.',
+		label: 'type_reference',
+		description: 'type_reference_desc',
 		Icon: LibraryBooksOutlinedIcon,
 	},
 	{
 		value: 'RESEARCH',
-		label: 'Research',
-		description: 'Academic research titles.',
+		label: 'type_research',
+		description: 'type_research_desc',
 		Icon: ScienceOutlinedIcon,
 	},
 	{
 		value: 'NOVEL',
-		label: 'Novel',
-		description: 'Fiction and literature.',
+		label: 'type_novel',
+		description: 'type_novel_desc',
 		Icon: AutoStoriesOutlinedIcon,
 	},
 	{
 		value: 'COMIC',
-		label: 'Comic',
-		description: 'Graphic stories.',
+		label: 'type_comic',
+		description: 'type_comic_desc',
 		Icon: TheaterComedyOutlinedIcon,
 	},
 	{
 		value: 'MAGAZINE',
-		label: 'Magazine',
-		description: 'Periodicals and issues.',
+		label: 'type_magazine',
+		description: 'type_magazine_desc',
 		Icon: ArticleOutlinedIcon,
 	},
 	{
 		value: 'JOURNAL',
-		label: 'Journal',
-		description: 'Scholarly publications.',
+		label: 'type_journal',
+		description: 'type_journal_desc',
 		Icon: HistoryEduOutlinedIcon,
 	},
 	{
 		value: 'WORKBOOK',
-		label: 'Workbook',
-		description: 'Practice and exercises.',
+		label: 'type_workbook',
+		description: 'type_workbook_desc',
 		Icon: AssignmentOutlinedIcon,
 	},
 	{
 		value: 'MANUAL',
-		label: 'Manual',
-		description: 'Guides and instructions.',
+		label: 'type_manual',
+		description: 'type_manual_desc',
 		Icon: BuildOutlinedIcon,
 	},
 	{
 		value: 'DICTIONARY',
-		label: 'Dictionary',
-		description: 'Word and language reference.',
+		label: 'type_dictionary',
+		description: 'type_dictionary_desc',
 		Icon: TranslateOutlinedIcon,
 	},
 	{
 		value: 'ENCYCLOPEDIA',
-		label: 'Encyclopedia',
-		description: 'General knowledge collections.',
+		label: 'type_encyclopedia',
+		description: 'type_encyclopedia_desc',
 		Icon: PublicOutlinedIcon,
 	},
 	{
 		value: 'OTHER',
-		label: 'Other',
-		description: 'More library materials.',
+		label: 'type_other',
+		description: 'type_other_desc',
 		Icon: CategoryOutlinedIcon,
 	},
 ];
 
 const BOOK_CATEGORY_OPTIONS: IconFilterOption[] = [
-	{ value: 'COMPUTER_SCIENCE', label: 'Computer Science', Icon: ComputerOutlinedIcon },
-	{ value: 'ENGINEERING', label: 'Engineering', Icon: EngineeringOutlinedIcon },
-	{ value: 'SCIENCE_AND_MATH', label: 'Science & Math', Icon: FunctionsOutlinedIcon },
-	{ value: 'BUSINESS', label: 'Business', Icon: BusinessCenterOutlinedIcon },
-	{ value: 'LITERATURE', label: 'Literature', Icon: AutoStoriesOutlinedIcon },
-	{ value: 'COMICS', label: 'Comics', Icon: TheaterComedyOutlinedIcon },
-	{ value: 'SELF_IMPROVEMENT', label: 'Self Improvement', Icon: SelfImprovementOutlinedIcon },
-	{ value: 'TEXTBOOKS', label: 'Textbooks', Icon: MenuBookOutlinedIcon },
-	{ value: 'KOREAN_LANGUAGE', label: 'Korean Language', Icon: TranslateOutlinedIcon },
-	{ value: 'TOPIK_PREPARATION', label: 'TOPIK', Icon: SchoolOutlinedIcon },
-	{ value: 'ROMANCE', label: 'Romance', Icon: FavoriteBorderOutlinedIcon },
-	{ value: 'SCIENCE_FICTION', label: 'Science Fiction', Icon: RocketLaunchOutlinedIcon },
-	{ value: 'MYSTERY_THRILLER', label: 'Mystery & Thriller', Icon: ManageSearchOutlinedIcon },
-	{ value: 'HEALTH_FITNESS', label: 'Health & Fitness', Icon: FitnessCenterOutlinedIcon },
-	{ value: 'LAW', label: 'Law', Icon: GavelOutlinedIcon },
-	{ value: 'DESIGN', label: 'Design', Icon: DesignServicesOutlinedIcon },
-	{ value: 'OTHER', label: 'Other', Icon: CategoryOutlinedIcon },
+	{ value: 'COMPUTER_SCIENCE', label: 'cat_cs', Icon: ComputerOutlinedIcon },
+	{ value: 'ENGINEERING', label: 'cat_engineering', Icon: EngineeringOutlinedIcon },
+	{ value: 'SCIENCE_AND_MATH', label: 'cat_science', Icon: FunctionsOutlinedIcon },
+	{ value: 'BUSINESS', label: 'cat_business', Icon: BusinessCenterOutlinedIcon },
+	{ value: 'LITERATURE', label: 'cat_literature', Icon: AutoStoriesOutlinedIcon },
+	{ value: 'COMICS', label: 'cat_comics', Icon: TheaterComedyOutlinedIcon },
+	{ value: 'SELF_IMPROVEMENT', label: 'cat_self_help', Icon: SelfImprovementOutlinedIcon },
+	{ value: 'TEXTBOOKS', label: 'cat_textbooks', Icon: MenuBookOutlinedIcon },
+	{ value: 'KOREAN_LANGUAGE', label: 'cat_korean', Icon: TranslateOutlinedIcon },
+	{ value: 'TOPIK_PREPARATION', label: 'cat_topik', Icon: SchoolOutlinedIcon },
+	{ value: 'ROMANCE', label: 'cat_romance', Icon: FavoriteBorderOutlinedIcon },
+	{ value: 'SCIENCE_FICTION', label: 'cat_scifi', Icon: RocketLaunchOutlinedIcon },
+	{ value: 'MYSTERY_THRILLER', label: 'cat_mystery', Icon: ManageSearchOutlinedIcon },
+	{ value: 'HEALTH_FITNESS', label: 'cat_health', Icon: FitnessCenterOutlinedIcon },
+	{ value: 'LAW', label: 'cat_law', Icon: GavelOutlinedIcon },
+	{ value: 'DESIGN', label: 'cat_design', Icon: DesignServicesOutlinedIcon },
+	{ value: 'OTHER', label: 'cat_other', Icon: CategoryOutlinedIcon },
 ];
 
 const BOOK_AUDIENCE_OPTIONS = [
-	{ value: 'CHILDREN', label: 'Children' },
-	{ value: 'TEEN', label: 'Teen' },
-	{ value: 'GENERAL', label: 'General' },
-	{ value: 'UNDERGRADUATE', label: 'Undergraduate' },
-	{ value: 'GRADUATE', label: 'Graduate' },
-	{ value: 'PROFESSIONAL', label: 'Professional' },
+	{ value: 'CHILDREN', label: 'level_children' },
+	{ value: 'TEEN', label: 'level_teen' },
+	{ value: 'GENERAL', label: 'level_general' },
+	{ value: 'UNDERGRADUATE', label: 'level_undergraduate' },
+	{ value: 'GRADUATE', label: 'level_graduate' },
+	{ value: 'PROFESSIONAL', label: 'level_professional' },
 ];
 
 const BOOK_LANGUAGE_OPTIONS = [
-	{ value: 'ENGLISH', label: 'English' },
-	{ value: 'KOREAN', label: 'Korean' },
-	{ value: 'CHINESE', label: 'Chinese' },
-	{ value: 'SPANISH', label: 'Spanish' },
-	{ value: 'FRENCH', label: 'French' },
-	{ value: 'GERMAN', label: 'German' },
-	{ value: 'RUSSIAN', label: 'Russian' },
-	{ value: 'ARABIC', label: 'Arabic' },
-	{ value: 'UZBEK', label: 'Uzbek' },
-	{ value: 'OTHER', label: 'Other' },
+	{ value: 'ENGLISH', label: 'lang_en' },
+	{ value: 'KOREAN', label: 'lang_kr' },
+	{ value: 'CHINESE', label: 'lang_zh' },
+	{ value: 'SPANISH', label: 'lang_es' },
+	{ value: 'FRENCH', label: 'lang_fr' },
+	{ value: 'GERMAN', label: 'lang_de' },
+	{ value: 'RUSSIAN', label: 'lang_ru' },
+	{ value: 'ARABIC', label: 'lang_ar' },
+	{ value: 'UZBEK', label: 'lang_uz' },
+	{ value: 'OTHER', label: 'lang_other' },
 ];
 
 const HeaderFilter = () => {
 	const device = useDeviceDetect();
-	const { t } = useTranslation('common');
+	const { t } = useTranslation('books');
 	const router = useRouter();
 	const [openAdvancedFilter, setOpenAdvancedFilter] = useState(false);
 	const searchBoxRef: any = useRef();
@@ -347,22 +347,22 @@ const HeaderFilter = () => {
 			<Stack className={'search-box'} ref={searchBoxRef}>
 				<Stack className={'select-box'}>
 					<div className={`box ${openFormat ? 'on' : ''}`} onClick={formatStateChangeHandler}>
-						<span>{bookFormat ? BOOK_FORMAT_OPTIONS.find((option) => option.value === bookFormat)?.label : 'Book Format'}</span>
+						<span>{bookFormat ? t(BOOK_FORMAT_OPTIONS.find((option) => option.value === bookFormat)?.label ?? '') : t('filter_format_label')}</span>
 						<ExpandMoreIcon sx={{ transform: openFormat ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s ease' }} />
 					</div>
 					<div className={`box ${openType ? 'on' : ''}`} onClick={typeStateChangeHandler}>
-						<span>{bookType ? BOOK_TYPE_OPTIONS.find((option) => option.value === bookType)?.label : 'Book Type'}</span>
+						<span>{bookType ? t(BOOK_TYPE_OPTIONS.find((option) => option.value === bookType)?.label ?? '') : t('filter_type_label')}</span>
 						<ExpandMoreIcon sx={{ transform: openType ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s ease' }} />
 					</div>
 					<div className={`box ${openCategory ? 'on' : ''}`} onClick={categoryStateChangeHandler}>
-						<span>{bookCategory ? BOOK_CATEGORY_OPTIONS.find((option) => option.value === bookCategory)?.label : 'Category'}</span>
+						<span>{bookCategory ? t(BOOK_CATEGORY_OPTIONS.find((option) => option.value === bookCategory)?.label ?? '') : t('filter_category_label')}</span>
 						<ExpandMoreIcon sx={{ transform: openCategory ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s ease' }} />
 					</div>
 				</Stack>
 				<Stack className={'search-box-other'}>
 					<div className={'advanced-filter'} onClick={() => advancedFilterHandler(true)}>
 						<img src="/img/icons/tune.svg" alt="" />
-						<span>{t('Advanced')}</span>
+						<span>{t('filter_advanced')}</span>
 					</div>
 					<div className={'search-btn'} onClick={pushSearchHandler}>
 						<img src="/img/icons/search_white.svg" alt="" />
@@ -384,8 +384,8 @@ const HeaderFilter = () => {
 									<span className={'filter-option-card-icon'}>
 										<Icon />
 									</span>
-									<span className={'filter-option-card-title'}>{option.label}</span>
-									<span className={'filter-option-card-description'}>{option.description}</span>
+									<span className={'filter-option-card-title'}>{t(option.label)}</span>
+									<span className={'filter-option-card-description'}>{option.description ? t(option.description) : ''}</span>
 								</button>
 							);
 						})}
@@ -407,8 +407,8 @@ const HeaderFilter = () => {
 									<span className={'filter-option-card-icon'}>
 										<Icon />
 									</span>
-									<span className={'filter-option-card-title'}>{option.label}</span>
-									<span className={'filter-option-card-description'}>{option.description}</span>
+									<span className={'filter-option-card-title'}>{t(option.label)}</span>
+									<span className={'filter-option-card-description'}>{option.description ? t(option.description) : ''}</span>
 								</button>
 							);
 						})}
@@ -437,7 +437,7 @@ const HeaderFilter = () => {
 									<span className={'filter-option-card-icon'}>
 										<Icon />
 									</span>
-									<span className={'filter-option-card-title'}>{option.label}</span>
+									<span className={'filter-option-card-title'}>{t(option.label)}</span>
 								</button>
 							);
 						})}
@@ -456,7 +456,7 @@ const HeaderFilter = () => {
 						<div className={'afm-header'}>
 							<div className={'afm-title'}>
 								<TuneIcon />
-								<span>Smart Library Advanced Filters</span>
+								<span>{t('advanced_title')}</span>
 							</div>
 							<button className={'afm-close-btn'} onClick={() => advancedFilterHandler(false)}>
 								<CloseIcon />
@@ -474,15 +474,15 @@ const HeaderFilter = () => {
 										onKeyDown={(event) => {
 											if (event.key === 'Enter') pushSearchHandler().then();
 										}}
-										placeholder="Search by title, author, or ISBN…"
+										placeholder={t('search_isbn_placeholder')}
 									/>
-									<button onClick={() => pushSearchHandler().then()}>Search</button>
+									<button onClick={() => pushSearchHandler().then()}>{t('search_btn')}</button>
 								</div>
 							</div>
 
 							<div className={'row-box select-grid'}>
 								<div className={'box'}>
-									<label>READER LEVEL</label>
+									<label>{t('reader_level_label')}</label>
 									<div className={'inside'}>
 										<FormControl fullWidth>
 											<Select
@@ -491,10 +491,10 @@ const HeaderFilter = () => {
 												displayEmpty
 												className={'afm-select'}
 											>
-												<MenuItem value={''}>All Levels</MenuItem>
+												<MenuItem value={''}>{t('level_all')}</MenuItem>
 												{BOOK_AUDIENCE_OPTIONS.map((option) => (
 													<MenuItem key={option.value} value={option.value}>
-														{option.label}
+														{t(option.label)}
 													</MenuItem>
 												))}
 											</Select>
@@ -502,7 +502,7 @@ const HeaderFilter = () => {
 									</div>
 								</div>
 								<div className={'box'}>
-									<label>LANGUAGE</label>
+									<label>{t('language_label')}</label>
 									<div className={'inside'}>
 										<FormControl fullWidth>
 											<Select
@@ -511,10 +511,10 @@ const HeaderFilter = () => {
 												displayEmpty
 												className={'afm-select'}
 											>
-												<MenuItem value={''}>All Languages</MenuItem>
+												<MenuItem value={''}>{t('lang_all')}</MenuItem>
 												{BOOK_LANGUAGE_OPTIONS.map((option) => (
 													<MenuItem key={option.value} value={option.value}>
-														{option.label}
+														{t(option.label)}
 													</MenuItem>
 												))}
 											</Select>
@@ -525,7 +525,7 @@ const HeaderFilter = () => {
 
 							<div className={'row-box toggle-row'}>
 								<div className={'box toggle-pill'}>
-									<span>Borrowable Only</span>
+									<span>{t('borrowable_only')}</span>
 									<Switch
 										checked={isBorrowable}
 										onChange={(event) => setIsBorrowable(event.target.checked)}
@@ -538,7 +538,7 @@ const HeaderFilter = () => {
 									/>
 								</div>
 								<div className={'box toggle-pill'}>
-									<span>Purchasable Only</span>
+									<span>{t('purchasable_only')}</span>
 									<Switch
 										checked={isPurchasable}
 										onChange={(event) => setIsPurchasable(event.target.checked)}
@@ -555,8 +555,8 @@ const HeaderFilter = () => {
 							<div className={'row-box rating-row'}>
 								<div className={'box'}>
 									<div className={'rating-head'}>
-										<label>MINIMUM RATING</label>
-										<span>{minRating > 0 ? `★ ${minRating.toFixed(1)}+` : 'Any'}</span>
+										<label>{t('min_rating_label')}</label>
+										<span>{minRating > 0 ? `★ ${minRating.toFixed(1)}+` : t('rating_any')}</span>
 									</div>
 									<div className={'inside'}>
 											<Slider
@@ -580,7 +580,7 @@ const HeaderFilter = () => {
 								<div className={'box'}>
 									<div className={'price-grid'}>
 										<div className={'price-field'}>
-											<label>MIN PRICE</label>
+											<label>{t('min_price')}</label>
 											<div className={'price-input-wrap'}>
 												<span>₩</span>
 												<input
@@ -593,7 +593,7 @@ const HeaderFilter = () => {
 											</div>
 										</div>
 										<div className={'price-field'}>
-											<label>MAX PRICE</label>
+											<label>{t('max_price')}</label>
 											<div className={'price-input-wrap'}>
 												<span>₩</span>
 												<input
@@ -613,10 +613,10 @@ const HeaderFilter = () => {
 						<div className={'afm-footer'}>
 							<button className={'afm-reset-btn'} onClick={resetFilterHandler}>
 								<RestartAltIcon />
-								<span>Reset all filters</span>
+								<span>{t('reset_btn')}</span>
 							</button>
 							<Button startIcon={<SearchIcon />} className={'search-btn'} onClick={pushSearchHandler}>
-								Search
+								{t('search_btn')}
 							</Button>
 						</div>
 					</div>

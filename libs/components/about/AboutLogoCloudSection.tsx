@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'next-i18next';
 
 const LOGOS = [
 	{
@@ -46,16 +47,18 @@ const LOGOS = [
 const MARQUEE_LOGOS = [...LOGOS, ...LOGOS, ...LOGOS, ...LOGOS] as const;
 
 const AboutLogoCloudSection = () => {
+	const { t } = useTranslation('about');
+
 	return (
 		<section className={'about-logo-cloud'} aria-labelledby={'about-logo-cloud-title'}>
 			<div className={'container'}>
 				<header className={'logo-cloud-heading'}>
-					<h2 id={'about-logo-cloud-title'}>Built With</h2>
-					<p>The technologies powering 같이Go</p>
+					<h2 id={'about-logo-cloud-title'}>{t('logo_cloud_title')}</h2>
+					<p>{t('logo_cloud_subtitle')}</p>
 				</header>
 
 				<div className={'logo-cloud-stage'}>
-					<div className={'logo-cloud-strip'} aria-label={'Modern technology ecosystem logos'}>
+					<div className={'logo-cloud-strip'} aria-label={t('logo_cloud_aria')}>
 						<div className={'logo-cloud-track'}>
 							{MARQUEE_LOGOS.map((logo, index) => (
 								<article className={'logo-cloud-card'} key={`${logo.name}-${index}`}>

@@ -18,6 +18,7 @@ import { Comment } from '../../libs/types/comment/comment';
 import { CommentGroup } from '../../libs/enums/comment.enum';
 import { API_BASE_URL } from '../../libs/config';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import { CREATE_COMMENT, LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
 import { GET_COMMENTS, GET_MEMBER, GET_PROPERTIES } from '../../apollo/user/query';
 import { T } from '../../libs/types/common';
@@ -25,11 +26,12 @@ import { Message } from '../../libs/enums/common.enum';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common', 'layout'])),
 	},
 });
 
 const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) => {
+	const { t } = useTranslation('common');
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
@@ -153,7 +155,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 	const createCommentHandler = async () => {
 		try {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
-			if (user._id === agentId) throw new Error('Cannot write a review for yourself');
+			if (user._id === agentId) throw new Error(t('review_error_self'));
 			await createComment({ variables: { input: insertCommentData } });
 
 			setInsertCommentData({ ...insertCommentData, commentContent: '' });
@@ -225,28 +227,28 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 										/>
 									</Stack>
 									<span>
-										Total {propertyTotal} propert{propertyTotal > 1 ? 'ies' : 'y'} available
+										{t(propertyTotal === 1 ? 'total_properties_one' : 'total_properties_other', { count: propertyTotal })}
 									</span>
 								</>
 							) : (
 								<div className={'no-data'}>
 									<img src="/img/icons/icoAlert.svg" alt="" />
-									<p>No properties found!</p>
+									<p>{t('no_properties')}</p>
 								</div>
 							)}
 						</Stack>
 					</Stack>
 					<Stack className={'review-box'}>
 						<Stack className={'main-intro'}>
-							<span>Reviews</span>
-							<p>we are glad to see you again</p>
+							<span>{t('reviews_heading')}</span>
+							<p>{t('We are glad to see you again!')}</p>
 						</Stack>
 						{commentTotal !== 0 && (
 							<Stack className={'review-wrap'}>
 								<Box component={'div'} className={'title-box'}>
 									<StarIcon />
 									<span>
-										{commentTotal} review{commentTotal > 1 ? 's' : ''}
+										{t(commentTotal === 1 ? 'review_count_one' : 'review_count_other', { count: commentTotal })}
 									</span>
 								</Box>
 								{agentComments?.map((comment: Comment) => {
@@ -265,8 +267,8 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 						)}
 
 						<Stack className={'leave-review-config'}>
-							<Typography className={'main-title'}>Leave A Review</Typography>
-							<Typography className={'review-title'}>Review</Typography>
+							<Typography className={'main-title'}>{t('review_title')}</Typography>
+							<Typography className={'review-title'}>{t('review_label')}</Typography>
 							<textarea
 								onChange={({ target: { value } }: any) => {
 									setInsertCommentData({ ...insertCommentData, commentContent: value });
@@ -279,7 +281,7 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 									disabled={insertCommentData.commentContent === '' || user?._id === ''}
 									onClick={createCommentHandler}
 								>
-									<Typography className={'title'}>Submit Review</Typography>
+									<Typography className={'title'}>{t('review_submit')}</Typography>
 									<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none">
 										<g clipPath="url(#clip0_6975_3642)">
 											<path

@@ -6,6 +6,7 @@ import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import { Button, CircularProgress, IconButton, Stack, TextField, Typography } from '@mui/material';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
+import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { GET_TWIT, GET_TWIT_COMMENTS } from '../../apollo/user/query';
 import { CREATE_TWIT_COMMENT, DELETE_TWIT } from '../../apollo/user/mutation';
@@ -24,11 +25,12 @@ import { MemberType } from '../../libs/enums/member.enum';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common', 'layout', 'community'])),
 	},
 });
 
 const CommunityDetail: NextPage = () => {
+	const { t } = useTranslation('community');
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
@@ -91,7 +93,7 @@ const CommunityDetail: NextPage = () => {
 				await router.push('/account/join');
 				return;
 			}
-			const confirmation = await sweetConfirmAlert('Delete this post?');
+			const confirmation = await sweetConfirmAlert(t('delete_confirm'));
 			if (!confirmation) return;
 			if (isAdmin) {
 				try {
@@ -102,7 +104,7 @@ const CommunityDetail: NextPage = () => {
 			} else {
 				await deleteTwit({ variables: { input: id } });
 			}
-			await sweetTopSmallSuccessAlert('Deleted', 800);
+			await sweetTopSmallSuccessAlert(t('toast_deleted'), 800);
 			await goCommunityPage();
 		} catch (err: any) {
 			sweetMixinErrorAlert(err.message).then();
@@ -135,7 +137,7 @@ const CommunityDetail: NextPage = () => {
 			setReplyText('');
 			setReplyTo(null);
 			await commentsRefetch();
-			await sweetTopSmallSuccessAlert('Reply posted', 800);
+			await sweetTopSmallSuccessAlert(t('reply_posted'), 800);
 		} catch (err: any) {
 			sweetMixinErrorAlert(err.message).then();
 		} finally {
@@ -155,30 +157,30 @@ const CommunityDetail: NextPage = () => {
 				<Stack className="community-detail-shell">
 					{/* Sticky header */}
 					<Stack className="detail-sticky-header">
-						<IconButton className="detail-back-btn" onClick={goCommunityPage} aria-label="Back to feed">
+						<IconButton className="detail-back-btn" onClick={goCommunityPage} aria-label={t('detail_back')}>
 							<ArrowBackOutlinedIcon />
 						</IconButton>
-						<Typography className="detail-header-title">Post</Typography>
+						<Typography className="detail-header-title">{t('detail_title')}</Typography>
 					</Stack>
 
 					{getTwitLoading && (
 						<Stack className="detail-state-box">
 							<CircularProgress size={28} />
-							<Typography>Loading post...</Typography>
+							<Typography>{t('detail_loading')}</Typography>
 						</Stack>
 					)}
 
 					{!getTwitLoading && getTwitError && (
 						<Stack className="detail-state-box">
-							<Typography className="state-title">Unable to load this post</Typography>
-							<Typography>Please go back to the feed and try again.</Typography>
+							<Typography className="state-title">{t('detail_error_title')}</Typography>
+							<Typography>{t('detail_error_msg')}</Typography>
 						</Stack>
 					)}
 
 					{!getTwitLoading && !getTwitError && !twit && (
 						<Stack className="detail-state-box">
-							<Typography className="state-title">Post not found</Typography>
-							<Typography>This post may have been deleted.</Typography>
+							<Typography className="state-title">{t('detail_not_found_title')}</Typography>
+							<Typography>{t('detail_not_found_msg')}</Typography>
 						</Stack>
 					)}
 
@@ -195,19 +197,19 @@ const CommunityDetail: NextPage = () => {
 								<Stack className="detail-stats-row">
 									<Stack className="detail-stat-item">
 										<Typography className="stat-count">{twit.likeCount ?? 0}</Typography>
-										<Typography className="stat-label">Likes</Typography>
+										<Typography className="stat-label">{t('stat_likes')}</Typography>
 									</Stack>
 									<Stack className="detail-stat-item">
 										<Typography className="stat-count">0</Typography>
-										<Typography className="stat-label">Reposts</Typography>
+										<Typography className="stat-label">{t('stat_reposts')}</Typography>
 									</Stack>
 									<Stack className="detail-stat-item">
 										<Typography className="stat-count">{depth0.length}</Typography>
-										<Typography className="stat-label">Replies</Typography>
+										<Typography className="stat-label">{t('stat_replies')}</Typography>
 									</Stack>
 									<Stack className="detail-stat-item">
 										<Typography className="stat-count">{twit?.viewCount ?? 0}</Typography>
-										<Typography className="stat-label">Views</Typography>
+										<Typography className="stat-label">{t('stat_views')}</Typography>
 									</Stack>
 								</Stack>
 
@@ -224,7 +226,7 @@ const CommunityDetail: NextPage = () => {
 							{!user?._id ? (
 								<div className="detail-login-prompt">
 									<Typography>
-										<span onClick={() => router.push('/account/join')} className="login-link">Log in</span> to reply
+										<span onClick={() => router.push('/account/join')} className="login-link">{t('login_link')}</span>{' '}{t('login_to_reply')}
 									</Typography>
 								</div>
 							) : (
@@ -237,8 +239,8 @@ const CommunityDetail: NextPage = () => {
 									<Stack className="reply-input-wrap">
 										{replyTo && (
 											<div className="reply-to-indicator">
-												<span>Replying to @{replyTo.nick}</span>
-												<button onClick={() => setReplyTo(null)} aria-label="Cancel reply">×</button>
+												<span>{t('replying_to', { nick: replyTo.nick })}</span>
+												<button onClick={() => setReplyTo(null)} aria-label={t('cancel_reply')}>×</button>
 											</div>
 										)}
 										<TextField
@@ -248,7 +250,7 @@ const CommunityDetail: NextPage = () => {
 											onChange={(e) => setReplyText(e.target.value)}
 											multiline
 											minRows={1}
-											placeholder={replyTo ? `Reply to @${replyTo.nick}...` : 'Post your reply'}
+											placeholder={replyTo ? t('placeholder_replying', { nick: replyTo.nick }) : t('placeholder_reply')}
 											variant="standard"
 											InputProps={{ disableUnderline: true }}
 											className="reply-input"
@@ -260,7 +262,7 @@ const CommunityDetail: NextPage = () => {
 													disabled={replySubmitting || !replyText.trim()}
 													onClick={submitReplyHandler}
 												>
-													{replySubmitting ? 'Posting...' : 'Reply'}
+													{replySubmitting ? t('btn_posting') : t('btn_reply')}
 												</Button>
 											</Stack>
 										)}
@@ -276,7 +278,7 @@ const CommunityDetail: NextPage = () => {
 							) : depth0.length > 0 ? (
 								<>
 									<Stack className="replies-section-header">
-										<Typography>Replies</Typography>
+										<Typography>{t('replies_section')}</Typography>
 									</Stack>
 									{depth0.map((comment) => (
 										<CommentCard
@@ -291,8 +293,8 @@ const CommunityDetail: NextPage = () => {
 								</>
 							) : (
 								<Stack id="community-comments-placeholder" className="community-comments-placeholder">
-									<Typography className="placeholder-title">Replies</Typography>
-									<Typography className="placeholder-copy">Be the first to reply.</Typography>
+									<Typography className="placeholder-title">{t('replies_section')}</Typography>
+									<Typography className="placeholder-copy">{t('no_replies')}</Typography>
 								</Stack>
 							)}
 						</>

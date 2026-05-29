@@ -9,6 +9,7 @@ import CommunityShell from '../../libs/components/community/CommunityShell';
 import CommunityComposer from '../../libs/components/community/CommunityComposer';
 import CommunityFeed from '../../libs/components/community/CommunityFeed';
 import { T } from '../../libs/types/common';
+import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Twit } from '../../libs/types/twit/twit';
 import { CreateTwitInput, TwitFeedType, TwitsInquiry } from '../../libs/types/twit/twit.input';
@@ -22,11 +23,12 @@ import { MemberType } from '../../libs/enums/member.enum';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common', 'layout', 'community'])),
 	},
 });
 
 const Community: NextPage = ({ initialInput, ...props }: T) => {
+	const { t } = useTranslation('community');
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
@@ -68,7 +70,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 			const nextInquiry = { ...searchCommunity, page: 1 };
 			setSearchCommunity(nextInquiry);
 			await twitsRefetch({ input: nextInquiry });
-			await sweetTopSmallSuccessAlert('Posted', 800);
+			await sweetTopSmallSuccessAlert(t('toast_posted'), 800);
 			return true;
 		} catch (err: any) {
 			console.log('ERROR, createTwitHandler:', err.message);
@@ -85,7 +87,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 				return;
 			}
 
-			const confirmation = await sweetConfirmAlert('Delete this post?');
+			const confirmation = await sweetConfirmAlert(t('delete_confirm'));
 			if (!confirmation) return;
 
 			if (isAdmin) {
@@ -99,7 +101,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 			}
 
 			await twitsRefetch({ input: searchCommunity });
-			await sweetTopSmallSuccessAlert('Deleted', 800);
+			await sweetTopSmallSuccessAlert(t('toast_deleted'), 800);
 		} catch (err: any) {
 			console.log('ERROR, deleteTwitHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
@@ -154,7 +156,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 							</Stack>
 							<Stack className="total-result">
 								<Typography>
-									Total {totalCount} post{totalCount > 1 ? 's' : ''} available
+									{totalCount === 1 ? t('total_posts_one', { count: totalCount }) : t('total_posts_other', { count: totalCount })}
 								</Typography>
 							</Stack>
 						</Stack>

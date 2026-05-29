@@ -4,6 +4,7 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { BookCategory, BookFormat, BookLanguage } from '../../enums/book.enum';
 import { BooksInquiry } from '../../types/book/book.input';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -45,6 +46,7 @@ const BookFilter = (props: BookFilterType) => {
 	const { searchFilter, initialInput } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const { t } = useTranslation('books');
 	const [searchText, setSearchText] = useState<string>((searchFilter?.search as any)?.keyword ?? '');
 	const [showAllCategories, setShowAllCategories] = useState(false);
 	const [showAllLanguages, setShowAllLanguages] = useState(false);
@@ -188,13 +190,13 @@ const BookFilter = (props: BookFilterType) => {
 			<Stack className={'filter-main'}>
 				{/* Search */}
 				<Stack className={'find-your-home'} mb={'40px'}>
-					<Typography className={'title-main'}>Find Your Book</Typography>
+					<Typography className={'title-main'}>{t('find_book_title')}</Typography>
 					<Stack className={'input-box'}>
 						<OutlinedInput
 							value={searchText}
 							type={'text'}
 							className={'search-input'}
-							placeholder={'Search by title, author, or ISBN...'}
+							placeholder={t('search_placeholder')}
 							inputProps={{ style: { paddingRight: '40px' } }}
 							onChange={(e: any) => setSearchText(e.target.value)}
 							onKeyDown={(e: any) => {
@@ -222,7 +224,7 @@ const BookFilter = (props: BookFilterType) => {
 
 				{/* Book Category */}
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Book Category</Typography>
+					<Typography className={'title'}>{t('filter_category_label')}</Typography>
 					<Stack sx={{ gap: '8px' }}>
 						{(showAllCategories ? bookCategories : bookCategories.slice(0, CATEGORY_SHOW_MORE_LIMIT)).map((cat) => (
 							<Stack className={'input-box'} key={cat}>
@@ -261,9 +263,9 @@ const BookFilter = (props: BookFilterType) => {
 							onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#64748B')}
 						>
 							{showAllCategories ? (
-								<>Show less <KeyboardArrowUpIcon style={{ fontSize: '16px' }} /></>
+								<>{t('show_less')} <KeyboardArrowUpIcon style={{ fontSize: '16px' }} /></>
 							) : (
-								<>Show more <KeyboardArrowDownIcon style={{ fontSize: '16px' }} /></>
+								<>{t('show_more')} <KeyboardArrowDownIcon style={{ fontSize: '16px' }} /></>
 							)}
 						</button>
 					)}
@@ -271,7 +273,7 @@ const BookFilter = (props: BookFilterType) => {
 
 				{/* Book Format */}
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Format</Typography>
+					<Typography className={'title'}>{t('format_label')}</Typography>
 					{bookFormats.map((fmt) => (
 						<Stack className={'input-box'} key={fmt}>
 							<Checkbox
@@ -292,7 +294,7 @@ const BookFilter = (props: BookFilterType) => {
 
 				{/* Book Language */}
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Language</Typography>
+					<Typography className={'title'}>{t('language_label')}</Typography>
 					{(showAllLanguages ? bookLanguages : bookLanguages.slice(0, SHOW_MORE_LIMIT)).map((lang) => (
 						<Stack className={'input-box'} key={lang}>
 							<Checkbox
@@ -329,9 +331,9 @@ const BookFilter = (props: BookFilterType) => {
 							onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#64748B')}
 						>
 							{showAllLanguages ? (
-								<>Show less <KeyboardArrowUpIcon style={{ fontSize: '16px' }} /></>
+								<>{t('show_less')} <KeyboardArrowUpIcon style={{ fontSize: '16px' }} /></>
 							) : (
-								<>Show more <KeyboardArrowDownIcon style={{ fontSize: '16px' }} /></>
+								<>{t('show_more')} <KeyboardArrowDownIcon style={{ fontSize: '16px' }} /></>
 							)}
 						</button>
 					)}
@@ -339,7 +341,7 @@ const BookFilter = (props: BookFilterType) => {
 
 				{/* Availability */}
 				<Stack className={'find-your-home'} mb={'30px'}>
-					<Typography className={'title'}>Availability</Typography>
+					<Typography className={'title'}>{t('availability_label')}</Typography>
 					<Stack className={'input-box'}>
 						<Checkbox
 							id={'borrowable'}
@@ -350,7 +352,7 @@ const BookFilter = (props: BookFilterType) => {
 							onChange={() => toggleHandler('isBorrowable')}
 						/>
 						<label htmlFor={'borrowable'} style={{ cursor: 'pointer' }}>
-							<Typography className="property-type">Borrowable Only</Typography>
+							<Typography className="property-type">{t('borrowable_only')}</Typography>
 						</label>
 					</Stack>
 					<Stack className={'input-box'}>
@@ -363,7 +365,7 @@ const BookFilter = (props: BookFilterType) => {
 							onChange={() => toggleHandler('isPurchasable')}
 						/>
 						<label htmlFor={'purchasable'} style={{ cursor: 'pointer' }}>
-							<Typography className="property-type">Purchasable Only</Typography>
+							<Typography className="property-type">{t('purchasable_only')}</Typography>
 						</label>
 					</Stack>
 				</Stack>
@@ -380,7 +382,7 @@ const BookFilter = (props: BookFilterType) => {
 								letterSpacing: '0.05em',
 							}}
 						>
-							Minimum Rating
+							{t('min_rating_label')}
 						</Typography>
 						<Typography
 							style={{
@@ -389,7 +391,7 @@ const BookFilter = (props: BookFilterType) => {
 								fontWeight: 500,
 							}}
 						>
-							{localRating === 0 ? 'Any' : localRating.toFixed(1)}
+							{localRating === 0 ? t('rating_any') : localRating.toFixed(1)}
 						</Typography>
 					</Stack>
 					<Slider
@@ -420,7 +422,7 @@ const BookFilter = (props: BookFilterType) => {
 								letterSpacing: '0.05em',
 							}}
 						>
-							Min Price
+							{t('min_price')}
 						</Typography>
 						<Typography
 							style={{
@@ -431,7 +433,7 @@ const BookFilter = (props: BookFilterType) => {
 								letterSpacing: '0.05em',
 							}}
 						>
-							Max Price
+							{t('max_price')}
 						</Typography>
 					</Stack>
 					<Stack className="square-year-input">

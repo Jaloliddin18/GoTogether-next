@@ -5,9 +5,11 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import useDeviceDetect from '../hooks/useDeviceDetect';
 import { Stack, Box } from '@mui/material';
 import moment from 'moment';
+import { useTranslation } from 'next-i18next';
 
 const Footer = () => {
 	const device = useDeviceDetect();
+	const { t } = useTranslation('layout');
 
 	if (device == 'mobile') {
 		return (
@@ -22,16 +24,16 @@ const Footer = () => {
 							/>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>Library Help Desk</span>
-							<p>INHA University Library</p>
+							<span>{t('footer_helpdesk')}</span>
+							<p>{t('footer_university')}</p>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>Robot Support</span>
-							<p>24/7 Autonomous Service</p>
-							<span>같이Go is always on duty.</span>
+							<span>{t('footer_robot_support')}</span>
+							<p>{t('footer_service')}</p>
+							<span>{t('footer_tagline')}</span>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<p>follow us on social media</p>
+							<p>{t('footer_social')}</p>
 							<div className={'media-box'}>
 								<FacebookOutlinedIcon />
 								<TelegramIcon />
@@ -43,26 +45,26 @@ const Footer = () => {
 					<Stack className={'right'}>
 						<Box component={'div'} className={'bottom'}>
 							<div>
-								<strong>Popular Search</strong>
-								<span>Search Book Catalog</span>
-								<span>Request Book Delivery</span>
-								<span>Track My Delivery</span>
+								<strong>{t('footer_popular')}</strong>
+								<span>{t('footer_search_catalog')}</span>
+								<span>{t('footer_request_delivery')}</span>
+								<span>{t('footer_track')}</span>
 							</div>
 							<div>
-								<strong>Quick Links</strong>
-								<span>Terms of Use</span>
-								<span>Privacy Policy</span>
-								<span>How It Works</span>
-								<span>About 같이Go</span>
-								<span>Contact Support</span>
-								<span>FAQs</span>
+								<strong>{t('footer_quick_links')}</strong>
+								<span>{t('footer_terms')}</span>
+								<span>{t('footer_privacy')}</span>
+								<span>{t('footer_how')}</span>
+								<span>{t('footer_about')}</span>
+								<span>{t('footer_contact')}</span>
+								<span>{t('footer_faqs')}</span>
 							</div>
 							<div>
-								<strong>Discover</strong>
-								<span>1F — General Collection</span>
-								<span>2F — Reference & Journals</span>
-								<span>3F — Digital Media</span>
-								<span>4F — Study Rooms</span>
+								<strong>{t('footer_discover')}</strong>
+								<span>{t('footer_floor_1')}</span>
+								<span>{t('footer_floor_2')}</span>
+								<span>{t('footer_floor_3')}</span>
+								<span>{t('footer_floor_4')}</span>
 							</div>
 						</Box>
 					</Stack>
@@ -85,16 +87,16 @@ const Footer = () => {
 							/>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>Library Help Desk</span>
-							<p>INHA University Library</p>
+							<span>{t('footer_helpdesk')}</span>
+							<p>{t('footer_university')}</p>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<span>Robot Support</span>
-							<p>24/7 Autonomous Service</p>
-							<span>같이Go is always on duty.</span>
+							<span>{t('footer_robot_support')}</span>
+							<p>{t('footer_service')}</p>
+							<span>{t('footer_tagline')}</span>
 						</Box>
 						<Box component={'div'} className={'footer-box'}>
-							<p>follow us on social media</p>
+							<p>{t('footer_social')}</p>
 							<div className={'media-box'}>
 								<FacebookOutlinedIcon />
 								<TelegramIcon />
@@ -105,9 +107,9 @@ const Footer = () => {
 					</Stack>
 					<Stack className={'right'}>
 						<Box component={'div'} className={'top'}>
-							<strong>Stay Updated with 같이Go</strong>
+							<strong>{t('footer_newsletter')}</strong>
 							<div style={{ backgroundColor: '#fff' }}>
-								<input type="text" placeholder={'Your Email'} style={{ backgroundColor: '#fff', color: '#000' }} />
+								<input type="text" placeholder={t('footer_email_placeholder')} style={{ backgroundColor: '#fff', color: '#000' }} />
 								<span
 									style={{
 										color: '#fff',
@@ -117,32 +119,32 @@ const Footer = () => {
 										fontWeight: 600,
 									}}
 								>
-									Subscribe
+									{t('footer_subscribe')}
 								</span>
 							</div>
 						</Box>
 						<Box component={'div'} className={'bottom'}>
 							<div>
-								<strong>Popular Search</strong>
-								<span>Search Book Catalog</span>
-								<span>Request Book Delivery</span>
-								<span>Track My Delivery</span>
+								<strong>{t('footer_popular')}</strong>
+								<span>{t('footer_search_catalog')}</span>
+								<span>{t('footer_request_delivery')}</span>
+								<span>{t('footer_track')}</span>
 							</div>
 							<div>
-								<strong>Quick Links</strong>
-								<span>Terms of Use</span>
-								<span>Privacy Policy</span>
-								<span>How It Works</span>
-								<span>About 같이Go</span>
-								<span>Contact Support</span>
-								<span>FAQs</span>
+								<strong>{t('footer_quick_links')}</strong>
+								<span>{t('footer_terms')}</span>
+								<span>{t('footer_privacy')}</span>
+								<span>{t('footer_how')}</span>
+								<span>{t('footer_about')}</span>
+								<span>{t('footer_contact')}</span>
+								<span>{t('footer_faqs')}</span>
 							</div>
 							<div>
-								<strong>Discover</strong>
-								<span>1F — General Collection</span>
-								<span>2F — Reference & Journals</span>
-								<span>3F — Digital Media</span>
-								<span>4F — Study Rooms</span>
+								<strong>{t('footer_discover')}</strong>
+								<span>{t('footer_floor_1')}</span>
+								<span>{t('footer_floor_2')}</span>
+								<span>{t('footer_floor_3')}</span>
+								<span>{t('footer_floor_4')}</span>
 							</div>
 						</Box>
 					</Stack>

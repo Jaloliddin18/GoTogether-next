@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper';
 import WestIcon from '@mui/icons-material/West';
@@ -25,6 +26,7 @@ interface MostBorrowedProps {
 const MostBorrowed = (props: MostBorrowedProps) => {
 	const { initialInput, likeSyncTick = 0, onBookLikeToggled } = props;
 	const device = useDeviceDetect();
+	const { t } = useTranslation('books');
 	const [popularBooks, setPopularBooks] = useState<Book[]>([]);
 	const [likeBook] = useMutation(LIKE_BOOK);
 	const user = useReactiveVar(userVar);
@@ -70,7 +72,7 @@ const MostBorrowed = (props: MostBorrowedProps) => {
 			<Stack className={'popular-properties'}>
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
-						<span>Most Borrowed</span>
+						<span>{t('borrowed_title')}</span>
 					</Stack>
 					<Stack className={'card-box'} sx={{ mt: '18px' }}>
 						<Swiper
@@ -98,13 +100,13 @@ const MostBorrowed = (props: MostBorrowedProps) => {
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
 						<Box component={'div'} className={'left'}>
-							<span>Most Borrowed</span>
-							<p>Top books our students are reading right now</p>
+							<span>{t('borrowed_title')}</span>
+							<p>{t('borrowed_subtitle')}</p>
 						</Box>
 						<Box component={'div'} className={'right'}>
 							<div className={'more-box'}>
 								<Link href={'/books'}>
-									<span>Browse All Books</span>
+									<span>{t('browse_all')}</span>
 								</Link>
 								<img src="/img/icons/rightup.svg" alt="" />
 							</div>

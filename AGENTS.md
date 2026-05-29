@@ -15,6 +15,36 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-29) — i18n strict-gap completion for chat/about/member
+
+### Completed
+- Closed remaining translation gaps in chat UI:
+  - `libs/components/AiChatBubble.tsx`
+  - localized remaining hardcoded title/status text, welcome copy, book action label (`Open`), and assistant image alt text via `t(...)`.
+- Closed remaining About component/page literal gaps:
+  - `libs/components/about/AboutArchitectureSection.tsx`
+  - `libs/components/about/AboutLogoCloudSection.tsx`
+  - `pages/about/index.tsx`
+  - localized residual architecture/logo-cloud text, prototype description labels, prototype scope note, and crisis label (`avg book search`).
+- Closed remaining member-page literal gaps:
+  - `pages/member/[memberId].tsx`
+  - localized back-button aria label, joined label, and post-count paginator text (`posts_count` pluralization).
+- Appended required locale keys (append-only) in:
+  - `public/locales/{en,kr,ru}/common.json`
+  - `public/locales/{en,kr,ru}/about.json`
+  - `public/locales/{en,kr,ru}/member.json`.
+
+### Verification
+- Did not run build (no explicit build request).
+- Verified touched locale files are valid JSON (`JSON.parse`).
+- Verified newly added translation keys exist across `en/kr/ru`.
+- Re-ran targeted grep for previously flagged hardcoded literals in chat/about/member targets and confirmed no matches.
+
+### Key rules
+- For translation completion tasks, include accessibility-facing UI strings (`alt`, `aria-label`) unless explicitly excluded.
+- Keep locale JSON updates append-only and preserve 2-space indentation.
+- For strict-gap i18n passes, run targeted grep against flagged literals after wiring to avoid partial completion.
+
 ## Session Update (2026-05-28) — Live tracking dock-origin simulation and terminal reroute correction
 
 ### Completed

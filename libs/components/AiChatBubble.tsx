@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
+import { useTranslation } from 'next-i18next';
 
 interface ChatBookSuggestion {
 	bookId: string;
@@ -32,12 +33,7 @@ const CHAT_API = `${API_BASE_URL}/chat/message`;
 const BOOK_FALLBACK_IMAGE = '/img/profile/defaultUser.svg';
 const CHAT_STORAGE_KEY = 'gachi_go_ai_chat_state';
 const CHAT_TTL_MS = 15 * 60 * 1000;
-const QUICK_PROMPTS = [
-	'Recommend borrowable engineering books',
-	'Find Korean language study books',
-	'Which books can I purchase?',
-	'What does READY mean for robot delivery?',
-];
+const QUICK_PROMPT_KEYS = ['chat_suggest_1', 'chat_suggest_2', 'chat_suggest_3', 'chat_suggest_4'] as const;
 
 const resolveBookImage = (image?: string): string => {
 	if (!image) return BOOK_FALLBACK_IMAGE;
@@ -117,11 +113,13 @@ const TrashIcon = () => (
 );
 
 const AiChatBubble: React.FC = () => {
+	const { t } = useTranslation('common');
 	const router = useRouter();
 	const [open, setOpen] = useState(false);
 	const [messages, setMessages] = useState<ChatMsg[]>([]);
 	const [input, setInput] = useState('');
 	const [loading, setLoading] = useState(false);
+	const quickPrompts = QUICK_PROMPT_KEYS.map((key) => t(key));
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -159,7 +157,7 @@ const AiChatBubble: React.FC = () => {
 			});
 			setMessages([...updatedHistory, { role: 'assistant', content: data.reply, books: data.books ?? [] }]);
 		} catch {
-			setMessages([...updatedHistory, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }]);
+			setMessages([...updatedHistory, { role: 'assistant', content: t('chat_error') }]);
 		} finally {
 			setLoading(false);
 		}
@@ -187,11 +185,11 @@ const AiChatBubble: React.FC = () => {
 		}
 	};
 
-	return (
-		<>
-			<button className="ai-chat-bubble-btn" onClick={() => setOpen((v) => !v)} aria-label="Open library assistant">
-				<Image src="/img/logo/final_favicon1.png" alt="Library Assistant" width={40} height={40} />
-			</button>
+		return (
+			<>
+				<button className="ai-chat-bubble-btn" onClick={() => setOpen((v) => !v)} aria-label={t('chat_open')}>
+					<Image src="/img/logo/final_favicon1.png" alt={t('chat_assistant_alt')} width={40} height={40} />
+				</button>
 
 			<AnimatePresence>
 				{open && (
@@ -203,15 +201,15 @@ const AiChatBubble: React.FC = () => {
 						transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
 					>
 						<div className="ai-chat-header">
-							<div className="ai-chat-header-left">
-								<div className="ai-chat-avatar">
-									<Image src="/img/logo/final_favicon1.png" alt="Library Assistant" width={34} height={34} />
+								<div className="ai-chat-header-left">
+									<div className="ai-chat-avatar">
+										<Image src="/img/logo/final_favicon1.png" alt={t('chat_assistant_alt')} width={34} height={34} />
+									</div>
+									<div>
+										<div className="ai-chat-title">{t('chat_title')}</div>
+										<div className="ai-chat-status">{t('chat_status')}</div>
+									</div>
 								</div>
-								<div>
-									<div className="ai-chat-title">같이Go Assistant</div>
-									<div className="ai-chat-status">Smart Library Help</div>
-								</div>
-							</div>
 							<div className="ai-chat-header-actions">
 								{messages.length > 0 && (
 									<button
@@ -219,27 +217,27 @@ const AiChatBubble: React.FC = () => {
 											setMessages([]);
 											saveStoredMessages([]);
 										}}
-										aria-label="Clear chat"
-										title="Clear chat"
+										aria-label={t('chat_clear')}
+										title={t('chat_clear')}
 									>
 										<TrashIcon />
 									</button>
 								)}
-								<button onClick={() => setOpen(false)} aria-label="Close chat">
+								<button onClick={() => setOpen(false)} aria-label={t('chat_close')}>
 									<CloseIcon />
 								</button>
 							</div>
 						</div>
 
 						<div className="ai-chat-messages">
-							{messages.length === 0 && !loading ? (
-								<div className="ai-chat-welcome">
-									<div className="ai-welcome-icon">
-										<Image src="/img/logo/final_favicon1.png" alt="Library Assistant" width={42} height={42} />
-									</div>
-									<p>Hi! I'm your 같이Go Library Assistant. Ask me about books, borrowing, robot delivery, or how to navigate the app.</p>
-									<div className="ai-chat-quick-prompts">
-										{QUICK_PROMPTS.map((prompt) => (
+								{messages.length === 0 && !loading ? (
+									<div className="ai-chat-welcome">
+										<div className="ai-welcome-icon">
+											<Image src="/img/logo/final_favicon1.png" alt={t('chat_assistant_alt')} width={42} height={42} />
+										</div>
+										<p>{t('chat_welcome')}</p>
+										<div className="ai-chat-quick-prompts">
+										{quickPrompts.map((prompt) => (
 											<button key={prompt} type="button" onClick={() => applyQuickPrompt(prompt)}>
 												{prompt}
 											</button>
@@ -273,9 +271,9 @@ const AiChatBubble: React.FC = () => {
 																				{book.category && <em>{formatBookLabel(book.category)}</em>}
 																				{book.callNumber && <em>{book.callNumber}</em>}
 																			</span>
-																			<span className="ai-chat-book-actions">
-																				<em>Open</em>
-																			</span>
+																				<span className="ai-chat-book-actions">
+																					<em>{t('chat_open_book')}</em>
+																				</span>
 																		</span>
 																	</div>
 																))}
@@ -296,7 +294,7 @@ const AiChatBubble: React.FC = () => {
 													<span />
 													<span />
 												</div>
-												<small>Searching the live catalog</small>
+												<small>{t('chat_searching')}</small>
 											</div>
 										</div>
 									)}
@@ -309,7 +307,7 @@ const AiChatBubble: React.FC = () => {
 							<textarea
 								ref={inputRef}
 								rows={1}
-								placeholder="Ask about books, borrowing, delivery…"
+								placeholder={t('chat_placeholder')}
 								value={input}
 								onChange={(e) => {
 									setInput(e.target.value);
@@ -319,7 +317,7 @@ const AiChatBubble: React.FC = () => {
 								onKeyDown={handleKeyDown}
 								disabled={loading}
 							/>
-							<button className="ai-chat-send-btn" onClick={() => sendMessage()} disabled={!input.trim() || loading} aria-label="Send">
+							<button className="ai-chat-send-btn" onClick={() => sendMessage()} disabled={!input.trim() || loading} aria-label={t('send')}>
 								<SendIcon />
 							</button>
 						</div>

@@ -7,6 +7,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useReactiveVar } from '@apollo/client';
+import type { TFunction } from 'i18next';
 import { userVar } from '../../apollo/store';
 import AboutHeroSection from '../../libs/components/about/AboutHeroSection';
 import AboutArchitectureSection from '../../libs/components/about/AboutArchitectureSection';
@@ -36,20 +37,19 @@ const SPEC_ROWS = [
 	{ key: 'Prototype Goal', val: 'Validate request-to-delivery behavior in a school demo setting' },
 ] as const;
 
-const RobotPrototypeSection = () => (
+type AboutTranslate = TFunction;
+
+const RobotPrototypeSection = ({ t }: { t: AboutTranslate }) => (
 	<section className={'robot-showcase'} aria-labelledby={'robot-prototype-title'}>
 		<div className={'container'}>
 			<div className={'section-heading'}>
-				<h2 id={'robot-prototype-title'}>Built to prove library delivery from request to pickup</h2>
-				<p>
-					같이Go uses a TurtleBot-based prototype to test how a student book request can become a real robot task. The
-					goal is not to claim production deployment, but to validate the core delivery loop for a capstone demo.
-				</p>
+				<h2 id={'robot-prototype-title'}>{t('demo_title')}</h2>
+				<p>{t('prototype_description')}</p>
 			</div>
 			<div className={'robot-cols'}>
-				<div className={'robot-visual-col'} aria-label={'Robot prototype visual summary'}>
+				<div className={'robot-visual-col'} aria-label={t('prototype_visual_aria')}>
 					<div className={'robot-visual-card'}>
-						<img className={'robot-frame-image'} src={'/img/logo/robot3.png'} alt={'TurtleBot delivery assistant'} />
+						<img className={'robot-frame-image'} src={'/img/logo/robot3.png'} alt={t('prototype_robot_alt')} />
 					</div>
 				</div>
 				<div className={'robot-specs-col'}>
@@ -68,202 +68,198 @@ const RobotPrototypeSection = () => (
 	</section>
 );
 
-const PrototypeScopeSection = () => (
+const PrototypeScopeSection = ({ t }: { t: AboutTranslate }) => (
 	<div className={'prototype-scope'}>
 		<div className={'ps-container'}>
 			<div className={'section-heading'}>
-				<h2>What the School Project Demonstrates</h2>
-				<p>These figures describe the current prototype scope, not commercial deployment metrics.</p>
+				<h2>{t('demo_subtitle')}</h2>
+				<p>{t('prototype_scope_note')}</p>
 			</div>
 
 			<div className={'ps-strip'}>
 				<div className={'ps-stat-item'}>
 					<span className={'ps-number'}>50+</span>
-					<span className={'ps-label'}>Catalog records</span>
+					<span className={'ps-label'}>{t('demo_stat1')}</span>
 				</div>
 
 				<div className={'ps-divider'} />
 
 				<div className={'ps-stat-item'}>
 					<span className={'ps-number'}>15-20</span>
-					<span className={'ps-label'}>Physical demo books</span>
+					<span className={'ps-label'}>{t('demo_stat2')}</span>
 				</div>
 
 				<div className={'ps-divider'} />
 
 				<div className={'ps-stat-item'}>
 					<span className={'ps-number'}>1</span>
-					<span className={'ps-label'}>TurtleBot prototype</span>
+					<span className={'ps-label'}>{t('demo_stat3')}</span>
 				</div>
 
 				<div className={'ps-divider'} />
 
 				<div className={'ps-stat-item'}>
 					<span className={'ps-number'}>2</span>
-					<span className={'ps-label'}>Request flows — borrow and purchase</span>
+					<span className={'ps-label'}>{t('demo_stat4')}</span>
 				</div>
 
 				<div className={'ps-divider'} />
 
 				<div className={'ps-stat-item'}>
 					<span className={'ps-number'}>Live</span>
-					<span className={'ps-label'}>Real-time robot telemetry</span>
+					<span className={'ps-label'}>{t('demo_stat5')}</span>
 				</div>
 			</div>
 		</div>
 	</div>
 );
 
-const SimplePricingSection = () => (
+const SimplePricingSection = ({ t }: { t: AboutTranslate }) => (
 	<div className={'business-model'}>
 		<div className={'bm-container'}>
 			<div className={'bm-heading'}>
-				<h2>Pricing Framework</h2>
-				<p>A complete deployment package for any institution.</p>
+				<h2>{t('pricing_title')}</h2>
+				<p>{t('pricing_subtitle')}</p>
 			</div>
 
 			<div className={'bm-table'}>
 				<div className={'bm-header'}>
-					<div className={'bm-col-name'}>Tier</div>
-					<div className={'bm-col-included'}>What is included</div>
-					<div className={'bm-col-details'}>Details</div>
-					<div className={'bm-col-price'}>Price</div>
+					<div className={'bm-col-name'}>{t('pricing_col_tier')}</div>
+					<div className={'bm-col-included'}>{t('pricing_col_includes')}</div>
+					<div className={'bm-col-details'}>{t('pricing_col_details')}</div>
+					<div className={'bm-col-price'}>{t('pricing_col_price')}</div>
 				</div>
 
 				<div className={'bm-row'}>
 					<div className={'bm-col-name'}>
-						<span className={'bm-tier-title'}>Hardware Unit</span>
-						<span className={'bm-tier-sub'}>Per deployment unit</span>
+						<span className={'bm-tier-title'}>{t('pricing_tier1_name')}</span>
+						<span className={'bm-tier-sub'}>{t('pricing_tier1_billing')}</span>
 					</div>
 					<div className={'bm-col-included'}>
-						<span>Autonomous Mobile Robot</span>
-						<span>Navigation system</span>
-						<span>UI/UX interface</span>
-						<span>Book interface</span>
+						<span>{t('pricing_tier1_feat1')}</span>
+						<span>{t('pricing_tier1_feat2')}</span>
+						<span>{t('pricing_tier1_feat3')}</span>
+						<span>{t('pricing_tier1_feat4')}</span>
 					</div>
-					<div className={'bm-col-details'}>One-time hardware purchase per deployment unit</div>
-					<div className={'bm-col-price'}>$8,000</div>
+					<div className={'bm-col-details'}>{t('pricing_tier1_desc')}</div>
+					<div className={'bm-col-price'}>{t('pricing_tier1_price')}</div>
 				</div>
 
 				<div className={'bm-row bm-row--featured'}>
 					<div className={'bm-col-name'}>
-						<span className={'bm-tier-title'}>System Infrastructure</span>
-						<span className={'bm-tier-sub'}>Core platform</span>
+						<span className={'bm-tier-title'}>{t('pricing_tier2_name')}</span>
+						<span className={'bm-tier-sub'}>{t('pricing_tier2_billing')}</span>
 					</div>
 					<div className={'bm-col-included'}>
-						<span>Sorting and Charging Hub</span>
-						<span>Database and API integration</span>
-						<span>Analytics dashboard</span>
-						<span>Multi-robot support</span>
+						<span>{t('pricing_tier2_feat1')}</span>
+						<span>{t('pricing_tier2_feat2')}</span>
+						<span>{t('pricing_tier2_feat3')}</span>
+						<span>{t('pricing_tier2_feat4')}</span>
 					</div>
-					<div className={'bm-col-details'}>
-						Core platform powering the full delivery lifecycle and management layer
-					</div>
-					<div className={'bm-col-price'}>$45,000</div>
+					<div className={'bm-col-details'}>{t('pricing_tier2_desc')}</div>
+					<div className={'bm-col-price'}>{t('pricing_tier2_price')}</div>
 				</div>
 
 				<div className={'bm-row'}>
 					<div className={'bm-col-name'}>
-						<span className={'bm-tier-title'}>Operations</span>
-						<span className={'bm-tier-sub'}>Annual subscription</span>
+						<span className={'bm-tier-title'}>{t('pricing_tier3_name')}</span>
+						<span className={'bm-tier-sub'}>{t('pricing_tier3_billing')}</span>
 					</div>
 					<div className={'bm-col-included'}>
-						<span>SaaS license</span>
-						<span>Maintenance and AI updates</span>
-						<span>24/7 support</span>
-						<span>Incident response</span>
+						<span>{t('pricing_tier3_feat1')}</span>
+						<span>{t('pricing_tier3_feat2')}</span>
+						<span>{t('pricing_tier3_feat3')}</span>
+						<span>{t('pricing_tier3_feat4')}</span>
 					</div>
-					<div className={'bm-col-details'}>Annual subscription — keeps the system current and supported</div>
-					<div className={'bm-col-price'}>$5,000 / yr</div>
+					<div className={'bm-col-details'}>{t('pricing_tier3_desc')}</div>
+					<div className={'bm-col-price'}>{t('pricing_tier3_price')}</div>
 				</div>
 			</div>
 
-			<p className={'bm-footer'}>
-				All tiers can be combined into a full deployment package. Contact us for institutional pricing.
-			</p>
+			<p className={'bm-footer'}>{t('pricing_footer')}</p>
 		</div>
 	</div>
 );
 
-const MarketResearchSection = () => (
+const MarketResearchSection = ({ t }: { t: AboutTranslate }) => (
 	<section className={'market-research'}>
 		<div className={'mr-container'}>
 			{/* Heading */}
 			<div className={'mr-heading'}>
-				<h2>Market Research</h2>
+				<h2>{t('market_research_title')}</h2>
 			</div>
 
 			{/* Block 1 — Metric cards */}
 			<div className={'mr-metric-grid'}>
 				<div className={'mr-metric-card'}>
-					<span className={'mr-label'}>MARKET GROWTH POTENTIAL</span>
-					<span className={'mr-value'}>$5.5B</span>
-					<span className={'mr-sub'}>Projected value (2031)</span>
-					<span className={'mr-detail'}>CAGR: 14.7% | from $2.3B in 2024</span>
+					<span className={'mr-label'}>{t('market_growth_label')}</span>
+					<span className={'mr-value'}>{t('market_value')}</span>
+					<span className={'mr-sub'}>{t('market_projected')}</span>
+					<span className={'mr-detail'}>{t('market_cagr_detail')}</span>
 				</div>
 				<div className={'mr-metric-card'}>
-					<span className={'mr-label'}>FINANCIAL VIABILITY (ROI)</span>
-					<span className={'mr-value'}>1.5–2 years</span>
-					<span className={'mr-sub'}>Anticipated payback window</span>
-					<span className={'mr-detail'}>vs 8+ years for competitors</span>
+					<span className={'mr-label'}>{t('roi_title')}</span>
+					<span className={'mr-value'}>{t('roi_value')}</span>
+					<span className={'mr-sub'}>{t('roi_label')}</span>
+					<span className={'mr-detail'}>{t('roi_detail')}</span>
 				</div>
 			</div>
 
 			{/* Block 2 — Library Crisis */}
-			<div className={'mr-block-label'}>QUANTIFYING THE LIBRARY CRISIS</div>
-			<div className={'mr-crisis-grid'}>
+			<div className={'mr-block-label'}>{t('crisis_title')}</div>
+				<div className={'mr-crisis-grid'}>
+					<div className={'mr-crisis-cell'}>
+						<span className={'mr-crisis-stat'}>12–18 MIN</span>
+						<span className={'mr-crisis-label'}>{t('crisis_avg_search_label')}</span>
+						<span className={'mr-crisis-sub'}>{t('crisis_abandonment')}</span>
+					</div>
 				<div className={'mr-crisis-cell'}>
-					<span className={'mr-crisis-stat'}>12–18 MIN</span>
-					<span className={'mr-crisis-label'}>avg book search</span>
-					<span className={'mr-crisis-sub'}>60% abandonment rate</span>
+					<span className={'mr-crisis-stat'}>{t('crisis_vacancy')}</span>
+					<span className={'mr-crisis-label'}>{t('crisis_vacancy_label')}</span>
+					<span className={'mr-crisis-sub'}>{t('crisis_hours')}</span>
 				</div>
 				<div className={'mr-crisis-cell'}>
-					<span className={'mr-crisis-stat'}>38%</span>
-					<span className={'mr-crisis-label'}>staff vacancy</span>
-					<span className={'mr-crisis-sub'}>cannot extend operating hours</span>
+					<span className={'mr-crisis-stat'}>{t('crisis_misplaced')}</span>
+					<span className={'mr-crisis-label'}>{t('crisis_misplaced_label')}</span>
+					<span className={'mr-crisis-sub'}>{t('crisis_audit')}</span>
 				</div>
 				<div className={'mr-crisis-cell'}>
-					<span className={'mr-crisis-stat'}>12–18%</span>
-					<span className={'mr-crisis-label'}>misplaced books</span>
-					<span className={'mr-crisis-sub'}>manual audit constraints</span>
-				</div>
-				<div className={'mr-crisis-cell'}>
-					<span className={'mr-crisis-stat'}>40–50%</span>
-					<span className={'mr-crisis-label'}>collection uncirculated</span>
-					<span className={'mr-crisis-sub'}>due to poor visibility</span>
+					<span className={'mr-crisis-stat'}>{t('crisis_uncirculated')}</span>
+					<span className={'mr-crisis-label'}>{t('crisis_uncirculated_label')}</span>
+					<span className={'mr-crisis-sub'}>{t('crisis_visibility')}</span>
 				</div>
 			</div>
 
 			{/* Block 3 — Competitive Advantage */}
-			<div className={'mr-block-label'}>STRATEGIC COMPETITIVE ADVANTAGE</div>
+			<div className={'mr-block-label'}>{t('competitive_title')}</div>
 			<div className={'mr-compete-rows'}>
 				<div className={'mr-compete-row mr-compete-row--danger'}>
 					<div className={'mr-compete-left'}>
-						<span className={'mr-compete-title'}>Competing Solutions</span>
-						<span className={'mr-compete-sub'}>ShelveBot · GoLibris · BiblioTech</span>
+						<span className={'mr-compete-title'}>{t('competitive_others_label')}</span>
+						<span className={'mr-compete-sub'}>{t('competitive_others_names')}</span>
 					</div>
-					<span className={'mr-compete-right'}>$100k–$300k · 6–18 month deployment</span>
+					<span className={'mr-compete-right'}>{t('competitive_others_cost')}</span>
 				</div>
 				<div className={'mr-compete-row mr-compete-row--success'}>
 					<div className={'mr-compete-left'}>
-						<span className={'mr-compete-title'}>같이Go Smart Library Assistant</span>
-						<span className={'mr-compete-sub'}>75% cheaper · 1–2 month rapid deployment</span>
+						<span className={'mr-compete-title'}>{t('competitive_ours_label')}</span>
+						<span className={'mr-compete-sub'}>{t('competitive_ours_advantage')}</span>
 					</div>
-					<span className={'mr-compete-price'}>$25k–$50k</span>
+					<span className={'mr-compete-price'}>{t('competitive_ours_cost')}</span>
 				</div>
 			</div>
 
 			{/* Block 4 — Go-to-Market */}
-			<div className={'mr-block-label'}>GO-TO-MARKET</div>
+			<div className={'mr-block-label'}>{t('gtm_title')}</div>
 			<div className={'mr-gtm-phases'}>
-				<div className={'mr-phase-box'}>Universities</div>
+				<div className={'mr-phase-box'}>{t('gtm_phase1')}</div>
 				<span className={'mr-phase-arrow'}>&gt;</span>
-				<div className={'mr-phase-box'}>10–15 Institutions</div>
+				<div className={'mr-phase-box'}>{t('gtm_phase2')}</div>
 				<span className={'mr-phase-arrow'}>&gt;</span>
-				<div className={'mr-phase-box'}>Global Expansion</div>
+				<div className={'mr-phase-box'}>{t('gtm_phase3')}</div>
 			</div>
 			<div className={'mr-gtm-pill-wrap'}>
-				<span className={'mr-gtm-pill'}>4,000+ academic libraries · 17,000+ public library branches</span>
+				<span className={'mr-gtm-pill'}>{t('gtm_phase3_desc')}</span>
 			</div>
 		</div>
 	</section>
@@ -279,11 +275,11 @@ const About: NextPage = () => {
 		return (
 			<Stack className={'about-page'}>
 				<AboutHeroSection headline={t('hero_headline')} subtitle={t('hero_sub')} ctaLabel={t('hero_cta')} />
-				<MarketResearchSection />
+				<MarketResearchSection t={t} />
 				<AboutArchitectureSection />
-				<RobotPrototypeSection />
-				<PrototypeScopeSection />
-				<SimplePricingSection />
+				<RobotPrototypeSection t={t} />
+				<PrototypeScopeSection t={t} />
+				<SimplePricingSection t={t} />
 				<AboutLogoCloudSection />
 			</Stack>
 		);
@@ -295,19 +291,19 @@ const About: NextPage = () => {
 			<AboutHeroSection headline={t('hero_headline')} subtitle={t('hero_sub')} ctaLabel={t('hero_cta')} />
 
 			{/* ── 2. MARKET RESEARCH — establish the problem first ─────────────── */}
-			<MarketResearchSection />
+			<MarketResearchSection t={t} />
 
 			{/* ── 3. SYSTEM ARCHITECTURE — show the solution ───────────────────── */}
 			<AboutArchitectureSection />
 
 			{/* ── 4. ROBOT PROTOTYPE — bring the architecture to life ─────────── */}
-			<RobotPrototypeSection />
+			<RobotPrototypeSection t={t} />
 
 			{/* ── 5. PROTOTYPE SCOPE — honest capstone scoping ─────────────────── */}
-			<PrototypeScopeSection />
+			<PrototypeScopeSection t={t} />
 
 			{/* ── 6. PRICING — value is clear now ──────────────────────────────── */}
-			<SimplePricingSection />
+			<SimplePricingSection t={t} />
 
 			{/* ── 10. TECH STACK ───────────────────────────────────────────────── */}
 			<section className={'tech-stack'}>
@@ -339,8 +335,8 @@ const About: NextPage = () => {
 			<div className={'team-section'}>
 				<div className={'team-container'}>
 					<div className={'section-heading'}>
-						<h2>The Team</h2>
-						<p>Eight students, one robot, one mission.</p>
+						<h2>{t('team_title')}</h2>
+						<p>{t('team_subtitle')}</p>
 					</div>
 					<div className={'team-grid'}>
 						{TEAM.map((member, i) => (
@@ -384,7 +380,7 @@ const About: NextPage = () => {
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common', 'about'])),
+		...(await serverSideTranslations(locale, ['common', 'about', 'layout'])),
 	},
 });
 

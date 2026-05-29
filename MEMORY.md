@@ -1,9 +1,45 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-28
+**Last Updated:** 2026-05-29
 **Current Branch:** `admin`
 
 ---
+
+## Today's Session Update (2026-05-29, i18n strict-gap completion for chat/about/member)
+
+### Completed today
+- Closed remaining Task 9/10/member translation gaps with `t(...)` wiring in:
+  - `libs/components/AiChatBubble.tsx`
+  - `libs/components/about/AboutArchitectureSection.tsx`
+  - `libs/components/about/AboutLogoCloudSection.tsx`
+  - `pages/about/index.tsx`
+  - `pages/member/[memberId].tsx`
+- Chat (`common`) completion:
+  - localized remaining hardcoded strings: title/status, welcome copy, `Open` action label, and assistant image alt text.
+- About (`about`) completion:
+  - localized remaining hardcoded architecture/logo-cloud texts and labels.
+  - localized residual visible literals in page scope: prototype description/labels, prototype-scope note, and `avg book search` crisis label.
+- Member (`member`) completion:
+  - localized `Go back` aria label, `Joined` label, and post-count paginator text with pluralized `posts_count`.
+- Locale updates were append-only and 2-space indented in:
+  - `public/locales/{en,kr,ru}/common.json`
+  - `public/locales/{en,kr,ru}/about.json`
+  - `public/locales/{en,kr,ru}/member.json`.
+
+### Verification
+- Per project rule, did not run build.
+- Verified all touched locale files parse via Node `JSON.parse` (`JSON_OK`).
+- Verified newly added keys exist in all required locale files (`KEYS_OK`).
+- Re-ran targeted grep for previously flagged hardcoded literals in chat/about/member targets and confirmed no remaining matches.
+
+### Current stopping point
+- Strict-gap translation scope is now fully wired for the flagged chat/about/member surfaces and locale keys are present in `en/kr/ru`.
+
+### Exact next task
+- Runtime language-switch QA (`en/kr/ru`) on:
+  - AI chat bubble UI text/accessibility labels
+  - `/about` architecture/prototype/logo-cloud sections
+  - `/member/[memberId]` back label, joined label, and post-count text.
 
 ## Today's Session Update (2026-05-28, live tracking dock-origin simulation fix + terminal reroute correction)
 
@@ -43,6 +79,45 @@
   - DELIVERING -> shelf to destination progression
   - COMPLETED -> destination freeze
   - CANCELLED/FAILED mid-route -> reroute to dock from current displayed position.
+
+## Today's Session Update (2026-05-29, i18n translation continuation Tasks 6–10)
+
+### Completed today
+- Verified Task 6 (`mypage` namespace) was already fully wired and matching requested locale keys/usage:
+  - `public/locales/{en,kr,ru}/mypage.json`
+  - `libs/components/mypage/MyMenu.tsx`
+  - `pages/mypage/index.tsx`.
+- Completed Task 7 (`member` namespace) wiring updates:
+  - `pages/member/index.tsx` now loads `member` namespace and uses translated toasts/mobile placeholder
+  - `pages/member/[memberId].tsx` now loads `member` namespace and replaces requested UI strings (tabs, follow button labels, stats, loading/empty states, rail labels/search placeholder, default profile fallback).
+- Completed Task 8 (`cs` namespace) wiring updates:
+  - `libs/components/cs/Terms.tsx`
+  - `libs/components/cs/Faq.tsx`
+  - `libs/components/cs/Notice.tsx`
+  - `pages/cs/index.tsx` now loads `['common', 'layout', 'cs']` and uses translated heading/tab labels.
+- Completed Task 9 About locale extension + key wiring:
+  - appended requested key set to `public/locales/{en,kr,ru}/about.json` (append-only)
+  - wired matching hardcoded strings to `t('about:*')` in:
+    - `pages/about/index.tsx`
+    - `libs/components/about/AboutHeroSection.tsx`.
+- Completed Task 10 chat/common updates:
+  - appended requested chat keys to `public/locales/{en,kr,ru}/common.json` (append-only)
+  - wired `libs/components/AiChatBubble.tsx` with `useTranslation('common')` for chat open/clear/close/error/placeholder/searching/suggestions strings.
+
+### Verification
+- Per project rule, did not run build.
+- Parsed all touched locale JSON files with Node `JSON.parse` check (`ok`).
+- Verified namespace wiring presence via `rg` for member/cs/about/chat targets.
+
+### Current stopping point
+- i18n Tasks 6–10 are implemented in the frontend with append-only locale updates and targeted component/page wiring.
+
+### Exact next task
+- Runtime QA across language switch (`en/kr/ru`) for:
+  - `/member` and `/member/[memberId]`
+  - `/cs`
+  - `/about`
+  - AI chat bubble UI copy and suggestion prompts.
 
 ## Today's Session Update (2026-05-28, admin lost-items WATCH/AIRPODS object-type support)
 

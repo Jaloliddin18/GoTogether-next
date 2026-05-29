@@ -120,7 +120,7 @@ const Top = () => {
 	const NOTIFICATION_BOOK_FALLBACK = '/img/banner/books_hero.png';
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
-	const { t } = useTranslation('common');
+	const { t } = useTranslation(['common', 'layout']);
 	const router = useRouter();
 	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
 	const [lang, setLang] = useState<string | null>('en');
@@ -350,13 +350,13 @@ const Top = () => {
 	const getRequestDetailText = (requestType?: string, destinationDeskId?: string, fallbackMessage?: string): string => {
 		const normalizedDeskId = destinationDeskId?.trim();
 		if (requestType === RequestType.BORROW) {
-			return normalizedDeskId ? `Borrow request · Desk ${normalizedDeskId}` : 'Borrow request · Student desk delivery';
+			return normalizedDeskId ? t('layout:borrow_request', { id: normalizedDeskId }) : t('layout:borrow_request_no_desk');
 		}
 		if (requestType === RequestType.PURCHASE) {
-			return 'Purchase request · Reception delivery';
+			return t('layout:purchase_request');
 		}
 		if (fallbackMessage?.trim()) return fallbackMessage.trim();
-		return 'Delivery request update';
+		return t('layout:notifications_delivery_update');
 	};
 
 	const getStatusLabel = (status?: string): string => {
@@ -417,7 +417,7 @@ const Top = () => {
 				saveRobotNotifications(next);
 				return next;
 			});
-			await sweetTopSmallSuccessAlert('Request cancelled. Robot returning to idle.', 1200);
+			await sweetTopSmallSuccessAlert(t('layout:notifications_returning'), 1200);
 		} catch (err: any) {
 			const message = err?.message ?? 'Failed to cancel request';
 			setCancelErrors((prev) => ({ ...prev, [notification.requestId]: message }));
@@ -455,7 +455,7 @@ const Top = () => {
 				saveRobotNotifications(next);
 				return next;
 			});
-			await sweetTopSmallSuccessAlert('Request marked as completed.', 1100);
+			await sweetTopSmallSuccessAlert(t('layout:notifications_completed'), 1100);
 		} catch (err: any) {
 			const message = err?.message ?? 'Failed to mark request as completed';
 			setCompleteErrors((prev) => ({ ...prev, [notification.requestId]: message }));
@@ -582,7 +582,7 @@ const Top = () => {
 								e.stopPropagation();
 								dismissNotification(notification.requestId);
 							}}
-							aria-label="Dismiss notification"
+							aria-label={t('layout:notifications_dismiss')}
 						>
 							×
 						</button>
@@ -637,10 +637,10 @@ const Top = () => {
 					<div>{t('Home')}</div>
 				</Link>
 				<Link href={'/books'}>
-					<div>Books</div>
+					<div>{t('layout:nav_books')}</div>
 				</Link>
 				<Link href={'/about'}>
-					<div> About Us </div>
+					<div>{t('layout:nav_about')}</div>
 				</Link>
 				<Link href={'/community'}>
 					<div> {t('Community')} </div>
@@ -649,7 +649,7 @@ const Top = () => {
 					<div> {t('CS')} </div>
 				</Link>
 				{canShowRobotBell && (
-					<button className="mobile-notification-button" type="button" onClick={openNotificationPanel} aria-label="Open robot notifications">
+					<button className="mobile-notification-button" type="button" onClick={openNotificationPanel} aria-label={t('layout:notifications_open')}>
 						<NotificationsOutlinedIcon />
 						{robotNotifications.length > 0 && <span>{Math.min(robotNotifications.length, 9)}</span>}
 					</button>
@@ -658,8 +658,8 @@ const Top = () => {
 				<aside className={`robot-notification-panel ${notificationOpen ? 'open' : ''}`} aria-hidden={!notificationOpen}>
 					<div className="robot-panel-head">
 						<div>
-							<p>Robot Updates</p>
-							<span>{trackingConnected ? 'Live connection active' : 'Waiting for robot signal'}</span>
+							<p>{t('layout:notifications_title')}</p>
+							<span>{trackingConnected ? t('layout:notifications_live') : t('layout:notifications_waiting')}</span>
 						</div>
 						<div className="robot-panel-tools">
 							{robotNotifications.length > 0 && (
@@ -671,7 +671,7 @@ const Top = () => {
 										saveRobotNotifications([]);
 									}}
 								>
-									Clear all
+									{t('layout:notifications_clear')}
 								</button>
 							)}
 							<IconButton className="robot-panel-close" onClick={closeNotificationPanel} aria-label="Close robot notifications">
@@ -711,10 +711,10 @@ const Top = () => {
 								<div>{t('Home')}</div>
 							</Link>
 							<Link href={'/books'}>
-								<div>Books</div>
+								<div>{t('layout:nav_books')}</div>
 							</Link>
 							<Link href={'/about'}>
-								<div> About Us </div>
+								<div>{t('layout:nav_about')}</div>
 							</Link>
 							<Link href={'/community'}>
 								<div> {t('Community')} </div>
@@ -768,7 +768,7 @@ const Top = () => {
 
 							<div className={'lan-box'}>
 								{canShowRobotBell && (
-									<IconButton className="notification-button" onClick={openNotificationPanel} aria-label="Open robot notifications">
+									<IconButton className="notification-button" onClick={openNotificationPanel} aria-label={t('layout:notifications_open')}>
 										<Badge
 											badgeContent={robotNotifications.length}
 											color="error"
@@ -803,7 +803,7 @@ const Top = () => {
 											id="en"
 											alt={'usaFlag'}
 										/>
-										{t('English')}
+										{t('layout:lang_en')}
 									</MenuItem>
 									<MenuItem disableRipple onClick={langChoice} id="kr">
 										<img
@@ -813,7 +813,7 @@ const Top = () => {
 											id="uz"
 											alt={'koreanFlag'}
 										/>
-										{t('Korean')}
+										{t('layout:lang_kr')}
 									</MenuItem>
 									<MenuItem disableRipple onClick={langChoice} id="ru">
 										<img
@@ -823,7 +823,7 @@ const Top = () => {
 											id="ru"
 											alt={'russiaFlag'}
 										/>
-										{t('Russian')}
+										{t('layout:lang_ru')}
 									</MenuItem>
 								</StyledMenu>
 							</div>
@@ -834,8 +834,8 @@ const Top = () => {
 				<aside className={`robot-notification-panel ${notificationOpen ? 'open' : ''}`} aria-hidden={!notificationOpen}>
 					<div className="robot-panel-head">
 						<div>
-							<p>Robot Updates</p>
-							<span>{trackingConnected ? 'Live connection active' : 'Waiting for robot signal'}</span>
+							<p>{t('layout:notifications_title')}</p>
+							<span>{trackingConnected ? t('layout:notifications_live') : t('layout:notifications_waiting')}</span>
 						</div>
 						<div className="robot-panel-tools">
 							{robotNotifications.length > 0 && (
@@ -847,7 +847,7 @@ const Top = () => {
 										saveRobotNotifications([]);
 									}}
 								>
-									Clear all
+									{t('layout:notifications_clear')}
 								</button>
 							)}
 							<IconButton className="robot-panel-close" onClick={closeNotificationPanel} aria-label="Close robot notifications">
