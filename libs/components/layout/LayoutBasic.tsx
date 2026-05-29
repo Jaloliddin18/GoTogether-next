@@ -64,6 +64,11 @@ const withLayoutBasic = (Component: any) => {
 					desc = 'We are glad to see you again!';
 					bgImage = '/img/property/customer-support.jpg';
 					break;
+				case '/demo-restricted':
+					title = 'Demo Access';
+					desc = 'Home / Demo Access';
+					bgImage = '/img/property/customer-support.jpg';
+					break;
 				case '/account/join':
 					break;
 				case '/member':

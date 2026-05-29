@@ -5,6 +5,40 @@
 
 ---
 
+## Today's Session Update (2026-05-29, demo-restricted nav hydration mismatch fix)
+
+### Completed today
+- Fixed hydration mismatch on `/demo-restricted` (`Server: "Books"`, `Client: "nav_books"`) by loading the missing `layout` namespace in page static props:
+  - `pages/demo-restricted/index.tsx`
+  - changed `serverSideTranslations(locale, ['common'])` -> `serverSideTranslations(locale, ['common', 'layout'])`.
+
+### Verification
+- Per project rule, did not run build.
+- Confirmed route now preloads both namespaces required by `LayoutBasic` + `Top` translations.
+
+### Current stopping point
+- `/demo-restricted` now provides `layout` keys during SSR/client hydration, preventing `nav_books` fallback mismatch.
+
+### Exact next task
+- Runtime check `/demo-restricted` first-load in browser to confirm hydration error no longer appears.
+
+## Today's Session Update (2026-05-29, demo-restricted shared header/footer alignment)
+
+### Completed today
+- Updated shared layout route mapping so `/demo-restricted` uses the same `LayoutBasic` page-header banner pattern as other basic-layout pages:
+  - `libs/components/layout/LayoutBasic.tsx`
+  - added `case '/demo-restricted'` with header title/description/background config.
+
+### Verification
+- Per project rule, did not run build.
+- Confirmed `pages/demo-restricted/index.tsx` remains wrapped with `withLayoutBasic`, so top navbar + footer remain shared, and now header banner also renders via route mapping.
+
+### Current stopping point
+- Demo-restricted page now uses the same shared header/footer layout behavior as other `withLayoutBasic` pages.
+
+### Exact next task
+- Runtime visual QA on `/demo-restricted` desktop/mobile to confirm header text/background alignment and spacing with existing card content.
+
 ## Today's Session Update (2026-05-29, demo request guard + demo-restricted apology page)
 
 ### Completed today
