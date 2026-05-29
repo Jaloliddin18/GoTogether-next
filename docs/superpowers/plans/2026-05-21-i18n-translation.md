@@ -1595,7 +1595,7 @@ Replace:
 Add: `import { useTranslation } from 'next-i18next';`
 In component: `const { t } = useTranslation('cs');`
 
-The FAQ data array strings (subjects/content) are static mock data — translate the two subjects and contents that appear in the `en/cs.json`. These are legacy Nestar strings but since they're visible they need translation:
+The FAQ data array strings (subjects/content) are static mock data — translate the two subjects and contents that appear in the `en/cs.json`. These are legacy GoTogether strings but since they're visible they need translation:
 ```tsx
 // The subject/content come from the `data` object — change to use t()
 subject: t('Are the properties displayed on the site reliable?'),

@@ -7,7 +7,7 @@ Current product phase:
 - Admin/staff dashboard work is intentionally deferred for now
 
 Legacy note:
-- This codebase started from the Nestar real-estate frontend
+- This codebase started from the GoTogether real-estate frontend
 - Legacy real-estate pages remain during migration and should not be removed unless explicitly requested
 
 ## Frontend scope docs

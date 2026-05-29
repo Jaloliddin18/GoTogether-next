@@ -66,7 +66,7 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 		setFollowInquiry({ ...followInquiry, page: value });
 	};
 
-	if (device === 'mobile') return <div>NESTAR FOLLOWS MOBILE</div>;
+	if (device === 'mobile') return <div>GOTOGETHER FOLLOWS MOBILE</div>;
 
 	return (
 		<div id="member-follows-page">

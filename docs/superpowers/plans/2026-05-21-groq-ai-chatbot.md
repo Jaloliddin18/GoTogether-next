@@ -16,16 +16,16 @@
 | File | Reason |
 |------|--------|
 | `libs/components/Chat.tsx` | Old group chat component — replaced by AiChatBubble |
-| `apps/nestar-api/src/socket/socket.gateway.ts` (remove provider only) | Chat gateway no longer needed |
+| `apps/goTogether-api/src/socket/socket.gateway.ts` (remove provider only) | Chat gateway no longer needed |
 
 ### Create
 | File | Purpose |
 |------|---------|
 | `libs/components/AiChatBubble.tsx` | AI chatbot component (button + panel + API call) |
 | `scss/pc/chat/ai-chat.scss` | All SCSS for the chatbot UI |
-| `apps/nestar-api/src/components/chat/chat.service.ts` | Groq API call + book context injection |
-| `apps/nestar-api/src/components/chat/chat.controller.ts` | POST /chat/message REST endpoint |
-| `apps/nestar-api/src/components/chat/chat.module.ts` | NestJS module wiring |
+| `apps/goTogether-api/src/components/chat/chat.service.ts` | Groq API call + book context injection |
+| `apps/goTogether-api/src/components/chat/chat.controller.ts` | POST /chat/message REST endpoint |
+| `apps/goTogether-api/src/components/chat/chat.module.ts` | NestJS module wiring |
 
 ### Modify
 | File | Change |
@@ -34,8 +34,8 @@
 | `libs/components/layout/LayoutHome.tsx` | Swap `<Chat />` → `<AiChatBubble />` |
 | `libs/components/layout/LayoutFull.tsx` | Swap `<Chat />` → `<AiChatBubble />` |
 | `libs/components/layout/LayoutBasic.tsx` | Swap `<Chat />` → `<AiChatBubble />` |
-| `apps/nestar-api/src/socket/socket.module.ts` | Remove `SocketGateway` provider |
-| `apps/nestar-api/src/components/components.module.ts` | Import and register `ChatModule` |
+| `apps/goTogether-api/src/socket/socket.module.ts` | Remove `SocketGateway` provider |
+| `apps/goTogether-api/src/components/components.module.ts` | Import and register `ChatModule` |
 
 ---
 
@@ -66,13 +66,13 @@ Expected: `"react-markdown": "^9.x.x"` (or similar)
 ## Task 2 — Create backend chat service
 
 **Files:**
-- Create: `apps/nestar-api/src/components/chat/chat.service.ts`
+- Create: `apps/goTogether-api/src/components/chat/chat.service.ts`
 
 This service fetches up to 15 ACTIVE books from MongoDB and builds a library-focused system prompt before calling Groq.
 
 - [ ] **Step 1: Create the file**
 
-Create `/Users/khonimkulovjaloliddin/Desktop/같이Go/apps/nestar-api/src/components/chat/chat.service.ts` with this exact content:
+Create `/Users/khonimkulovjaloliddin/Desktop/같이Go/apps/goTogether-api/src/components/chat/chat.service.ts` with this exact content:
 
 ```typescript
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
@@ -164,11 +164,11 @@ export class ChatService {
 ## Task 3 — Create backend chat controller
 
 **Files:**
-- Create: `apps/nestar-api/src/components/chat/chat.controller.ts`
+- Create: `apps/goTogether-api/src/components/chat/chat.controller.ts`
 
 - [ ] **Step 1: Create the file**
 
-Create `/Users/khonimkulovjaloliddin/Desktop/같이Go/apps/nestar-api/src/components/chat/chat.controller.ts`:
+Create `/Users/khonimkulovjaloliddin/Desktop/같이Go/apps/goTogether-api/src/components/chat/chat.controller.ts`:
 
 ```typescript
 import { Body, Controller, Post } from '@nestjs/common';
@@ -196,11 +196,11 @@ export class ChatController {
 ## Task 4 — Create backend chat module
 
 **Files:**
-- Create: `apps/nestar-api/src/components/chat/chat.module.ts`
+- Create: `apps/goTogether-api/src/components/chat/chat.module.ts`
 
 - [ ] **Step 1: Create the file**
 
-Create `/Users/khonimkulovjaloliddin/Desktop/같이Go/apps/nestar-api/src/components/chat/chat.module.ts`:
+Create `/Users/khonimkulovjaloliddin/Desktop/같이Go/apps/goTogether-api/src/components/chat/chat.module.ts`:
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -226,12 +226,12 @@ export class ChatModule {}
 ## Task 5 — Register ChatModule and remove SocketGateway
 
 **Files:**
-- Modify: `apps/nestar-api/src/components/components.module.ts`
-- Modify: `apps/nestar-api/src/socket/socket.module.ts`
+- Modify: `apps/goTogether-api/src/components/components.module.ts`
+- Modify: `apps/goTogether-api/src/socket/socket.module.ts`
 
 - [ ] **Step 1: Add ChatModule to components.module.ts**
 
-In `/Users/khonimkulovjaloliddin/Desktop/같이Go/apps/nestar-api/src/components/components.module.ts`, add the import and registration:
+In `/Users/khonimkulovjaloliddin/Desktop/같이Go/apps/goTogether-api/src/components/components.module.ts`, add the import and registration:
 
 Replace the file content with:
 
@@ -273,7 +273,7 @@ export class ComponentsModule {}
 
 - [ ] **Step 2: Remove SocketGateway from socket.module.ts**
 
-Replace `/Users/khonimkulovjaloliddin/Desktop/같이Go/apps/nestar-api/src/socket/socket.module.ts` with:
+Replace `/Users/khonimkulovjaloliddin/Desktop/같이Go/apps/goTogether-api/src/socket/socket.module.ts` with:
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -291,7 +291,7 @@ Note: `AuthModule` import is removed along with `SocketGateway` — `RobotGatewa
 - [ ] **Step 3: Verify RobotGateway has no AuthService dependency**
 
 ```bash
-grep "AuthService\|AuthModule" /Users/khonimkulovjaloliddin/Desktop/같이Go/apps/nestar-api/src/socket/robot.gateway.ts
+grep "AuthService\|AuthModule" /Users/khonimkulovjaloliddin/Desktop/같이Go/apps/goTogether-api/src/socket/robot.gateway.ts
 ```
 
 Expected: no output (RobotGateway doesn't use Auth). If it does, keep `AuthModule` in the imports array.
@@ -889,7 +889,7 @@ Expected: build completes with no TypeScript errors. Common issues to watch for:
 
 - `apollo/client.ts` — The `LoggingWebSocket` and `socketVar` initialization stays untouched. The WebSocketLink is still needed for any future GraphQL subscriptions. The socket will connect to the backend but no chat events will be processed since `SocketGateway` is removed — this produces no error.
 - `apollo/store.ts` — `socketVar` stays in the store; it's unused but harmless.
-- `apps/nestar-api/src/socket/robot.gateway.ts` — Never touched. Robot tracking WebSocket is isolated and remains fully functional.
+- `apps/goTogether-api/src/socket/robot.gateway.ts` — Never touched. Robot tracking WebSocket is isolated and remains fully functional.
 - `.env` — `GROQ_API_KEY` is already present in both projects.
 
 ---

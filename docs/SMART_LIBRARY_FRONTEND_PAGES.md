@@ -140,14 +140,14 @@ Recommended implementation sequence for the next coding prompt:
 5. Convert `pages/community/detail.tsx` from board article plus generic comments to Twit plus Twit comments.
 6. Update `TwitCommentsInquiry` before wiring comment queries if backend requires `search.twitId`.
 7. Convert `MemberArticles` and mypage article surfaces to member Twits in a later scoped pass.
-8. Update `scss/pc/community/community.scss` and `scss/pc/community/detail.scss` for feed/detail layouts; avoid old board cards, black tabs, Nestar copy, and real-estate banner language.
+8. Update `scss/pc/community/community.scss` and `scss/pc/community/detail.scss` for feed/detail layouts; avoid old board cards, black tabs, GoTogether copy, and real-estate banner language.
 9. Verify with `yarn lint` or `yarn build` after structural community changes.
 
 Scope boundaries:
 - Do not modify backend files from this frontend task.
 - Do not modify homepage files unless a shared layout dependency makes it unavoidable.
 - Do not change unrelated member/profile behavior.
-- Do not perform unrelated old Nestar cleanup.
+- Do not perform unrelated old GoTogether cleanup.
 - Do not install packages unless explicitly requested and justified.
 
 ## 6) Profile/follow pages

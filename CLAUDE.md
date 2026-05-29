@@ -6,8 +6,8 @@
 University capstone project — Inha University, Korea.
 This repo is the **student-facing frontend only**.
 
-Built on top of the legacy Nestar real-estate Next.js project.
-The Nestar real-estate domain is being gradually replaced by Smart Library features.
+Built on top of the legacy GoTogether real-estate Next.js project.
+The GoTogether real-estate domain is being gradually replaced by Smart Library features.
 
 - Do not build admin dashboard pages unless explicitly asked.
 - Do not delete legacy real-estate pages until explicitly asked.
@@ -70,7 +70,7 @@ pages/
     community/
       index.tsx      ← Twit feed (TODO)
     index.tsx        ← Library landing
-  _admin/            ← Admin pages (legacy Nestar; library admin deferred)
+  _admin/            ← Admin pages (legacy GoTogether; library admin deferred)
   property/          ← Legacy real-estate (do not delete yet)
   agent/             ← Legacy real-estate (do not delete yet)
   member/            ← Member profile pages (transform later)

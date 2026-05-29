@@ -15,6 +15,22 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-29) — Frontend global naming migration for deployment
+
+### Completed
+- Migrated legacy frontend naming references to `goTogether` across source/docs/config.
+- Updated brand/title/meta strings in shared layout/document files.
+- Updated placeholder strings and documentation references that still used legacy naming.
+- Updated package/repository textual naming references where applicable.
+
+### Verification
+- Did not run build (no explicit build request).
+- Re-scanned the repository (excluding `.git`, `node_modules`, `.next`) and confirmed no legacy naming token matches remain.
+
+### Key rules
+- Keep deployment-facing names and branding aligned to `goTogether` in source, docs, and metadata.
+- Do not reintroduce legacy naming tokens in new frontend files or updates.
+
 ## Session Update (2026-05-29) — i18n strict-gap completion for chat/about/member
 
 ### Completed
@@ -565,8 +581,8 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - Routing: Pages Router only. `pages/` exists; `app/` and `src/` do not exist.
 - Styling: global SCSS imported from `pages/_app.tsx`, plus MUI `ThemeProvider` using `scss/MaterialTheme`. Component-level styling often uses MUI `sx` and SCSS class names together.
 - Data fetching/state: Apollo Client with `useQuery`, `useMutation`, Apollo reactive vars (`userVar`, `themeVar`, `socketVar`), and local component state.
-- Product areas visible in the frontend: Smart Library homepage/book discovery, auth, member/mypage, community, CS, admin pages, and remaining legacy Nestar real-estate surfaces.
-- Current branding is mixed: homepage/footer/navigation use 같이Go Smart Library assets and copy, while several page titles, SEO metadata, legacy routes, and placeholders still say Nestar/property/agent.
+- Product areas visible in the frontend: Smart Library homepage/book discovery, auth, member/mypage, community, CS, admin pages, and remaining legacy GoTogether real-estate surfaces.
+- Current branding is mixed: homepage/footer/navigation use 같이Go Smart Library assets and copy, while several page titles, SEO metadata, legacy routes, and placeholders still say GoTogether/property/agent.
 
 ### Directory Map
 - `pages/`: Next.js routes. Active route groups include homepage, books, community, account, mypage, member, CS, about, agent detail, and `_admin`.
@@ -619,7 +635,7 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - `/mypage`: authenticated user dashboard with category query routing. Uses MyProfile, MyProperties, MyFavorites, RecentlyVisited, MyArticles, WriteArticle, followers, and followings. Several children are still property/article legacy surfaces.
 - `/member`: public member page with properties, followers, followings, and articles tabs. Follow and member-like handlers are wired with current follow/member operations.
 - `/agent/detail`: legacy agent detail page still using property cards/comments. Preserve if explicitly requested; otherwise treat as legacy.
-- `/about`: desktop page is still mostly real-estate/Nestar copy; mobile is placeholder.
+- `/about`: desktop page is still mostly real-estate/GoTogether copy; mobile is placeholder.
 - `/cs`: customer service page with Notice/FAQ components; mobile is placeholder.
 - `/_admin`: redirects to `/_admin/users` and uses `withAdminLayout`, which requires `MemberType.ADMIN`.
 - `/_admin/users`: active admin member list/update page.
@@ -651,8 +667,8 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - Legacy GraphQL stubs in `apollo/user` and `apollo/admin` can cause silent UI breakage because pages expect full payloads but operations return only `__typename`.
 - BoardArticle/community pages are still legacy while Twit/TwitComment contracts exist. Avoid mixing these models without a scoped migration.
 - `apollo/library/query.ts` exists but only re-exports book queries; most operations still live in `apollo/user` and `apollo/admin`.
-- Naming inconsistencies are widespread: properties vs books, agents vs members, board articles vs twits, Nestar vs 같이Go.
-- SEO metadata in `pages/_document.tsx` still describes real estate/Nestar.
+- Naming inconsistencies are widespread: properties vs books, agents vs members, board articles vs twits, GoTogether vs 같이Go.
+- SEO metadata in `pages/_document.tsx` still describes real estate/GoTogether.
 - Many mobile routes are placeholders and should not be reported as complete.
 - Admin CS pages are mostly static placeholders.
 - `useDeviceDetect` depends on user-agent and updates in an effect with `[device]`; treat behavior carefully if changing responsive logic.
@@ -676,16 +692,16 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 
 ### Backend Project Location
 - Backend path inspected: `/Users/khonimkulovjaloliddin/Desktop/같이Go`.
-- Important backend docs inspected: `apps/nestar-api/AGENTS.md` and `docs/BACKEND_PROGRESS.md`.
-- Backend app root: `apps/nestar-api`.
-- Main backend code roots: `apps/nestar-api/src/components`, `apps/nestar-api/src/schemas`, `apps/nestar-api/src/libs/dto`, `apps/nestar-api/src/libs/enums`, `apps/nestar-api/src/robot-comm`, and `apps/nestar-api/src/socket`.
+- Important backend docs inspected: `apps/goTogether-api/AGENTS.md` and `docs/BACKEND_PROGRESS.md`.
+- Backend app root: `apps/goTogether-api`.
+- Main backend code roots: `apps/goTogether-api/src/components`, `apps/goTogether-api/src/schemas`, `apps/goTogether-api/src/libs/dto`, `apps/goTogether-api/src/libs/enums`, `apps/goTogether-api/src/robot-comm`, and `apps/goTogether-api/src/socket`.
 
 ### Backend Architecture Overview
 - Runtime/framework: NestJS with Apollo GraphQL, Mongoose, JWT auth, GraphQL Upload middleware, MQTT, and plain `ws` WebSocket support.
-- GraphQL setup lives in `apps/nestar-api/src/app.module.ts`; schema is generated with `autoSchemaFile: true`, playground is enabled, and upload handling is mounted through `graphqlUploadExpress` in `main.ts`.
+- GraphQL setup lives in `apps/goTogether-api/src/app.module.ts`; schema is generated with `autoSchemaFile: true`, playground is enabled, and upload handling is mounted through `graphqlUploadExpress` in `main.ts`.
 - Domain pattern is consistent: component module + resolver + service, DTO inputs in `src/libs/dto`, enums in `src/libs/enums`, and Mongoose schemas in `src/schemas`.
 - Main active Smart Library domains: `member/auth`, `book`, `book-inventory`, `robot`, `request`, `twit`, `follow`, and `twit-comment`.
-- Legacy domains still present: `property` is not present in the inspected backend, but old Nestar-style `board-article`, generic `comment`, `like`, and `view` modules still exist.
+- Legacy domains still present: `property` is not present in the inspected backend, but old GoTogether-style `board-article`, generic `comment`, `like`, and `view` modules still exist.
 - Auth guards: `AuthGuard` requires a bearer token, `WithoutGuard` accepts optional bearer token and sets viewer context when valid, and `RolesGuard` enforces `@Roles(MemberType.ADMIN)` or other role metadata.
 - Admin-only GraphQL operations are normally marked with `@UseGuards(RolesGuard)` plus `@Roles(MemberType.ADMIN)`.
 
@@ -802,7 +818,7 @@ Skills are located in `.agents/` in the project root. Read relevant skill files 
 - Per backend docs, WebSocket browser/client verification still needs verification before treating live tracking as production-ready.
 
 ### Known Frontend/Backend Integration Risks
-- Frontend still has old Nestar/real-estate names and GraphQL stubs in several areas; verify operation payloads before wiring pages.
+- Frontend still has old GoTogether/real-estate names and GraphQL stubs in several areas; verify operation payloads before wiring pages.
 - Book like mutations must send a string id to `likeTargetBook`; object-style like inputs will trigger GraphQL `BAD_USER_INPUT`.
 - Frontend routes named `/books` still use many property-era components and types.
 - BoardArticle frontend pages are legacy while backend Twit APIs are the current community direction.

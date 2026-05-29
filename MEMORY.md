@@ -1,9 +1,30 @@
 # MEMORY — 같이Go Frontend
 
 **Last Updated:** 2026-05-29
-**Current Branch:** `admin`
+**Current Branch:** `develop`
 
 ---
+
+## Today's Session Update (2026-05-29, frontend global naming migration for deployment)
+
+### Completed today
+- Applied a repository-wide legacy naming migration to `goTogether` in frontend source/docs/config:
+  - `package.json` app name
+  - SEO/metadata/title strings in layout and document files
+  - member placeholder labels using legacy uppercase branding
+  - agent/memory docs and frontend planning docs
+  - changelog/repo references and related textual branding references.
+- Confirmed there are no remaining legacy naming hits in frontend file contents or filenames (excluding `.git`, `node_modules`, `.next`).
+
+### Verification
+- Per project rule, did not run build.
+- Verified with targeted repository scan (`rg`) that no legacy naming tokens remain.
+
+### Current stopping point
+- Frontend repository naming/text references are aligned to `goTogether`.
+
+### Exact next task
+- Runtime QA for homepage/head metadata and member placeholders to confirm updated branding renders correctly across locales.
 
 ## Today's Session Update (2026-05-29, MyPage Russian live-tracking menu label overflow fix)
 
@@ -828,7 +849,7 @@
   - `TwitBody`
   - `TwitMedia`
   - `TwitActionRow`
-- Added Twit composer image upload using old Nestar upload pattern:
+- Added Twit composer image upload using old GoTogether upload pattern:
   - `imagesUploader(files, target: "twits")`
   - Store returned relative path directly in `createTwit.image`
 - Applied Twit image display normalization rule:
