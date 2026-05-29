@@ -273,8 +273,29 @@ const BookDetailPage: NextPage = () => {
 		try {
 			if (!id) return;
 			if (!u._id) throw new Error(Message.NOT_AUTHENTICATED);
-			await likeTargetBook({ variables: { input: id } });
-			await getBookRefetch({ input: id });
+			const currentlyLiked = book?.meLiked?.[0]?.myFavorite ?? false;
+			const newLikedState = !currentlyLiked;
+			setBook((prev) =>
+				prev
+					? {
+							...prev,
+							bookLikes: (prev.bookLikes ?? 0) + (currentlyLiked ? -1 : 1),
+							meLiked: [{ memberId: u._id, likeRefId: id, myFavorite: newLikedState }],
+					  }
+					: prev,
+			);
+			const { data } = await likeTargetBook({ variables: { input: id } });
+			if (data?.likeTargetBook) {
+				setBook((prev) =>
+					prev
+						? {
+								...prev,
+								...data.likeTargetBook,
+								meLiked: [{ memberId: u._id, likeRefId: id, myFavorite: newLikedState }],
+						  }
+						: data.likeTargetBook,
+				);
+			}
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
 			console.log('ERROR, likeBookHandler:', err.message);

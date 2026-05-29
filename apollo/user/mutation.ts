@@ -155,6 +155,12 @@ export const LIKE_TARGET_BOOK = gql`
 			bookPublishedYear
 			bookPages
 			bookDescription
+			bookPrice {
+				amount
+				currency
+				discountPercent
+				isDiscounted
+			}
 			isBorrowable
 			isPurchasable
 			bookLikes
