@@ -4,7 +4,7 @@ export const SITE_URL = 'https://gotogether.tech';
 export const SITE_NAME = '같이Go Smart Library';
 export const SITE_TAGLINE = 'Less time looking, More time booking';
 export const SUPPORT_EMAIL = 'support@gotogether.tech';
-export const DEFAULT_OG_IMAGE = '/img/og-image.png';
+export const DEFAULT_OG_IMAGE = '/img/logo_Black.png';
 export const DEFAULT_OG_IMAGE_URL = `${SITE_URL}${DEFAULT_OG_IMAGE}`;
 
 export const SITE_TITLE = `${SITE_NAME} | Robot Book Delivery at INHA University`;
