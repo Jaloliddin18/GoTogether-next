@@ -1,0 +1,21 @@
+services:
+  goTogether-next:
+    container_name: goTogether-next
+    restart: always
+    image: node:20.19.5
+    ports:
+      - 4005:3000
+    environment:
+      - PORT=3000
+
+    volumes:
+      - ./:/usr/src/goTogether-next
+    working_dir: /usr/src/goTogether-next
+
+    networks:
+      - client-network
+    command: sh -c "yarn && yarn run build && yarn run start"
+
+networks:
+  client-network:
+    driver: bridge
