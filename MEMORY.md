@@ -5,6 +5,43 @@
 
 ---
 
+## Today's Session Update (2026-05-29, MyPage Russian live-tracking menu label overflow fix)
+
+### Completed today
+- Fixed MyPage left-sidebar label overflow for long localized strings (notably Russian `live_tracking`) in:
+  - `scss/pc/mypage/mypage.scss`
+- Updated menu item/label layout so long labels stay inside their own frame:
+  - `.my-menu-item`: added `width: 100%` and `min-width: 0`
+  - `.my-menu-label`: added flexible width + safe wrapping (`flex: 1`, `min-width: 0`, `white-space: normal`, `overflow-wrap: anywhere`, `word-break: break-word`) and adjusted `line-height` for multi-line readability.
+
+### Verification
+- Per project rule, did not run build.
+- Confirmed `live_tracking` key is consumed in `MyMenu.tsx` and the style fix targets that rendered label path.
+
+### Current stopping point
+- Russian MyPage sidebar long label rendering is now constrained within menu-item bounds and should not spill into adjacent item frames.
+
+### Exact next task
+- Runtime QA on `/mypage` with Russian locale to confirm `Отслеживание в реальном времени` displays cleanly inside the Live Tracking menu item across desktop widths.
+
+## Today's Session Update (2026-05-29, homepage hydration mismatch fix for books i18n namespace)
+
+### Completed today
+- Fixed Next.js hydration mismatch (`Server: "Book Format"`, `Client: "filter_format_label"`) by preloading the missing `books` namespace in homepage SSR props:
+  - `pages/index.tsx`
+  - changed `serverSideTranslations(locale, ['common', 'layout'])` -> `serverSideTranslations(locale, ['common', 'layout', 'books'])`.
+- Root cause: `HeaderFilter` (mounted by `LayoutHome`) uses `useTranslation('books')`, but homepage static props did not include `books`, so client hydration started with untranslated key text.
+
+### Verification
+- Per project rule, did not run build.
+- Confirmed `pages/index.tsx` now includes `books` in `serverSideTranslations(...)`.
+
+### Current stopping point
+- Hydration key-text mismatch for homepage filter labels is fixed at namespace preload level.
+
+### Exact next task
+- Runtime browser QA on homepage (`/`) across `en/kr/ru` to confirm no hydration warning and correct filter-label translation on first paint.
+
 ## Today's Session Update (2026-05-29, i18n strict-gap completion for chat/about/member)
 
 ### Completed today
