@@ -119,6 +119,7 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 						alt={book.bookTitle || 'Book cover'}
 						className="book-card-image"
 						onError={() => setImageFailed(true)}
+						loading="lazy"
 						sx={{
 							width: '100%',
 							height: '100%',

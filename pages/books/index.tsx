@@ -13,12 +13,15 @@ import { Book } from '../../libs/types/book/book';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 import { Direction, Message } from '../../libs/enums/common.enum';
+import { resolveMediaUrl } from '../../libs/utils';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { GET_BOOKS } from '../../apollo/user/query';
 import { T } from '../../libs/types/common';
 import { LIKE_TARGET_BOOK } from '../../apollo/user/mutation';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { userVar } from '../../apollo/store';
+import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
+import { Swiper, SwiperSlide } from 'swiper/react';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -30,6 +33,9 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	const router = useRouter();
 	const { t } = useTranslation('books');
 	const user = useReactiveVar(userVar);
+	const device = useDeviceDetect();
+	const isMobile = device === 'mobile';
+
 	const [searchFilter, setSearchFilter] = useState<BooksInquiry>(
 		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
 	);
@@ -40,6 +46,14 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	const [sortingOpen, setSortingOpen] = useState(false);
 	const [filterSortName, setFilterSortName] = useState('sort_new');
 	const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+
+	const hasActiveFilters =
+		Object.keys(searchFilter.search ?? {}).some(
+			(key) => {
+				const val = (searchFilter.search as any)[key];
+				return val !== undefined && val !== '' && val !== null;
+			}
+		) || (searchFilter.sort && searchFilter.sort !== 'createdAt');
 
 	// Count active filters for FAB badge
 	const activeFilterCount = Object.keys((searchFilter?.search as any) ?? {}).filter(
@@ -56,6 +70,45 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 		fetchPolicy: 'network-only',
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
+	});
+
+	const { data: newBooksData, loading: newBooksLoading } = useQuery(GET_BOOKS, {
+		variables: {
+			input: {
+				page: 1,
+				limit: 10,
+				sort: 'createdAt',
+				direction: Direction.DESC,
+				search: {},
+			},
+		},
+		skip: !isMobile || hasActiveFilters,
+	});
+
+	const { data: popularBooksData, loading: popularBooksLoading } = useQuery(GET_BOOKS, {
+		variables: {
+			input: {
+				page: 1,
+				limit: 10,
+				sort: 'bookViews',
+				direction: Direction.DESC,
+				search: {},
+			},
+		},
+		skip: !isMobile || hasActiveFilters,
+	});
+
+	const { data: recommendedBooksData, loading: recommendedBooksLoading } = useQuery(GET_BOOKS, {
+		variables: {
+			input: {
+				page: 1,
+				limit: 10,
+				sort: 'bookLikes',
+				direction: Direction.DESC,
+				search: {},
+			},
+		},
+		skip: !isMobile || hasActiveFilters,
 	});
 
 	const getSingleQueryValue = (value: string | string[] | undefined): string => {
@@ -105,9 +158,20 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 
 	/** LIFECYCLES **/
 	useEffect(() => {
-		setBooks(getBooksData?.getBooks?.list ?? []);
-		setTotal(getBooksData?.getBooks?.metaCounter?.[0]?.total ?? 0);
-	}, [getBooksData]);
+		const list = getBooksData?.getBooks?.list ?? [];
+		const nextTotal = getBooksData?.getBooks?.metaCounter?.[0]?.total ?? 0;
+		setTotal(nextTotal);
+
+		if (isMobile && currentPage > 1) {
+			setBooks((prev) => {
+				const prevIds = new Set(prev.map((b) => b._id));
+				const filteredList = list.filter((b) => !prevIds.has(b._id));
+				return [...prev, ...filteredList];
+			});
+		} else {
+			setBooks(list);
+		}
+	}, [getBooksData, isMobile, currentPage]);
 
 	useEffect(() => {
 		if (!router.isReady) return;
@@ -135,6 +199,20 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 		setSearchFilter(nextFilter);
 		setCurrentPage(nextFilter.page === undefined ? 1 : nextFilter.page);
 	}, [router.isReady, router.query, initialInput]);
+
+	useEffect(() => {
+		if (filterDrawerOpen) {
+			document.body.style.overflow = 'hidden';
+			document.documentElement.style.overflow = 'hidden';
+		} else {
+			document.body.style.overflow = '';
+			document.documentElement.style.overflow = '';
+		}
+		return () => {
+			document.body.style.overflow = '';
+			document.documentElement.style.overflow = '';
+		};
+	}, [filterDrawerOpen]);
 
 	/** HANDLERS **/
 	const handlePaginationChange = async (_event: ChangeEvent<unknown>, value: number) => {
@@ -197,6 +275,104 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 		setAnchorEl(null);
 	};
 
+	const renderMobileCarouselSection = (title: string, booksList: Book[], loading: boolean) => {
+		return (
+			<Stack className="mobile-carousel-section" sx={{ mb: 4, width: '100%', px: isMobile ? 1 : 0 }}>
+				<Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5, color: '#1A1A2E', fontFamily: "'Sofia Pro', sans-serif" }}>
+					{title}
+				</Typography>
+				{loading ? (
+					<Stack direction="row" spacing={2} sx={{ overflowX: 'auto', pb: 1, width: '100%' }}>
+						{Array.from({ length: 3 }).map((_, idx) => (
+							<Skeleton key={`carousel-skel-${idx}`} variant="rectangular" width={135} height={190} sx={{ borderRadius: '12px', flexShrink: 0 }} />
+						))}
+					</Stack>
+				) : booksList.length === 0 ? (
+					<Typography sx={{ color: '#64748B', fontSize: 14 }}>{t('no_books_found') || 'No books found'}</Typography>
+				) : (
+					<Swiper
+						slidesPerView={'auto'}
+						spaceBetween={12}
+						style={{ width: '100%', paddingBottom: '8px' }}
+					>
+						{booksList.map((book) => (
+							<SwiperSlide key={book._id} style={{ width: '135px' }}>
+								<Stack
+									onClick={() => router.push(`/books/detail?id=${book._id}`)}
+									sx={{ cursor: 'pointer', display: 'flex', flexDirection: 'column' }}
+								>
+									<Box
+										sx={{
+											width: '135px',
+											height: '190px',
+											borderRadius: '12px',
+											overflow: 'hidden',
+											background: '#f5f7fa',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											border: '1px solid #e2e8f0',
+											mb: 1,
+											position: 'relative'
+										}}
+									>
+										{book.bookImages?.[0] ? (
+											<img
+												src={resolveMediaUrl(book.bookImages[0])}
+												alt={book.bookTitle}
+												loading="lazy"
+												style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center' }}
+											/>
+										) : (
+											<Box sx={{
+												width: '100%',
+												height: '100%',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center',
+												background: 'linear-gradient(135deg, #0d1b2e 0%, #1a3a6e 100%)',
+												color: '#fff',
+												fontWeight: 700,
+												fontSize: '1.5rem'
+											}}>
+												BK
+											</Box>
+										)}
+									</Box>
+									<Typography
+										sx={{
+											fontSize: '13px',
+											fontWeight: 700,
+											color: '#1A1A2E',
+											display: '-webkit-box',
+											WebkitLineClamp: 1,
+											WebkitBoxOrient: 'vertical',
+											overflow: 'hidden',
+											lineHeight: '16px'
+										}}
+									>
+										{book.bookTitle}
+									</Typography>
+									<Typography
+										sx={{
+											fontSize: '11px',
+											color: '#64748B',
+											overflow: 'hidden',
+											textOverflow: 'ellipsis',
+											whiteSpace: 'nowrap'
+										}}
+									>
+										{book.bookAuthor || 'Unknown'}
+									</Typography>
+								</Stack>
+							</SwiperSlide>
+						))}
+					</Swiper>
+				)}
+			</Stack>
+		);
+	};
+
 	return (
 		<div id="property-list-page" style={{ position: 'relative' }}>
 			{/* ── Mobile overlay behind filter drawer ── */}
@@ -247,6 +423,25 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 						<BookFilter searchFilter={searchFilter} initialInput={initialInput} />
 					</Stack>
 					<Stack className="main-config" mb={'76px'}>
+						{/* If on mobile and no filters, render horizontal carousels */}
+						{isMobile && !hasActiveFilters && (
+							<Stack sx={{ width: '100%', mb: 2 }}>
+								{renderMobileCarouselSection(t('arrivals_title') || 'New Arrivals', newBooksData?.getBooks?.list ?? [], newBooksLoading)}
+								{renderMobileCarouselSection(t('popular_title') || 'Most Popular', popularBooksData?.getBooks?.list ?? [], popularBooksLoading)}
+								{renderMobileCarouselSection(t('recommended_title') || 'Recommended', recommendedBooksData?.getBooks?.list ?? [], recommendedBooksLoading)}
+								
+								<Typography variant="h6" sx={{ fontWeight: 700, mt: 2, mb: 1.5, px: isMobile ? 1 : 0, color: '#1A1A2E', fontFamily: "'Sofia Pro', sans-serif" }}>
+									{t('all_books_title') || 'All Books'}
+								</Typography>
+							</Stack>
+						)}
+
+						{isMobile && hasActiveFilters && (
+							<Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5, px: isMobile ? 1 : 0, color: '#1A1A2E', fontFamily: "'Sofia Pro', sans-serif" }}>
+								{t('search_results_title') || 'Search Results'}
+							</Typography>
+						)}
+
 						<Stack
 							className={'list-config'}
 							sx={{ display: 'grid !important', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '20px', flexDirection: 'unset !important', flexWrap: 'unset !important' }}
@@ -291,7 +486,7 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 							)}
 						</Stack>
 						<Stack className="pagination-config">
-							{books.length !== 0 && (
+							{books.length !== 0 && !isMobile && (
 								<Stack className="pagination-box">
 									<Pagination
 										page={currentPage}
@@ -303,8 +498,40 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 								</Stack>
 							)}
 
+							{books.length !== 0 && isMobile && currentPage * searchFilter.limit < total && (
+								<Button
+									variant="outlined"
+									fullWidth
+									onClick={async () => {
+										const nextPageIndex = currentPage + 1;
+										const nextFilter = { ...searchFilter, page: nextPageIndex };
+										await router.push(
+											`/books?input=${JSON.stringify(nextFilter)}`,
+											`/books?input=${JSON.stringify(nextFilter)}`,
+											{ scroll: false }
+										);
+										setCurrentPage(nextPageIndex);
+										setSearchFilter(nextFilter);
+									}}
+									sx={{
+										mt: 2,
+										py: 1.5,
+										borderRadius: '10px',
+										color: '#2E86DE',
+										borderColor: '#2E86DE',
+										fontWeight: 600,
+										textTransform: 'none',
+										'&:active': {
+											background: 'rgba(46, 134, 222, 0.05)',
+										}
+									}}
+								>
+									{t('load_more') || 'Load More'}
+								</Button>
+							)}
+
 							{books.length !== 0 && (
-								<Stack className="total-result">
+								<Stack className="total-result" sx={{ mt: isMobile ? 1.5 : 0 }}>
 									<Typography>
 										{total === 1 ? t('total_books_one', { count: total }) : t('total_books_other', { count: total })}
 									</Typography>

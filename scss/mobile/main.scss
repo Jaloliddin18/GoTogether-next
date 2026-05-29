@@ -788,3 +788,505 @@
     }
   }
 }
+
+// ─── REDESIGNED MOBILE NAVBAR & DRAWER & LOGIN ───────────────────────────────
+#mobile-wrap {
+  // Sticky Header Navbar
+  .top {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(64px + env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 0;
+    z-index: 300;
+    box-sizing: border-box;
+
+    // Apply safe area padding for robot notification panel on mobile notch
+    + .robot-notification-panel {
+      padding-top: calc(16px + env(safe-area-inset-top, 0px)) !important;
+    }
+
+    .mobile-hamburger {
+      color: #1A1A2E;
+      padding: 8px;
+      margin-left: -8px;
+    }
+
+    .mobile-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      img {
+        height: 38px;
+        width: auto;
+      }
+    }
+
+    .mobile-right-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .mobile-notification-button {
+        color: #1A1A2E;
+        position: relative;
+        padding: 8px;
+      }
+
+      .mobile-profile-button {
+        padding: 4px;
+        img {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid #2E86DE;
+        }
+      }
+
+      .mobile-login-button {
+        color: #2E86DE;
+        padding: 8px;
+      }
+    }
+  }
+
+  // Left Drawer Side Menu
+  .mobile-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 399;
+    backdrop-filter: blur(2px);
+    transition: opacity 0.25s ease;
+  }
+
+  .mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 80%;
+    max-width: 320px;
+    height: 100%;
+    background: #ffffff;
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+
+    &.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      height: calc(64px + env(safe-area-inset-top, 0px));
+      padding-top: env(safe-area-inset-top, 0px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-left: 16px;
+      padding-right: 16px;
+      padding-bottom: 0;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+
+      img {
+        height: 32px;
+      }
+    }
+
+    .drawer-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      div {
+        padding: 14px 20px;
+        font-size: 16px;
+        font-weight: 500;
+        color: #1A1A2E;
+        cursor: pointer;
+        transition: background 0.2s;
+        border-left: 3px solid transparent;
+
+        &.active {
+          background: rgba(46, 134, 222, 0.08);
+          color: #2E86DE;
+          border-left-color: #2E86DE;
+          font-weight: 600;
+        }
+
+        &:active {
+          background: rgba(0, 0, 0, 0.04);
+        }
+      }
+    }
+
+    .drawer-divider {
+      height: 1px;
+      background: #e2e8f0;
+      margin: 8px 16px;
+    }
+
+    .drawer-languages {
+      padding: 16px 20px;
+
+      h4 {
+        font-size: 13px;
+        color: #64748B;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0 0 12px 0;
+      }
+
+      .language-selector {
+        display: flex;
+        gap: 8px;
+
+        button {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 10px;
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 600;
+          color: #64748B;
+
+          img {
+            width: 18px;
+            height: 18px;
+            border-radius: 2px;
+          }
+
+          &.active {
+            border-color: #2E86DE;
+            background: rgba(46, 134, 222, 0.05);
+            color: #2E86DE;
+          }
+        }
+      }
+    }
+
+    .drawer-footer {
+      padding: 16px 20px 24px;
+      border-top: 1px solid #e2e8f0;
+
+      button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .drawer-logout-btn {
+        background: #fff;
+        border: 1px solid #dc2626;
+        color: #dc2626;
+        
+        &:active {
+          background: rgba(220, 38, 38, 0.05);
+        }
+      }
+
+      .drawer-login-btn {
+        background: #2E86DE;
+        border: none;
+        color: #fff;
+
+        &:active {
+          background: #1a6fc4;
+        }
+      }
+    }
+  }
+
+  // Mobile Page Hero Banner
+  .header-basic {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: #000;
+    box-sizing: border-box;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(8, 16, 30, 0.3) 0%, rgba(8, 16, 30, 0.7) 100%) !important;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      padding: 0 16px;
+      margin: 0;
+      z-index: 1;
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .header-basic-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: left;
+      align-items: flex-start;
+
+      strong {
+        color: #ffffff;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      span {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 18px;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+    }
+  }
+}
+
+// Mobile Login/Signup Layout
+.join-page-mobile {
+  width: 100%;
+  background: #f8fafc;
+  min-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+
+  .mobile-banner {
+    position: relative;
+    width: 100%;
+    height: 160px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(26, 26, 46, 0.4) 0%, rgba(26, 26, 46, 0.85) 100%);
+    }
+
+    .banner-text {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      color: #ffffff;
+
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 4px;
+        color: #ffffff;
+      }
+
+      p {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+      }
+    }
+  }
+
+  .mobile-container {
+    padding: 24px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+
+    .input-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .input-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      span {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1A1A2E;
+      }
+
+      input {
+        width: 100%;
+        height: 48px;
+        padding: 0 16px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s;
+
+        &:focus {
+          border-color: #2E86DE;
+        }
+      }
+
+      .password-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        input {
+          padding-right: 48px;
+        }
+
+        .eye-toggle {
+          position: absolute;
+          right: 12px;
+          background: transparent;
+          border: none;
+          color: #64748B;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 8px;
+          cursor: pointer;
+        }
+      }
+    }
+
+    .register {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .remember-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        
+        .MuiFormControlLabel-label {
+          font-size: 14px;
+          color: #64748B;
+        }
+
+        a {
+          font-size: 13px;
+          color: #2E86DE;
+          font-weight: 600;
+        }
+      }
+
+      .submit-btn {
+        height: 50px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        background: #2E86DE;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(46, 134, 222, 0.25);
+        text-transform: none;
+
+        &:active {
+          background: #1a6fc4;
+        }
+      }
+    }
+
+    .ask-info {
+      text-align: center;
+      margin-top: 10px;
+
+      p {
+        font-size: 14px;
+        color: #64748B;
+
+        b {
+          color: #2E86DE;
+          margin-left: 6px;
+          cursor: pointer;
+          font-weight: 700;
+        }
+      }
+    }
+
+    // Shrink auth elements when soft keyboard reduces height
+    @media (max-height: 580px) {
+      .mobile-banner {
+        height: 70px !important;
+        .banner-text {
+          bottom: 10px !important;
+          h1 {
+            font-size: 20px !important;
+          }
+          p {
+            display: none !important;
+          }
+        }
+      }
+      .mobile-container {
+        padding: 12px 20px 20px !important;
+        gap: 12px !important;
+        .input-wrap {
+          gap: 8px !important;
+        }
+        .input-box {
+          gap: 4px !important;
+          input {
+            height: 40px !important;
+          }
+        }
+        .register {
+          margin-top: 4px !important;
+          gap: 10px !important;
+          .submit-btn {
+            height: 44px !important;
+            font-size: 15px !important;
+          }
+        }
+    }
+  }
+}
+}
+

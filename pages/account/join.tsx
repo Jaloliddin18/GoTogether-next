@@ -85,7 +85,134 @@ const Join: NextPage = () => {
 	}, [input, router]);
 
 	if (device === 'mobile') {
-		return <div>LOGIN MOBILE</div>;
+		return (
+			<Stack className={'join-page-mobile'}>
+				{/* Top Banner Image */}
+				<Box className="mobile-banner">
+					<img src="/img/banner/login-page_cover.jpeg" alt="Library" />
+					<div className="banner-overlay" />
+					<div className="banner-text">
+						<h1>{loginView ? t('tab_login') : t('tab_signup')}</h1>
+						<p>{loginView ? t('login_subtitle') : t('signup_subtitle')}</p>
+					</div>
+				</Box>
+
+				<Stack className="mobile-container">
+					<Box className={'input-wrap'}>
+						<div className={'input-box'}>
+							<span>{t('nickname_label')}</span>
+							<input
+								type="text"
+								placeholder={t('nickname_placeholder')}
+								value={input.nick}
+								onChange={(e) => handleInput('nick', e.target.value)}
+								required={true}
+								onKeyDown={(event) => {
+									if (event.key == 'Enter' && loginView) doLogin();
+									if (event.key == 'Enter' && !loginView) doSignUp();
+								}}
+							/>
+						</div>
+						<div className={'input-box'}>
+							<span>{t('password_label')}</span>
+							<div className={'password-wrap'}>
+								<input
+									type={showPassword ? 'text' : 'password'}
+									placeholder={t('password_placeholder')}
+									value={input.password}
+									onChange={(e) => handleInput('password', e.target.value)}
+									required={true}
+									onKeyDown={(event) => {
+										if (event.key == 'Enter' && loginView) doLogin();
+										if (event.key == 'Enter' && !loginView) doSignUp();
+									}}
+								/>
+								<button
+									type="button"
+									className={'eye-toggle'}
+									onClick={() => setShowPassword((v) => !v)}
+									aria-label={t(showPassword ? 'aria_hide_password' : 'aria_show_password')}
+								>
+									{showPassword ? <EyeOpen /> : <EyeOff />}
+								</button>
+							</div>
+						</div>
+						{!loginView && (
+							<div className={'input-box'}>
+								<span>{t('phone_label')}</span>
+								<input
+									type="text"
+									placeholder={t('phone_placeholder')}
+									value={input.phone}
+									onChange={(e) => handleInput('phone', e.target.value)}
+									required={true}
+									onKeyDown={(event) => {
+										if (event.key == 'Enter') doSignUp();
+									}}
+								/>
+							</div>
+						)}
+					</Box>
+
+					<Box className={'register'}>
+						{loginView && (
+							<div className={'remember-info'}>
+								<FormGroup>
+									<FormControlLabel control={<Checkbox defaultChecked size="small" />} label={t('remember_me')} />
+								</FormGroup>
+								<a>{t('forgot_password')}</a>
+							</div>
+						)}
+
+						{loginView ? (
+							<Button
+								variant="contained"
+								fullWidth
+								size="large"
+								endIcon={<img src="/img/icons/rightup.svg" alt="" />}
+								disabled={input.nick == '' || input.password == ''}
+								onClick={doLogin}
+								className="submit-btn"
+							>
+								{t('btn_login')}
+							</Button>
+						) : (
+							<Button
+								variant="contained"
+								fullWidth
+								size="large"
+								disabled={input.nick == '' || input.password == '' || input.phone == ''}
+								onClick={doSignUp}
+								endIcon={<img src="/img/icons/rightup.svg" alt="" />}
+								className="submit-btn"
+							>
+								{t('btn_signup')}
+							</Button>
+						)}
+					</Box>
+
+					<Box className={'ask-info'}>
+						{loginView ? (
+							<p>
+								{t('not_registered')}
+								<b
+									onClick={() => {
+										viewChangeHandler(false);
+									}}
+								>
+									{t('link_signup')}
+								</b>
+							</p>
+						) : (
+							<p>
+								{t('already_account')}
+								<b onClick={() => viewChangeHandler(true)}> {t('link_login')}</b>
+							</p>
+						)}
+					</Box>
+				</Stack>
+			</Stack>
+		);
 	} else {
 		return (
 			<Stack className={'join-page'}>

@@ -105,6 +105,26 @@ const withLayoutBasic = (Component: any) => {
 							<Top />
 						</Stack>
 
+						{memoizedValues.bgImage && (
+							<Stack
+								className={`header-basic ${authHeader && 'auth'}${router.pathname === '/cs' ? ' cs-banner' : ''}${isBooksRoute ? ' books-banner' : ''}${hasHeroReadabilityRoute ? ' hero-readable-banner' : ''}`}
+								style={{
+									backgroundImage: `url(${memoizedValues.bgImage})`,
+									backgroundSize: 'cover',
+									backgroundPosition: router.pathname === '/cs' ? 'center 25%' : 'center',
+									backgroundRepeat: 'no-repeat',
+								}}
+							>
+								{router.pathname === '/cs' && <div className="cs-banner-overlay" />}
+								<Stack className={'container'}>
+									<Stack className={`header-basic-copy ${needsHeroTextLargeFont ? 'with-large-font' : ''}`}>
+										<strong>{t(memoizedValues.title)}</strong>
+										<span>{t(memoizedValues.desc)}</span>
+									</Stack>
+								</Stack>
+							</Stack>
+						)}
+
 						<Stack id={'main'}>
 							<Component {...props} />
 						</Stack>

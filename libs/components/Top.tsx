@@ -17,6 +17,7 @@ import useDeviceDetect from '../hooks/useDeviceDetect';
 import Link from 'next/link';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import MenuIcon from '@mui/icons-material/Menu';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
@@ -130,6 +131,7 @@ const Top = () => {
 	const [logoutAnchor, setLogoutAnchor] = React.useState<null | HTMLElement>(null);
 	const logoutOpen = Boolean(logoutAnchor);
 	const [notificationOpen, setNotificationOpen] = useState<boolean>(false);
+	const [menuDrawerOpen, setMenuDrawerOpen] = useState<boolean>(false);
 	const [robotNotifications, setRobotNotifications] = useState<RobotNotification[]>([]);
 	const [trackingRequests, setTrackingRequests] = useState<RobotTrackingRequest[]>([]);
 	const [trackingConnected, setTrackingConnected] = useState<boolean>(false);
@@ -138,10 +140,26 @@ const Top = () => {
 	const [cancelErrors, setCancelErrors] = useState<Record<string, string>>({});
 	const [completeErrors, setCompleteErrors] = useState<Record<string, string>>({});
 	const robotSocketRef = useRef<WebSocket | null>(null);
+	const touchStartX = useRef<number>(0);
+	const touchCurrentX = useRef<number>(0);
 	const joinedRequestIdsRef = useRef<Set<string>>(new Set<string>());
 	const [cancelRequest] = useMutation(CANCEL_REQUEST);
 	const [confirmRequestPickup] = useMutation(CONFIRM_REQUEST_PICKUP);
 	const shouldLoadRequestContext = Boolean(user?._id) && (trackingRequests.length > 0 || robotNotifications.length > 0);
+
+	useEffect(() => {
+		if (menuDrawerOpen || notificationOpen) {
+			document.body.style.overflow = 'hidden';
+			document.documentElement.style.overflow = 'hidden';
+		} else {
+			document.body.style.overflow = '';
+			document.documentElement.style.overflow = '';
+		}
+		return () => {
+			document.body.style.overflow = '';
+			document.documentElement.style.overflow = '';
+		};
+	}, [menuDrawerOpen, notificationOpen]);
 	const { loading: sessionRequestsLoading, data: sessionRequestsData } = useQuery(GET_SESSION_REQUESTS, {
 		variables: { input: { page: 1, limit: 100 } },
 		skip: !shouldLoadRequestContext,
@@ -630,30 +648,202 @@ const Top = () => {
 		},
 	}));
 
+	const changeLang = async (newLocale: string) => {
+		setLang(newLocale);
+		localStorage.setItem('locale', newLocale);
+		await router.push(router.asPath, router.asPath, { locale: newLocale });
+	};
+
+	const handleTouchStart = (e: React.TouchEvent) => {
+		touchStartX.current = e.touches[0].clientX;
+		touchCurrentX.current = e.touches[0].clientX;
+	};
+
+	const handleTouchMove = (e: React.TouchEvent) => {
+		touchCurrentX.current = e.touches[0].clientX;
+	};
+
+	const handleTouchEnd = () => {
+		const diffX = touchStartX.current - touchCurrentX.current;
+		// If user swiped left by more than 50px, close the drawer
+		if (diffX > 50) {
+			setMenuDrawerOpen(false);
+		}
+	};
+
 	if (device == 'mobile') {
 		return (
 			<Stack className={'top'}>
-				<Link href={'/'}>
-					<div>{t('Home')}</div>
-				</Link>
-				<Link href={'/books'}>
-					<div>{t('layout:nav_books')}</div>
-				</Link>
-				<Link href={'/about'}>
-					<div>{t('layout:nav_about')}</div>
-				</Link>
-				<Link href={'/community'}>
-					<div> {t('Community')} </div>
-				</Link>
-				<Link href={'/cs'}>
-					<div> {t('CS')} </div>
-				</Link>
-				{canShowRobotBell && (
-					<button className="mobile-notification-button" type="button" onClick={openNotificationPanel} aria-label={t('layout:notifications_open')}>
-						<NotificationsOutlinedIcon />
-						{robotNotifications.length > 0 && <span>{Math.min(robotNotifications.length, 9)}</span>}
-					</button>
-				)}
+				{/* Hamburger button on Left */}
+				<IconButton
+					className="mobile-hamburger"
+					onClick={() => setMenuDrawerOpen(true)}
+					aria-label="Open menu drawer"
+				>
+					<MenuIcon />
+				</IconButton>
+
+				{/* Logo centered */}
+				<Box className="mobile-logo">
+					<Link href={'/'}>
+						<img
+							src="/img/logo/logo_capstone.png"
+							alt="같이Go Smart Library"
+							style={{ height: '48px', width: 'auto', cursor: 'pointer' }}
+						/>
+					</Link>
+				</Box>
+
+				{/* Right Side Icons */}
+				<Box className="mobile-right-actions">
+					{user?._id ? (
+						<>
+							{canShowRobotBell && (
+								<IconButton
+									className="mobile-notification-button"
+									onClick={openNotificationPanel}
+									aria-label={t('layout:notifications_open')}
+								>
+									<Badge
+										badgeContent={robotNotifications.length}
+										color="error"
+										max={9}
+										overlap="circular"
+									>
+										<NotificationsOutlinedIcon />
+									</Badge>
+								</IconButton>
+							)}
+							<IconButton
+								className="mobile-profile-button"
+								onClick={(event: any) => setLogoutAnchor(event.currentTarget)}
+								aria-label="User profile menu"
+							>
+								<img
+									src={
+										user?.memberImage ? `${API_BASE_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
+									}
+									alt=""
+									style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+								/>
+							</IconButton>
+							<Menu
+								id="basic-menu"
+								anchorEl={logoutAnchor}
+								open={logoutOpen}
+								onClose={() => {
+									setLogoutAnchor(null);
+								}}
+								sx={{ mt: '5px' }}
+							>
+								<MenuItem onClick={() => { logOut(); setLogoutAnchor(null); }}>
+									<Logout fontSize="small" style={{ color: 'blue', marginRight: '10px' }} />
+									Logout
+								</MenuItem>
+							</Menu>
+						</>
+					) : (
+						<Link href={'/account/join'}>
+							<IconButton className="mobile-login-button" aria-label="Login or Register">
+								<AccountCircleOutlinedIcon />
+							</IconButton>
+						</Link>
+					)}
+				</Box>
+
+				{/* Mobile Left Drawer Menu */}
+				{menuDrawerOpen && <div className="mobile-drawer-overlay" onClick={() => setMenuDrawerOpen(false)} />}
+				<aside
+					className={`mobile-drawer ${menuDrawerOpen ? 'open' : ''}`}
+					aria-hidden={!menuDrawerOpen}
+					onTouchStart={handleTouchStart}
+					onTouchMove={handleTouchMove}
+					onTouchEnd={handleTouchEnd}
+				>
+					<div className="drawer-header">
+						<img
+							src="/img/logo/logo_capstone.png"
+							alt="같이Go Smart Library"
+							style={{ height: '40px', width: 'auto' }}
+						/>
+						<IconButton onClick={() => setMenuDrawerOpen(false)} aria-label="Close menu drawer">
+							<CloseOutlinedIcon />
+						</IconButton>
+					</div>
+
+					<nav className="drawer-nav">
+						<Link href={'/'}>
+							<div onClick={() => setMenuDrawerOpen(false)} className={router.pathname === '/' ? 'active' : ''}>
+								{t('Home')}
+							</div>
+						</Link>
+						<Link href={'/books'}>
+							<div onClick={() => setMenuDrawerOpen(false)} className={router.pathname.startsWith('/books') ? 'active' : ''}>
+								{t('layout:nav_books')}
+							</div>
+						</Link>
+						<Link href={'/about'}>
+							<div onClick={() => setMenuDrawerOpen(false)} className={router.pathname === '/about' ? 'active' : ''}>
+								{t('layout:nav_about')}
+							</div>
+						</Link>
+						<Link href={'/community'}>
+							<div onClick={() => setMenuDrawerOpen(false)} className={router.pathname === '/community' ? 'active' : ''}>
+								{t('Community')}
+							</div>
+						</Link>
+						<Link href={'/cs'}>
+							<div onClick={() => setMenuDrawerOpen(false)} className={router.pathname === '/cs' ? 'active' : ''}>
+								{t('CS')}
+							</div>
+						</Link>
+						{user?._id && (
+							<Link href={'/mypage'}>
+								<div onClick={() => setMenuDrawerOpen(false)} className={router.pathname === '/mypage' ? 'active' : ''}>
+									{t('My Page')}
+								</div>
+							</Link>
+						)}
+					</nav>
+
+					<div className="drawer-divider" />
+
+					<div className="drawer-languages">
+						<h4>{t('layout:language') || 'Language'}</h4>
+						<div className="language-selector">
+							<button onClick={() => { changeLang('en'); setMenuDrawerOpen(false); }} className={lang === 'en' ? 'active' : ''}>
+								<img src="/img/flag/langen.png" alt="English" />
+								<span>EN</span>
+							</button>
+							<button onClick={() => { changeLang('kr'); setMenuDrawerOpen(false); }} className={lang === 'kr' ? 'active' : ''}>
+								<img src="/img/flag/langkr.png" alt="Korean" />
+								<span>KO</span>
+							</button>
+							<button onClick={() => { changeLang('ru'); setMenuDrawerOpen(false); }} className={lang === 'ru' ? 'active' : ''}>
+								<img src="/img/flag/langru.png" alt="Russian" />
+								<span>RU</span>
+							</button>
+						</div>
+					</div>
+
+					<div className="drawer-footer">
+						{user?._id ? (
+							<button className="drawer-logout-btn" onClick={() => { logOut(); setMenuDrawerOpen(false); }}>
+								<Logout fontSize="small" />
+								<span>Logout</span>
+							</button>
+						) : (
+							<Link href={'/account/join'}>
+								<button className="drawer-login-btn" onClick={() => setMenuDrawerOpen(false)}>
+									<AccountCircleOutlinedIcon />
+									<span>{t('Login')} / {t('Register')}</span>
+								</button>
+							</Link>
+						)}
+					</div>
+				</aside>
+
+				{/* Floating Notification Drawer Panel */}
 				{notificationOpen && <div className="robot-notification-overlay" onClick={closeNotificationPanel} />}
 				<aside className={`robot-notification-panel ${notificationOpen ? 'open' : ''}`} aria-hidden={!notificationOpen}>
 					<div className="robot-panel-head">
@@ -691,6 +881,10 @@ const Top = () => {
 							</div>
 						) : notificationList.length === 0 ? (
 							<div className="robot-panel-empty">
+								<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '12px', display: 'inline-block' }}>
+									<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+									<path d="M13.73 21a2 2 0 0 1-3.46 0" />
+								</svg>
 								<p>No robot updates yet</p>
 								<span>Delivery updates will appear here.</span>
 							</div>
@@ -876,6 +1070,10 @@ const Top = () => {
 							</div>
 						) : notificationList.length === 0 ? (
 							<div className="robot-panel-empty">
+								<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '12px', display: 'inline-block' }}>
+									<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+									<path d="M13.73 21a2 2 0 0 1-3.46 0" />
+								</svg>
 								<p>No robot updates yet</p>
 								<span>Delivery updates will appear here.</span>
 							</div>

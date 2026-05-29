@@ -544,7 +544,7 @@ const BookDetailPage: NextPage = () => {
 				style={{
 					position: 'relative',
 					width: '100%',
-					height: isMobile ? 280 : 420,
+					height: isMobile ? 180 : 420,
 					overflow: 'hidden',
 				}}
 			>
@@ -557,7 +557,7 @@ const BookDetailPage: NextPage = () => {
 						style={{
 							position: 'absolute',
 							inset: 0,
-							background: 'linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.42) 100%)',
+							background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%)',
 						}}
 					/>
 					<div
@@ -580,7 +580,7 @@ const BookDetailPage: NextPage = () => {
 							<div
 								style={{
 									width: 'fit-content',
-									marginTop: isMobile ? 92 : 175,
+									marginTop: isMobile ? 80 : 175,
 									display: 'flex',
 									flexDirection: 'column',
 									gap: isMobile ? 4 : 6,
@@ -590,11 +590,11 @@ const BookDetailPage: NextPage = () => {
 									style={{
 										color: '#FFFFFF',
 										fontFamily: "'Inter', 'Noto Sans KR', -apple-system, sans-serif",
-										fontSize: isMobile ? 40 : 56,
+										fontSize: isMobile ? 26 : 56,
 										fontStyle: 'normal',
 										fontWeight: 600,
 										lineHeight: 'normal',
-										letterSpacing: isMobile ? '0.8px' : '0.96px',
+										letterSpacing: isMobile ? '0.5px' : '0.96px',
 										textTransform: 'capitalize',
 										textShadow: '0 2px 12px rgba(0,0,0,0.35)',
 										margin: 0,
@@ -604,10 +604,10 @@ const BookDetailPage: NextPage = () => {
 								</h1>
 								<div
 									style={{
-										fontSize: isMobile ? 18 : 28,
+										fontSize: isMobile ? 13 : 28,
 										fontFamily: "'Inter', 'Noto Sans KR', -apple-system, sans-serif",
 										fontWeight: 400,
-										lineHeight: isMobile ? '22px' : '30px',
+										lineHeight: isMobile ? '18px' : '30px',
 										color: '#FFFFFF',
 										display: 'flex',
 										alignItems: 'center',
