@@ -1,0 +1,4 @@
+export const DEMO_ALLOWED_IDS = [
+	'69f612d567b8252ed43096f5',
+	'69f668d7997c6e5d143bd0d7',
+];

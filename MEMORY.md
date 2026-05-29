@@ -5,6 +5,39 @@
 
 ---
 
+## Today's Session Update (2026-05-29, demo request guard + demo-restricted apology page)
+
+### Completed today
+- Added demo account gate config:
+  - `libs/demo.config.ts`
+  - `DEMO_ALLOWED_IDS` now contains the two allowed demo member IDs.
+- Added delivery request guard in book detail request flows:
+  - `pages/books/detail.tsx`
+  - guard checks `user._id` against `DEMO_ALLOWED_IDS`
+  - unauthorized users are redirected to `/demo-restricted` before entering borrow/purchase request flows and before any `createDeliveryRequest` mutation fires.
+- Added new apology/restriction page:
+  - `pages/demo-restricted/index.tsx`
+  - wrapped with `withLayoutBasic`
+  - includes `getStaticProps` with `serverSideTranslations(locale, ['common'])`.
+- Added page styles:
+  - `scss/pc/demo-restricted.scss`
+  - wired into global PC stylesheet imports via `scss/pc/main.scss`.
+
+### Verification
+- Per project rule, did not run build.
+- Verified guard now intercepts both:
+  - Borrow button flow (`openDeskSelectionModal`)
+  - Commercial/Purchase button flow (`handlePurchaseRequest`)
+  - plus mutation-level safety gate in `createDeliveryRequestHandler`.
+
+### Current stopping point
+- Demo mode restriction is active for delivery requests and unauthorized users are routed to the new `/demo-restricted` page.
+
+### Exact next task
+- Runtime QA on `/books/detail?id=<bookId>` with:
+  - allowed demo account IDs (request flow should proceed)
+  - non-demo account (should redirect to `/demo-restricted`).
+
 ## Today's Session Update (2026-05-29, frontend global naming migration for deployment)
 
 ### Completed today

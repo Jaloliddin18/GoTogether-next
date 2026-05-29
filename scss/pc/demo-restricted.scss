@@ -1,0 +1,130 @@
+@import '/scss/variables.scss';
+
+.demo-restricted-page {
+	min-height: calc(100vh - 87px);
+	background: $color-bg;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 40px 16px 64px;
+	box-sizing: border-box;
+
+	.demo-restricted-card {
+		width: 100%;
+		max-width: 560px;
+		margin: 0 auto;
+		padding: 64px 48px;
+		background: $color-white;
+		border: 1px solid $color-border;
+		border-radius: 8px;
+		text-align: center;
+		box-sizing: border-box;
+	}
+
+	.demo-restricted-label {
+		margin-bottom: 20px;
+		font-family: $font;
+		font-size: 11px;
+		font-weight: 500;
+		color: $color-primary;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
+
+	.demo-restricted-title {
+		margin: 0 0 20px;
+		font-family: $font;
+		font-size: 28px;
+		font-weight: 700;
+		color: $color-dark;
+		line-height: 1.3;
+	}
+
+	.demo-restricted-divider {
+		width: 40px;
+		height: 2px;
+		background: $color-border;
+		margin: 0 auto 28px;
+	}
+
+	.demo-restricted-text {
+		margin: 0 0 16px;
+		font-family: $font;
+		font-size: 14px;
+		font-weight: 400;
+		color: $color-muted;
+		line-height: 1.8;
+	}
+
+	.demo-restricted-actions {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 12px;
+		margin-top: 40px;
+	}
+
+	.demo-restricted-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 10px 24px;
+		border-radius: 6px;
+		font-family: $font;
+		font-size: 13px;
+		font-weight: 500;
+		line-height: 1;
+		text-decoration: none;
+		transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+		box-sizing: border-box;
+
+		&--secondary {
+			background: transparent;
+			border: 1px solid $color-border;
+			color: $color-dark;
+
+			&:hover {
+				border-color: $color-dark;
+			}
+		}
+
+		&--primary {
+			background: $color-dark;
+			border: 1px solid $color-dark;
+			color: $color-white;
+
+			&:hover {
+				background: $color-primary;
+				border-color: $color-primary;
+			}
+		}
+	}
+
+	.demo-restricted-footnote {
+		margin: 28px 0 0;
+		font-family: $font;
+		font-size: 12px;
+		font-weight: 400;
+		color: $color-muted;
+		line-height: 1.6;
+	}
+}
+
+@media (max-width: 768px) {
+	.demo-restricted-page {
+		padding: 28px 16px 44px;
+
+		.demo-restricted-card {
+			padding: 40px 24px;
+		}
+
+		.demo-restricted-actions {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.demo-restricted-btn {
+			width: 100%;
+		}
+	}
+}

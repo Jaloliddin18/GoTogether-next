@@ -45,6 +45,7 @@ import { RequestType } from '../../libs/enums/request.enum';
 import { CreateDeliveryRequestInput } from '../../libs/types/request/request.input';
 import { userVar } from '../../apollo/store';
 import { resolveMediaUrl } from '../../libs/utils';
+import { DEMO_ALLOWED_IDS } from '../../libs/demo.config';
 import { GET_BOOK } from '../../apollo/library/query';
 import { GET_COMMENTS } from '../../apollo/user/query';
 import { LIKE_TARGET_BOOK, CREATE_COMMENT, CREATE_DELIVERY_REQUEST } from '../../apollo/user/mutation';
@@ -297,6 +298,12 @@ const BookDetailPage: NextPage = () => {
 		}
 	};
 
+	const isDemoRequestAllowed = (): boolean => {
+		const userId = user?._id;
+		const isAllowed = !!userId && DEMO_ALLOWED_IDS.includes(userId);
+		return isAllowed;
+	};
+
 	const createDeliveryRequestHandler = async (
 		requestType: RequestType,
 		options?: {
@@ -305,6 +312,11 @@ const BookDetailPage: NextPage = () => {
 		},
 	): Promise<boolean> => {
 		try {
+			if (!isDemoRequestAllowed()) {
+				await router.push('/demo-restricted');
+				return false;
+			}
+
 			if (!book?._id) return false;
 			const selectedDeskDestination = options?.deskId ? DESK_DESTINATION_MAP[options.deskId] : null;
 			const autoDestination = requestType === RequestType.BORROW ? resolveAutoDeskDestination(user) : null;
@@ -358,8 +370,20 @@ const BookDetailPage: NextPage = () => {
 	};
 
 	const openDeskSelectionModal = () => {
+		if (!isDemoRequestAllowed()) {
+			void router.push('/demo-restricted');
+			return;
+		}
 		setSelectedDeskId(null);
 		setIsDeskModalOpen(true);
+	};
+
+	const handlePurchaseRequest = () => {
+		if (!isDemoRequestAllowed()) {
+			void router.push('/demo-restricted');
+			return;
+		}
+		void createDeliveryRequestHandler(RequestType.PURCHASE);
 	};
 
 	const closeDeskSelectionModal = () => {
@@ -809,7 +833,7 @@ const BookDetailPage: NextPage = () => {
 										variant="outlined"
 										startIcon={<ShoppingBagOutlinedIcon />}
 										disabled={createRequestLoading || !book?.isPurchasable}
-										onClick={() => createDeliveryRequestHandler(RequestType.PURCHASE)}
+										onClick={handlePurchaseRequest}
 										sx={{
 											flex: 1,
 											height: 52,

@@ -15,6 +15,33 @@ These rules apply permanently to all sessions on this project. They override any
 
 Skills are located in `.agents/` in the project root. Read relevant skill files before frontend or UI work.
 
+## Session Update (2026-05-29) — Demo request guard + demo-restricted apology page
+
+### Completed
+- Added demo account restriction config:
+  - `libs/demo.config.ts`
+  - `DEMO_ALLOWED_IDS` now defines the only two member `_id` values allowed to submit delivery requests during demo.
+- Added request-flow guard in book detail delivery actions:
+  - `pages/books/detail.tsx`
+  - both Borrow and Commercial/Purchase button flows now gate on `user._id` membership in `DEMO_ALLOWED_IDS`
+  - unauthorized users are redirected to `/demo-restricted` before any delivery mutation call.
+- Added a dedicated demo-restricted apology page:
+  - `pages/demo-restricted/index.tsx`
+  - wrapped with `withLayoutBasic`
+  - includes `getStaticProps` with `serverSideTranslations(locale, ['common'])`.
+- Added new page styles:
+  - `scss/pc/demo-restricted.scss`
+  - integrated through global PC import chain in `scss/pc/main.scss`.
+
+### Verification
+- Did not run build (no explicit build request).
+- Verified Borrow and Commercial flows are both guarded and that `createDeliveryRequestHandler` also has a mutation-level guard.
+
+### Key rules
+- Demo request authorization must check `user._id` against `DEMO_ALLOWED_IDS` before entering request flow.
+- Unauthorized users must redirect to `/demo-restricted` before any `createDeliveryRequest` mutation is fired.
+- Keep this scope frontend-only; do not change backend request/MQTT/WebSocket logic for demo gating.
+
 ## Session Update (2026-05-29) — Frontend global naming migration for deployment
 
 ### Completed
