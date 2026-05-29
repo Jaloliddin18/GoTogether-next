@@ -1,5 +1,5 @@
 {
-	"name": "goTogether-next",
+	"name": "go-together-next",
 	"version": "2.2.0",
 	"private": true,
 	"license": "ITC",
@@ -68,6 +68,7 @@
 		"react-tree": "^0.0.4",
 		"sass": "^1.49.9",
 		"sass-loader": "^12.6.0",
+		"sharp": "^0.34.5",
 		"slick-carousel": "^1.8.1",
 		"styled-components": "^5.3.3",
 		"styled-jsx": "^5.0.0",
