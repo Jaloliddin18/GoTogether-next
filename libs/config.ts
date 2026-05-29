@@ -1,6 +1,6 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 export const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL ?? `${API_BASE_URL}/graphql`;
-export const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:3007';
+export const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:3009';
 
 export const availableOptions = ['propertyBarter', 'propertyRent'];
 
