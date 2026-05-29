@@ -2,8 +2,9 @@ import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { Box, Button, Menu, MenuItem, Pagination, Skeleton, Stack, Typography } from '@mui/material';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import CloseIcon from '@mui/icons-material/Close';
 import BookCard from '../../libs/components/book/BookCard';
-import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import BookFilter from '../../libs/components/property/BookFilter';
 import { useRouter } from 'next/router';
@@ -26,7 +27,6 @@ export const getStaticProps = async ({ locale }: any) => ({
 });
 
 const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
-	const device = useDeviceDetect();
 	const router = useRouter();
 	const { t } = useTranslation('books');
 	const user = useReactiveVar(userVar);
@@ -39,6 +39,12 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [sortingOpen, setSortingOpen] = useState(false);
 	const [filterSortName, setFilterSortName] = useState('sort_new');
+	const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
+
+	// Count active filters for FAB badge
+	const activeFilterCount = Object.keys((searchFilter?.search as any) ?? {}).filter(
+		(k) => !['keyword'].includes(k),
+	).length;
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetBook] = useMutation(LIKE_TARGET_BOOK);
@@ -191,120 +197,149 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 		setAnchorEl(null);
 	};
 
-	if (device === 'mobile') {
-		return <h1>PROPERTIES MOBILE</h1>;
-	} else {
-		return (
-			<div id="property-list-page" style={{ position: 'relative' }}>
-				<div className="container">
-					<Box component={'div'} className={'right'}>
-						<span>{t('sort_by')}</span>
-						<div>
-							<Button onClick={sortingClickHandler} endIcon={<KeyboardArrowDownRoundedIcon />}>
-								{t(filterSortName)}
-							</Button>
-							<Menu anchorEl={anchorEl} open={sortingOpen} onClose={sortingCloseHandler} sx={{ paddingTop: '5px' }}>
-								<MenuItem
-									onClick={sortingHandler}
-									id={'new'}
-									disableRipple
-									sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
-								>
-									{t('sort_new')}
-								</MenuItem>
-								<MenuItem
-									onClick={sortingHandler}
-									id={'lowest'}
-									disableRipple
-									sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
-								>
-									{t('sort_lowest')}
-								</MenuItem>
-								<MenuItem
-									onClick={sortingHandler}
-									id={'highest'}
-									disableRipple
-									sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
-								>
-									{t('sort_highest')}
-								</MenuItem>
-							</Menu>
-						</div>
-					</Box>
-					<Stack className={'property-page'}>
-						<Stack className={'filter-config'}>
-							<BookFilter searchFilter={searchFilter} initialInput={initialInput} />
-						</Stack>
-						<Stack className="main-config" mb={'76px'}>
-							<Stack
-								className={'list-config'}
-								sx={{ display: 'grid !important', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '20px', flexDirection: 'unset !important', flexWrap: 'unset !important' }}
+	return (
+		<div id="property-list-page" style={{ position: 'relative' }}>
+			{/* ── Mobile overlay behind filter drawer ── */}
+			<div
+				className={`books-filter-overlay${filterDrawerOpen ? ' is-visible' : ''}`}
+				aria-hidden="true"
+				onClick={() => setFilterDrawerOpen(false)}
+			/>
+
+			<div className="container">
+				<Box component={'div'} className={'right'}>
+					<span>{t('sort_by')}</span>
+					<div>
+						<Button onClick={sortingClickHandler} endIcon={<KeyboardArrowDownRoundedIcon />}>
+							{t(filterSortName)}
+						</Button>
+						<Menu anchorEl={anchorEl} open={sortingOpen} onClose={sortingCloseHandler} sx={{ paddingTop: '5px' }}>
+							<MenuItem
+								onClick={sortingHandler}
+								id={'new'}
+								disableRipple
+								sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
 							>
-								{getBooksLoading ? (
-									Array.from({ length: 6 }).map((_, index) => (
-										<Stack
-											key={`books-grid-skeleton-${index}`}
-											sx={{
-												backgroundColor: '#ffffff',
-												borderRadius: '16px',
-												border: '1px solid #e8f0fb',
-												overflow: 'hidden',
-											}}
-										>
-											<Skeleton variant="rectangular" animation="wave" width="100%" height={240} />
-											<Stack spacing={1.1} sx={{ p: 2 }}>
-												<Skeleton variant="text" animation="wave" width="74%" height={30} />
-												<Skeleton variant="text" animation="wave" width="52%" height={22} />
-												<Skeleton variant="text" animation="wave" width="38%" height={20} />
-												<Skeleton variant="rectangular" animation="wave" width="100%" height={1} sx={{ my: 1 }} />
-												<Stack direction="row" justifyContent="space-between" alignItems="center">
-													<Skeleton variant="text" animation="wave" width="36%" height={24} />
-													<Stack direction="row" spacing={1}>
-														<Skeleton variant="rounded" animation="wave" width={40} height={18} />
-														<Skeleton variant="rounded" animation="wave" width={40} height={18} />
-													</Stack>
+								{t('sort_new')}
+							</MenuItem>
+							<MenuItem
+								onClick={sortingHandler}
+								id={'lowest'}
+								disableRipple
+								sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
+							>
+								{t('sort_lowest')}
+							</MenuItem>
+							<MenuItem
+								onClick={sortingHandler}
+								id={'highest'}
+								disableRipple
+								sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
+							>
+								{t('sort_highest')}
+							</MenuItem>
+						</Menu>
+					</div>
+				</Box>
+				<Stack className={'property-page'}>
+					{/* ── Filter sidebar / mobile drawer ── */}
+					<Stack className={`filter-config${filterDrawerOpen ? ' is-open' : ''}`}>
+						<BookFilter searchFilter={searchFilter} initialInput={initialInput} />
+					</Stack>
+					<Stack className="main-config" mb={'76px'}>
+						<Stack
+							className={'list-config'}
+							sx={{ display: 'grid !important', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '20px', flexDirection: 'unset !important', flexWrap: 'unset !important' }}
+						>
+							{getBooksLoading ? (
+								Array.from({ length: 6 }).map((_, index) => (
+									<Stack
+										key={`books-grid-skeleton-${index}`}
+										className="books-grid-skeleton"
+										sx={{
+											backgroundColor: '#ffffff',
+											borderRadius: '16px',
+											border: '1px solid #e8f0fb',
+											overflow: 'hidden',
+										}}
+									>
+										<Skeleton variant="rectangular" animation="wave" width="100%" height={240} />
+										<Stack spacing={1.1} sx={{ p: 2 }}>
+											<Skeleton variant="text" animation="wave" width="74%" height={30} />
+											<Skeleton variant="text" animation="wave" width="52%" height={22} />
+											<Skeleton variant="text" animation="wave" width="38%" height={20} />
+											<Skeleton variant="rectangular" animation="wave" width="100%" height={1} sx={{ my: 1 }} />
+											<Stack direction="row" justifyContent="space-between" alignItems="center">
+												<Skeleton variant="text" animation="wave" width="36%" height={24} />
+												<Stack direction="row" spacing={1}>
+													<Skeleton variant="rounded" animation="wave" width={40} height={18} />
+													<Skeleton variant="rounded" animation="wave" width={40} height={18} />
 												</Stack>
 											</Stack>
 										</Stack>
-									))
-								) : books?.length === 0 ? (
-									<div className={'no-data'} style={{ gridColumn: '1 / -1' }}>
-										<img src="/img/icons/icoAlert.svg" alt="" />
-										<p>{t('no_books_found')}</p>
-									</div>
-								) : (
-									books.map((book: Book) => (
-										<BookCard key={book._id} book={book} likeHandler={likeBookHandler} />
-									))
-								)}
-							</Stack>
-							<Stack className="pagination-config">
-								{books.length !== 0 && (
-									<Stack className="pagination-box">
-										<Pagination
-											page={currentPage}
-											count={Math.ceil(total / searchFilter.limit)}
-											onChange={handlePaginationChange}
-											shape="circular"
-											color="primary"
-										/>
 									</Stack>
-								)}
+								))
+							) : books?.length === 0 ? (
+								<div className={'no-data'} style={{ gridColumn: '1 / -1' }}>
+									<img src="/img/icons/icoAlert.svg" alt="" />
+									<p>{t('no_books_found')}</p>
+								</div>
+							) : (
+								books.map((book: Book) => (
+									<BookCard key={book._id} className="books-list-card" book={book} likeHandler={likeBookHandler} />
+								))
+							)}
+						</Stack>
+						<Stack className="pagination-config">
+							{books.length !== 0 && (
+								<Stack className="pagination-box">
+									<Pagination
+										page={currentPage}
+										count={Math.ceil(total / searchFilter.limit)}
+										onChange={handlePaginationChange}
+										shape="circular"
+										color="primary"
+									/>
+								</Stack>
+							)}
 
-								{books.length !== 0 && (
-									<Stack className="total-result">
-										<Typography>
-											{total === 1 ? t('total_books_one', { count: total }) : t('total_books_other', { count: total })}
-										</Typography>
-									</Stack>
-								)}
-							</Stack>
+							{books.length !== 0 && (
+								<Stack className="total-result">
+									<Typography>
+										{total === 1 ? t('total_books_one', { count: total }) : t('total_books_other', { count: total })}
+									</Typography>
+								</Stack>
+							)}
 						</Stack>
 					</Stack>
-				</div>
+				</Stack>
 			</div>
-		);
-	}
+
+			{/* ── Mobile filter FAB — visible only on mobile/tablet via CSS ── */}
+			<button
+				className="books-filter-fab"
+				type="button"
+				id="books-filter-fab-btn"
+				aria-label={filterDrawerOpen ? 'Close filters' : 'Open filters'}
+				onClick={() => setFilterDrawerOpen((prev) => !prev)}
+			>
+				{filterDrawerOpen ? (
+					<>
+						<CloseIcon sx={{ fontSize: 20 }} />
+						<span>Close</span>
+					</>
+				) : (
+					<>
+						<FilterListIcon sx={{ fontSize: 20 }} />
+						<span>{t('filter_label') || 'Filters'}</span>
+						{activeFilterCount > 0 && (
+							<span className="fab-badge">{activeFilterCount}</span>
+						)}
+					</>
+				)}
+			</button>
+		</div>
+	);
 };
 
 PropertyList.defaultProps = {

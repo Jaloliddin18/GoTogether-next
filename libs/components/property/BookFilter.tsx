@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Stack, Typography, Checkbox, OutlinedInput, IconButton, Tooltip, Slider } from '@mui/material';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { BookCategory, BookFormat, BookLanguage } from '../../enums/book.enum';
 import { BooksInquiry } from '../../types/book/book.input';
 import { useRouter } from 'next/router';
@@ -44,7 +43,6 @@ const SHOW_MORE_LIMIT = 3;
 
 const BookFilter = (props: BookFilterType) => {
 	const { searchFilter, initialInput } = props;
-	const device = useDeviceDetect();
 	const router = useRouter();
 	const { t } = useTranslation('books');
 	const [searchText, setSearchText] = useState<string>((searchFilter?.search as any)?.keyword ?? '');
@@ -183,11 +181,8 @@ const BookFilter = (props: BookFilterType) => {
 		setLocalRating((searchFilter?.search as any)?.minRating ?? 0);
 	}, [searchFilter]);
 
-	if (device === 'mobile') {
-		return <div>BOOKS FILTER</div>;
-	} else {
-		return (
-			<Stack className={'filter-main'}>
+	return (
+		<Stack className={'filter-main'}>
 				{/* Search */}
 				<Stack className={'find-your-home'} mb={'40px'}>
 					<Typography className={'title-main'}>{t('find_book_title')}</Typography>
@@ -508,9 +503,8 @@ const BookFilter = (props: BookFilterType) => {
 						</Stack>
 					</Stack>
 				</Stack>
-			</Stack>
-		);
-	}
+		</Stack>
+	);
 };
 
 export default BookFilter;

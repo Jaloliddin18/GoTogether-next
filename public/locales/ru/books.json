@@ -135,5 +135,6 @@
   "type_other": "Другое",
   "type_other_desc": "Другие библиотечные материалы",
   "cat_comics": "Комиксы",
-  "cat_other": "Другое"
+  "cat_other": "Другое",
+  "filter_label": "Фильтры"
 }

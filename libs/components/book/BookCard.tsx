@@ -73,7 +73,7 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 
 	return (
 		<Box
-			className={className}
+			className={['book-card', className].filter(Boolean).join(' ')}
 			onClick={navigateToDetail}
 			role="button"
 			tabIndex={0}
@@ -100,6 +100,7 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 			}}
 		>
 			<Box
+				className="book-card-media"
 				sx={{
 					width: '100%',
 					height: 240,
@@ -148,8 +149,9 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 				)}
 			</Box>
 
-			<Box sx={{ p: 2, display: 'flex', flexDirection: 'column', fontFamily: "'Sofia Pro', sans-serif" }}>
+			<Box className="book-card-body" sx={{ p: 2, display: 'flex', flexDirection: 'column', fontFamily: "'Sofia Pro', sans-serif" }}>
 				<Typography
+					className="book-card-title"
 					onClick={(e) => {
 						e.stopPropagation();
 						navigateToDetail().then();
@@ -171,6 +173,7 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 				</Typography>
 
 				<Typography
+					className="book-card-author"
 					sx={{
 						fontFamily: "'Sofia Pro', sans-serif",
 						fontSize: '.82rem',
@@ -184,7 +187,7 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 					{book.bookAuthor || 'Unknown author'}
 				</Typography>
 
-				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1.8 }}>
+				<Box className="book-card-meta" sx={{ display: 'flex', alignItems: 'center', gap: 1.8 }}>
 					<Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.55 }}>
 						<LanguageIcon sx={{ fontSize: 14, color: '#5a7a9c' }} />
 						<Typography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.78rem', color: '#5a7a9c' }}>
@@ -199,12 +202,12 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 
 				<Divider sx={{ borderColor: '#e8f0fb', margin: '10px 0' }} />
 
-				<Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-					<Typography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.95rem', fontWeight: 700, color: '#000' }}>
+				<Box className="book-card-footer" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+					<Typography className="book-card-price" sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.95rem', fontWeight: 700, color: '#000' }}>
 						{getPriceLabel(book)}
 					</Typography>
 
-					<Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+					<Box className="book-card-actions" sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 						<Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
 							<VisibilityOutlinedIcon sx={{ fontSize: 19, color: '#5a7a9c' }} />
 							<Typography sx={{ fontFamily: "'Sofia Pro', sans-serif", fontSize: '.8rem', color: '#5a7a9c' }}>{views}</Typography>

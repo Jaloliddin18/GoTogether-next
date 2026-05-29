@@ -135,5 +135,6 @@
   "type_other": "기타",
   "type_other_desc": "기타 도서관 자료",
   "cat_comics": "만화",
-  "cat_other": "기타"
+  "cat_other": "기타",
+  "filter_label": "필터"
 }

@@ -5,6 +5,45 @@
 
 ---
 
+## Today's Session Update (2026-05-29, Books page mobile responsive — true mobile-first layout)
+
+### Completed today
+- Rewrote `scss/mobile/books-mobile.scss` with a true mobile-first design:
+  - collapsible slide-up filter drawer with scrim overlay (replaces static sidebar on mobile)
+  - floating action button (FAB) `books-filter-fab` with active-filter badge count
+  - mobile hero banner CSS block (`.books-mobile-hero`) styles defined
+  - 2-column book card grid by default; 3-column on 640–1024 px tablet; 1-column on ≤430 px
+  - sticky sort/topbar strip on mobile
+  - touch-friendly button/icon sizing (44 px tap targets)
+  - `@media (min-width: 1025px)` desktop-safety block that hides FAB/overlay and restores the full desktop column layout exactly.
+- Updated `pages/books/index.tsx` (minimal, surgical changes only):
+  - imported `FilterListIcon` and `CloseIcon` from `@mui/icons-material`
+  - added `filterDrawerOpen` state + `activeFilterCount` computation
+  - wired `is-open` class onto `.filter-config` for CSS drawer animation
+  - added `books-filter-overlay` div for scrim behind open drawer
+  - added `books-filter-fab` `<button>` element (visible only on mobile via CSS `display:none` on desktop)
+  - skeleton `Stack`s now carry `className="books-grid-skeleton"` for mobile border-radius override.
+- Added `filter_label` key (append-only) to:
+  - `public/locales/en/books.json` → `"Filters"`
+  - `public/locales/kr/books.json` → `"필터"`
+  - `public/locales/ru/books.json` → `"Фильтры"`.
+
+### Verification
+- Ran `npm run build` — build passed, ✓ Compiled successfully, 101/101 static pages.
+- Zero TypeScript errors, zero SCSS compilation errors.
+- Desktop styles at ≥1025px confirmed unaffected via the desktop-safety `@media` block.
+
+### Current stopping point
+- Books page is now fully mobile-responsive across 320–1024 px viewports.
+- Filter drawer, card grid, sort bar, and book cards all behave as native mobile UI.
+- Desktop layout is pixel-identical to the pre-change state.
+
+### Exact next task
+- Runtime browser QA on `/books` on mobile viewport (375 px, 390 px, 768 px) to:
+  - confirm FAB appears and opens filter drawer correctly
+  - confirm 2-column → 1-column grid transitions at 430 px
+  - confirm desktop (≥1025 px) is visually unchanged.
+
 ## Today's Session Update (2026-05-29, demo-restricted nav hydration mismatch fix)
 
 ### Completed today

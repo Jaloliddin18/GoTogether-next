@@ -135,5 +135,6 @@
   "type_other": "Other",
   "type_other_desc": "Other library materials",
   "cat_comics": "Comics",
-  "cat_other": "Other"
+  "cat_other": "Other",
+  "filter_label": "Filters"
 }

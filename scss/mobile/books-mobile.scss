@@ -1,0 +1,791 @@
+@import '/scss/variables.scss';
+
+// ─── BOOKS PAGE — TRUE MOBILE-FIRST RESPONSIVE STYLES ───────────────────────
+// Applies inside #mobile-wrap (device === 'mobile' branch in LayoutBasic)
+// AND inside #pc-wrap when viewport width ≤ 1024 px (tablet/narrow desktop).
+// Desktop layout at ≥ 1025 px is NEVER touched.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── Tokens ──────────────────────────────────────────────────────────────────
+$mob-radius-card:  14px;
+$mob-radius-pill:   8px;
+$mob-transition:    0.22s ease;
+$mob-shadow-card:   0 2px 12px rgba(24, 26, 32, 0.09);
+$mob-shadow-filter: 0 -4px 24px rgba(24, 26, 32, 0.18);
+$mob-z-overlay:     310;
+$mob-z-drawer:      320;
+$mob-z-fab:         330;
+
+// ─── MIXIN — all books-page mobile overrides ────────────────────────────────
+@mixin books-mobile-layout {
+
+  // ── 1. Page wrapper ───────────────────────────────────────────────────────
+  #property-list-page {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    background: $color-bg;
+    // Give room above the filter FAB at the bottom
+    padding: 0 0 80px;
+    box-sizing: border-box;
+    position: relative;
+
+    * {
+      box-sizing: border-box;
+    }
+
+    // ── 2. Container ─────────────────────────────────────────────────────
+    .container {
+      width: 100%;
+      max-width: 100%;
+      padding: 0 16px;
+      margin: 0;
+      display: block;
+      position: relative;
+    }
+
+    // ── 3. Mobile page hero banner ───────────────────────────────────────
+    // The desktop version hides this on mobile; we recreate a compact inline
+    // hero bar inside the page itself so there is always a contextual header.
+    .books-mobile-hero {
+      width: 100%;
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 20px 16px 18px;
+      background: linear-gradient(
+        135deg,
+        #0d1b2e 0%,
+        #1a3a6e 65%,
+        #2E86DE 100%
+      );
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 0;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url('/img/booksPage.jpg') center / cover no-repeat;
+        opacity: 0.22;
+        pointer-events: none;
+      }
+
+      .books-mobile-hero-title {
+        position: relative;
+        z-index: 1;
+        color: #fff;
+        font-family: $font;
+        font-size: clamp(22px, 6vw, 30px);
+        font-weight: 700;
+        line-height: 1.25;
+        letter-spacing: 0.02em;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        margin: 0 0 4px;
+      }
+
+      .books-mobile-hero-sub {
+        position: relative;
+        z-index: 1;
+        color: rgba(255, 255, 255, 0.78);
+        font-family: $font;
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1.4;
+      }
+    }
+
+    // ── 4. Sort / top bar ────────────────────────────────────────────────
+    .books-mobile-topbar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px 10px;
+      background: $color-white;
+      border-bottom: 1px solid $color-border;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 2px 8px rgba(24, 26, 32, 0.06);
+    }
+
+    // Legacy .right (sort bar) overrides
+    .right {
+      position: static !important;
+      width: 100%;
+      display: flex !important;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 16px 10px;
+      background: $color-white;
+      border-bottom: 1px solid $color-border;
+      z-index: 200;
+
+      span {
+        flex-shrink: 0;
+        color: $color-muted;
+        font-family: $font;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 18px;
+      }
+
+      button {
+        min-height: 40px;
+        padding: 0 12px;
+        border-radius: $mob-radius-pill;
+        color: $color-dark;
+        font-family: $font;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 20px;
+        background: $color-bg;
+        border: 1px solid $color-border;
+        touch-action: manipulation;
+
+        &:hover,
+        &:focus {
+          background: rgba($color-primary, 0.06);
+          border-color: $color-primary;
+        }
+      }
+    }
+
+    // ── 5. Main two-panel layout → stacked on mobile ─────────────────────
+    .property-page {
+      width: 100%;
+      padding-top: 0 !important;
+      flex-direction: column !important;
+      gap: 0;
+    }
+
+    // ── 6. Filter sidebar → full-width collapsible drawer ────────────────
+    .filter-config {
+      // The sidebar becomes a slide-up drawer controlled by a FAB.
+      // On mobile it starts hidden; the JS/CSS toggle is handled via the
+      // .books-filter-open class added to #property-list-page.
+      position: fixed;
+      inset: auto 0 0 0;
+      width: 100% !important;
+      max-width: 100% !important;
+      height: auto;
+      max-height: 82vh;
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: $mob-z-drawer;
+      pointer-events: none;
+      will-change: transform;
+
+      // when open
+      &.is-open {
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+    }
+
+    // Overlay behind the open drawer
+    .books-filter-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.48);
+      z-index: $mob-z-overlay;
+      cursor: pointer;
+      transition: opacity $mob-transition;
+      opacity: 0;
+      pointer-events: none;
+
+      &.is-visible {
+        display: block;
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+
+    // ── 7. Filter main panel ─────────────────────────────────────────────
+    .filter-main {
+      width: 100%;
+      max-height: 82vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 8px 18px 32px;
+      border-radius: 20px 20px 0 0;
+      background: $color-white;
+      box-shadow: $mob-shadow-filter;
+
+      // Drag handle at the top
+      &::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 4px;
+        border-radius: 2px;
+        background: $color-border;
+        margin: 10px auto 18px;
+      }
+
+      // Scrollbar
+      scrollbar-width: thin;
+      scrollbar-color: $color-border transparent;
+
+      &::-webkit-scrollbar {
+        width: 4px;
+      }
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: $color-border;
+        border-radius: 2px;
+      }
+    }
+
+    .find-your-home {
+      width: 100%;
+      gap: 10px;
+      margin-bottom: 22px !important;
+
+      &:last-child {
+        margin-bottom: 8px !important;
+      }
+
+      .title-main,
+      .title {
+        height: auto;
+        color: $color-dark;
+        font-family: $font;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: $color-muted;
+      }
+
+      .input-box {
+        width: 100%;
+        min-width: 0;
+        min-height: 36px;
+        flex-direction: row !important;
+        align-items: center;
+
+        label {
+          min-width: 0;
+          flex: 1;
+          cursor: pointer;
+        }
+
+        .search-input {
+          width: 100%;
+          min-height: 48px;
+          height: auto;
+          padding-left: 44px;
+          border-radius: $mob-radius-pill;
+          font-family: $font;
+          font-size: 15px;
+          line-height: 20px;
+        }
+
+        img {
+          top: 16px;
+          left: 14px;
+        }
+
+        .property-checkbox {
+          width: 38px;
+          height: 38px;
+          margin-right: 8px;
+          flex-shrink: 0;
+          touch-action: manipulation;
+        }
+      }
+
+      .property-type {
+        max-width: 100%;
+        color: $color-dark;
+        font-family: $font;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 19px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+
+      .square-year-input {
+        width: 100%;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px;
+
+        .central-divider {
+          display: none;
+        }
+
+        input {
+          width: 100%;
+          min-width: 0;
+          height: 48px;
+          font-family: $font;
+          font-size: 14px;
+          border-radius: $mob-radius-pill;
+          border: 1px solid $color-border;
+          outline: none;
+          padding-left: 32px;
+          touch-action: manipulation;
+        }
+      }
+    }
+
+    // ── 8. Filter FAB (floating action button) ───────────────────────────
+    // Rendered via the SCSS pseudo-content on the filter-config wrapper.
+    // The actual button is injected by the books-mobile-filter-fab class
+    // via JSX, but we also style any element with that class here.
+    .books-filter-fab {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: $mob-z-fab;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 26px;
+      background: $color-primary;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      font-family: $font;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      box-shadow: 0 6px 20px rgba($color-primary, 0.48);
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+      transition: background $mob-transition, box-shadow $mob-transition,
+        transform $mob-transition;
+      white-space: nowrap;
+
+      svg {
+        font-size: 20px;
+      }
+
+      &:hover,
+      &:focus {
+        background: $color-primary-hover;
+        box-shadow: 0 8px 24px rgba($color-primary, 0.55);
+        outline: none;
+      }
+
+      &:active {
+        transform: translateX(-50%) scale(0.96);
+      }
+
+      // Active filter badge
+      .fab-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        background: #fff;
+        color: $color-primary;
+        font-size: 11px;
+        font-weight: 800;
+        border-radius: 50%;
+        margin-left: 2px;
+      }
+    }
+
+    // ── 9. Content / list area ───────────────────────────────────────────
+    .main-config {
+      width: 100%;
+      max-width: 100%;
+      padding: 14px 16px 0;
+      margin-bottom: 0 !important;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 18px;
+    }
+
+    // ── 10. Books grid: 2-column base, 1-column on very small screens ────
+    .list-config {
+      width: 100%;
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 14px !important;
+      flex-direction: unset !important;
+      flex-wrap: unset !important;
+    }
+
+    // ── 11. Book cards ───────────────────────────────────────────────────
+    .book-card {
+      max-width: 100%;
+      border-radius: $mob-radius-card;
+      // Override desktop hover lift on touch devices for better feel
+      @media (hover: none) {
+        &:hover {
+          transform: none !important;
+          box-shadow: $mob-shadow-card !important;
+        }
+      }
+
+      // Active press feedback on touch
+      &:active {
+        transform: scale(0.97) !important;
+        transition: transform 0.1s ease !important;
+      }
+    }
+
+    .book-card-media {
+      height: clamp(160px, 48vw, 220px);
+      padding: 10px;
+    }
+
+    .book-card-body {
+      padding: 12px !important;
+    }
+
+    .book-card-title {
+      font-size: 0.92rem !important;
+      line-height: 1.3 !important;
+      overflow-wrap: anywhere;
+      // Cap at 2 lines
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .book-card-author {
+      max-width: 100%;
+      font-size: 0.78rem !important;
+      line-height: 1.35 !important;
+    }
+
+    .book-card-meta {
+      flex-wrap: wrap;
+      gap: 6px 10px !important;
+    }
+
+    .book-card-footer {
+      gap: 8px;
+      align-items: flex-start !important;
+      flex-wrap: wrap;
+    }
+
+    .book-card-price {
+      min-width: 0;
+      font-size: 0.88rem !important;
+      line-height: 1.3 !important;
+      overflow-wrap: anywhere;
+      white-space: nowrap;
+    }
+
+    .book-card-actions {
+      flex-shrink: 0;
+      gap: 6px !important;
+
+      .MuiIconButton-root {
+        width: 44px;
+        height: 44px;
+        padding: 10px;
+        margin: -10px;
+        touch-action: manipulation;
+      }
+    }
+
+    // ── 12. Skeleton cards in 2-column grid ──────────────────────────────
+    .books-grid-skeleton {
+      border-radius: $mob-radius-card;
+      overflow: hidden;
+    }
+
+    // ── 13. Empty / no-data state ────────────────────────────────────────
+    .no-data {
+      width: 100%;
+      grid-column: 1 / -1;
+      min-height: 220px;
+      padding: 32px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      border-radius: $mob-radius-card;
+      background: $color-white;
+      box-shadow: $mob-shadow-card;
+
+      img {
+        max-width: 52px;
+        height: auto;
+        opacity: 0.7;
+      }
+
+      p {
+        color: $color-muted;
+        font-family: $font;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 21px;
+        text-align: center;
+      }
+    }
+
+    // ── 14. Pagination ───────────────────────────────────────────────────
+    .pagination-config {
+      width: 100%;
+      height: auto;
+      gap: 12px;
+      align-items: center;
+      padding: 0 0 16px;
+
+      .pagination-box {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        -webkit-overflow-scrolling: touch;
+
+        // Make MUI pagination bullets touch-friendly
+        .MuiPaginationItem-root {
+          min-width: 36px;
+          min-height: 36px;
+          touch-action: manipulation;
+        }
+      }
+
+      .total-result {
+        p,
+        .MuiTypography-root {
+          color: $color-muted;
+          text-align: center;
+          font-family: $font;
+          font-size: 13px;
+          font-weight: 500;
+          line-height: 20px;
+        }
+      }
+    }
+  } // end #property-list-page
+} // end mixin
+
+// ─── APPLY: #mobile-wrap (UA-detected mobile) ───────────────────────────────
+#mobile-wrap {
+  @include books-mobile-layout;
+}
+
+// ─── APPLY: #pc-wrap at narrow viewport (tablet / small desktop) ─────────────
+@media (max-width: 1024px) {
+  #pc-wrap {
+    @include books-mobile-layout;
+  }
+}
+
+// ─── TABLET: 2 → 3 column upgrade at 640–1024 px ────────────────────────────
+@media (min-width: 640px) and (max-width: 1024px) {
+  #mobile-wrap,
+  #pc-wrap {
+    #property-list-page {
+      .container {
+        padding: 0 24px;
+      }
+
+      .list-config {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 18px !important;
+      }
+
+      .book-card-media {
+        height: 200px;
+      }
+
+      .book-card-title {
+        font-size: 0.96rem !important;
+      }
+
+      // On tablets the filter can be wider and we cap it to a sheet
+      .filter-config {
+        max-width: 420px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%) translateY(100%);
+        border-radius: 20px 20px 0 0;
+
+        &.is-open {
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      .books-filter-fab {
+        bottom: 24px;
+      }
+
+      .main-config {
+        padding: 18px 24px 0;
+      }
+    }
+  }
+}
+
+// ─── SMALL PHONE: single column at ≤ 430 px ─────────────────────────────────
+@media (max-width: 430px) {
+  #mobile-wrap,
+  #pc-wrap {
+    #property-list-page {
+      .list-config {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 14px !important;
+      }
+
+      .book-card-media {
+        height: clamp(190px, 56vw, 240px);
+      }
+
+      .book-card-title {
+        font-size: 1rem !important;
+      }
+
+      .book-card-footer {
+        flex-direction: row;
+        align-items: center !important;
+        justify-content: space-between;
+      }
+
+      .container {
+        padding: 0 12px;
+      }
+
+      .main-config {
+        padding: 12px 12px 0;
+      }
+
+      .filter-main {
+        padding: 8px 14px 28px;
+      }
+
+      .books-filter-fab {
+        font-size: 14px;
+        padding: 12px 22px;
+      }
+    }
+  }
+}
+
+// ─── EXTRA SMALL: ≤ 360 px ───────────────────────────────────────────────────
+@media (max-width: 360px) {
+  #mobile-wrap,
+  #pc-wrap {
+    #property-list-page {
+      .container {
+        padding: 0 10px;
+      }
+
+      .main-config {
+        padding: 10px 10px 0;
+      }
+
+      .filter-main {
+        padding: 8px 12px 24px;
+      }
+
+      .find-your-home {
+        .input-box {
+          .property-checkbox {
+            width: 34px;
+            height: 34px;
+            margin-right: 6px;
+          }
+        }
+      }
+
+      .book-card-footer {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+      }
+
+      .book-card-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .books-filter-fab {
+        font-size: 13px;
+        padding: 11px 18px;
+        bottom: 14px;
+      }
+    }
+  }
+}
+
+// ─── DESKTOP SAFETY — hide mobile-only elements at ≥ 1025 px ────────────────
+// These rules run AFTER the mixin and override it for true desktop widths.
+// The FAB, overlay, and drawer behaviour must be invisible on desktop.
+@media (min-width: 1025px) {
+  #pc-wrap {
+    #property-list-page {
+      // Restore the full-page structure for desktop
+      padding: 0;
+      overflow-x: unset;
+
+      // FAB is completely hidden on desktop
+      .books-filter-fab {
+        display: none !important;
+      }
+
+      // Overlay is completely hidden on desktop
+      .books-filter-overlay {
+        display: none !important;
+        pointer-events: none !important;
+      }
+
+      // Restore filter sidebar to static desktop column layout
+      .filter-config {
+        position: static !important;
+        transform: none !important;
+        width: 339px !important;
+        max-width: 339px !important;
+        max-height: none !important;
+        pointer-events: auto !important;
+        z-index: auto !important;
+      }
+
+      // Restore .right (sort bar) to absolute desktop position
+      .right {
+        position: absolute !important;
+        background: transparent !important;
+        border-bottom: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+      }
+
+      // Restore property-page to desktop row layout
+      .property-page {
+        flex-direction: row !important;
+        padding-top: 96px;
+      }
+
+      // Restore list grid to 3-column desktop layout
+      .list-config {
+        // Desktop inline style already sets grid — no override needed.
+        // Just ensure no mobile overrides leak through.
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 20px !important;
+      }
+
+      // Restore main-config desktop width
+      .main-config {
+        width: 936px;
+        padding: 0;
+      }
+    }
+  }
+}
