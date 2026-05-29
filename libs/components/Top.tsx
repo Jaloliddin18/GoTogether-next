@@ -17,13 +17,12 @@ import useDeviceDetect from '../hooks/useDeviceDetect';
 import Link from 'next/link';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
-import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { Logout } from '@mui/icons-material';
-import { REACT_APP_API_URL } from '../config';
-import { CANCEL_REQUEST } from '../../apollo/user/mutation';
+import { API_BASE_URL } from '../config';
+import { CANCEL_REQUEST, CONFIRM_REQUEST_PICKUP } from '../../apollo/user/mutation';
+import { GET_SESSION_REQUESTS } from '../../apollo/user/query';
 import {
 	getRobotTrackingWsUrl,
 	joinRobotRequestRoom,
@@ -39,13 +38,89 @@ import {
 	RobotNotification,
 	saveRobotNotifications,
 } from '../library/ws/trackingEvents';
-import { RequestStatus } from '../enums/request.enum';
+import { RequestStatus, RequestType } from '../enums/request.enum';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../sweetAlert';
+import { resolveMediaUrl } from '../utils';
+
+const MAX_ROBOT_NOTIFICATIONS = 30;
+const DELIVERY_SESSION_STORAGE_KEY = 'gotogether.delivery.sessionId';
+
+const getTimestampValue = (timestamp?: string): number => {
+	if (!timestamp) return 0;
+	const parsed = new Date(timestamp).getTime();
+	return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+const resolveNotificationRequestKey = (notification: Partial<RobotNotification>): string =>
+	(notification.requestId ?? notification.id ?? '').trim();
+
+const mergeRobotNotification = (
+	existing: RobotNotification | undefined,
+	incoming: RobotNotification,
+): RobotNotification => {
+	const status = incoming.status || existing?.status || 'ASSIGNED';
+	const event = incoming.event || existing?.event || 'robotStatus';
+	return {
+		...(existing ?? incoming),
+		...incoming,
+		id: incoming.requestId,
+		requestId: incoming.requestId,
+		status,
+		event,
+		title: incoming.title || getRobotNotificationTitle(status, event),
+		timestamp: incoming.timestamp || existing?.timestamp || new Date().toISOString(),
+		message: incoming.message ?? existing?.message,
+		robotId: incoming.robotId ?? existing?.robotId,
+		requestType: incoming.requestType ?? existing?.requestType,
+		destinationDeskId: incoming.destinationDeskId ?? existing?.destinationDeskId,
+		bookTitle: incoming.bookTitle ?? existing?.bookTitle,
+		bookImage: incoming.bookImage ?? existing?.bookImage,
+	};
+};
+
+const upsertRobotNotifications = (
+	previous: RobotNotification[],
+	incomingRaw: RobotNotification,
+): RobotNotification[] => {
+	const requestKey = resolveNotificationRequestKey(incomingRaw);
+	if (!requestKey) return previous;
+
+	const incoming: RobotNotification = {
+		...incomingRaw,
+		id: requestKey,
+		requestId: requestKey,
+	};
+
+	const existingIndex = previous.findIndex((item) => item.requestId === requestKey);
+	if (existingIndex === -1) {
+		return [...previous, mergeRobotNotification(undefined, incoming)].slice(-MAX_ROBOT_NOTIFICATIONS);
+	}
+
+	const existing = previous[existingIndex];
+	const isDuplicateEvent = existing.status === incoming.status && existing.timestamp === incoming.timestamp;
+	if (isDuplicateEvent) return previous;
+
+	const existingTime = getTimestampValue(existing.timestamp);
+	const incomingTime = getTimestampValue(incoming.timestamp);
+	if (existingTime && incomingTime && incomingTime < existingTime) return previous;
+
+	const merged = mergeRobotNotification(existing, incoming);
+	const next = [...previous];
+	next[existingIndex] = merged;
+	return next.slice(-MAX_ROBOT_NOTIFICATIONS);
+};
+
+const readDeliverySessionId = (): string | undefined => {
+	if (typeof window === 'undefined') return undefined;
+	const sessionId = window.localStorage.getItem(DELIVERY_SESSION_STORAGE_KEY)?.trim();
+	return sessionId ? sessionId : undefined;
+};
 
 const Top = () => {
+	const NOTIFICATION_BOOK_FALLBACK = '/img/banner/books_hero.png';
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
-	const { t } = useTranslation('common');
+	const { t } = useTranslation(['common', 'layout']);
 	const router = useRouter();
 	const [anchorEl2, setAnchorEl2] = useState<null | HTMLElement>(null);
 	const [lang, setLang] = useState<string | null>('en');
@@ -59,10 +134,19 @@ const Top = () => {
 	const [trackingRequests, setTrackingRequests] = useState<RobotTrackingRequest[]>([]);
 	const [trackingConnected, setTrackingConnected] = useState<boolean>(false);
 	const [cancellingNotificationId, setCancellingNotificationId] = useState<string | null>(null);
+	const [completingNotificationId, setCompletingNotificationId] = useState<string | null>(null);
 	const [cancelErrors, setCancelErrors] = useState<Record<string, string>>({});
+	const [completeErrors, setCompleteErrors] = useState<Record<string, string>>({});
 	const robotSocketRef = useRef<WebSocket | null>(null);
 	const joinedRequestIdsRef = useRef<Set<string>>(new Set<string>());
 	const [cancelRequest] = useMutation(CANCEL_REQUEST);
+	const [confirmRequestPickup] = useMutation(CONFIRM_REQUEST_PICKUP);
+	const shouldLoadRequestContext = Boolean(user?._id) && (trackingRequests.length > 0 || robotNotifications.length > 0);
+	const { data: sessionRequestsData } = useQuery(GET_SESSION_REQUESTS, {
+		variables: { input: { page: 1, limit: 100 } },
+		skip: !shouldLoadRequestContext,
+		fetchPolicy: 'network-only',
+	});
 
 	const cancellableStatuses = new Set<RequestStatus | string>([
 		RequestStatus.QUEUED,
@@ -78,8 +162,8 @@ const Top = () => {
 
 	const addRobotNotification = useCallback((notification: RobotNotification) => {
 		setRobotNotifications((prev) => {
-			if (prev.some((item) => item.id === notification.id)) return prev;
-			const next = [...prev, notification].slice(-30);
+			const next = upsertRobotNotifications(prev, notification);
+			if (next === prev) return prev;
 			saveRobotNotifications(next);
 			return next;
 		});
@@ -116,7 +200,12 @@ const Top = () => {
 
 	useEffect(() => {
 		setTrackingRequests(loadTrackingRequests());
-		setRobotNotifications(loadRobotNotifications());
+		const normalizedNotifications = loadRobotNotifications().reduce(
+			(acc, notification) => upsertRobotNotifications(acc, notification),
+			[] as RobotNotification[],
+		);
+		saveRobotNotifications(normalizedNotifications);
+		setRobotNotifications(normalizedNotifications);
 	}, []);
 
 	useEffect(() => {
@@ -128,11 +217,15 @@ const Top = () => {
 
 			setTrackingRequests(loadTrackingRequests());
 			addRobotNotification({
-				id: `${detail.requestId}-local-${detail.status ?? 'ASSIGNED'}-${detail.createdAt ?? new Date().toISOString()}`,
+				id: detail.requestId,
 				requestId: detail.requestId,
 				title: getRobotNotificationTitle(detail.status ?? 'ASSIGNED'),
 				status: detail.status ?? 'ASSIGNED',
 				message: detail.bookTitle ? `${detail.bookTitle} request is now active.` : 'Delivery request is now active.',
+				requestType: detail.requestType,
+				destinationDeskId: detail.destinationDeskId,
+				bookTitle: detail.bookTitle,
+				bookImage: detail.bookImage,
 				timestamp: detail.createdAt ?? new Date().toISOString(),
 				event: 'localRequest',
 			});
@@ -235,16 +328,67 @@ const Top = () => {
 		() => [...robotNotifications].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()),
 		[robotNotifications],
 	);
+	const requestContextById = React.useMemo(() => {
+		const next = new Map<string, RobotTrackingRequest>();
+		trackingRequests.forEach((request) => {
+			if (!request.requestId) return;
+			next.set(request.requestId, request);
+		});
+		return next;
+	}, [trackingRequests]);
+	const requestDataById = React.useMemo(() => {
+		const next = new Map<string, any>();
+		const list = sessionRequestsData?.getSessionRequests?.list ?? [];
+		list.forEach((request: any) => {
+			if (!request?._id) return;
+			next.set(request._id, request);
+		});
+		return next;
+	}, [sessionRequestsData]);
 	const canShowRobotBell = Boolean(user?._id || trackingRequests.length > 0 || robotNotifications.length > 0);
+
+	const getRequestDetailText = (requestType?: string, destinationDeskId?: string, fallbackMessage?: string): string => {
+		const normalizedDeskId = destinationDeskId?.trim();
+		if (requestType === RequestType.BORROW) {
+			return normalizedDeskId ? t('layout:borrow_request', { id: normalizedDeskId }) : t('layout:borrow_request_no_desk');
+		}
+		if (requestType === RequestType.PURCHASE) {
+			return t('layout:purchase_request');
+		}
+		if (fallbackMessage?.trim()) return fallbackMessage.trim();
+		return t('layout:notifications_delivery_update');
+	};
+
+	const getStatusLabel = (status?: string): string => {
+		if (!status?.trim()) return 'Unknown';
+		return status
+			.toLowerCase()
+			.split('_')
+			.filter(Boolean)
+			.map((chunk) => chunk.charAt(0).toUpperCase() + chunk.slice(1))
+			.join(' ');
+	};
+
+	const resolveNotificationBookImage = (path?: string): string => {
+		if (!path) return '';
+		if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/img/')) return path;
+		if (API_BASE_URL) return `${API_BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+		const resolved = resolveMediaUrl(path, '');
+		if (!resolved) return '';
+		if (!resolved.startsWith('http://') && !resolved.startsWith('https://') && !resolved.startsWith('/')) {
+			return `/${resolved}`;
+		}
+		return resolved;
+	};
 
 	const handleNotificationClick = async () => {
 		closeNotificationPanel();
-		await router.push('/mypage');
+		await router.push({ pathname: '/mypage', query: { category: 'myRequests' } });
 	};
 
-	const dismissNotification = (notificationId: string) => {
+	const dismissNotification = (requestId: string) => {
 		setRobotNotifications((prev) => {
-			const next = prev.filter((n) => n.id !== notificationId);
+			const next = prev.filter((n) => n.requestId !== requestId);
 			saveRobotNotifications(next);
 			return next;
 		});
@@ -252,8 +396,8 @@ const Top = () => {
 
 	const cancelRequestHandler = async (notification: RobotNotification) => {
 		try {
-			setCancellingNotificationId(notification.id);
-			setCancelErrors((prev) => ({ ...prev, [notification.id]: '' }));
+			setCancellingNotificationId(notification.requestId);
+			setCancelErrors((prev) => ({ ...prev, [notification.requestId]: '' }));
 			const { data } = await cancelRequest({
 				variables: { input: { requestId: notification.requestId } },
 			});
@@ -261,7 +405,7 @@ const Top = () => {
 			const now = new Date().toISOString();
 			setRobotNotifications((prev) => {
 				const next = prev.map((item) =>
-					item.id === notification.id
+					item.requestId === notification.requestId
 						? {
 								...item,
 								status: cancelledStatus,
@@ -273,24 +417,84 @@ const Top = () => {
 				saveRobotNotifications(next);
 				return next;
 			});
-			await sweetTopSmallSuccessAlert('Request cancelled. Robot returning to idle.', 1200);
+			await sweetTopSmallSuccessAlert(t('layout:notifications_returning'), 1200);
 		} catch (err: any) {
 			const message = err?.message ?? 'Failed to cancel request';
-			setCancelErrors((prev) => ({ ...prev, [notification.id]: message }));
+			setCancelErrors((prev) => ({ ...prev, [notification.requestId]: message }));
 			await sweetMixinErrorAlert(message);
 		} finally {
 			setCancellingNotificationId(null);
 		}
 	};
 
+	const completeRequestHandler = async (notification: RobotNotification) => {
+		try {
+			setCompletingNotificationId(notification.requestId);
+			setCompleteErrors((prev) => ({ ...prev, [notification.requestId]: '' }));
+			const { data } = await confirmRequestPickup({
+				variables: {
+					input: {
+						requestId: notification.requestId,
+						sessionId: readDeliverySessionId(),
+					},
+				},
+			});
+			const completedStatus = data?.confirmRequestPickup?.status ?? RequestStatus.COMPLETED;
+			const completedAt = data?.confirmRequestPickup?.updatedAt ?? new Date().toISOString();
+			setRobotNotifications((prev) => {
+				const next = prev.map((item) =>
+					item.requestId === notification.requestId
+						? {
+								...item,
+								status: completedStatus,
+								title: getRobotNotificationTitle(completedStatus),
+								timestamp: completedAt,
+						  }
+						: item,
+				);
+				saveRobotNotifications(next);
+				return next;
+			});
+			await sweetTopSmallSuccessAlert(t('layout:notifications_completed'), 1100);
+		} catch (err: any) {
+			const message = err?.message ?? 'Failed to mark request as completed';
+			setCompleteErrors((prev) => ({ ...prev, [notification.requestId]: message }));
+			await sweetMixinErrorAlert(message);
+		} finally {
+			setCompletingNotificationId(null);
+		}
+	};
+
 	const renderNotificationCard = (notification: RobotNotification) => {
 		const canCancel = cancellableStatuses.has(notification.status);
-		const isCancelling = cancellingNotificationId === notification.id;
-		const cancelError = cancelErrors[notification.id];
+		const canConfirmReady =
+			notification.status === RequestStatus.READY ||
+			notification.status === RequestStatus.ARRIVED_AT_STUDENT;
+		const canDismiss =
+			notification.status === RequestStatus.COMPLETED ||
+			notification.status === RequestStatus.CANCELLED ||
+			notification.status === RequestStatus.FAILED;
+		const isCancelling = cancellingNotificationId === notification.requestId;
+		const isCompleting = completingNotificationId === notification.requestId;
+		const cancelError = cancelErrors[notification.requestId];
+		const completeError = completeErrors[notification.requestId];
+		const actionError = cancelError || completeError;
+		const requestContext = requestContextById.get(notification.requestId);
+		const requestData = requestDataById.get(notification.requestId);
+		const requestType = notification.requestType ?? requestContext?.requestType ?? requestData?.requestType;
+		const destinationDeskId = notification.destinationDeskId ?? requestContext?.destinationDeskId ?? requestData?.destinationDeskId;
+		const bookTitle =
+			notification.bookTitle ?? requestContext?.bookTitle ?? requestData?.bookData?.bookTitle ?? 'Book delivery request';
+		const bookImagePath =
+			notification.bookImage ?? requestContext?.bookImage ?? requestData?.bookData?.bookImages?.[0];
+		const bookImage = resolveNotificationBookImage(bookImagePath);
+		const requestDetail = getRequestDetailText(requestType, destinationDeskId, notification.message ?? notification.title);
+		const statusLabel = getStatusLabel(notification.status);
 
 		return (
-			<div key={notification.id} className="robot-notification-card" style={{ display: 'flex', alignItems: 'center' }}>
+			<div key={notification.requestId} className="robot-notification-card">
 				<div
+					className="robot-card-main"
 					role="button"
 					tabIndex={0}
 					onClick={handleNotificationClick}
@@ -300,81 +504,90 @@ const Top = () => {
 							handleNotificationClick();
 						}
 					}}
-					style={{ display: 'flex', alignItems: 'center', flex: 1, cursor: 'pointer', padding: 0, textAlign: 'left' }}
 				>
-					<span className="robot-card-icon"><SmartToyOutlinedIcon /></span>
-					<span className="robot-card-copy">
-						<strong>{notification.title}</strong>
-						<em>{notification.status}</em>
-						<small>{notificationTime(notification.timestamp)}</small>
+					<div className="robot-card-cover">
+						{bookImage ? (
+							<img
+								src={bookImage}
+								alt={bookTitle}
+								onError={(event) => {
+									event.currentTarget.onerror = null;
+									event.currentTarget.src = NOTIFICATION_BOOK_FALLBACK;
+								}}
+							/>
+						) : (
+							<span>Book</span>
+						)}
+					</div>
+					<div className="robot-card-copy">
+						<strong>{bookTitle}</strong>
+						<p className="robot-card-detail">{requestDetail}</p>
+						<div className="robot-card-meta">
+							<em>{statusLabel}</em>
+							<small>{notificationTime(notification.timestamp)}</small>
+						</div>
 						{canCancel && (
-							<span style={{ marginTop: 8 }}>
+							<div className="robot-card-actions">
 								<button
+									className="robot-card-cancel-btn"
 									type="button"
 									onClick={(e) => {
 										e.stopPropagation();
 										cancelRequestHandler(notification);
 									}}
 									disabled={isCancelling}
-									style={{
-										background: '#ffffff',
-										border: '1px solid #EF4444',
-										color: '#EF4444',
-										borderRadius: 8,
-										fontSize: '0.75rem',
-										fontWeight: 700,
-										padding: '4px 10px',
-										cursor: isCancelling ? 'not-allowed' : 'pointer',
-										opacity: isCancelling ? 0.6 : 1,
-									}}
-									onMouseEnter={(e) => {
-										if (isCancelling) return;
-										e.currentTarget.style.background = '#fef2f2';
-									}}
-									onMouseLeave={(e) => {
-										e.currentTarget.style.background = '#ffffff';
-									}}
 								>
 									{isCancelling ? (
-										<span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-											<CircularProgress size={12} sx={{ color: '#EF4444' }} />
+										<span className="robot-card-cancel-loading">
+											<CircularProgress size={12} sx={{ color: '#ffffff' }} />
 											Cancelling...
 										</span>
 									) : (
 										'Cancel Request'
 									)}
 								</button>
-							</span>
+							</div>
 						)}
-						{cancelError && (
-							<small style={{ color: '#EF4444', marginTop: 6 }}>{cancelError}</small>
+						{canConfirmReady && (
+							<div className="robot-card-actions">
+								<button
+									className="robot-card-confirm-btn"
+									type="button"
+									onClick={(e) => {
+										e.stopPropagation();
+										completeRequestHandler(notification);
+									}}
+									disabled={isCompleting}
+								>
+									{isCompleting ? (
+										<span className="robot-card-cancel-loading">
+											<CircularProgress size={12} sx={{ color: '#ffffff' }} />
+											Confirming...
+										</span>
+									) : (
+										'Confirm Pickup'
+									)}
+								</button>
+							</div>
 						)}
-					</span>
-					<ChevronRightOutlinedIcon className="robot-card-arrow" />
+						{actionError && <small className="robot-card-error">{actionError}</small>}
+					</div>
 				</div>
-				<button
-					onClick={(e) => {
-						e.stopPropagation();
-						dismissNotification(notification.id);
-					}}
-					style={{
-						background: 'none',
-						border: 'none',
-						cursor: 'pointer',
-						fontSize: '0.85rem',
-						color: '#9ab0c8',
-						padding: '2px 6px',
-						lineHeight: 1,
-						borderRadius: '4px',
-						flexShrink: 0,
-						transition: 'color 0.2s',
-					}}
-					onMouseEnter={e => (e.currentTarget.style.color = '#d63031')}
-					onMouseLeave={e => (e.currentTarget.style.color = '#9ab0c8')}
-					aria-label="Dismiss notification"
-				>
-					×
-				</button>
+				<div className="robot-card-side">
+					{canDismiss && (
+						<button
+							type="button"
+							className="robot-card-dismiss"
+							onClick={(e) => {
+								e.stopPropagation();
+								dismissNotification(notification.requestId);
+							}}
+							aria-label={t('layout:notifications_dismiss')}
+						>
+							×
+						</button>
+					)}
+				</div>
 			</div>
 		);
 	};
@@ -424,10 +637,10 @@ const Top = () => {
 					<div>{t('Home')}</div>
 				</Link>
 				<Link href={'/books'}>
-					<div>Books</div>
+					<div>{t('layout:nav_books')}</div>
 				</Link>
 				<Link href={'/about'}>
-					<div> About Us </div>
+					<div>{t('layout:nav_about')}</div>
 				</Link>
 				<Link href={'/community'}>
 					<div> {t('Community')} </div>
@@ -436,7 +649,7 @@ const Top = () => {
 					<div> {t('CS')} </div>
 				</Link>
 				{canShowRobotBell && (
-					<button className="mobile-notification-button" type="button" onClick={openNotificationPanel} aria-label="Open robot notifications">
+					<button className="mobile-notification-button" type="button" onClick={openNotificationPanel} aria-label={t('layout:notifications_open')}>
 						<NotificationsOutlinedIcon />
 						{robotNotifications.length > 0 && <span>{Math.min(robotNotifications.length, 9)}</span>}
 					</button>
@@ -445,40 +658,33 @@ const Top = () => {
 				<aside className={`robot-notification-panel ${notificationOpen ? 'open' : ''}`} aria-hidden={!notificationOpen}>
 					<div className="robot-panel-head">
 						<div>
-							<p>Robot Updates</p>
-							<span>{trackingConnected ? 'Live connection active' : 'Waiting for robot signal'}</span>
+							<p>{t('layout:notifications_title')}</p>
+							<span>{trackingConnected ? t('layout:notifications_live') : t('layout:notifications_waiting')}</span>
 						</div>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+						<div className="robot-panel-tools">
 							{robotNotifications.length > 0 && (
 								<button
+									type="button"
+									className="robot-clear-all"
 									onClick={() => {
 										setRobotNotifications([]);
 										saveRobotNotifications([]);
 									}}
-									style={{
-										background: 'none',
-										border: 'none',
-										cursor: 'pointer',
-										fontSize: '0.78rem',
-										color: '#5a7a9c',
-										padding: '2px 8px',
-										borderRadius: '4px',
-										transition: 'color 0.2s',
-									}}
-									onMouseEnter={e => (e.currentTarget.style.color = '#1a6fd4')}
-									onMouseLeave={e => (e.currentTarget.style.color = '#5a7a9c')}
 								>
-									Clear all
+									{t('layout:notifications_clear')}
 								</button>
 							)}
-							<IconButton onClick={closeNotificationPanel} aria-label="Close robot notifications">
+							<IconButton className="robot-panel-close" onClick={closeNotificationPanel} aria-label="Close robot notifications">
 								<CloseOutlinedIcon />
 							</IconButton>
 						</div>
 					</div>
 					<div className="robot-panel-list">
 						{notificationList.length === 0 ? (
-							<div className="robot-panel-empty">No robot updates yet.</div>
+							<div className="robot-panel-empty">
+								<p>No robot updates yet</p>
+								<span>Delivery updates will appear here.</span>
+							</div>
 						) : (
 							notificationList.map((notification) => renderNotificationCard(notification))
 						)}
@@ -505,10 +711,10 @@ const Top = () => {
 								<div>{t('Home')}</div>
 							</Link>
 							<Link href={'/books'}>
-								<div>Books</div>
+								<div>{t('layout:nav_books')}</div>
 							</Link>
 							<Link href={'/about'}>
-								<div> About Us </div>
+								<div>{t('layout:nav_about')}</div>
 							</Link>
 							<Link href={'/community'}>
 								<div> {t('Community')} </div>
@@ -528,7 +734,7 @@ const Top = () => {
 									<div className={'login-user'} onClick={(event: any) => setLogoutAnchor(event.currentTarget)}>
 										<img
 											src={
-												user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
+												user?.memberImage ? `${API_BASE_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
 											}
 											alt=""
 										/>
@@ -562,7 +768,7 @@ const Top = () => {
 
 							<div className={'lan-box'}>
 								{canShowRobotBell && (
-									<IconButton className="notification-button" onClick={openNotificationPanel} aria-label="Open robot notifications">
+									<IconButton className="notification-button" onClick={openNotificationPanel} aria-label={t('layout:notifications_open')}>
 										<Badge
 											badgeContent={robotNotifications.length}
 											color="error"
@@ -597,7 +803,7 @@ const Top = () => {
 											id="en"
 											alt={'usaFlag'}
 										/>
-										{t('English')}
+										{t('layout:lang_en')}
 									</MenuItem>
 									<MenuItem disableRipple onClick={langChoice} id="kr">
 										<img
@@ -607,7 +813,7 @@ const Top = () => {
 											id="uz"
 											alt={'koreanFlag'}
 										/>
-										{t('Korean')}
+										{t('layout:lang_kr')}
 									</MenuItem>
 									<MenuItem disableRipple onClick={langChoice} id="ru">
 										<img
@@ -617,7 +823,7 @@ const Top = () => {
 											id="ru"
 											alt={'russiaFlag'}
 										/>
-										{t('Russian')}
+										{t('layout:lang_ru')}
 									</MenuItem>
 								</StyledMenu>
 							</div>
@@ -628,40 +834,33 @@ const Top = () => {
 				<aside className={`robot-notification-panel ${notificationOpen ? 'open' : ''}`} aria-hidden={!notificationOpen}>
 					<div className="robot-panel-head">
 						<div>
-							<p>Robot Updates</p>
-							<span>{trackingConnected ? 'Live connection active' : 'Waiting for robot signal'}</span>
+							<p>{t('layout:notifications_title')}</p>
+							<span>{trackingConnected ? t('layout:notifications_live') : t('layout:notifications_waiting')}</span>
 						</div>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+						<div className="robot-panel-tools">
 							{robotNotifications.length > 0 && (
 								<button
+									type="button"
+									className="robot-clear-all"
 									onClick={() => {
 										setRobotNotifications([]);
 										saveRobotNotifications([]);
 									}}
-									style={{
-										background: 'none',
-										border: 'none',
-										cursor: 'pointer',
-										fontSize: '0.78rem',
-										color: '#5a7a9c',
-										padding: '2px 8px',
-										borderRadius: '4px',
-										transition: 'color 0.2s',
-									}}
-									onMouseEnter={e => (e.currentTarget.style.color = '#1a6fd4')}
-									onMouseLeave={e => (e.currentTarget.style.color = '#5a7a9c')}
 								>
-									Clear all
+									{t('layout:notifications_clear')}
 								</button>
 							)}
-							<IconButton onClick={closeNotificationPanel} aria-label="Close robot notifications">
+							<IconButton className="robot-panel-close" onClick={closeNotificationPanel} aria-label="Close robot notifications">
 								<CloseOutlinedIcon />
 							</IconButton>
 						</div>
 					</div>
 					<div className="robot-panel-list">
 						{notificationList.length === 0 ? (
-							<div className="robot-panel-empty">No robot updates yet.</div>
+							<div className="robot-panel-empty">
+								<p>No robot updates yet</p>
+								<span>Delivery updates will appear here.</span>
+							</div>
 						) : (
 							notificationList.map((notification) => renderNotificationCard(notification))
 						)}

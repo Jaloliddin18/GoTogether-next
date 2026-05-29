@@ -64,9 +64,9 @@ const withLayoutMain = (Component: any) => {
 							<div className="hero-visual-spacer" style={{ marginTop: '100px', width: '100%', height: '512px' }} />
 							<div className={'hero-sky-copy'}>
 								<h2>
-									Read More,
+									Less time looking,
 									<br />
-									<span className={'walk-less-line'}>Walk Less</span>
+									<span className={'walk-less-line'}>More time booking</span>
 								</h2>
 								<p>
 									Books delivered across campus by <strong>같이Go</strong>.

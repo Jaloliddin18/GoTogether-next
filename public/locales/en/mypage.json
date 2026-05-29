@@ -1,0 +1,15 @@
+{
+  "my_profile": "My Profile",
+  "my_twits": "My Twits",
+  "saved_books": "Saved Books",
+  "recently_viewed": "Recently Viewed",
+  "my_requests": "My Requests",
+  "live_tracking": "Live Tracking",
+  "followers": "Followers",
+  "followings": "Followings",
+  "logout": "Logout",
+  "logout_confirm": "Do you want to log out?",
+  "placeholder": "MY PAGE",
+  "subscribed": "Subscribed!",
+  "unsubscribed": "Unsubscribed!"
+}

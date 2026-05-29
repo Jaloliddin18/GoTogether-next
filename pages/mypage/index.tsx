@@ -21,14 +21,16 @@ import { LIKE_TARGET_MEMBER, SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mu
 import { Messages } from '../../libs/config';
 import { Message } from '../../libs/enums/common.enum';
 import { getJwtToken, updateUserInfo } from '../../libs/auth';
+import { useTranslation } from 'next-i18next';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common', 'layout', 'mypage'])),
 	},
 });
 
 const MyPage: NextPage = () => {
+	const { t } = useTranslation('mypage');
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
@@ -63,7 +65,7 @@ const MyPage: NextPage = () => {
 			if (!user._id) throw new Error(Messages.error2);
 			await subscribe({ variables: { memberId: id } });
 			await refetch({ input: query });
-			await sweetTopSmallSuccessAlert('Subscribed!', 800);
+			await sweetTopSmallSuccessAlert(t('subscribed'), 800);
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -75,7 +77,7 @@ const MyPage: NextPage = () => {
 			if (!user._id) throw new Error(Messages.error2);
 			await unsubscribe({ variables: { memberId: id } });
 			await refetch({ input: query });
-			await sweetTopSmallSuccessAlert('Unsubscribed!', 800);
+			await sweetTopSmallSuccessAlert(t('unsubscribed'), 800);
 		} catch (err: any) {
 			sweetErrorHandling(err).then();
 		}
@@ -87,7 +89,7 @@ const MyPage: NextPage = () => {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 			await likeTargetMember({ variables: { input: id } });
 			await refetch({ input: query });
-			await sweetTopSmallSuccessAlert('Success', 800);
+			await sweetTopSmallSuccessAlert(t('common:success'), 800);
 		} catch (err: any) {
 			console.log('ERROR, likeMemberHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
@@ -105,7 +107,7 @@ const MyPage: NextPage = () => {
 
 	if (!authHydrated) return null;
 	if (!user._id) return null;
-	if (device === 'mobile') return <div>MY PAGE</div>;
+	if (device === 'mobile') return <div>{t('placeholder')}</div>;
 
 	return (
 		<div id="my-page" style={{ position: 'relative' }}>

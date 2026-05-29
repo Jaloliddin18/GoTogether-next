@@ -98,9 +98,10 @@ export const GET_ALL_TWITS_BY_ADMIN = gql`
 				_id
 				memberId
 				text
-				image
+				images
 				meLiked
 				likeCount
+				viewCount
 				deletedAt
 				createdAt
 				updatedAt
@@ -352,6 +353,42 @@ export const GET_REQUESTS = gql`
 					y
 					theta
 				}
+			}
+			metaCounter {
+				total
+			}
+		}
+	}
+`;
+
+/**************************
+ *       LOST ITEM        *
+ *************************/
+
+export const GET_LOST_ITEMS = gql`
+	query GetLostItems($input: LostItemsInquiry!) {
+		getLostItems(input: $input) {
+			list {
+				_id
+				robotId
+				eventType
+				objectType
+				confidence
+				priority
+				detectedAt
+				snapshotPath
+				snapshotUrl
+				status
+				notes
+				location {
+					source
+					floorId
+					x
+					y
+					patrolCheckpoint
+				}
+				createdAt
+				updatedAt
 			}
 			metaCounter {
 				total

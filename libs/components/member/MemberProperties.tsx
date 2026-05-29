@@ -27,23 +27,19 @@ const MyProperties: NextPage = ({ initialInput, ...props }: any) => {
 	const [total, setTotal] = useState<number>(0);
 
 	/** APOLLO REQUESTS **/
-	const {
-		loading: getPropertiesLoading,
-		data: getPropertiesData,
-		error: getPropertiesError,
-		refetch: getPropertiesRefetch,
-	} = useQuery(GET_PROPERTIES, {
+	const { data: propertiesData, refetch: getPropertiesRefetch } = useQuery(GET_PROPERTIES, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: searchFilter },
 		skip: !searchFilter?.search?.memberId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setAgentProperties(data?.getProperties?.list ?? []);
-			setTotal(data?.getProperties?.metaCounter[0]?.total ?? 0);
-		},
 	});
 
 	/** LIFECYCLES **/
+	useEffect(() => {
+		setAgentProperties(propertiesData?.getProperties?.list ?? []);
+		setTotal(propertiesData?.getProperties?.metaCounter[0]?.total ?? 0);
+	}, [propertiesData]);
+
 	useEffect(() => {
 		getPropertiesRefetch().then();
 	}, [searchFilter]);

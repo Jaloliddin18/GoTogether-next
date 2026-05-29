@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useQuery, useMutation, useReactiveVar } from '@apollo/client';
@@ -16,7 +16,6 @@ import { GET_BOOKS } from '../../../apollo/library/query';
 import { LIKE_BOOK } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
 import { Book } from '../../../libs/types/book/book';
-import { T } from '../../../libs/types/common';
 import { Direction, Message } from '../../../libs/enums/common.enum';
 import { resolveMediaUrl } from '../../../libs/utils';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../../libs/sweetAlert';
@@ -84,7 +83,10 @@ const YouMayAlsoLikeCard = ({ book, likeHandler }: CardProps) => {
 					height: '240px',
 					position: 'relative',
 					overflow: 'hidden',
-					background: 'linear-gradient(135deg, #0d1b2e 0%, #1a3a6e 100%)',
+					background: '#f5f7fa',
+					display: 'grid',
+					placeItems: 'center',
+					padding: '14px',
 				}}
 			>
 				{imageUrl && !imageFailed ? (
@@ -93,7 +95,14 @@ const YouMayAlsoLikeCard = ({ book, likeHandler }: CardProps) => {
 						src={imageUrl}
 						alt={book.bookTitle || 'Book cover'}
 						onError={() => setImageFailed(true)}
-						sx={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+						sx={{
+							width: '100%',
+							height: '100%',
+							objectFit: 'contain',
+							objectPosition: 'center',
+							display: 'block',
+							borderRadius: '10px',
+						}}
 					/>
 				) : (
 					<MuiBox
@@ -384,7 +393,7 @@ const YouMayAlsoLike = ({ currentBookId, category }: YouMayAlsoLikeProps) => {
 	const [likeBook] = useMutation(LIKE_BOOK);
 	const user = useReactiveVar(userVar);
 
-	const { loading } = useQuery(GET_BOOKS, {
+	const { loading, data } = useQuery(GET_BOOKS, {
 		fetchPolicy: 'cache-and-network',
 		variables: {
 			input: {
@@ -397,11 +406,12 @@ const YouMayAlsoLike = ({ currentBookId, category }: YouMayAlsoLikeProps) => {
 		},
 		skip: !category,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			const list = (data?.getBooks?.list as Book[]) ?? [];
-			setBooks(list.filter((b) => b._id !== currentBookId));
-		},
 	});
+
+	useEffect(() => {
+		const list = (data?.getBooks?.list as Book[]) ?? [];
+		setBooks(list.filter((b) => b._id !== currentBookId));
+	}, [data, currentBookId]);
 
 	const likeHandler = async (e: React.MouseEvent, bookId: string) => {
 		e.stopPropagation();

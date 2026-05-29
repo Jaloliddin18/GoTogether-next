@@ -1,5 +1,6 @@
 import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { NextPage } from 'next';
+import { useTranslation } from 'next-i18next';
 import { Box, Button, Menu, MenuItem, Pagination, Stack, Typography } from '@mui/material';
 import BookCard from '../../libs/components/book/BookCard';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
@@ -20,13 +21,14 @@ import { userVar } from '../../apollo/store';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common', 'layout', 'books'])),
 	},
 });
 
 const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const { t } = useTranslation('books');
 	const user = useReactiveVar(userVar);
 	const [searchFilter, setSearchFilter] = useState<BooksInquiry>(
 		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
@@ -36,20 +38,17 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [sortingOpen, setSortingOpen] = useState(false);
-	const [filterSortName, setFilterSortName] = useState('New');
+	const [filterSortName, setFilterSortName] = useState('sort_new');
 
 	/** APOLLO REQUESTS **/
 	const [likeTargetBook] = useMutation(LIKE_TARGET_BOOK);
 	const {
+		data: getBooksData,
 		refetch: getBooksRefetch,
 	} = useQuery(GET_BOOKS, {
 		fetchPolicy: 'network-only',
 		variables: { input: searchFilter },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setBooks(data?.getBooks?.list ?? []);
-			setTotal(data?.getBooks?.metaCounter?.[0]?.total ?? 0);
-		},
 	});
 
 	const getSingleQueryValue = (value: string | string[] | undefined): string => {
@@ -98,6 +97,11 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	/** LIFECYCLES **/
+	useEffect(() => {
+		setBooks(getBooksData?.getBooks?.list ?? []);
+		setTotal(getBooksData?.getBooks?.metaCounter?.[0]?.total ?? 0);
+	}, [getBooksData]);
+
 	useEffect(() => {
 		if (!router.isReady) return;
 
@@ -172,15 +176,15 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 		switch (e.currentTarget.id) {
 			case 'new':
 				setSearchFilter({ ...searchFilter, sort: 'createdAt', direction: Direction.ASC });
-				setFilterSortName('New');
+				setFilterSortName('sort_new');
 				break;
 			case 'lowest':
 				setSearchFilter({ ...searchFilter, sort: 'bookPrice.amount', direction: Direction.ASC });
-				setFilterSortName('Lowest Price');
+				setFilterSortName('sort_lowest');
 				break;
 			case 'highest':
 				setSearchFilter({ ...searchFilter, sort: 'bookPrice.amount', direction: Direction.DESC });
-				setFilterSortName('Highest Price');
+				setFilterSortName('sort_highest');
 		}
 		setSortingOpen(false);
 		setAnchorEl(null);
@@ -193,10 +197,10 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 			<div id="property-list-page" style={{ position: 'relative' }}>
 				<div className="container">
 					<Box component={'div'} className={'right'}>
-						<span>Sort by</span>
+						<span>{t('sort_by')}</span>
 						<div>
 							<Button onClick={sortingClickHandler} endIcon={<KeyboardArrowDownRoundedIcon />}>
-								{filterSortName}
+								{t(filterSortName)}
 							</Button>
 							<Menu anchorEl={anchorEl} open={sortingOpen} onClose={sortingCloseHandler} sx={{ paddingTop: '5px' }}>
 								<MenuItem
@@ -205,7 +209,7 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 									disableRipple
 									sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
 								>
-									New
+									{t('sort_new')}
 								</MenuItem>
 								<MenuItem
 									onClick={sortingHandler}
@@ -213,7 +217,7 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 									disableRipple
 									sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
 								>
-									Lowest Price
+									{t('sort_lowest')}
 								</MenuItem>
 								<MenuItem
 									onClick={sortingHandler}
@@ -221,7 +225,7 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 									disableRipple
 									sx={{ boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px' }}
 								>
-									Highest Price
+									{t('sort_highest')}
 								</MenuItem>
 							</Menu>
 						</div>
@@ -238,7 +242,7 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 								{books?.length === 0 ? (
 									<div className={'no-data'} style={{ gridColumn: '1 / -1' }}>
 										<img src="/img/icons/icoAlert.svg" alt="" />
-										<p>No Books found!</p>
+										<p>{t('no_books_found')}</p>
 									</div>
 								) : (
 									books.map((book: Book) => (
@@ -262,7 +266,7 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 								{books.length !== 0 && (
 									<Stack className="total-result">
 										<Typography>
-											Total {total} book{total > 1 ? 's' : ''} available
+											{total === 1 ? t('total_books_one', { count: total }) : t('total_books_other', { count: total })}
 										</Typography>
 									</Stack>
 								)}

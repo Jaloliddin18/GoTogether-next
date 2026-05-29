@@ -1,0 +1,15 @@
+{
+  "my_profile": "내 프로필",
+  "my_twits": "내 트윗",
+  "saved_books": "저장된 도서",
+  "recently_viewed": "최근 본 도서",
+  "my_requests": "내 요청",
+  "live_tracking": "실시간 추적",
+  "followers": "팔로워",
+  "followings": "팔로잉",
+  "logout": "로그아웃",
+  "logout_confirm": "로그아웃하시겠습니까?",
+  "placeholder": "마이 페이지",
+  "subscribed": "구독되었습니다!",
+  "unsubscribed": "구독이 취소되었습니다!"
+}

@@ -1,0 +1,15 @@
+{
+  "my_profile": "Мой профиль",
+  "my_twits": "Мои твиты",
+  "saved_books": "Сохранённые книги",
+  "recently_viewed": "Недавно просмотренные",
+  "my_requests": "Мои запросы",
+  "live_tracking": "Отслеживание в реальном времени",
+  "followers": "Подписчики",
+  "followings": "Подписки",
+  "logout": "Выйти",
+  "logout_confirm": "Вы хотите выйти?",
+  "placeholder": "МОЯ СТРАНИЦА",
+  "subscribed": "Подписка оформлена!",
+  "unsubscribed": "Подписка отменена!"
+}

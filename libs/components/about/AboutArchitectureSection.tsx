@@ -1,19 +1,22 @@
 import React from 'react';
+import { useTranslation } from 'next-i18next';
 
 const AboutArchitectureSection = () => {
+	const { t } = useTranslation('about');
+
 	return (
 		<section className={'about-architecture-section'} aria-labelledby={'about-architecture-title'}>
 			<div className={'container'}>
 				<header className={'architecture-heading'}>
-					<span className={'architecture-eyebrow'}>System Architecture</span>
-					<h2 id={'about-architecture-title'}>From book request to robot delivery</h2>
-					<p>같이Go architecture diagram for the end-to-end prototype flow.</p>
+					<span className={'architecture-eyebrow'}>{t('architecture_eyebrow')}</span>
+					<h2 id={'about-architecture-title'}>{t('architecture_title')}</h2>
+					<p>{t('architecture_desc')}</p>
 				</header>
 
 				<div className={'arch-diagram-block'}>
 					<img
 						src={'/img/robot/architecture.png'}
-						alt={'같이Go System Architecture Diagram'}
+						alt={t('architecture_diagram_alt')}
 						className={'arch-diagram-img'}
 					/>
 				</div>

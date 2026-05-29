@@ -6,7 +6,7 @@ import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import { CustomJwtPayload } from '../../types/customJwtPayload';
 import { CreateTwitInput } from '../../types/twit/twit.input';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 import { getJwtToken } from '../../auth';
 import axios from 'axios';
 import { sweetMixinErrorAlert } from '../../sweetAlert';
@@ -31,7 +31,7 @@ const CommunityComposer = ({ user, loading, onSubmit, onLogin }: CommunityCompos
 	const getMemberImage = (imageUrl: string | undefined) => {
 		if (!imageUrl) return '/img/profile/defaultUser.svg';
 		if (imageUrl.startsWith('/img') || imageUrl.startsWith('http')) return imageUrl;
-		return `${REACT_APP_API_URL}/${imageUrl}`;
+		return `${API_BASE_URL}/${imageUrl}`;
 	};
 
 	const fileChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {

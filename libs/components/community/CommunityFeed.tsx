@@ -9,6 +9,7 @@ interface CommunityFeedProps {
 	loading: boolean;
 	error?: ApolloError;
 	currentUserId?: string;
+	isAdmin?: boolean;
 	onDelete: (id: string) => Promise<void>;
 }
 
@@ -17,6 +18,7 @@ const CommunityFeed = ({
 	loading,
 	error,
 	currentUserId,
+	isAdmin,
 	onDelete,
 }: CommunityFeedProps) => {
 	if (loading) {
@@ -52,7 +54,7 @@ const CommunityFeed = ({
 				<TwitCard
 					key={twit._id}
 					twit={twit}
-					currentUserId={currentUserId}
+					canDelete={Boolean(currentUserId && (currentUserId === twit.memberId || isAdmin))}
 					onDelete={onDelete}
 				/>
 			))}

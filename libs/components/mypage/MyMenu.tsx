@@ -14,30 +14,34 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 import { logOut } from '../../auth';
 import { sweetConfirmAlert } from '../../sweetAlert';
-
-const NAV_ITEMS = [
-	{ category: 'myProfile', label: 'My Profile', Icon: PersonOutlineIcon },
-	{ category: 'myArticles', label: 'My Twits', Icon: EditNoteIcon },
-	{ category: 'myFavorites', label: 'Saved Books', Icon: BookmarkBorderIcon },
-	{ category: 'recentlyVisited', label: 'Recently Viewed', Icon: HistoryIcon },
-	{ category: 'myRequests', label: 'My Requests', Icon: LibraryBooksIcon },
-	{ category: 'robotTracking', label: 'Live Tracking', Icon: MyLocationIcon },
-	{ category: 'followers', label: 'Followers', Icon: PeopleIcon },
-	{ category: 'followings', label: 'Followings', Icon: PersonAddIcon },
-];
+import { MemberType } from '../../enums/member.enum';
+import { useTranslation } from 'next-i18next';
 
 const MyMenu = () => {
+	const { t } = useTranslation('mypage');
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const active: string = (router.query.category as string) ?? 'myProfile';
 	const user = useReactiveVar(userVar);
+	const isAdmin = user?.memberType === MemberType.ADMIN;
+
+	const NAV_ITEMS = [
+		{ category: 'myProfile', label: t('my_profile'), Icon: PersonOutlineIcon },
+		{ category: 'myArticles', label: t('my_twits'), Icon: EditNoteIcon },
+		{ category: 'myFavorites', label: t('saved_books'), Icon: BookmarkBorderIcon },
+		{ category: 'recentlyVisited', label: t('recently_viewed'), Icon: HistoryIcon },
+		{ category: 'myRequests', label: t('my_requests'), Icon: LibraryBooksIcon },
+		{ category: 'robotTracking', label: t('live_tracking'), Icon: MyLocationIcon },
+		{ category: 'followers', label: t('followers'), Icon: PeopleIcon },
+		{ category: 'followings', label: t('followings'), Icon: PersonAddIcon },
+	];
 
 	const logoutHandler = async () => {
 		try {
-			if (await sweetConfirmAlert('Do you want to log out?')) logOut();
+			if (await sweetConfirmAlert(t('logout_confirm'))) logOut();
 		} catch (err: any) {
 			console.log('ERROR, logoutHandler:', err.message);
 		}
@@ -51,12 +55,18 @@ const MyMenu = () => {
 				<div className="my-menu-avatar-wrap">
 					<img
 						className="my-menu-avatar"
-						src={user?.memberImage ? `${REACT_APP_API_URL}/${user.memberImage}` : '/img/profile/defaultUser.svg'}
+						src={user?.memberImage ? `${API_BASE_URL}/${user.memberImage}` : '/img/profile/defaultUser.svg'}
 						alt="profile"
 					/>
 				</div>
 				<Typography className="my-menu-nick">{user?.memberNick}</Typography>
-				<span className="my-menu-type-badge">{user?.memberType}</span>
+				{isAdmin ? (
+					<Link href="/_admin/dashboard" className="my-menu-type-badge my-menu-type-badge--admin">
+						{user?.memberType}
+					</Link>
+				) : (
+					<span className="my-menu-type-badge">{user?.memberType}</span>
+				)}
 			</Stack>
 
 			<div className="my-menu-divider" />
@@ -77,7 +87,7 @@ const MyMenu = () => {
 
 				<div className="my-menu-item my-menu-item--logout" onClick={logoutHandler}>
 					<LogoutIcon className="my-menu-icon" sx={{ fontSize: 20 }} />
-					<span className="my-menu-label">Logout</span>
+					<span className="my-menu-label">{t('logout')}</span>
 				</div>
 			</nav>
 		</Stack>

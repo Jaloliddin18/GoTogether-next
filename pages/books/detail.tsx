@@ -20,30 +20,12 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import AutorenewIcon from '@mui/icons-material/Autorenew';
-import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import CategoryIcon from '@mui/icons-material/Category';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import FlagIcon from '@mui/icons-material/Flag';
-import HeightIcon from '@mui/icons-material/Height';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import NumbersIcon from '@mui/icons-material/Numbers';
 import PinDropOutlinedIcon from '@mui/icons-material/PinDropOutlined';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import ScaleIcon from '@mui/icons-material/Scale';
-import SchoolIcon from '@mui/icons-material/School';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
-import StraightenIcon from '@mui/icons-material/Straighten';
-import StyleIcon from '@mui/icons-material/Style';
-import TranslateIcon from '@mui/icons-material/Translate';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import SwiperCore, { Navigation, Autoplay } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -52,14 +34,14 @@ import 'swiper/css/navigation';
 import Moment from 'react-moment';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next';
 import { Book } from '../../libs/types/book/book';
 import { Comment } from '../../libs/types/comment/comment';
 import { CommentInput, CommentsInquiry } from '../../libs/types/comment/comment.input';
 import { CommentGroup } from '../../libs/enums/comment.enum';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { BookAudience } from '../../libs/enums/book.enum';
-import { DeliveryDestinationType, RequestType } from '../../libs/enums/request.enum';
+import { RequestType } from '../../libs/enums/request.enum';
 import { CreateDeliveryRequestInput } from '../../libs/types/request/request.input';
 import { userVar } from '../../apollo/store';
 import { resolveMediaUrl } from '../../libs/utils';
@@ -77,7 +59,7 @@ const SafeBox = Box as any;
 
 export const getServerSideProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common', 'layout', 'books'])),
 	},
 });
 
@@ -99,13 +81,6 @@ const cardSx = {
 	border: `1px solid ${libraryColors.border}`,
 	borderRadius: { xs: '20px', md: '26px' },
 	boxShadow: '0 18px 50px rgba(15, 31, 51, 0.07)',
-};
-
-const sectionTitleSx = {
-	fontSize: { xs: 20, md: 24 },
-	fontWeight: 800,
-	color: libraryColors.ink,
-	letterSpacing: '-0.02em',
 };
 
 const DESK_SESSION_STORAGE_KEY = 'gotogether.delivery.sessionId';
@@ -136,21 +111,9 @@ function formatLabel(value?: string | number | null): string {
 		.replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function formatCategoryName(cat: string): string {
-	return formatLabel(cat);
-}
-
-function getDifficulty(audience: string): { label: string; color: string } {
-	if (audience === BookAudience.CHILDREN || audience === BookAudience.TEEN)
-		return { label: 'Beginner', color: '#22C55E' };
-	if (audience === BookAudience.GRADUATE || audience === BookAudience.PROFESSIONAL)
-		return { label: 'Advanced', color: '#F59E0B' };
-	return { label: 'Intermediate', color: '#64748B' };
-}
-
-function formatPrice(book?: Book | null): string {
+function computePrice(book?: Book | null): string | null {
 	const price = book?.bookPrice;
-	if (!price) return 'Price unavailable';
+	if (!price) return null;
 	const amount = price.isDiscounted && price.discountPercent
 		? Math.round(price.amount * (1 - price.discountPercent / 100))
 		: price.amount;
@@ -234,6 +197,7 @@ const resolveAutoDeskDestination = (user: any): AutoDeskDestination | null => {
 const BookDetailPage: NextPage = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const { t } = useTranslation('books');
 	const user = useReactiveVar(userVar);
 	const isMobile = device === 'mobile';
 
@@ -259,27 +223,31 @@ const BookDetailPage: NextPage = () => {
 	const [createComment] = useMutation(CREATE_COMMENT);
 	const [createDeliveryRequest, { loading: createRequestLoading }] = useMutation(CREATE_DELIVERY_REQUEST);
 
-	const { loading: getBookLoading, refetch: getBookRefetch } = useQuery(GET_BOOK, {
+	const { loading: getBookLoading, data: getBookData, refetch: getBookRefetch } = useQuery(GET_BOOK, {
 		fetchPolicy: 'network-only',
 		variables: { input: bookId },
 		skip: !bookId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			if (data?.getBook) setBook(data.getBook);
-			setSlideImage(data?.getBook?.bookImages?.[0] ?? '');
-		},
 	});
 
-	const { refetch: getCommentsRefetch } = useQuery(GET_COMMENTS, {
+	const { data: getCommentsData, refetch: getCommentsRefetch } = useQuery(GET_COMMENTS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: commentInquiry },
 		skip: !commentInquiry.search.commentRefId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			if (data?.getComments?.list) setBookComments(data.getComments.list);
-			setCommentTotal(data?.getComments?.metaCounter?.[0]?.total ?? 0);
-		},
 	});
+
+	useEffect(() => {
+		if (!getBookData) return;
+		if (getBookData?.getBook) setBook(getBookData.getBook);
+		setSlideImage(getBookData?.getBook?.bookImages?.[0] ?? '');
+	}, [getBookData]);
+
+	useEffect(() => {
+		if (!getCommentsData) return;
+		if (getCommentsData?.getComments?.list) setBookComments(getCommentsData.getComments.list);
+		setCommentTotal(getCommentsData?.getComments?.metaCounter?.[0]?.total ?? 0);
+	}, [getCommentsData]);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -333,17 +301,11 @@ const BookDetailPage: NextPage = () => {
 		requestType: RequestType,
 		options?: {
 			deskId?: 'A' | 'B';
-			destinationType?: DeliveryDestinationType;
 			skipSuccessToast?: boolean;
 		},
 	): Promise<boolean> => {
 		try {
 			if (!book?._id) return false;
-			const destinationType =
-				options?.destinationType ??
-				(requestType === RequestType.BORROW
-					? DeliveryDestinationType.STUDENT_DESK
-					: DeliveryDestinationType.RECEPTION);
 			const selectedDeskDestination = options?.deskId ? DESK_DESTINATION_MAP[options.deskId] : null;
 			const autoDestination = requestType === RequestType.BORROW ? resolveAutoDeskDestination(user) : null;
 			const destination = selectedDeskDestination ?? autoDestination;
@@ -351,7 +313,6 @@ const BookDetailPage: NextPage = () => {
 			const input: CreateDeliveryRequestInput = {
 				bookId: book._id,
 				requestType,
-				destinationType,
 			};
 			if (destination) {
 				input.destinationDeskId = destination.destinationDeskId;
@@ -375,15 +336,17 @@ const BookDetailPage: NextPage = () => {
 					requestType,
 					status: request.status,
 					bookTitle: book.bookTitle,
+					bookImage: book.bookImages?.[0],
+					destinationDeskId: destination?.destinationDeskId,
 					createdAt: request.createdAt,
 				});
 			}
 
 			if (!options?.skipSuccessToast) {
 				if (requestType === RequestType.PURCHASE) {
-					await sweetTopSuccessAlert('Request sent successfully — Book will be delivered to Reception', 1800);
+					await sweetTopSuccessAlert(t('toast_desk_success'), 1800);
 				} else {
-					await sweetTopSuccessAlert('Request sent successfully', 1800);
+					await sweetTopSuccessAlert(t('toast_success'), 1800);
 				}
 			}
 
@@ -409,7 +372,6 @@ const BookDetailPage: NextPage = () => {
 		setIsDeskSubmitting(true);
 		const success = await createDeliveryRequestHandler(RequestType.BORROW, {
 			deskId: selectedDeskId,
-			destinationType: DeliveryDestinationType.STUDENT_DESK,
 			skipSuccessToast: true,
 		});
 
@@ -418,7 +380,7 @@ const BookDetailPage: NextPage = () => {
 			setSelectedDeskId(null);
 			setIsDeskSubmitting(false);
 			await new Promise((resolve) => setTimeout(resolve, 150));
-			await sweetTopSuccessAlert('Request sent successfully', 1800);
+			await sweetTopSuccessAlert(t('toast_success'), 1800);
 			return;
 		}
 
@@ -431,42 +393,21 @@ const BookDetailPage: NextPage = () => {
 	}, [book?.bookImages]);
 
 	const currentImage = slideImage || imageList[0];
-	const pages = book?.bookPages ?? 0;
-	const readTimeHours = pages > 0 ? Math.max(1, Math.round(pages / 40)) : 0;
-	const pagesPerDay = pages > 0 ? Math.ceil(pages / 14) : 0;
-	const difficulty = getDifficulty(book?.bookAudience ?? '');
-	const reviewLabel = `${commentTotal} Review${commentTotal === 1 ? '' : 's'}`;
-
-	const metaItems = [
-		{ label: 'Category', value: formatLabel(book?.bookCategory), icon: CategoryIcon },
-		{ label: 'Type', value: formatLabel(book?.bookType), icon: AutoStoriesIcon },
-		{ label: 'Format', value: formatLabel(book?.bookFormat), icon: StyleIcon },
-		{ label: 'Language', value: formatLabel(book?.bookLanguage), icon: TranslateIcon },
-		{ label: 'Audience', value: formatLabel(book?.bookAudience), icon: SchoolIcon },
-		{ label: 'Pages', value: book?.bookPages ? `${book.bookPages.toLocaleString()} pages` : '—', icon: MenuBookIcon },
-		{ label: 'Published year', value: book?.bookPublishedYear ?? '—', icon: CalendarMonthIcon },
-		{ label: 'ISBN', value: book?.bookIsbn ?? '—', icon: NumbersIcon },
-		{ label: 'Call Number', value: book?.bookCallNumber ?? '—', icon: BookmarkAddedIcon },
-	];
-
-	const physicalItems = [
-		{ label: 'Width', value: book?.bookDimensions?.widthCm ? `${book.bookDimensions.widthCm}cm` : '—', icon: StraightenIcon },
-		{ label: 'Height', value: book?.bookDimensions?.heightCm ? `${book.bookDimensions.heightCm}cm` : '—', icon: HeightIcon },
-		{ label: 'Weight', value: book?.bookDimensions?.weightGrams ? `${book.bookDimensions.weightGrams}g` : '—', icon: ScaleIcon },
-	];
-
-	const readingItems = [
-		{ label: 'Estimated read time', value: readTimeHours > 0 ? `~${readTimeHours} hours` : '—', icon: AccessTimeIcon },
-		{ label: 'Finish target', value: pagesPerDay > 0 ? `${pagesPerDay} pages/day` : '—', icon: FlagIcon },
-		{ label: 'Difficulty', value: difficulty.label, icon: SchoolIcon, color: difficulty.color },
-	];
-
-	const policyItems = [
-		{ label: 'Borrow period', value: '14 days maximum', icon: CalendarTodayIcon },
-		{ label: 'Renewals', value: '1 renewal allowed before due date', icon: AutorenewIcon },
-		{ label: 'Late fee', value: '₩100 per day after due date', icon: WarningAmberIcon },
-		{ label: 'Return method', value: 'Reception desk or library return station', icon: AssignmentReturnIcon },
-	];
+	const bookDescription = book?.bookDescription?.trim() ?? '';
+	const headlineMetaBadges = useMemo(
+		() =>
+			[
+				{ label: t('category_label'), value: formatLabel(book?.bookCategory) },
+				{ label: t('language_label'), value: formatLabel(book?.bookLanguage) },
+				{ label: t('format_detail_label'), value: formatLabel(book?.bookFormat) },
+			].filter((item) => item.value !== '—'),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[book?.bookCategory, book?.bookLanguage, book?.bookFormat, t],
+	);
+	const robotDeliveryHeadline = book?.isBorrowable ? t('delivery_available') : t('delivery_activates');
+	const robotDeliverySubline = book?.isPurchasable
+		? t('delivery_pickup_sub')
+		: t('delivery_desk_sub');
 
 	if (getBookLoading) {
 		return (
@@ -545,7 +486,7 @@ const BookDetailPage: NextPage = () => {
 										margin: 0,
 									}}
 								>
-									Book Detail
+									{t('page_title')}
 								</h1>
 								<div
 									style={{
@@ -563,17 +504,17 @@ const BookDetailPage: NextPage = () => {
 										onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
 										onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
 									>
-										Home
+										{t('breadcrumb_home')}
 									</Link>
 									<span>/</span>
 									<Link href="/books" style={{ color: '#FFFFFF', textDecoration: 'none' }}
 										onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'underline'; }}
 										onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.textDecoration = 'none'; }}
 									>
-										Books
+										{t('breadcrumb_books')}
 									</Link>
 									<span>/</span>
-									<span>Book Detail</span>
+									<span>{t('breadcrumb_detail')}</span>
 								</div>
 							</div>
 						</div>
@@ -605,29 +546,53 @@ const BookDetailPage: NextPage = () => {
 								alignItems: 'start',
 							}}
 						>
-							<Stack spacing={2}>
-								<SafeBox
-									sx={{
-										borderRadius: '20px',
-										overflow: 'hidden',
-										background: '#ffffff',
-										border: `1px solid ${libraryColors.border}`,
-										height: { xs: 360, sm: 520, lg: 600 },
-										display: 'grid',
-										placeItems: 'center',
-										p: { xs: 1.2, sm: 1.6 },
-									}}
-								>
-									<SafeBox
-										component="img"
-										src={resolveMediaUrl(currentImage, '/img/banner/books_hero.png')}
-										alt={book?.bookTitle ?? 'Book cover'}
-										sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: '14px' }}
-									/>
-								</SafeBox>
-								<Stack
-									direction="row"
-									spacing={1.5}
+								<Stack spacing={2}>
+										<SafeBox
+											sx={{
+												borderRadius: '20px',
+												overflow: 'hidden',
+												background: 'linear-gradient(180deg, #F8FAFD 0%, #F3F6FB 100%)',
+												border: `1px solid ${libraryColors.border}`,
+												width: '100%',
+												minHeight: { xs: 500, sm: 620, lg: 700 },
+												display: 'grid',
+												placeItems: 'center',
+												p: { xs: 1.6, sm: 2.2 },
+											}}
+										>
+										<SafeBox
+											sx={{
+												width: '100%',
+												height: '100%',
+												borderRadius: '16px',
+												background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)',
+												border: '1px solid #E8EDF5',
+												display: 'grid',
+												placeItems: 'center',
+												p: { xs: 1.2, sm: 2 },
+												boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.9)',
+											}}
+										>
+												<SafeBox
+													component="img"
+													src={resolveMediaUrl(currentImage, '/img/banner/books_hero.png')}
+													alt={book?.bookTitle ?? 'Book cover'}
+													sx={{
+														width: 'auto',
+														height: 'auto',
+														maxWidth: '100%',
+														maxHeight: { xs: 460, sm: 580, lg: 660 },
+														objectFit: 'contain',
+														objectPosition: 'center',
+														display: 'block',
+														borderRadius: '12px',
+													}}
+											/>
+										</SafeBox>
+									</SafeBox>
+									<Stack
+										direction="row"
+										spacing={1.5}
 									sx={{ overflowX: 'auto', pb: 1, WebkitOverflowScrolling: 'touch' }}
 								>
 									{imageList.map((img: string, index: number) => {
@@ -644,7 +609,7 @@ const BookDetailPage: NextPage = () => {
 													p: '4px',
 													borderRadius: '12px',
 													border: isActive ? `2px solid ${libraryColors.navy}` : `1px solid ${libraryColors.border}`,
-													background: '#fff',
+													background: '#f5f7fa',
 													cursor: 'pointer',
 													flex: '0 0 auto',
 													'&:hover': { borderColor: libraryColors.navy },
@@ -654,7 +619,15 @@ const BookDetailPage: NextPage = () => {
 													component="img"
 													src={resolveMediaUrl(img, '/img/banner/books_hero.png')}
 													alt="Book thumbnail"
-													sx={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', display: 'block' }}
+													sx={{
+														width: '100%',
+														height: '100%',
+														objectFit: 'contain',
+														objectPosition: 'center',
+														borderRadius: '8px',
+														display: 'block',
+														background: '#f5f7fa',
+													}}
 												/>
 											</SafeBox>
 										);
@@ -663,18 +636,44 @@ const BookDetailPage: NextPage = () => {
 							</Stack>
 
 							<Stack spacing={3}>
-								<Stack spacing={1} sx={{ minWidth: 0 }}>
-									<Typography variant={isMobile ? 'h4' : 'h2'} sx={{ color: libraryColors.ink, fontWeight: 800, lineHeight: 1.2, overflowWrap: 'break-word' }}>
-										{book?.bookTitle ?? 'Book title unavailable'}
-									</Typography>
-									<Typography sx={{ color: libraryColors.muted, fontSize: 18, fontWeight: 500 }}>
-										{book?.bookAuthor ? `by ${book.bookAuthor}` : 'Author unavailable'}
-									</Typography>
-								</Stack>
+									<Stack spacing={1} sx={{ minWidth: 0 }}>
+										<Typography variant={isMobile ? 'h4' : 'h2'} sx={{ color: libraryColors.ink, fontWeight: 800, lineHeight: 1.2, overflowWrap: 'break-word' }}>
+											{book?.bookTitle ?? t('title_unavailable')}
+										</Typography>
+										<Typography sx={{ color: libraryColors.muted, fontSize: 18, fontWeight: 500 }}>
+											{book?.bookAuthor ? t('author_by', { author: book.bookAuthor }) : t('author_unavailable')}
+										</Typography>
+										{headlineMetaBadges.length > 0 && (
+											<Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ pt: 0.5 }}>
+												{headlineMetaBadges.map((item) => (
+													<SafeBox
+														key={item.label}
+														sx={{
+															display: 'inline-flex',
+															alignItems: 'center',
+															gap: 0.8,
+															px: 1.2,
+															py: 0.65,
+															borderRadius: '999px',
+															border: '1px solid #E6EDF7',
+															backgroundColor: '#F7FAFF',
+														}}
+													>
+														<Typography sx={{ color: '#5A6C84', fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+															{item.label}
+														</Typography>
+														<Typography sx={{ color: libraryColors.ink, fontSize: 12, fontWeight: 600 }}>
+															{item.value}
+														</Typography>
+													</SafeBox>
+												))}
+											</Stack>
+										)}
+									</Stack>
 
 								<Stack direction="row" spacing={2} alignItems="center">
 									<Typography sx={{ color: libraryColors.ink, fontSize: 32, fontWeight: 800 }}>
-										{formatPrice(book)}
+										{computePrice(book) ?? t('price_unavailable')}
 									</Typography>
 									{book?.bookPrice?.isDiscounted && book?.bookPrice?.discountPercent ? (
 										<Typography sx={{ color: libraryColors.muted, textDecoration: 'line-through', fontSize: 18 }}>
@@ -684,9 +683,9 @@ const BookDetailPage: NextPage = () => {
 								</Stack>
 
 								<Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
-									{book?.isBorrowable && <Chip label="Borrowable" sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
-									{book?.isPurchasable && <Chip label="Purchasable" sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
-									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#f8fafb', color: '#64748B', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
+									{book?.isBorrowable && <Chip label={t('chip_borrowable')} sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
+									{book?.isPurchasable && <Chip label={t('chip_purchasable')} sx={{ background: '#f8fafb', color: '#1A1A2E', fontWeight: 500, border: '1px solid #64748B', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
+									{book?.bookStatus && <Chip label={formatLabel(book.bookStatus)} sx={{ background: '#E6F5EF', color: '#4DA882', fontWeight: 500, border: 'none', borderRadius: '999px', fontSize: 13, px: 1.5, py: 0.5 }} />}
 								</Stack>
 
 								<Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap' }}>
@@ -717,36 +716,100 @@ const BookDetailPage: NextPage = () => {
 									</Stack>
 								</Stack>
 
+								{bookDescription.length > 0 && (
+									<SafeBox
+										sx={{
+											mt: { xs: 2.25, md: 2.5 },
+											p: { xs: 1.6, sm: 1.9 },
+											borderRadius: '12px',
+											border: '1px solid #E8EEF7',
+											background: 'linear-gradient(180deg, #FCFDFF 0%, #F8FAFC 100%)',
+										}}
+									>
+										<Stack spacing={1}>
+										<Typography
+											sx={{
+												color: libraryColors.ink,
+												fontSize: 12.5,
+												fontWeight: 700,
+												letterSpacing: '0.04em',
+												textTransform: 'uppercase',
+											}}
+										>
+											{t('description_label')}
+										</Typography>
+										<Typography
+											sx={{
+												color: '#111827',
+												fontSize: { xs: 14.5, sm: 15.5 },
+												lineHeight: 1.6,
+												fontWeight: 400,
+												whiteSpace: 'pre-line',
+												overflowWrap: 'anywhere',
+											}}
+										>
+											{bookDescription}
+										</Typography>
+										</Stack>
+									</SafeBox>
+								)}
+
+									<SafeBox
+										sx={{
+											p: { xs: 1.5, sm: 1.8 },
+											borderRadius: '12px',
+											border: '1px solid #DCE9FA',
+											background: 'linear-gradient(135deg, #F8FBFF 0%, #F2F7FF 100%)',
+										}}
+									>
+										<Stack direction="row" spacing={1.3} alignItems="flex-start">
+											<LocalShippingOutlinedIcon sx={{ color: libraryColors.navy, fontSize: 20, mt: 0.15 }} />
+											<Stack spacing={0.45}>
+												<Typography sx={{ color: libraryColors.ink, fontSize: 14, fontWeight: 800 }}>
+													{t('delivery_heading')}
+												</Typography>
+												<Typography sx={{ color: '#30425D', fontSize: 13.5, fontWeight: 600 }}>
+													{robotDeliveryHeadline}
+												</Typography>
+												<Typography sx={{ color: '#4E647F', fontSize: 12.5, lineHeight: 1.45 }}>
+													{robotDeliverySubline}
+												</Typography>
+											</Stack>
+										</Stack>
+									</SafeBox>
+
 								<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
 									<Button
-										variant="outlined"
+										variant="contained"
 										startIcon={<LocalShippingOutlinedIcon />}
 										disabled={createRequestLoading || !book?.isBorrowable}
 										onClick={openDeskSelectionModal}
 										sx={{
 											flex: 1,
 											height: 52,
-											background: '#FFFFFF',
-											borderColor: '#E2E8F0',
-											color: '#1A1A2E',
+											background: '#1B3A6B',
+											border: '1px solid #1B3A6B',
+											color: '#FFFFFF',
 											borderRadius: '12px',
 											textTransform: 'none',
 											fontSize: 16,
 											fontWeight: 700,
-											'&:hover': { background: '#F8FAFC', borderColor: '#1B3A6B' },
+											boxShadow: '0 10px 24px rgba(27,58,107,0.2)',
+											'&:hover': { background: '#17345F', borderColor: '#17345F', boxShadow: '0 12px 26px rgba(23,52,95,0.26)' },
+											'&.Mui-disabled': {
+												background: '#D5DDE8',
+												borderColor: '#D5DDE8',
+												color: '#7A8DA8',
+											},
 										}}
 									>
-										Borrow
+										{t('btn_borrow')}
 									</Button>
 									<Button
 										variant="outlined"
 										startIcon={<ShoppingBagOutlinedIcon />}
 										disabled={createRequestLoading || !book?.isPurchasable}
-										onClick={() =>
-											createDeliveryRequestHandler(RequestType.PURCHASE, {
-												destinationType: DeliveryDestinationType.RECEPTION,
-											})
-										}
+										onClick={() => createDeliveryRequestHandler(RequestType.PURCHASE)}
 										sx={{
 											flex: 1,
 											height: 52,
@@ -760,34 +823,11 @@ const BookDetailPage: NextPage = () => {
 											'&:hover': { background: '#F8FAFC', borderColor: '#1B3A6B' },
 										}}
 									>
-										Commercial
+										{t('btn_purchase')}
 									</Button>
 								</Stack>
 
-								<SafeBox sx={{ border: `1px solid ${libraryColors.border}`, borderRadius: '16px', overflow: 'hidden' }}>
-									<SafeBox sx={{ px: 2, py: 1.5, background: '#F8FAFC', borderBottom: `1px solid ${libraryColors.border}` }}>
-										<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>Catalog Record</Typography>
-									</SafeBox>
-									<SafeBox sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)' } }}>
-										{metaItems.map(({ label, value, icon: Icon }, index) => (
-											<SafeBox
-												key={label}
-												sx={{
-													p: 2,
-													borderRight: { sm: (index + 1) % (isMobile ? 2 : 3) === 0 ? 'none' : `1px solid ${libraryColors.border}` },
-													borderBottom: index < metaItems.length - (isMobile ? 1 : 3) ? `1px solid ${libraryColors.border}` : 'none',
-												}}
-											>
-												<Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
-													<Icon sx={{ fontSize: 18, color: libraryColors.muted }} />
-													<Typography sx={{ color: libraryColors.muted, fontSize: 12, fontWeight: 600, textTransform: 'uppercase' }}>{label}</Typography>
-												</Stack>
-												<Typography sx={{ color: libraryColors.ink, fontWeight: 700 }}>{value}</Typography>
-											</SafeBox>
-										))}
-									</SafeBox>
-								</SafeBox>
-							</Stack>
+								</Stack>
 						</SafeBox>
 					</SafeBox>
 
@@ -837,7 +877,7 @@ const BookDetailPage: NextPage = () => {
 				}}
 			>
 				<DialogTitle sx={{ color: libraryColors.ink, fontWeight: 700, pb: 1 }}>
-					Where would you like the book delivered?
+					{t('modal_title')}
 				</DialogTitle>
 				<DialogContent sx={{ pt: '8px !important' }}>
 					<Stack spacing={1.2}>
@@ -862,7 +902,7 @@ const BookDetailPage: NextPage = () => {
 										},
 									}}
 								>
-									Desk {deskId}
+									{deskId === 'A' ? t('modal_desk_a') : t('modal_desk_b')}
 								</Button>
 							);
 						})}
@@ -874,7 +914,7 @@ const BookDetailPage: NextPage = () => {
 						disabled={isDeskSubmitting}
 						sx={{ textTransform: 'none', color: libraryColors.muted, fontWeight: 700 }}
 					>
-						Cancel
+						{t('modal_cancel')}
 					</Button>
 					<Button
 						variant="contained"
@@ -893,7 +933,7 @@ const BookDetailPage: NextPage = () => {
 							},
 						}}
 					>
-						{isDeskSubmitting ? 'Sending...' : 'Confirm'}
+						{isDeskSubmitting ? t('modal_sending') : t('modal_confirm')}
 					</Button>
 				</DialogActions>
 			</Dialog>

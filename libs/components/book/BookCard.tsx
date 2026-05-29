@@ -105,7 +105,10 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 					height: 240,
 					position: 'relative',
 					overflow: 'hidden',
-					background: 'linear-gradient(135deg, #0d1b2e 0%, #1a3a6e 100%)',
+					background: '#f5f7fa',
+					display: 'grid',
+					placeItems: 'center',
+					padding: '14px',
 				}}
 			>
 				{imageUrl && !imageFailed ? (
@@ -118,8 +121,10 @@ const BookCard = ({ book, likeHandler, className, sx }: BookCardProps) => {
 						sx={{
 							width: '100%',
 							height: '100%',
-							objectFit: 'cover',
+							objectFit: 'contain',
+							objectPosition: 'center',
 							display: 'block',
+							borderRadius: '10px',
 						}}
 					/>
 				) : (

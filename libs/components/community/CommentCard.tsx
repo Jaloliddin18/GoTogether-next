@@ -8,7 +8,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { TwitComment } from '../../types/twit-comment/twit-comment';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 import { LIKE_TWIT_COMMENT, UPDATE_TWIT_COMMENT, DELETE_TWIT_COMMENT } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
 import { sweetConfirmAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
@@ -26,7 +26,7 @@ interface CommentCardProps {
 const resolveAvatar = (imageUrl: string | undefined): string => {
 	if (!imageUrl) return '/img/profile/defaultUser.svg';
 	if (imageUrl.startsWith('/img') || imageUrl.startsWith('http')) return imageUrl;
-	return `${REACT_APP_API_URL}/${imageUrl}`;
+	return `${API_BASE_URL}/${imageUrl}`;
 };
 
 const CommentCard = ({ comment, replies, depth2 = [], onReply, onDelete }: CommentCardProps) => {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next';
 import WestIcon from '@mui/icons-material/West';
 import EastIcon from '@mui/icons-material/East';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -10,7 +11,6 @@ import { BooksInquiry } from '../../types/book/book.input';
 import { Book } from '../../types/book/book';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { GET_BOOKS } from '../../../apollo/user/query';
-import { T } from '../../types/common';
 import { LIKE_BOOK } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
 import { Message } from '../../../libs/enums/common.enum';
@@ -25,19 +25,21 @@ interface FeaturedBooksProps {
 const FeaturedBooks = (props: FeaturedBooksProps) => {
 	const { initialInput, likeSyncTick = 0, onBookLikeToggled } = props;
 	const device = useDeviceDetect();
+	const { t } = useTranslation('books');
 	const [featuredBooks, setFeaturedBooks] = useState<Book[]>([]);
 	const [likeBook] = useMutation(LIKE_BOOK);
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
-	const { refetch } = useQuery(GET_BOOKS, {
+	const { data: getBooksData, refetch } = useQuery(GET_BOOKS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setFeaturedBooks(data?.getBooks?.list ?? []);
-		},
 	});
+
+	useEffect(() => {
+		setFeaturedBooks(getBooksData?.getBooks?.list ?? []);
+	}, [getBooksData]);
 
 	useEffect(() => {
 		if (likeSyncTick <= 0) return;
@@ -66,7 +68,7 @@ const FeaturedBooks = (props: FeaturedBooksProps) => {
 			<Stack className={'top-properties'}>
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
-						<span>Featured Books</span>
+						<span>{t('featured_title')}</span>
 					</Stack>
 					<Stack className={'card-box'} sx={{ mt: '18px' }}>
 						<Swiper
@@ -94,8 +96,8 @@ const FeaturedBooks = (props: FeaturedBooksProps) => {
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
 						<Box component={'div'} className={'left'}>
-							<span>Featured Books</span>
-							<p>Highest rated books in our collection</p>
+							<span>{t('featured_title')}</span>
+							<p>{t('featured_subtitle')}</p>
 						</Box>
 						<Box component={'div'} className={'right'}>
 							<div className={'pagination-box'}>

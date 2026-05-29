@@ -9,22 +9,26 @@ import CommunityShell from '../../libs/components/community/CommunityShell';
 import CommunityComposer from '../../libs/components/community/CommunityComposer';
 import CommunityFeed from '../../libs/components/community/CommunityFeed';
 import { T } from '../../libs/types/common';
+import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Twit } from '../../libs/types/twit/twit';
 import { CreateTwitInput, TwitFeedType, TwitsInquiry } from '../../libs/types/twit/twit.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { CREATE_TWIT, DELETE_TWIT } from '../../apollo/user/mutation';
 import { GET_TWITS } from '../../apollo/user/query';
+import { REMOVE_TWIT_BY_ADMIN } from '../../apollo/admin/mutation';
 import { userVar } from '../../apollo/store';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
+import { MemberType } from '../../libs/enums/member.enum';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common', 'layout', 'community'])),
 	},
 });
 
 const Community: NextPage = ({ initialInput, ...props }: T) => {
+	const { t } = useTranslation('community');
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
@@ -33,6 +37,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	/** APOLLO REQUESTS **/
 	const [createTwit, { loading: createTwitLoading }] = useMutation(CREATE_TWIT);
 	const [deleteTwit] = useMutation(DELETE_TWIT);
+	const [removeTwitByAdmin] = useMutation(REMOVE_TWIT_BY_ADMIN);
 	const {
 		loading: twitsLoading,
 		error: getTwitsError,
@@ -45,6 +50,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	});
 	const twits: Twit[] = twitsData?.getTwits?.list ?? [];
 	const totalCount: number = twitsData?.getTwits?.metaCounter?.[0]?.total ?? 0;
+	const isAdmin = user?.memberType === MemberType.ADMIN;
 
 	/** HANDLERS **/
 	const createTwitHandler = async (input: CreateTwitInput): Promise<boolean> => {
@@ -64,7 +70,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 			const nextInquiry = { ...searchCommunity, page: 1 };
 			setSearchCommunity(nextInquiry);
 			await twitsRefetch({ input: nextInquiry });
-			await sweetTopSmallSuccessAlert('Posted', 800);
+			await sweetTopSmallSuccessAlert(t('toast_posted'), 800);
 			return true;
 		} catch (err: any) {
 			console.log('ERROR, createTwitHandler:', err.message);
@@ -81,15 +87,21 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 				return;
 			}
 
-			const confirmation = await sweetConfirmAlert('Delete this post?');
+			const confirmation = await sweetConfirmAlert(t('delete_confirm'));
 			if (!confirmation) return;
 
-			await deleteTwit({
-				variables: { input: id },
-			});
+			if (isAdmin) {
+				try {
+					await deleteTwit({ variables: { input: id } });
+				} catch {
+					await removeTwitByAdmin({ variables: { input: id } });
+				}
+			} else {
+				await deleteTwit({ variables: { input: id } });
+			}
 
 			await twitsRefetch({ input: searchCommunity });
-			await sweetTopSmallSuccessAlert('Deleted', 800);
+			await sweetTopSmallSuccessAlert(t('toast_deleted'), 800);
 		} catch (err: any) {
 			console.log('ERROR, deleteTwitHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
@@ -128,6 +140,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 						loading={twitsLoading}
 						error={getTwitsError}
 						currentUserId={user?._id}
+						isAdmin={isAdmin}
 						onDelete={deleteTwitHandler}
 					/>
 					{totalCount > searchCommunity.limit && (
@@ -143,7 +156,7 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 							</Stack>
 							<Stack className="total-result">
 								<Typography>
-									Total {totalCount} post{totalCount > 1 ? 's' : ''} available
+									{totalCount === 1 ? t('total_posts_one', { count: totalCount }) : t('total_posts_other', { count: totalCount })}
 								</Typography>
 							</Stack>
 						</Stack>

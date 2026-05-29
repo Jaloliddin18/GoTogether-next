@@ -1,9 +1,494 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-23
-**Current Branch:** `aboutUs`
+**Last Updated:** 2026-05-29
+**Current Branch:** `admin`
 
 ---
+
+## Today's Session Update (2026-05-29, MyPage Russian live-tracking menu label overflow fix)
+
+### Completed today
+- Fixed MyPage left-sidebar label overflow for long localized strings (notably Russian `live_tracking`) in:
+  - `scss/pc/mypage/mypage.scss`
+- Updated menu item/label layout so long labels stay inside their own frame:
+  - `.my-menu-item`: added `width: 100%` and `min-width: 0`
+  - `.my-menu-label`: added flexible width + safe wrapping (`flex: 1`, `min-width: 0`, `white-space: normal`, `overflow-wrap: anywhere`, `word-break: break-word`) and adjusted `line-height` for multi-line readability.
+
+### Verification
+- Per project rule, did not run build.
+- Confirmed `live_tracking` key is consumed in `MyMenu.tsx` and the style fix targets that rendered label path.
+
+### Current stopping point
+- Russian MyPage sidebar long label rendering is now constrained within menu-item bounds and should not spill into adjacent item frames.
+
+### Exact next task
+- Runtime QA on `/mypage` with Russian locale to confirm `Отслеживание в реальном времени` displays cleanly inside the Live Tracking menu item across desktop widths.
+
+## Today's Session Update (2026-05-29, homepage hydration mismatch fix for books i18n namespace)
+
+### Completed today
+- Fixed Next.js hydration mismatch (`Server: "Book Format"`, `Client: "filter_format_label"`) by preloading the missing `books` namespace in homepage SSR props:
+  - `pages/index.tsx`
+  - changed `serverSideTranslations(locale, ['common', 'layout'])` -> `serverSideTranslations(locale, ['common', 'layout', 'books'])`.
+- Root cause: `HeaderFilter` (mounted by `LayoutHome`) uses `useTranslation('books')`, but homepage static props did not include `books`, so client hydration started with untranslated key text.
+
+### Verification
+- Per project rule, did not run build.
+- Confirmed `pages/index.tsx` now includes `books` in `serverSideTranslations(...)`.
+
+### Current stopping point
+- Hydration key-text mismatch for homepage filter labels is fixed at namespace preload level.
+
+### Exact next task
+- Runtime browser QA on homepage (`/`) across `en/kr/ru` to confirm no hydration warning and correct filter-label translation on first paint.
+
+## Today's Session Update (2026-05-29, i18n strict-gap completion for chat/about/member)
+
+### Completed today
+- Closed remaining Task 9/10/member translation gaps with `t(...)` wiring in:
+  - `libs/components/AiChatBubble.tsx`
+  - `libs/components/about/AboutArchitectureSection.tsx`
+  - `libs/components/about/AboutLogoCloudSection.tsx`
+  - `pages/about/index.tsx`
+  - `pages/member/[memberId].tsx`
+- Chat (`common`) completion:
+  - localized remaining hardcoded strings: title/status, welcome copy, `Open` action label, and assistant image alt text.
+- About (`about`) completion:
+  - localized remaining hardcoded architecture/logo-cloud texts and labels.
+  - localized residual visible literals in page scope: prototype description/labels, prototype-scope note, and `avg book search` crisis label.
+- Member (`member`) completion:
+  - localized `Go back` aria label, `Joined` label, and post-count paginator text with pluralized `posts_count`.
+- Locale updates were append-only and 2-space indented in:
+  - `public/locales/{en,kr,ru}/common.json`
+  - `public/locales/{en,kr,ru}/about.json`
+  - `public/locales/{en,kr,ru}/member.json`.
+
+### Verification
+- Per project rule, did not run build.
+- Verified all touched locale files parse via Node `JSON.parse` (`JSON_OK`).
+- Verified newly added keys exist in all required locale files (`KEYS_OK`).
+- Re-ran targeted grep for previously flagged hardcoded literals in chat/about/member targets and confirmed no remaining matches.
+
+### Current stopping point
+- Strict-gap translation scope is now fully wired for the flagged chat/about/member surfaces and locale keys are present in `en/kr/ru`.
+
+### Exact next task
+- Runtime language-switch QA (`en/kr/ru`) on:
+  - AI chat bubble UI text/accessibility labels
+  - `/about` architecture/prototype/logo-cloud sections
+  - `/member/[memberId]` back label, joined label, and post-count text.
+
+## Today's Session Update (2026-05-28, live tracking dock-origin simulation fix + terminal reroute correction)
+
+### Completed today
+- Updated `libs/components/mypage/RobotTracking.tsx` to correct demo live-tracking path behavior.
+- Status-to-position simulation mapping now matches current robot plan assumptions:
+  - `QUEUED`, `ASSIGNED`: robot remains at charging dock
+  - `DISPATCHED`: progression begins from dock-side start of route
+  - `NAVIGATING_TO_SHELF`: interpolates dock -> shelf
+  - `ARRIVED_AT_SHELF`, `VERIFYING_BOOK`, `BOOK_FOUND`, `PICKING_UP`: robot stays at shelf
+  - `DELIVERING`: interpolates shelf -> destination
+  - `ARRIVED_AT_STUDENT`, `READY`: robot stays at destination
+  - `COMPLETED`: robot freezes at destination (no return animation).
+- Corrected terminal reroute policy:
+  - return route now applies to `CANCELLED`, `FAILED`, and `BOOK_NOT_FOUND`
+  - removed `COMPLETED` from return-route triggers.
+- Added per-request/session simulated-position memory:
+  - stores `lastSimulatedPosition` while active simulation is running
+  - `CANCELLED` / `FAILED` reroute starts from `lastSimulatedPosition`
+  - fallback chain: `lastSimulatedPosition` -> latest known base pose -> charging dock.
+- Added explicit helper for return path generation from current simulated pose to dock:
+  - `buildReturnWaypointsFromPose(...)`.
+- Replaced service-point route semantics with reception-point semantics in node naming and destination mapping (`RECEPTION_ENDPOINT`) to align with current model assumptions.
+- Updated failure/cancel timeline alert copy to state reroute-to-dock behavior.
+
+### Verification
+- Ran `npm run build` and it passed.
+- Build output still includes the known `+input` static-generation logs from account join page.
+
+### Current stopping point
+- Live tracking now starts from charging dock correctly, avoids ASSIGNED shelf-jump behavior, freezes completed deliveries at destination, and reroutes cancelled/failed deliveries from the last displayed simulated position.
+
+### Exact next task
+- Runtime QA on `/mypage?category=robotTracking` with status transition scenarios:
+  - ASSIGNED -> no movement from dock
+  - NAVIGATING_TO_SHELF -> dock to shelf progression
+  - DELIVERING -> shelf to destination progression
+  - COMPLETED -> destination freeze
+  - CANCELLED/FAILED mid-route -> reroute to dock from current displayed position.
+
+## Today's Session Update (2026-05-29, i18n translation continuation Tasks 6–10)
+
+### Completed today
+- Verified Task 6 (`mypage` namespace) was already fully wired and matching requested locale keys/usage:
+  - `public/locales/{en,kr,ru}/mypage.json`
+  - `libs/components/mypage/MyMenu.tsx`
+  - `pages/mypage/index.tsx`.
+- Completed Task 7 (`member` namespace) wiring updates:
+  - `pages/member/index.tsx` now loads `member` namespace and uses translated toasts/mobile placeholder
+  - `pages/member/[memberId].tsx` now loads `member` namespace and replaces requested UI strings (tabs, follow button labels, stats, loading/empty states, rail labels/search placeholder, default profile fallback).
+- Completed Task 8 (`cs` namespace) wiring updates:
+  - `libs/components/cs/Terms.tsx`
+  - `libs/components/cs/Faq.tsx`
+  - `libs/components/cs/Notice.tsx`
+  - `pages/cs/index.tsx` now loads `['common', 'layout', 'cs']` and uses translated heading/tab labels.
+- Completed Task 9 About locale extension + key wiring:
+  - appended requested key set to `public/locales/{en,kr,ru}/about.json` (append-only)
+  - wired matching hardcoded strings to `t('about:*')` in:
+    - `pages/about/index.tsx`
+    - `libs/components/about/AboutHeroSection.tsx`.
+- Completed Task 10 chat/common updates:
+  - appended requested chat keys to `public/locales/{en,kr,ru}/common.json` (append-only)
+  - wired `libs/components/AiChatBubble.tsx` with `useTranslation('common')` for chat open/clear/close/error/placeholder/searching/suggestions strings.
+
+### Verification
+- Per project rule, did not run build.
+- Parsed all touched locale JSON files with Node `JSON.parse` check (`ok`).
+- Verified namespace wiring presence via `rg` for member/cs/about/chat targets.
+
+### Current stopping point
+- i18n Tasks 6–10 are implemented in the frontend with append-only locale updates and targeted component/page wiring.
+
+### Exact next task
+- Runtime QA across language switch (`en/kr/ru`) for:
+  - `/member` and `/member/[memberId]`
+  - `/cs`
+  - `/about`
+  - AI chat bubble UI copy and suggestion prompts.
+
+## Today's Session Update (2026-05-28, admin lost-items WATCH/AIRPODS object-type support)
+
+### Completed today
+- Expanded frontend lost-item object enum in `libs/enums/lost-item.enum.ts`:
+  - added `AIRPODS`
+  - added `WATCH`.
+- Updated `pages/_admin/lost-items/index.tsx` object-type UI behavior:
+  - object-type filter dropdown now includes `WATCH` and `AIRPODS` through `LostItemObjectType` values
+  - added explicit object-type label mapping for required display names:
+    - `ID_CARD -> ID Card`
+    - `AIRPODS -> AirPods`
+    - `WATCH -> Watch`
+    - `PHONE -> Phone`
+    - `WALLET -> Wallet`
+    - `BOTTLE -> Bottle`
+    - `BOOK -> Book`
+    - `UNKNOWN -> Unknown`
+  - applied that formatter in:
+    - object-type filter option labels
+    - object-type text in table rows
+    - snapshot image alt text.
+- Scope kept frontend-only and lost-items-only:
+  - no backend changes
+  - no Python vision module changes
+  - no unrelated page changes.
+- Checked for enum-assumption hotspots:
+  - `apollo/admin/query.ts` and `apollo/admin/mutation.ts` required no update
+  - `libs/types/lost-item/*` remained compatible because types already reference the enum.
+
+### Verification
+- Ran `npm run build` and it passed.
+- Build output still includes the known `+input` static-generation logs from account join page.
+
+### Current stopping point
+- Admin lost-items UI now supports and cleanly renders `WATCH` and `AIRPODS` records end-to-end in filter and list surfaces.
+
+### Exact next task
+- If requested, run runtime browser QA at `/_admin/lost-items` with live data and validate WATCH/AIRPODS filtering behavior interactively.
+
+## Today's Session Update (2026-05-27, pointer heading alignment + speed-aware route simulation + stutter fix)
+
+### Completed today
+- Improved live tracking pointer direction in `libs/components/mypage/RobotTracking.tsx`:
+  - heading now prefers route tangent direction on the active polyline
+  - when simulation is active, heading derives from `simulatedDistance` directly to avoid heading jitter at segment boundaries.
+- Added speed-aware movement signal to tracking fallback:
+  - `libs/hooks/useRobotSocket.ts` now exposes `linearSpeed`
+  - speed is read from telemetry payload keys (`linearSpeed`, `speed`, `velocity`, `linearVelocity`, `speedMps`) when available
+  - if missing, speed is inferred from pose delta/time and smoothed.
+- Updated map fallback progression to mimic real robot timing better:
+  - simulation seed distance can use status timeline timestamp + speed window
+  - helps prevent `NAVIGATING_TO_SHELF` visuals from jumping ahead to shelf.
+- Reduced pointer stutter:
+  - removed transform transition from `.robot-arrow` in `scss/pc/mypage/mypage.scss`
+  - simulation loop now maintains one continuous RAF and reads target/speed from refs instead of restarting on each directive change.
+- Added optional speed tuning env support:
+  - `NEXT_PUBLIC_TRACKING_SPEED_FLOOR_UNITS_PER_SEC` in `RobotTracking.tsx`.
+
+### Verification
+- Did not run `npm run build` in frontend (not explicitly requested).
+- Verified working-tree frontend changes for this session are in:
+  - `libs/components/mypage/RobotTracking.tsx`
+  - `libs/hooks/useRobotSocket.ts`
+  - `scss/pc/mypage/mypage.scss`
+  - `AGENTS.md`
+  - `MEMORY.md`.
+
+### Current stopping point
+- Pointer orientation now tracks route heading direction consistently.
+- Movement progression is speed-aware and less state-jumpy.
+- Marker stutter is reduced by removing transform transition and stabilizing RAF updates.
+
+### Exact next task
+- If requested, run browser QA on `/mypage?category=myRequests` with a full delivery + return-to-dock flow and tune `NEXT_PUBLIC_TRACKING_SPEED_FLOOR_UNITS_PER_SEC` for your robot profile.
+
+## Today's Session Update (2026-05-27, mypage live-tracking simulation fallback + notification status label format)
+
+### Completed today
+- Updated MyPage robot tracking behavior in `libs/components/mypage/RobotTracking.tsx` to mimic movement from state updates when reliable live pose is missing:
+  - introduced a live-pose freshness window (`LIVE_POSE_STALE_MS = 3000`)
+  - if socket pose goes stale/missing, tracker now simulates movement along planned corridor polylines using status-driven target distances and speeds
+  - simulation supports both delivery-progress phases and return-to-dock phases
+  - heading/trail rendering now follows whichever pose source is active (live or simulated), preserving smooth UX continuity.
+- Return-route behavior for canceled requests is now represented in map movement:
+  - return routing applies for terminal request statuses `COMPLETED` and `CANCELLED`
+  - route back to dock starts from the nearest map node to the robot’s current/latest pose, not a fixed reception-origin path.
+- Updated notification panel status text in `libs/components/Top.tsx`:
+  - added `getStatusLabel(...)` display formatter to replace underscore tokens with human-readable words (title-cased)
+  - rendered status example: `ARRIVED_AT_STUDENT` -> `Arrived At Student`
+  - left all raw status enum checks unchanged for cancel/confirm/dismiss logic.
+
+### Verification
+- Did not run `npm run build` in this session (not explicitly requested).
+- Confirmed frontend working-tree changes are scoped to:
+  - `libs/components/mypage/RobotTracking.tsx`
+  - `libs/components/Top.tsx`
+  - plus docs updates in `AGENTS.md` and `MEMORY.md`.
+
+### Current stopping point
+- MyPage live tracking now has a deterministic visual fallback path progression when robot telemetry pose is intermittent.
+- Notification status labels are user-friendly and no longer show underscore enum tokens.
+
+### Exact next task
+- If requested, run browser QA on `/mypage?category=myRequests` and live-tracking panel flows for:
+  - normal delivery progression,
+  - cancellation mid-route,
+  - return-to-dock animation continuity,
+  - notification status label readability.
+
+## Today's Session Update (2026-05-26, admin lost-items dashboard + frame-scroll fix)
+
+### Completed today
+- Added a new admin lost-items review page:
+  - `pages/_admin/lost-items/index.tsx`
+- Added new admin GraphQL operations for lost-item management:
+  - `GET_LOST_ITEMS` in `apollo/admin/query.ts`
+  - `UPDATE_LOST_ITEM_STATUS` in `apollo/admin/mutation.ts`
+- Added frontend lost-item enums/types:
+  - `libs/enums/lost-item.enum.ts`
+  - `libs/types/lost-item/lost-item.ts`
+  - `libs/types/lost-item/lost-item.input.ts`
+  - `libs/types/lost-item/lost-item.update.ts`
+- Added admin sidebar route entry:
+  - `Lost Items` -> `/_admin/lost-items` in `libs/components/admin/AdminMenuList.tsx`
+- Implemented lost-items dashboard UI/features:
+  - header: `Night Patrol Lost Items`
+  - subtitle for overnight patrol review context
+  - summary cards: Pending Review / High Priority / Collected / Dismissed
+  - filters: status, object type, priority, robot ID, detected date range, clear filters
+  - table rows with snapshot thumbnail, object type, priority badge, confidence, detected time, robot ID, location summary, status, notes
+  - status actions:
+    - pending -> collected/dismissed
+    - collected/dismissed -> set back to pending
+  - pagination defaults: `page=1`, `limit=20`
+- Snapshot image handling:
+  - uses `resolveMediaUrl(...)` for relative `snapshotUrl`/`snapshotPath`
+  - shows `No snapshot` placeholder when missing/broken.
+- Added lost-item specific SCSS blocks in `scss/pc/admin/admin.scss`.
+- Follow-up fix applied after UI review:
+  - removed forced horizontal scroll behavior (`overflowX` + oversized `minWidth`) on lost-items table
+  - added fixed table layout and cell wrapping classes so the main admin frame is not horizontally scrollable.
+
+### Verification
+- Ran `npm run build` and it passed.
+- Build still includes the known account-join static-generation `+input` console logs.
+
+### Current stopping point
+- Lost-items admin dashboard is integrated and build-verified.
+- Main frame non-scroll requirement for this page is applied.
+- Working tree includes lost-items dashboard implementation plus AGENTS/MEMORY documentation updates.
+
+### Exact next task
+- If requested, run runtime browser QA on `/_admin/lost-items` with live backend data to validate filters, status updates, and snapshot rendering end-to-end.
+
+## Today's Session Update (2026-05-25, robot notification book context + request-tab navigation)
+
+### Completed today
+- Redesigned robot notification cards to include request-specific book context:
+  - thumbnail cover
+  - book title
+  - request detail line
+  - status + timestamp
+  - conditional cancel action.
+- Extended notification/request context payload types:
+  - `libs/library/ws/trackingEvents.ts` (`bookTitle`, `bookImage`, `requestType`, `destinationDeskId`)
+  - `libs/library/ws/trackingClient.ts` (`bookImage`, `destinationDeskId`)
+- Updated request announce payload in `pages/books/detail.tsx` to include:
+  - `bookImage`
+  - `destinationDeskId`.
+- Fixed notification cover rendering reliability by merging request context from `GET_SESSION_REQUESTS` by `requestId` in `libs/components/Top.tsx`, then resolving image source with fallback handling.
+- Added image error fallback for notification covers to avoid broken/missing tiles.
+- Updated notification-card click route to open My Requests directly:
+  - `/mypage?category=myRequests`
+- Restored cancel button visual style to prior state:
+  - solid red background
+  - white label and loading spinner.
+- Changed notification outer card frame to rectangle (removed rounded corners) in `scss/pc/main.scss`.
+
+### Verification
+- `npm run build` was run earlier in this task chain when explicitly requested and passed.
+- Final follow-up styling/navigation tweaks after that build were not rebuilt in this turn.
+
+### Current stopping point
+- Notification drawer now shows book/request context and routes users to the Requests panel when a notification card is clicked.
+- Cover rendering now uses request-linked fallback data and image fallback protection.
+- Cancel button is back to the previous red style; card outer frame is rectangular.
+
+### Exact next task
+- If requested, run a final visual/browser QA pass for notification cards across desktop/mobile and then run a confirmation build.
+
+## Today's Session Update (2026-05-25, navbar robot notification drawer polish)
+
+### Completed today
+- Polished the navbar robot notification drawer UI in:
+  - `libs/components/Top.tsx`
+  - `scss/pc/main.scss`
+- Replaced inline/loud visuals with cleaner class-based styling:
+  - minimal light panel look, subtle border/shadow, tighter spacing
+  - refined header typography and smaller close control
+  - subtle `Clear all` text button styling
+  - compact notification card/list-item styling with restrained hover.
+- Notification card structure/style updates:
+  - removed robot icon from cards
+  - removed right-side chevron arrow
+  - kept title/status/timestamp hierarchy
+  - styled `Cancel Request` as solid red with white text
+  - kept `Cancel Request` in the same content flow (under timestamp) and right-aligned near the card’s right side while inside frame.
+- Dismiss behavior update:
+  - `x` dismiss control now renders only for terminal statuses `CANCELLED` or `FAILED`.
+
+### Verification
+- `npm run build` was run during this task when explicitly requested and passed successfully.
+- Build still showed the known join-page static-generation `+input` console logs.
+
+### Current stopping point
+- Notification drawer now matches a cleaner smart-library visual direction and keeps existing data behavior unchanged.
+- `Cancel Request` remains available on active statuses; dismiss `x` appears only after cancelled/failed statuses.
+
+### Exact next task
+- If requested, do a final pixel-tune pass for the notification card right-side spacing (small offset-only adjustments), without changing any request/tracking logic.
+
+## Today's Session Update (2026-05-24, book detail hierarchy cleanup + Apollo error 17 fix)
+
+### Completed today
+- Removed the top-card `Catalog Record` block from `pages/books/detail.tsx` to reduce crowding in the main decision area.
+- Updated lower metadata tabs in `src/components/books/BookDetailTabs.tsx`:
+  - renamed tab title to `Library Information`
+  - moved/kept catalog fields under `CATALOG RECORD` (category, type, format, language, audience, pages, published year, ISBN, call number)
+  - retained `PHYSICAL DETAILS` (width, height, weight)
+  - removed `READING GUIDE` and `BORROWING POLICY` sections
+- Fixed recurring Apollo runtime invariant error code `17` in `apollo/client.ts` by ensuring `createIsomorphicLink()` always returns a valid link chain in SSR and client paths.
+
+### Current stopping point
+- Book detail top card is now lighter and no longer duplicates catalog-heavy metadata.
+- Catalog/physical details are centralized in the lower Library Information tab.
+- Apollo client initialization now has a guaranteed link path in SSR, which addresses the reported runtime error loop.
+
+### Exact next task
+- If requested, run a focused browser QA pass on `/books/detail?id=<bookId>` to confirm tab content, spacing, and query stability in both first-load and client-navigation flows.
+
+## Today's Session Update (2026-05-24, book cover full-image rendering)
+
+### Completed today
+- Fixed book-cover cropping by switching cover media fit from `cover` to `contain` in requested frontend surfaces:
+  - `libs/components/homepage/NewArrivalCard.tsx`
+  - `libs/components/homepage/FeaturedBookCard.tsx`
+  - `libs/components/homepage/MostBorrowedCard.tsx`
+  - `libs/components/book/BookCard.tsx`
+  - `src/components/books/YouMayAlsoLike.tsx`
+  - `pages/books/detail.tsx` (main cover + thumbnails)
+- Added light neutral image-stage backgrounds/padding in those book-cover wrappers so full covers render cleanly without crop.
+- Preserved non-book hero/banner behavior (book-detail top banner remains unchanged).
+- Updated New Arrivals and Featured cards to resolve cover URLs via `resolveMediaUrl(...)` for consistent external/relative cover handling.
+
+### Verification
+- Ran `npm run build` (explicitly requested during the task).
+- Build failed due an unrelated pre-existing type error:
+  - `libs/components/member/MemberArticles.tsx:105`
+  - `currentUserId` prop passed to `TwitCard`, but `TwitCardProps` does not define that prop.
+
+### Current stopping point
+- Book cards and book detail cover areas now show full cover images without cutting off artwork/text.
+- Working tree includes this cover-rendering fix plus memory/agent documentation update.
+
+### Exact next task
+- If requested, fix the unrelated `TwitCardProps` type mismatch so `npm run build` can complete successfully.
+
+## Today's Session Update (2026-05-24, admin members/cs page design alignment)
+
+### Completed today
+- Redesigned `/_admin/users` (`pages/_admin/users/index.tsx`) to match the rebuilt admin panel design system used by dashboard/books/community/inventory/requests/robots:
+  - uses `admin-page`, `admin-filters`, `admin-table`, `admin-pagination` structure
+  - preserves real data wiring: `GET_ALL_MEMBERS_BY_ADMIN`
+  - preserves admin actions: `UPDATE_MEMBER_BY_ADMIN` with inline member type/status updates.
+- Redesigned CS admin pages to the same visual system:
+  - `pages/_admin/cs/notice.tsx`
+  - `pages/_admin/cs/faq.tsx`
+  - `pages/_admin/cs/inquiry.tsx`
+- Removed legacy tab/list/table placeholder scaffolding on those CS pages and replaced with consistent table-card style and filter bars matching the other admin pages.
+- Reused existing shared badge classes to keep status/type pill visuals consistent with the current admin theme.
+
+### Current stopping point
+- Members page is visually unified and still fully backend-driven for list/update behavior.
+- CS pages are now design-aligned with the modern admin panel but remain mock-data placeholders (no backend CS wiring yet).
+
+### Exact next task
+- Wire CS admin pages (`notice`, `faq`, `inquiry`) to backend GraphQL queries/mutations and replace local/mock rows with real data/actions.
+
+## Today's Session Update (2026-05-24, admin panels wiring + community admin moderation)
+
+### Completed today
+- Implemented real-data admin panels for:
+  - `/_admin/inventory` (`pages/_admin/inventory/index.tsx`)
+  - `/_admin/requests` (`pages/_admin/requests/index.tsx`)
+  - `/_admin/robots` (`pages/_admin/robots/index.tsx`)
+- Inventory panel:
+  - wired `GET_BOOK_INVENTORIES`
+  - added filters (status/type/zone), ID search, pagination
+  - added actions: `UPDATE_BOOK_INVENTORY_STATUS`, `UPDATE_BOOK_INVENTORY`, `removeBookInventoryByAdmin`.
+- Requests panel:
+  - wired `GET_REQUESTS`
+  - added filters (status/type/payment/destination), search, pagination
+  - added guarded transition actions via `UPDATE_REQUEST_STATUS`
+  - added purchase payment update action (`Mark Paid`).
+- Robots panel:
+  - wired `GET_ROBOTS`
+  - added filters (status/online), search, pagination
+  - added create robot flow via `CREATE_ROBOT`
+  - added inline robot updates via `UPDATE_ROBOT` (name/status/online/battery/currentRequestId).
+- Community public moderation:
+  - admins can delete non-owned twits from `/community` and `/community/detail`
+  - delete handler attempts `DELETE_TWIT` first, then `REMOVE_TWIT_BY_ADMIN` fallback when backend enforces admin-only removal for non-owners.
+- Twit contract and rendering fixes:
+  - admin GraphQL twit docs updated from `image` to `images` and include `viewCount`:
+    - `apollo/admin/query.ts`
+    - `apollo/admin/mutation.ts`
+  - twit update type aligned to images array (`libs/types/twit/twit.update.ts`)
+  - removed localStorage like-state workaround from `libs/components/community/TwitActionRow.tsx`; now uses server `meLiked`/`likeCount` with optimistic UI.
+- Community component prop wiring updated:
+  - `CommunityFeed` and `TwitCard` now use `canDelete` instead of owner-only delete prop.
+- Admin community list typed cleanup:
+  - `pages/_admin/community/index.tsx` now reads `twit.viewCount` directly.
+
+### Current stopping point
+- Inventory, Requests, and Robots admin pages are now live and mutation-enabled (core scope).
+- Public community moderation now supports admin delete behavior with backend-safe fallback.
+- Twit media/like handling is aligned to current backend contract (`images`, `meLiked`, `likeCount`).
+
+### Exact next task
+- Runtime QA pass against live backend data:
+  - verify inventory/request/robot mutations and table refresh behavior
+  - verify admin delete on non-owned twits from both feed and detail pages
+  - verify twit likes remain consistent across navigation/reload.
 
 ## Today's Session Update (2026-05-23, homepage advanced filter wiring + about hero image replacement)
 
@@ -513,3 +998,26 @@ b711118 fix: remove Library tab from community feed
 38481a8 feat: community feed tabs wired to getTwits feedType (FOR_YOU / FOLLOWING)
 99aa9c4 feat: finalize twit community updates and image url resolution
 ```
+
+---
+
+## Session Update (2026-05-24) — Admin dashboard layout and admin entry
+
+### Completed
+- MyPage admin status/role entry now links admins to `/_admin/dashboard`.
+- Admin dashboard was redesigned to match the Monolith admin dashboard structure while using 같이Go data:
+  - 4 stat cards: Total Books, Total Members, Active Requests, Robots Online.
+  - Chart row: Member Growth line chart and Requests by Status donut chart.
+  - Ranked lists: Top Viewed Books and Top Liked Books.
+  - Recent Members table with `View all -> /_admin/users`.
+- Dashboard charts use `chart.js/auto`; `chart.js` is pinned to exact `3.8.0`.
+- Chart blur fix applied by using Chart.js `devicePixelRatio`, 12px chart labels, and no forced canvas width/height stretching in SCSS.
+- Dashboard badge styles updated to requested soft pill colors for USER, DESIGNER, ACTIVE, and BLOCK.
+
+### Verification
+- Frontend build was not run because project instructions and the task explicitly said not to run build.
+- Backend build was run from the backend repo after enabling `bookLikes` admin sorting and passed.
+
+### Current stopping point
+- Frontend dashboard UI changes are implemented and ready for runtime browser QA.
+- Backend must be restarted after the `bookLikes` sort validation change for `Top Liked Books` to stop returning `Bad Request Exception`.

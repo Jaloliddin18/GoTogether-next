@@ -1,167 +1,107 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter, withRouter } from 'next/router';
+import React from 'react';
 import Link from 'next/link';
-import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import Collapse from '@mui/material/Collapse';
-import Typography from '@mui/material/Typography';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import { ChatsCircle, Headset, User, UserCircleGear } from 'phosphor-react';
-import cookies from 'js-cookie';
-import useDeviceDetect from '../../hooks/useDeviceDetect';
+import { withRouter } from 'next/router';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
+import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
+import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
+import NightlightRoundOutlinedIcon from '@mui/icons-material/NightlightRoundOutlined';
+
+type MenuItem = {
+	key: string;
+	label: string;
+	href: string;
+	icon: React.ReactNode;
+	match: (path: string) => boolean;
+};
+
+const MENU_ITEMS: MenuItem[] = [
+	{
+		key: 'dashboard',
+		label: 'Dashboard',
+		href: '/_admin/dashboard',
+		icon: <DashboardOutlinedIcon />,
+		match: (p) => p.startsWith('/_admin/dashboard') || p === '/_admin',
+	},
+	{
+		key: 'books',
+		label: 'Books',
+		href: '/_admin/books',
+		icon: <MenuBookOutlinedIcon />,
+		match: (p) => p.startsWith('/_admin/books') || p.startsWith('/_admin/properties'),
+	},
+	{
+		key: 'inventory',
+		label: 'Inventory',
+		href: '/_admin/inventory',
+		icon: <Inventory2OutlinedIcon />,
+		match: (p) => p.startsWith('/_admin/inventory'),
+	},
+	{
+		key: 'requests',
+		label: 'Requests',
+		href: '/_admin/requests',
+		icon: <AssignmentOutlinedIcon />,
+		match: (p) => p.startsWith('/_admin/requests'),
+	},
+	{
+		key: 'lost-items',
+		label: 'Lost Items',
+		href: '/_admin/lost-items',
+		icon: <NightlightRoundOutlinedIcon />,
+		match: (p) => p.startsWith('/_admin/lost-items'),
+	},
+	{
+		key: 'robots',
+		label: 'Robots',
+		href: '/_admin/robots',
+		icon: <SmartToyOutlinedIcon />,
+		match: (p) => p.startsWith('/_admin/robots'),
+	},
+	{
+		key: 'users',
+		label: 'Members',
+		href: '/_admin/users',
+		icon: <PeopleAltOutlinedIcon />,
+		match: (p) => p.startsWith('/_admin/users'),
+	},
+	{
+		key: 'community',
+		label: 'Community',
+		href: '/_admin/community',
+		icon: <ForumOutlinedIcon />,
+		match: (p) => p.startsWith('/_admin/community'),
+	},
+	{
+		key: 'cs',
+		label: 'CS',
+		href: '/_admin/cs/notice',
+		icon: <SupportAgentOutlinedIcon />,
+		match: (p) => p.startsWith('/_admin/cs'),
+	},
+];
 
 const AdminMenuList = (props: any) => {
-	const router = useRouter();
-	const device = useDeviceDetect();
-	const [mobileLayout, setMobileLayout] = useState(false);
-	const [openSubMenu, setOpenSubMenu] = useState('Users');
-	const [openMenu, setOpenMenu] = useState(typeof window === 'object' ? cookies.get('admin_menu') === 'true' : false);
-	const [clickMenu, setClickMenu] = useState<any>([]);
-	const [clickSubMenu, setClickSubMenu] = useState('');
-
-	const {
-		router: { pathname },
-	} = props;
-
-	const pathnames = pathname.split('/').filter((x: any) => x);
-
-	/** LIFECYCLES **/
-	useEffect(() => {
-		if (device === 'mobile') setMobileLayout(true);
-
-		switch (pathnames[1]) {
-			case 'properties':
-				setClickMenu(['Properties']);
-				break;
-			case 'community':
-				setClickMenu(['Community']);
-				break;
-			case 'cs':
-				setClickMenu(['Cs']);
-				break;
-			default:
-				setClickMenu(['Users']);
-				break;
-		}
-
-		switch (pathnames[2]) {
-			case 'logs':
-				setClickSubMenu('Logs');
-				break;
-			case 'inquiry':
-				setClickSubMenu('1:1 Inquiry');
-				break;
-			case 'notice':
-				setClickSubMenu('Notice');
-				break;
-			case 'faq':
-				setClickSubMenu('FAQ');
-				break;
-			case 'board_create':
-				setClickSubMenu('Board Create');
-				break;
-			default:
-				setClickSubMenu('List');
-				break;
-		}
-	}, []);
-
-	/** HANDLERS **/
-	const subMenuChangeHandler = (target: string) => {
-		if (clickMenu.find((item: string) => item === target)) {
-			// setOpenSubMenu('');
-			setClickMenu(clickMenu.filter((menu: string) => target !== menu));
-		} else {
-			// setOpenSubMenu(target);
-			setClickMenu([...clickMenu, target]);
-		}
-	};
-
-	const menu_set = [
-		{
-			title: 'Users',
-			icon: <User size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Users'),
-		},
-		{
-			title: 'Properties',
-			icon: <UserCircleGear size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Properties'),
-		},
-		{
-			title: 'Community',
-			icon: <ChatsCircle size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Community'),
-		},
-		{
-			title: 'Cs',
-			icon: <Headset size={20} color="#bdbdbd" weight="fill" />,
-			on_click: () => subMenuChangeHandler('Cs'),
-		},
-	];
-
-	const sub_menu_set: any = {
-		Users: [{ title: 'List', url: '/_admin/users' }],
-		Properties: [{ title: 'List', url: '/_admin/properties' }],
-		Community: [{ title: 'List', url: '/_admin/community' }],
-		Cs: [
-			{ title: 'FAQ', url: '/_admin/cs/faq' },
-			{ title: 'Notice', url: '/_admin/cs/notice' },
-		],
-	};
+	const pathname: string = props?.router?.pathname ?? '';
 
 	return (
-		<>
-			{menu_set.map((item, index) => (
-				<List className={'menu_wrap'} key={index} disablePadding>
-					<ListItemButton
-						onClick={item.on_click}
-						component={'li'}
-						className={clickMenu[0] === item.title ? 'menu on' : 'menu'}
-						sx={{
-							minHeight: 48,
-							justifyContent: openMenu ? 'initial' : 'center',
-							px: 2.5,
-						}}
-					>
-						<ListItemIcon
-							sx={{
-								minWidth: 0,
-								mr: openMenu ? 3 : 'auto',
-								justifyContent: 'center',
-							}}
-						>
+		<nav className="admin-menu">
+			{MENU_ITEMS.map((item) => {
+				const isActive = item.match(pathname);
+				return (
+					<Link href={item.href} key={item.key} legacyBehavior>
+						<a className={`admin-menu-item${isActive ? ' is-active' : ''}`}>
 							{item.icon}
-						</ListItemIcon>
-						<ListItemText>{item.title}</ListItemText>
-						{clickMenu.find((menu: string) => item.title === menu) ? <ExpandLess /> : <ExpandMore />}
-					</ListItemButton>
-					<Collapse
-						in={!!clickMenu.find((menu: string) => menu === item.title)}
-						className="menu"
-						timeout="auto"
-						component="li"
-						unmountOnExit
-					>
-						<List className="menu-list" disablePadding>
-							{sub_menu_set[item.title] &&
-								sub_menu_set[item.title].map((sub: any, i: number) => (
-									<Link href={sub.url} shallow={true} replace={true} key={i}>
-										<ListItemButton
-											component="li"
-											className={clickMenu[0] === item.title && clickSubMenu === sub.title ? 'li on' : 'li'}
-										>
-											<Typography variant={sub.title} component={'span'}>
-												{sub.title}
-											</Typography>
-										</ListItemButton>
-									</Link>
-								))}
-						</List>
-					</Collapse>
-				</List>
-			))}
-		</>
+							<span>{item.label}</span>
+						</a>
+					</Link>
+				);
+			})}
+		</nav>
 	);
 };
 

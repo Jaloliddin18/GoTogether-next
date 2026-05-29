@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
@@ -9,7 +9,7 @@ import { userVar } from '../../../apollo/store';
 import { T } from '../../types/common';
 import { Book } from '../../types/book/book';
 import { GET_VISITED_BOOKS } from '../../../apollo/user/query';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 
 const PAGE_LIMIT = 10;
 
@@ -32,16 +32,17 @@ const RecentlyVisited: NextPage = () => {
 	const [total, setTotal] = useState(0);
 	const [page, setPage] = useState(1);
 
-	useQuery(GET_VISITED_BOOKS, {
+	const { data: visitedBooksData } = useQuery(GET_VISITED_BOOKS, {
 		fetchPolicy: 'network-only',
 		variables: { input: { page, limit: PAGE_LIMIT } },
 		skip: !user._id,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setBooks(data?.getVisitedBooks?.list ?? []);
-			setTotal(data?.getVisitedBooks?.metaCounter[0]?.total ?? 0);
-		},
 	});
+
+	useEffect(() => {
+		setBooks(visitedBooksData?.getVisitedBooks?.list ?? []);
+		setTotal(visitedBooksData?.getVisitedBooks?.metaCounter[0]?.total ?? 0);
+	}, [visitedBooksData]);
 
 	const paginationHandler = (_: T, value: number) => {
 		setPage(value);
@@ -63,7 +64,7 @@ const RecentlyVisited: NextPage = () => {
 					<div className="bk-grid">
 						{books.map((book) => {
 							const cover = book.bookImages?.[0]
-								? `${REACT_APP_API_URL}/${book.bookImages[0]}`
+								? `${API_BASE_URL}/${book.bookImages[0]}`
 								: '/img/profile/defaultUser.svg';
 							return (
 								<div

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Pagination, Stack, Typography } from '@mui/material';
@@ -7,7 +7,7 @@ import { userVar } from '../../../apollo/store';
 import { T } from '../../types/common';
 import { GET_SESSION_REQUESTS } from '../../../apollo/user/query';
 import { RequestStatus } from '../../enums/request.enum';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 
 const PAGE_LIMIT = 8;
 
@@ -83,16 +83,17 @@ const MyRequests: NextPage = () => {
 	const [activeTab, setActiveTab] = useState<TabFilter>('ALL');
 
 	/** APOLLO **/
-	useQuery(GET_SESSION_REQUESTS, {
+	const { data: sessionRequestsData } = useQuery(GET_SESSION_REQUESTS, {
 		fetchPolicy: 'network-only',
 		variables: { input: { page, limit: PAGE_LIMIT } },
 		skip: !user._id,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setRequests(data?.getSessionRequests?.list ?? []);
-			setTotal(data?.getSessionRequests?.metaCounter[0]?.total ?? 0);
-		},
 	});
+
+	useEffect(() => {
+		setRequests(sessionRequestsData?.getSessionRequests?.list ?? []);
+		setTotal(sessionRequestsData?.getSessionRequests?.metaCounter[0]?.total ?? 0);
+	}, [sessionRequestsData]);
 
 	const filtered = requests.filter((r) => {
 		if (activeTab === 'ACTIVE')  return ACTIVE_STATUSES.includes(r.status);
@@ -131,7 +132,7 @@ const MyRequests: NextPage = () => {
 							};
 							const hasCover = !!req.bookData?.bookImages?.[0];
 							const coverSrc = hasCover
-								? `${REACT_APP_API_URL}/${req.bookData.bookImages[0]}`
+								? `${API_BASE_URL}/${req.bookData.bookImages[0]}`
 								: null;
 							const rawType = (req.requestType as string) ?? '';
 							const type = rawType.charAt(0).toUpperCase() + rawType.slice(1).toLowerCase();

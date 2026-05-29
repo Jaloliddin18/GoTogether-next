@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { FollowInquiry } from '../../types/follow/follow.input';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Follower } from '../../types/follow/follow';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { userVar } from '../../../apollo/store';
@@ -26,7 +26,7 @@ interface MemberFollowsProps {
 const resolveAvatar = (img?: string): string => {
 	if (!img) return '/img/profile/defaultUser.svg';
 	if (img.startsWith('/img') || img.startsWith('http')) return img;
-	return `${REACT_APP_API_URL}/${img}`;
+	return `${API_BASE_URL}/${img}`;
 };
 
 // Coerce MongoDB ObjectId objects to plain strings

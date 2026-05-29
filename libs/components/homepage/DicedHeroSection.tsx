@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Stack } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { ChronicleButton } from '../common/ChronicleButton';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 
@@ -40,25 +41,12 @@ interface DicedHeroSectionProps {
 	fontFamily?: string;
 }
 
-const DEFAULT_DESKTOP_SLIDES: SlideItem[] = [
-	{ title: 'Library Books', image: '/img/homepage/library_books1.jpg' },
-	{ title: 'Community', image: '/img/homepage/community2.jpg' },
-	{ title: 'Robot Delivery', image: '/img/homepage/robot_delivery.webp' },
-	{ title: 'Study Space', image: '/img/homepage/study_space.jpg' },
-];
-
-const DEFAULT_MOBILE_SLIDES: SlideItem[] = [
-	{ title: 'Library Books', image: '/img/section1.png' },
-	{ title: 'Robot Delivery', image: '/img/section3.png' },
-	{ title: 'Study Space', image: '/img/section3.png' },
-	{ title: 'Community', image: '/img/section1.png' },
-];
 
 const DicedHeroSection = ({
-	topText = 'Smart Library',
+	topText,
 	mainText = '같이Go',
-	subMainText = 'Search any book in our catalog and have it delivered to your desk by our autonomous robot. Borrow for reading or purchase to keep - your choice, delivered instantly.',
-	buttonText = 'Browse Books',
+	subMainText,
+	buttonText,
 	slides,
 	onMainButtonClick,
 	topTextStyle = { color: 'var(--diced-hero-section-top-text)' },
@@ -80,6 +68,25 @@ const DicedHeroSection = ({
 }: DicedHeroSectionProps) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const { t } = useTranslation('books');
+
+	const resolvedTopText = topText ?? t('hero_title');
+	const resolvedSubMainText = subMainText ?? t('hero_desc');
+	const resolvedButtonText = buttonText ?? t('hero_browse');
+
+	const DEFAULT_DESKTOP_SLIDES_I18N: SlideItem[] = [
+		{ title: t('hero_stat_books'), image: '/img/homepage/library_books1.jpg' },
+		{ title: t('hero_stat_community'), image: '/img/homepage/community2.jpg' },
+		{ title: t('hero_stat_delivery'), image: '/img/homepage/robot_delivery.webp' },
+		{ title: t('hero_stat_study'), image: '/img/homepage/study_space.jpg' },
+	];
+
+	const DEFAULT_MOBILE_SLIDES_I18N: SlideItem[] = [
+		{ title: t('hero_stat_books'), image: '/img/section1.png' },
+		{ title: t('hero_stat_delivery'), image: '/img/section3.png' },
+		{ title: t('hero_stat_study'), image: '/img/section3.png' },
+		{ title: t('hero_stat_community'), image: '/img/section1.png' },
+	];
 
 	useEffect(() => {
 		if (typeof window === 'undefined') return;
@@ -146,7 +153,7 @@ const DicedHeroSection = ({
 		document.head.appendChild(style);
 	}, []);
 
-	const fallbackSlides = device === 'mobile' ? DEFAULT_MOBILE_SLIDES : DEFAULT_DESKTOP_SLIDES;
+	const fallbackSlides = device === 'mobile' ? DEFAULT_MOBILE_SLIDES_I18N : DEFAULT_DESKTOP_SLIDES_I18N;
 	const effectiveSlides = slides && slides.length > 0 ? slides : fallbackSlides;
 
 	const normalizedSlides = Array.from({ length: 4 }).map((_, index) => {
@@ -204,7 +211,7 @@ const DicedHeroSection = ({
 					transition={{ duration: 0.8, ease: 'easeOut' }}
 					style={{ flex: 1, minWidth: 0 }}
 				>
-					<div style={{ color: '#64748B', fontSize: '16px', fontWeight: 600, ...topTextStyle }}>{topText}</div>
+					<div style={{ color: '#64748B', fontSize: '16px', fontWeight: 600, ...topTextStyle }}>{resolvedTopText}</div>
 					<div style={{ marginTop: '8px' }}>
 						<h2 style={titleStyle}>{mainText}</h2>
 					</div>
@@ -227,11 +234,11 @@ const DicedHeroSection = ({
 							...subMainTextStyle,
 						}}
 					>
-						{subMainText}
+						{resolvedSubMainText}
 					</p>
 					<div style={{ marginTop: '28px' }}>
 						<ChronicleButton
-							text={buttonText}
+							text={resolvedButtonText}
 							onClick={handleMainButtonClick}
 							style={{
 								backgroundColor: buttonStyle?.backgroundColor || '#1B3A6B',
@@ -253,7 +260,7 @@ const DicedHeroSection = ({
 						}}
 					>
 						{warpedSlides.map(({ slide, className }, index) => {
-							const isRightAlignedTitle = slide.title === 'Library Books' || slide.title === 'Robot Delivery';
+							const isRightAlignedTitle = slide.title === t('hero_stat_books') || slide.title === t('hero_stat_delivery');
 							return (
 								<motion.div
 									key={`${slide.title}-${index}`}

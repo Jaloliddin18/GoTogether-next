@@ -2,66 +2,37 @@ import React, { useState } from 'react';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Stack } from '@mui/material';
-
-const faqItems = [
-	{
-		question: 'How do I reserve a book?',
-		answer: 'Use the virtual robot assistant or open the Books page and select Reserve.',
-	},
-	{
-		question: 'Can I borrow books using the robot assistant?',
-		answer: 'Yes, borrowing workflows are integrated into the system.',
-	},
-	{
-		question: 'How long can I keep borrowed books?',
-		answer: 'Books may be borrowed according to library policy.',
-	},
-	{
-		question: 'Can I cancel reservations?',
-		answer: 'Yes. Open your request history and cancel eligible reservations before processing starts.',
-	},
-	{
-		question: 'How do notifications work?',
-		answer: 'You will receive updates for reservation, pickup, and delivery status directly in the platform.',
-	},
-	{
-		question: 'Can I purchase books?',
-		answer: 'Purchasable titles are marked in book detail pages and can be processed through the same request flow.',
-	},
-	{
-		question: 'Can I view my borrowing history?',
-		answer: 'Yes. Your account pages include current and previous request records.',
-	},
-	{
-		question: 'How do I track deliveries?',
-		answer: 'When tracking is available, open the request details page to view live robot delivery status.',
-	},
-	{
-		question: 'Can I use the service on mobile?',
-		answer: 'Yes. Core library actions are available on mobile with responsive layouts.',
-	},
-	{
-		question: 'How do I contact support?',
-		answer: 'Use the Customer Support page and submit an inquiry through the support options.',
-	},
-];
+import { useTranslation } from 'next-i18next';
 
 const Faq = () => {
+	const { t } = useTranslation('cs');
 	const [openFaq, setOpenFaq] = useState<number | null>(null);
+	const faqItems = [
+		{ key: 'faq_1', question: t('faq_q1'), answer: t('faq_a1') },
+		{ key: 'faq_2', question: t('faq_q2'), answer: t('faq_a2') },
+		{ key: 'faq_3', question: t('faq_q3'), answer: t('faq_a3') },
+		{ key: 'faq_4', question: t('faq_q4'), answer: t('faq_a4') },
+		{ key: 'faq_5', question: t('faq_q5'), answer: t('faq_a5') },
+		{ key: 'faq_6', question: t('faq_q6'), answer: t('faq_a6') },
+		{ key: 'faq_7', question: t('faq_q7'), answer: t('faq_a7') },
+		{ key: 'faq_8', question: t('faq_q8'), answer: t('faq_a8') },
+		{ key: 'faq_9', question: t('faq_q9'), answer: t('faq_a9') },
+		{ key: 'faq_10', question: t('faq_q10'), answer: t('faq_a10') },
+	];
 	const toggleFaq = (i: number) => setOpenFaq(openFaq === i ? null : i);
 
 	return (
 		<Stack className={'faq-content'}>
 			<div style={{ marginBottom: 24 }}>
-				<h2 style={{ fontSize: 28, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>Frequently Asked Questions</h2>
+				<h2 style={{ fontSize: 28, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>{t('faq_title')}</h2>
 				<p style={{ fontSize: 14, color: '#64748B', marginTop: 4, marginBottom: 0 }}>
-					Find answers to common questions about our services
+					{t('faq_subtitle')}
 				</p>
 			</div>
 			<Stack className={'faq-wrap'}>
 				{faqItems.map((item, index) => (
 					<div
-						key={item.question}
+						key={item.key}
 						style={{
 							border: '1px solid #E2E8F0',
 							borderRadius: 12,

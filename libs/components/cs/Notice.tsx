@@ -1,53 +1,31 @@
 import React from 'react';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import { Stack } from '@mui/material';
-
-const notices = [
-	{
-		title: 'Important Notice',
-		date: 'May 23, 2026',
-		description: 'Our library robot assistant now supports faster book pickup scheduling.',
-	},
-	{
-		title: 'New Borrowing Feature',
-		date: 'May 23, 2026',
-		description: 'Users can now reserve books directly through virtual robot assistance.',
-	},
-	{
-		title: 'Maintenance Update',
-		date: 'May 23, 2026',
-		description: 'Book inventory synchronization improvements have been deployed.',
-	},
-	{
-		title: 'Library Hours Update',
-		date: 'May 23, 2026',
-		description: 'Weekend operating hours have been extended.',
-	},
-	{
-		title: 'Mobile Access Improvements',
-		date: 'May 23, 2026',
-		description: 'Better mobile responsiveness is now available.',
-	},
-	{
-		title: 'Book Request Expansion',
-		date: 'May 23, 2026',
-		description: 'Students can now request additional academic resources.',
-	},
-];
+import { useTranslation } from 'next-i18next';
 
 const Notice = () => {
+	const { t } = useTranslation('cs');
+	const notices = [
+		{ key: 'notice1', title: t('notice1_title'), date: t('notice1_date'), description: t('notice1_desc') },
+		{ key: 'notice2', title: t('notice2_title'), date: t('notice1_date'), description: t('notice2_desc') },
+		{ key: 'notice3', title: t('notice3_title'), date: t('notice1_date'), description: t('notice3_desc') },
+		{ key: 'notice4', title: t('notice4_title'), date: t('notice1_date'), description: t('notice4_desc') },
+		{ key: 'notice5', title: t('notice5_title'), date: t('notice1_date'), description: t('notice5_desc') },
+		{ key: 'notice6', title: t('notice6_title'), date: t('notice1_date'), description: t('notice6_desc') },
+	];
+
 	return (
 		<Stack className={'notice-content'}>
 			<div style={{ marginBottom: 24 }}>
-				<h2 style={{ fontSize: 28, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>Notice</h2>
+				<h2 style={{ fontSize: 28, fontWeight: 700, color: '#1A1A2E', margin: 0 }}>{t('notice_title')}</h2>
 				<p style={{ fontSize: 14, color: '#64748B', marginTop: 4, marginBottom: 0 }}>
-					Stay updated with our latest announcements and news
+					{t('notice_subtitle')}
 				</p>
 			</div>
 			<Stack className={'notice-cards'}>
 				{notices.map((notice) => (
 					<div
-						key={notice.title}
+						key={notice.key}
 						style={{
 							display: 'flex',
 							flexDirection: 'column',

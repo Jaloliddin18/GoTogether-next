@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
+import { useTranslation } from 'next-i18next';
 import WestIcon from '@mui/icons-material/West';
 import EastIcon from '@mui/icons-material/East';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -10,7 +11,6 @@ import { BooksInquiry } from '../../types/book/book.input';
 import NewArrivalCard from './NewArrivalCard';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { GET_BOOKS } from '../../../apollo/user/query';
-import { T } from '../../types/common';
 import { LIKE_BOOK } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
 import { Message } from '../../../libs/enums/common.enum';
@@ -25,19 +25,21 @@ interface NewArrivalsProps {
 const NewArrivals = (props: NewArrivalsProps) => {
 	const { initialInput, likeSyncTick = 0, onBookLikeToggled } = props;
 	const device = useDeviceDetect();
+	const { t } = useTranslation('books');
 	const [newArrivals, setNewArrivals] = useState<Book[]>([]);
 	const [likeBook] = useMutation(LIKE_BOOK);
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
-	const { refetch } = useQuery(GET_BOOKS, {
+	const { data: getBooksData, refetch } = useQuery(GET_BOOKS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setNewArrivals(data?.getBooks?.list ?? []);
-		},
 	});
+
+	useEffect(() => {
+		setNewArrivals(getBooksData?.getBooks?.list ?? []);
+	}, [getBooksData]);
 
 	useEffect(() => {
 		if (likeSyncTick <= 0) return;
@@ -68,12 +70,12 @@ const NewArrivals = (props: NewArrivalsProps) => {
 			<Stack className={'trend-properties'}>
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
-						<span>New Arrivals</span>
+						<span>{t('arrivals_title')}</span>
 					</Stack>
 					<Stack className={'card-box'} sx={{ mt: '18px' }}>
 						{newArrivals.length === 0 ? (
 							<Box component={'div'} className={'empty-list'}>
-								No books found
+								{t('no_books')}
 							</Box>
 						) : (
 							<Swiper
@@ -102,8 +104,8 @@ const NewArrivals = (props: NewArrivalsProps) => {
 				<Stack className={'container'}>
 					<Stack className={'info-box'}>
 						<Box component={'div'} className={'left'}>
-							<span>New Arrivals</span>
-							<p>Recently added books to our library collection</p>
+							<span>{t('arrivals_title')}</span>
+							<p>{t('arrivals_subtitle')}</p>
 						</Box>
 						<Box component={'div'} className={'right'}>
 							<div className={'pagination-box'}>
@@ -116,7 +118,7 @@ const NewArrivals = (props: NewArrivalsProps) => {
 					<Stack className={'card-box'} sx={{ mt: '18px' }}>
 						{newArrivals.length === 0 ? (
 							<Box component={'div'} className={'empty-list'}>
-								No books found
+								{t('no_books')}
 							</Box>
 						) : (
 							<Swiper

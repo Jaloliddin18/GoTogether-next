@@ -18,6 +18,7 @@ export interface UseRobotSocketReturn {
 	pose: RobotPose | null;
 	robotStatus: string | null;
 	battery: number | null;
+	linearSpeed: number | null;
 	requestStatus: string | null;
 	timeline: TimelineEntry[];
 	bookNotFound: boolean;
@@ -56,11 +57,20 @@ function normalizeTimelineEntry(raw: unknown): TimelineEntry | null {
 	};
 }
 
+function readNumericField(data: Record<string, unknown>, keys: string[]): number | null {
+	for (const key of keys) {
+		const value = data[key];
+		if (typeof value === 'number' && Number.isFinite(value)) return value;
+	}
+	return null;
+}
+
 export function useRobotSocket(requestId: string | null): UseRobotSocketReturn {
 	const [connected, setConnected] = useState(false);
 	const [pose, setPose] = useState<RobotPose | null>(null);
 	const [robotStatus, setRobotStatus] = useState<string | null>(null);
 	const [battery, setBattery] = useState<number | null>(null);
+	const [linearSpeed, setLinearSpeed] = useState<number | null>(null);
 	const [requestStatus, setRequestStatus] = useState<string | null>(null);
 	const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
 	const [bookNotFound, setBookNotFound] = useState(false);
@@ -72,6 +82,7 @@ export function useRobotSocket(requestId: string | null): UseRobotSocketReturn {
 	const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const unmountedRef = useRef(false);
 	const lastPoseRef = useRef<{ x: number; y: number } | null>(null);
+	const lastPoseAtRef = useRef<number | null>(null);
 	const requestStatusRef = useRef<string | null>(null);
 
 	useEffect(() => {
@@ -82,6 +93,7 @@ export function useRobotSocket(requestId: string | null): UseRobotSocketReturn {
 		setPose(null);
 		setRobotStatus(null);
 		setBattery(null);
+		setLinearSpeed(null);
 		setRequestStatus(null);
 		setTimeline([]);
 		setBookNotFound(false);
@@ -89,6 +101,7 @@ export function useRobotSocket(requestId: string | null): UseRobotSocketReturn {
 		setConnectionError(null);
 		retryCountRef.current = 0;
 		lastPoseRef.current = null;
+		lastPoseAtRef.current = null;
 		requestStatusRef.current = null;
 
 		const wsUrl = process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:3009';
@@ -125,9 +138,31 @@ export function useRobotSocket(requestId: string | null): UseRobotSocketReturn {
 							const newX = data.x as number;
 							const newY = data.y as number;
 							const prev = lastPoseRef.current;
+							const now = Date.now();
 							const dist = prev
 								? Math.sqrt(Math.pow(newX - prev.x, 2) + Math.pow(newY - prev.y, 2))
 								: Infinity;
+							const explicitSpeed = readNumericField(data, [
+								'linearSpeed',
+								'speed',
+								'velocity',
+								'linearVelocity',
+								'speedMps',
+							]);
+							if (explicitSpeed != null && explicitSpeed >= 0) {
+								setLinearSpeed((previous) =>
+									previous == null ? explicitSpeed : previous * 0.65 + explicitSpeed * 0.35,
+								);
+							} else if (prev && lastPoseAtRef.current != null && dist !== Infinity) {
+								const dtSec = Math.max((now - lastPoseAtRef.current) / 1000, 0.001);
+								const inferredSpeed = dist / dtSec;
+								if (Number.isFinite(inferredSpeed) && inferredSpeed >= 0) {
+									setLinearSpeed((previous) =>
+										previous == null ? inferredSpeed : previous * 0.72 + inferredSpeed * 0.28,
+									);
+								}
+							}
+							lastPoseAtRef.current = now;
 							if (dist > 0.5) {
 								lastPoseRef.current = { x: newX, y: newY };
 								setPose({
@@ -143,6 +178,18 @@ export function useRobotSocket(requestId: string | null): UseRobotSocketReturn {
 						case 'robotStatus':
 							if (data.status) setRobotStatus(data.status as string);
 							if (data.battery != null) setBattery(data.battery as number);
+							const statusSpeed = readNumericField(data, [
+								'linearSpeed',
+								'speed',
+								'velocity',
+								'linearVelocity',
+								'speedMps',
+							]);
+							if (statusSpeed != null && statusSpeed >= 0) {
+								setLinearSpeed((previous) =>
+									previous == null ? statusSpeed : previous * 0.7 + statusSpeed * 0.3,
+								);
+							}
 							break;
 
 						case 'requestUpdated': {
@@ -259,6 +306,7 @@ export function useRobotSocket(requestId: string | null): UseRobotSocketReturn {
 		pose,
 		robotStatus,
 		battery,
+		linearSpeed,
 		requestStatus,
 		timeline,
 		bookNotFound,

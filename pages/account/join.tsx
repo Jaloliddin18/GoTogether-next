@@ -7,10 +7,11 @@ import { useRouter } from 'next/router';
 import { logIn, signUp } from '../../libs/auth';
 import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
-		...(await serverSideTranslations(locale, ['common'])),
+		...(await serverSideTranslations(locale, ['common', 'layout', 'account'])),
 	},
 });
 
@@ -31,6 +32,7 @@ const EyeOff = () => (
 const Join: NextPage = () => {
 	const router = useRouter();
 	const device = useDeviceDetect();
+	const { t } = useTranslation('account');
 	const [input, setInput] = useState({ nick: '', password: '', phone: '' });
 	const [loginView, setLoginView] = useState<boolean>(true);
 	const [showPassword, setShowPassword] = useState(false);
@@ -48,11 +50,11 @@ const Join: NextPage = () => {
 
 	const doLogin = useCallback(async () => {
 		if (input.nick.length < 3 || input.nick.length > 12) {
-			await sweetMixinErrorAlert('Nickname must be 3-12 characters');
+			await sweetMixinErrorAlert(t('err_nickname_length'));
 			return;
 		}
 		if (input.password.length < 5 || input.password.length > 12) {
-			await sweetMixinErrorAlert('Password must be 5-12 characters');
+			await sweetMixinErrorAlert(t('err_password_length'));
 			return;
 		}
 
@@ -64,15 +66,15 @@ const Join: NextPage = () => {
 
 	const doSignUp = useCallback(async () => {
 		if (input.nick.length < 3 || input.nick.length > 12) {
-			await sweetMixinErrorAlert('Nickname must be 3-12 characters');
+			await sweetMixinErrorAlert(t('err_nickname_length'));
 			return;
 		}
 		if (input.password.length < 5 || input.password.length > 12) {
-			await sweetMixinErrorAlert('Password must be 5-12 characters');
+			await sweetMixinErrorAlert(t('err_password_length'));
 			return;
 		}
 		if (!input.phone) {
-			await sweetMixinErrorAlert('Phone number is required');
+			await sweetMixinErrorAlert(t('err_phone_required'));
 			return;
 		}
 
@@ -81,8 +83,6 @@ const Join: NextPage = () => {
 			await router.push(`${router.query.referrer ?? '/'}`);
 		}
 	}, [input, router]);
-
-	console.log('+input: ', input);
 
 	if (device === 'mobile') {
 		return <div>LOGIN MOBILE</div>;
@@ -93,19 +93,19 @@ const Join: NextPage = () => {
 					<Stack className={'main'}>
 						<Stack className={'left'}>
 							<Box className={'info'}>
-								<span>{loginView ? 'LOGIN' : 'Sign Up'}</span>
+								<span>{loginView ? t('tab_login') : t('tab_signup')}</span>
 								<p>
 									{loginView
-										? 'Please fill your detail to access your account.'
-										: 'Fill your information below or register with your social account.'}
+										? t('login_subtitle')
+										: t('signup_subtitle')}
 								</p>
 							</Box>
 							<Box className={'input-wrap'}>
 								<div className={'input-box'}>
-									<span>Nickname</span>
+									<span>{t('nickname_label')}</span>
 									<input
 										type="text"
-										placeholder={'Enter your nickname'}
+										placeholder={t('nickname_placeholder')}
 										onChange={(e) => handleInput('nick', e.target.value)}
 										required={true}
 										onKeyDown={(event) => {
@@ -115,11 +115,11 @@ const Join: NextPage = () => {
 									/>
 								</div>
 								<div className={'input-box'}>
-									<span>Password</span>
+									<span>{t('password_label')}</span>
 									<div className={'password-wrap'}>
 										<input
 											type={showPassword ? 'text' : 'password'}
-											placeholder={'Enter your password'}
+											placeholder={t('password_placeholder')}
 											onChange={(e) => handleInput('password', e.target.value)}
 											required={true}
 											onKeyDown={(event) => {
@@ -131,7 +131,7 @@ const Join: NextPage = () => {
 											type="button"
 											className={'eye-toggle'}
 											onClick={() => setShowPassword((v) => !v)}
-											aria-label={showPassword ? 'Hide password' : 'Show password'}
+											aria-label={t(showPassword ? 'aria_hide_password' : 'aria_show_password')}
 										>
 											{showPassword ? <EyeOpen /> : <EyeOff />}
 										</button>
@@ -139,10 +139,10 @@ const Join: NextPage = () => {
 								</div>
 								{!loginView && (
 									<div className={'input-box'}>
-										<span>Phone Number</span>
+										<span>{t('phone_label')}</span>
 										<input
 											type="text"
-											placeholder={'Enter your phone number'}
+											placeholder={t('phone_placeholder')}
 											onChange={(e) => handleInput('phone', e.target.value)}
 											required={true}
 											onKeyDown={(event) => {
@@ -156,9 +156,9 @@ const Join: NextPage = () => {
 								{loginView && (
 									<div className={'remember-info'}>
 										<FormGroup>
-											<FormControlLabel control={<Checkbox defaultChecked size="small" />} label="Remember me" />
+											<FormControlLabel control={<Checkbox defaultChecked size="small" />} label={t('remember_me')} />
 										</FormGroup>
-										<a>Forgot Password?</a>
+										<a>{t('forgot_password')}</a>
 									</div>
 								)}
 
@@ -169,7 +169,7 @@ const Join: NextPage = () => {
 										disabled={input.nick == '' || input.password == ''}
 										onClick={doLogin}
 									>
-										LOGIN
+										{t('btn_login')}
 									</Button>
 								) : (
 									<Button
@@ -178,26 +178,26 @@ const Join: NextPage = () => {
 										onClick={doSignUp}
 										endIcon={<img src="/img/icons/rightup.svg" alt="" />}
 									>
-										SIGNUP
+										{t('btn_signup')}
 									</Button>
 								)}
 							</Box>
 							<Box className={'ask-info'}>
 								{loginView ? (
 									<p>
-										Not registered yet?
+										{t('not_registered')}
 										<b
 											onClick={() => {
 												viewChangeHandler(false);
 											}}
 										>
-											SIGNUP
+											{t('link_signup')}
 										</b>
 									</p>
 								) : (
 									<p>
-										Already have an account?
-										<b onClick={() => viewChangeHandler(true)}> LOGIN</b>
+										{t('already_account')}
+										<b onClick={() => viewChangeHandler(true)}> {t('link_login')}</b>
 									</p>
 								)}
 							</Box>

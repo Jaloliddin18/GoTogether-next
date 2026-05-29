@@ -102,6 +102,19 @@ $transition: 0.18s ease;
 	font-weight: 600;
 	letter-spacing: 0.5px;
 	text-transform: uppercase;
+	text-decoration: none;
+}
+
+.my-menu-type-badge--admin {
+	cursor: pointer;
+	transition:
+		background $transition,
+		color $transition;
+
+	&:hover {
+		background: $color-primary;
+		color: $color-white;
+	}
 }
 
 .my-menu-divider {
@@ -120,6 +133,8 @@ $transition: 0.18s ease;
 	display: flex;
 	align-items: center;
 	gap: 12px;
+	width: 100%;
+	min-width: 0;
 	padding: 10px 12px;
 	border-radius: 8px;
 	cursor: pointer;
@@ -165,11 +180,17 @@ $transition: 0.18s ease;
 }
 
 .my-menu-label {
+	flex: 1;
+	min-width: 0;
+	display: block;
 	font-family: $font;
 	font-size: 13.5px;
 	font-weight: 500;
 	color: $color-dark;
-	line-height: 1;
+	line-height: 1.25;
+	white-space: normal;
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 // ─── Shared panel header ─────────────────────────────────────────────────────
@@ -394,7 +415,7 @@ $transition: 0.18s ease;
 		transform: translateY(-2px);
 	}
 
-	&:hover .bk-card-image img { transform: scale(1.03); }
+	&:hover .bk-card-image img { transform: none; }
 }
 
 .bk-card-top {
@@ -440,15 +461,19 @@ $transition: 0.18s ease;
 
 .bk-card-image {
 	width: 100%;
-	height: 160px;
+	height: 220px;
 	overflow: hidden;
 	background: $color-bg;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px;
 
 	img {
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
-		transition: transform 0.3s ease;
+		object-fit: contain;
+		object-position: center;
 	}
 }
 
@@ -796,11 +821,17 @@ $transition: 0.18s ease;
 		border-radius: 3px;
 		overflow: hidden;
 		flex-shrink: 0;
+		background: $color-bg;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 3px;
 
 		img {
 			width: 100%;
 			height: 100%;
-			object-fit: cover;
+			object-fit: contain;
+			object-position: center;
 			display: block;
 		}
 
@@ -1131,7 +1162,6 @@ $transition: 0.18s ease;
 
 	.robot-arrow {
 		transform-origin: 0 0;
-		transition: transform 0.8s ease;
 	}
 
 	.rt-robot-arrow {

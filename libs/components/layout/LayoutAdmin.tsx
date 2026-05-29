@@ -16,9 +16,9 @@ import Tooltip from '@mui/material/Tooltip';
 import { getJwtToken, logOut, updateUserInfo } from '../../auth';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 import { MemberType } from '../../enums/member.enum';
-const drawerWidth = 280;
+const drawerWidth = 220;
 
 const withAdminLayout = (Component: ComponentType) => {
 	return (props: object) => {
@@ -70,8 +70,6 @@ const withAdminLayout = (Component: ComponentType) => {
 						sx={{
 							width: `calc(100% - ${drawerWidth}px)`,
 							ml: `${drawerWidth}px`,
-							boxShadow: 'rgb(100 116 139 / 12%) 0px 1px 4px',
-							background: 'none',
 						}}
 					>
 						<Toolbar>
@@ -79,7 +77,7 @@ const withAdminLayout = (Component: ComponentType) => {
 								<IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
 									<Avatar
 										src={
-											user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
+											user?.memberImage ? `${API_BASE_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'
 										}
 									/>
 								</IconButton>
@@ -144,7 +142,7 @@ const withAdminLayout = (Component: ComponentType) => {
 					>
 						<Toolbar sx={{ flexDirection: 'column', alignItems: 'flexStart' }}>
 							<Stack className={'logo-box'}>
-								<img src={'/img/logo/logoText.svg'} alt={'logo'} />
+								<img src={'/img/logo/logo_capstone.png'} alt={'같이Go Smart Library'} />
 							</Stack>
 
 							<Stack
@@ -159,7 +157,7 @@ const withAdminLayout = (Component: ComponentType) => {
 								}}
 							>
 								<Avatar
-									src={user?.memberImage ? `${REACT_APP_API_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'}
+									src={user?.memberImage ? `${API_BASE_URL}/${user?.memberImage}` : '/img/profile/defaultUser.svg'}
 								/>
 								<Typography variant={'body2'} p={1} ml={1}>
 									{user?.memberNick} <br />

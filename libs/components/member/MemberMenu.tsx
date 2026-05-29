@@ -4,10 +4,10 @@ import { Stack, Typography, Box, List, ListItem, Button } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import Link from 'next/link';
 import { Member } from '../../types/member/member';
-import { REACT_APP_API_URL } from '../../config';
-import { T } from '../../types/common';
+import { API_BASE_URL } from '../../config';
 import { useQuery } from '@apollo/client';
 import { GET_MEMBER } from '../../../apollo/user/query';
+import { useTranslation } from 'next-i18next';
 
 interface MemberMenuProps {
 	subscribeHandler: any;
@@ -15,6 +15,7 @@ interface MemberMenuProps {
 }
 
 const MemberMenu = (props: MemberMenuProps) => {
+	const { t } = useTranslation('member');
 	const { subscribeHandler, unsubscribeHandler } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
@@ -33,9 +34,6 @@ const MemberMenu = (props: MemberMenuProps) => {
 		variables: { input: memberId },
 		skip: !memberId,
 		notifyOnNetworkStatusChange: true,
-		onCompleted: (data: T) => {
-			setMember(data?.getMember);
-		},
 	});
 
 	/** LIFECYCLES **/
@@ -53,7 +51,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 				<Stack className={'profile'}>
 					<Box component={'div'} className={'profile-img'}>
 						<img
-							src={member?.memberImage ? `${REACT_APP_API_URL}/${member?.memberImage}` : '/img/profile/defaultUser.svg'}
+							src={member?.memberImage ? `${API_BASE_URL}/${member?.memberImage}` : '/img/profile/defaultUser.svg'}
 							alt={'member-photo'}
 						/>
 					</Box>
@@ -74,9 +72,9 @@ const MemberMenu = (props: MemberMenuProps) => {
 								sx={{ background: '#b9b9b9' }}
 								onClick={() => unsubscribeHandler(member?._id, getMemberRefetch, memberId)}
 							>
-								Unfollow
+								{t('menu_unfollow')}
 							</Button>
-							<Typography>Following</Typography>
+							<Typography>{t('menu_following')}</Typography>
 						</>
 					) : (
 						<Button
@@ -84,14 +82,14 @@ const MemberMenu = (props: MemberMenuProps) => {
 							sx={{ background: '#ff5d18', ':hover': { background: '#ff5d18' } }}
 							onClick={() => subscribeHandler(member?._id, getMemberRefetch, memberId)}
 						>
-							Follow
+							{t('menu_follow')}
 						</Button>
 					)}
 				</Stack>
 				<Stack className={'sections'}>
 					<Stack className={'section'}>
 						<Typography className="title" variant={'h5'}>
-							Details
+							{t('menu_details')}
 						</Typography>
 						<List className={'sub-section'}>
 							{(member?.memberType as string) === 'AGENT' && (
@@ -111,7 +109,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 												<img className={'com-icon'} src={'/img/icons/home.svg'} alt={'com-icon'} />
 											)}
 											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-												Properties
+												{t('menu_properties')}
 											</Typography>
 											<Typography className="count-title" variant="subtitle1">
 												{member?.memberProperties}
@@ -163,7 +161,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 											</g>
 										</svg>
 										<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-											Followers
+											{t('menu_followers')}
 										</Typography>
 										<Typography className="count-title" variant="subtitle1">
 											{member?.memberFollowers}
@@ -214,7 +212,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 											</g>
 										</svg>
 										<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-											Followings
+											{t('menu_followings')}
 										</Typography>
 										<Typography className="count-title" variant="subtitle1">
 											{member?.memberFollowings}
@@ -227,7 +225,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 					<Stack className={'section'} sx={{ marginTop: '10px' }}>
 						<div>
 							<Typography className="title" variant={'h5'}>
-								Community
+{t('menu_community')}
 							</Typography>
 							<List className={'sub-section'}>
 								<ListItem className={category === 'articles' ? 'focus' : ''}>
@@ -247,7 +245,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 											)}
 
 											<Typography className={'sub-title'} variant={'subtitle1'} component={'p'}>
-												Articles
+{t('menu_articles')}
 											</Typography>
 											<Typography className="count-title" variant="subtitle1">
 												{member?.memberArticles}

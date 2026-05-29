@@ -252,6 +252,42 @@ export const CANCEL_REQUEST = gql`
 	}
 `;
 
+export const CONFIRM_REQUEST_PICKUP = gql`
+	mutation ConfirmRequestPickup($input: ConfirmRequestPickupInput!) {
+		confirmRequestPickup(input: $input) {
+			_id
+			bookId
+			sourceInventoryId
+			requestType
+			robotId
+			memberId
+			sessionId
+			destinationDeskId
+			destinationType
+			status
+			paymentStatus
+			createdAt
+			updatedAt
+			destination {
+				floorId
+				x
+				y
+				theta
+			}
+			timeline {
+				status
+				message
+				timestamp
+			}
+			error {
+				code
+				message
+				timestamp
+			}
+		}
+	}
+`;
+
 /**************************
  *      TWIT     *
  *************************/

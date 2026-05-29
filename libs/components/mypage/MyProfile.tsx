@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Button, Stack, Typography } from '@mui/material';
 import axios from 'axios';
-import { Messages, REACT_APP_API_URL } from '../../config';
+import { Messages, API_BASE_URL } from '../../config';
 import { getJwtToken, updateStorage, updateUserInfo } from '../../auth';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
@@ -98,7 +98,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 					<Stack className="photo-row">
 						<div className="avatar-preview">
 							<img
-								src={updateData?.memberImage ? `${REACT_APP_API_URL}/${updateData.memberImage}` : '/img/profile/defaultUser.svg'}
+								src={updateData?.memberImage ? `${API_BASE_URL}/${updateData.memberImage}` : '/img/profile/defaultUser.svg'}
 								alt="avatar"
 							/>
 						</div>

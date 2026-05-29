@@ -326,6 +326,20 @@ export const UPDATE_REQUEST_STATUS = gql`
 `;
 
 /**************************
+ *       LOST ITEM        *
+ *************************/
+
+export const UPDATE_LOST_ITEM_STATUS = gql`
+	mutation UpdateLostItemStatus($input: UpdateLostItemStatusInput!) {
+		updateLostItemStatus(input: $input) {
+			_id
+			status
+			updatedAt
+		}
+	}
+`;
+
+/**************************
  *         ROBOT        *
  *************************/
 
@@ -379,9 +393,10 @@ export const UPDATE_TWIT_BY_ADMIN = gql`
 			_id
 			memberId
 			text
-			image
+			images
 			meLiked
 			likeCount
+			viewCount
 			deletedAt
 			createdAt
 			updatedAt
@@ -395,9 +410,10 @@ export const REMOVE_TWIT_BY_ADMIN = gql`
 			_id
 			memberId
 			text
-			image
+			images
 			meLiked
 			likeCount
+			viewCount
 			deletedAt
 			createdAt
 			updatedAt

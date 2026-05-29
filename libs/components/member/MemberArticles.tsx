@@ -102,7 +102,7 @@ const MemberArticles: NextPage = ({ initialInput }: any) => {
 						<TwitCard
 							key={twit._id}
 							twit={twit}
-							currentUserId={user?._id}
+							canDelete={twit.memberId === user?._id}
 							onDelete={deleteTwitHandler}
 						/>
 					))}

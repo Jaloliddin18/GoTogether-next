@@ -4,7 +4,7 @@ import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { Stack, Typography } from '@mui/material';
 import { BoardArticle } from '../../types/board-article/board-article';
 import Moment from 'react-moment';
-import { REACT_APP_API_URL } from '../../config';
+import { API_BASE_URL } from '../../config';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import IconButton from '@mui/material/IconButton';
@@ -24,7 +24,7 @@ const CommunityCard = (props: CommunityCardProps) => {
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
 	const imagePath: string = boardArticle?.articleImage
-		? `${REACT_APP_API_URL}/${boardArticle?.articleImage}`
+		? `${API_BASE_URL}/${boardArticle?.articleImage}`
 		: '/img/community/communityImg.png';
 
 	/** HANDLERS **/
