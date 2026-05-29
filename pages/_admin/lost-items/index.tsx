@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { NextPage } from 'next';
 import Pagination from '@mui/material/Pagination';
+import Skeleton from '@mui/material/Skeleton';
 import PendingActionsOutlinedIcon from '@mui/icons-material/PendingActionsOutlined';
 import PriorityHighOutlinedIcon from '@mui/icons-material/PriorityHighOutlined';
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
@@ -20,6 +21,7 @@ import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetA
 import { LostItemsInquiry } from '../../../libs/types/lost-item/lost-item.input';
 import { LostItemRecord } from '../../../libs/types/lost-item/lost-item';
 import { UpdateLostItemStatusInput } from '../../../libs/types/lost-item/lost-item.update';
+import AdminTableSkeletonRows from '../../../libs/components/common/AdminTableSkeletonRows';
 
 const PAGE_LIMIT = 20;
 
@@ -178,7 +180,7 @@ const AdminLostItems: NextPage = () => {
 		},
 	});
 
-	const [updateLostItemStatus] = useMutation(UPDATE_LOST_ITEM_STATUS);
+	const [updateLostItemStatus, { loading: updateLostItemStatusLoading }] = useMutation(UPDATE_LOST_ITEM_STATUS);
 
 	useEffect(() => {
 		setPage(1);
@@ -234,6 +236,8 @@ const AdminLostItems: NextPage = () => {
 	const highPriorityCount = getTotal(highPrioritySummary.data);
 	const collectedCount = getTotal(collectedSummary.data);
 	const dismissedCount = getTotal(dismissedSummary.data);
+	const summaryLoading =
+		pendingSummary.loading || highPrioritySummary.loading || collectedSummary.loading || dismissedSummary.loading;
 
 	return (
 		<div className="admin-page">
@@ -249,22 +253,30 @@ const AdminLostItems: NextPage = () => {
 			<div className="admin-stats-row">
 				<div className="admin-stat-card">
 					<div className="stat-icon-wrap"><PendingActionsOutlinedIcon /></div>
-					<div className="stat-number">{pendingCount.toLocaleString()}</div>
+					<div className="stat-number">
+						{summaryLoading ? <Skeleton variant="text" animation="wave" width={64} /> : pendingCount.toLocaleString()}
+					</div>
 					<p className="stat-label">Pending Review</p>
 				</div>
 				<div className="admin-stat-card">
 					<div className="stat-icon-wrap"><PriorityHighOutlinedIcon /></div>
-					<div className="stat-number">{highPriorityCount.toLocaleString()}</div>
+					<div className="stat-number">
+						{summaryLoading ? <Skeleton variant="text" animation="wave" width={64} /> : highPriorityCount.toLocaleString()}
+					</div>
 					<p className="stat-label">High Priority</p>
 				</div>
 				<div className="admin-stat-card">
 					<div className="stat-icon-wrap"><CheckCircleOutlineOutlinedIcon /></div>
-					<div className="stat-number">{collectedCount.toLocaleString()}</div>
+					<div className="stat-number">
+						{summaryLoading ? <Skeleton variant="text" animation="wave" width={64} /> : collectedCount.toLocaleString()}
+					</div>
 					<p className="stat-label">Collected</p>
 				</div>
 				<div className="admin-stat-card">
 					<div className="stat-icon-wrap"><DisabledByDefaultOutlinedIcon /></div>
-					<div className="stat-number">{dismissedCount.toLocaleString()}</div>
+					<div className="stat-number">
+						{summaryLoading ? <Skeleton variant="text" animation="wave" width={64} /> : dismissedCount.toLocaleString()}
+					</div>
 					<p className="stat-label">Dismissed</p>
 				</div>
 			</div>
@@ -362,15 +374,7 @@ const AdminLostItems: NextPage = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{loading && (
-							<tr>
-								<td colSpan={10}>
-									<div className="admin-lost-empty">
-										<div className="admin-cell-title">Loading lost items...</div>
-									</div>
-								</td>
-							</tr>
-						)}
+						{loading && <AdminTableSkeletonRows columnCount={10} />}
 
 						{!loading && error && (
 							<tr>
@@ -399,7 +403,7 @@ const AdminLostItems: NextPage = () => {
 						{!loading &&
 							!error &&
 							list.map((lostItem) => {
-								const isBusy = mutatingId === lostItem._id;
+								const isBusy = mutatingId === lostItem._id || updateLostItemStatusLoading;
 								const snapshotRaw = lostItem.snapshotUrl || lostItem.snapshotPath;
 								const snapshotAvailable = Boolean(snapshotRaw) && !snapshotErrors[lostItem._id];
 

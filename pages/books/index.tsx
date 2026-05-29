@@ -1,7 +1,7 @@
 import React, { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
-import { Box, Button, Menu, MenuItem, Pagination, Stack, Typography } from '@mui/material';
+import { Box, Button, Menu, MenuItem, Pagination, Skeleton, Stack, Typography } from '@mui/material';
 import BookCard from '../../libs/components/book/BookCard';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
@@ -43,6 +43,7 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	/** APOLLO REQUESTS **/
 	const [likeTargetBook] = useMutation(LIKE_TARGET_BOOK);
 	const {
+		loading: getBooksLoading,
 		data: getBooksData,
 		refetch: getBooksRefetch,
 	} = useQuery(GET_BOOKS, {
@@ -239,7 +240,34 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 								className={'list-config'}
 								sx={{ display: 'grid !important', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '20px', flexDirection: 'unset !important', flexWrap: 'unset !important' }}
 							>
-								{books?.length === 0 ? (
+								{getBooksLoading ? (
+									Array.from({ length: 6 }).map((_, index) => (
+										<Stack
+											key={`books-grid-skeleton-${index}`}
+											sx={{
+												backgroundColor: '#ffffff',
+												borderRadius: '16px',
+												border: '1px solid #e8f0fb',
+												overflow: 'hidden',
+											}}
+										>
+											<Skeleton variant="rectangular" animation="wave" width="100%" height={240} />
+											<Stack spacing={1.1} sx={{ p: 2 }}>
+												<Skeleton variant="text" animation="wave" width="74%" height={30} />
+												<Skeleton variant="text" animation="wave" width="52%" height={22} />
+												<Skeleton variant="text" animation="wave" width="38%" height={20} />
+												<Skeleton variant="rectangular" animation="wave" width="100%" height={1} sx={{ my: 1 }} />
+												<Stack direction="row" justifyContent="space-between" alignItems="center">
+													<Skeleton variant="text" animation="wave" width="36%" height={24} />
+													<Stack direction="row" spacing={1}>
+														<Skeleton variant="rounded" animation="wave" width={40} height={18} />
+														<Skeleton variant="rounded" animation="wave" width={40} height={18} />
+													</Stack>
+												</Stack>
+											</Stack>
+										</Stack>
+									))
+								) : books?.length === 0 ? (
 									<div className={'no-data'} style={{ gridColumn: '1 / -1' }}>
 										<img src="/img/icons/icoAlert.svg" alt="" />
 										<p>{t('no_books_found')}</p>

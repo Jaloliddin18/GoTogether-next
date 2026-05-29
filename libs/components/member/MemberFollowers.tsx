@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import { Pagination, Stack, Typography } from '@mui/material';
+import { Pagination, Skeleton, Stack, Typography } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { FollowInquiry } from '../../types/follow/follow.input';
@@ -44,7 +44,7 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 	const [hoveredId, setHoveredId] = useState<string | null>(null);
 	const user = useReactiveVar(userVar);
 
-	const { data: followersData, refetch: getMemberFollowersRefetch } = useQuery(GET_MEMBER_FOLLOWERS, {
+	const { loading, data: followersData, refetch: getMemberFollowersRefetch } = useQuery(GET_MEMBER_FOLLOWERS, {
 		fetchPolicy: 'network-only',
 		variables: { input: followInquiry },
 		skip: !followInquiry?.search?.followingId,
@@ -70,12 +70,32 @@ const MemberFollowers = (props: MemberFollowsProps) => {
 
 	return (
 		<div id="member-follows-page">
-			{memberFollowers.filter(f => f.followerId !== followInquiry.search?.followingId).length === 0 && (
+			{loading && (
+				<Stack sx={{ gap: 1.2 }}>
+					{Array.from({ length: 4 }).map((_, index) => (
+						<Stack
+							key={`followers-skeleton-${index}`}
+							direction="row"
+							alignItems="center"
+							spacing={1.5}
+							sx={{ p: 1.4, border: '1px solid #e2e8f0', borderRadius: '10px' }}
+						>
+							<Skeleton variant="circular" animation="wave" width={46} height={46} />
+							<Stack sx={{ flex: 1 }}>
+								<Skeleton variant="text" animation="wave" width="32%" height={24} />
+								<Skeleton variant="text" animation="wave" width="24%" height={20} />
+							</Stack>
+							<Skeleton variant="rounded" animation="wave" width={96} height={34} />
+						</Stack>
+					))}
+				</Stack>
+			)}
+			{!loading && memberFollowers.filter(f => f.followerId !== followInquiry.search?.followingId).length === 0 && (
 				<div className="follow-list-empty">
 					<Typography>No followers yet.</Typography>
 				</div>
 			)}
-			{memberFollowers
+			{!loading && memberFollowers
 				.filter((follower) => follower.followerId !== followInquiry.search?.followingId)
 				.map((follower: Follower) => {
 				const avatarSrc = resolveAvatar(follower.followerData?.memberImage);

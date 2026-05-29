@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import { Pagination, Stack, Typography } from '@mui/material';
+import { Pagination, Skeleton, Stack, Typography } from '@mui/material';
 import { useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { T } from '../../types/common';
@@ -83,7 +83,7 @@ const MyRequests: NextPage = () => {
 	const [activeTab, setActiveTab] = useState<TabFilter>('ALL');
 
 	/** APOLLO **/
-	const { data: sessionRequestsData } = useQuery(GET_SESSION_REQUESTS, {
+	const { loading, data: sessionRequestsData } = useQuery(GET_SESSION_REQUESTS, {
 		fetchPolicy: 'network-only',
 		variables: { input: { page, limit: PAGE_LIMIT } },
 		skip: !user._id,
@@ -122,7 +122,28 @@ const MyRequests: NextPage = () => {
 				))}
 			</div>
 
-			{filtered.length > 0 ? (
+			{loading ? (
+				<div className="requests-list">
+					{Array.from({ length: 5 }).map((_, index) => (
+						<div key={`request-skeleton-${index}`} className="request-row">
+							<div className="request-cover">
+								<Skeleton variant="rounded" animation="wave" width={56} height={72} />
+							</div>
+							<div className="request-content">
+								<Skeleton variant="text" animation="wave" width="72%" height={24} />
+								<Skeleton variant="text" animation="wave" width="48%" height={22} />
+							</div>
+							<div className="request-status-col">
+								<Skeleton variant="text" animation="wave" width={86} height={22} />
+								<Skeleton variant="text" animation="wave" width={64} height={20} />
+							</div>
+							<div className="request-date-col">
+								<Skeleton variant="text" animation="wave" width={88} height={20} />
+							</div>
+						</div>
+					))}
+				</div>
+			) : filtered.length > 0 ? (
 				<>
 					<div className="requests-list">
 						{filtered.map((req) => {

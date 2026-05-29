@@ -18,6 +18,7 @@ import { BookInventory } from '../../../libs/types/book-inventory/book-inventory
 import { BookInventoriesInquiry } from '../../../libs/types/book-inventory/book-inventory.input';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
 import { UpdateBookInventoryInput } from '../../../libs/types/book-inventory/book-inventory.update';
+import AdminTableSkeletonRows from '../../../libs/components/common/AdminTableSkeletonRows';
 
 const PAGE_LIMIT = 10;
 
@@ -91,15 +92,16 @@ const AdminInventory: NextPage = () => {
 		};
 	}, [page, statusFilter, typeFilter, zoneFilter]);
 
-	const { data, refetch } = useQuery(GET_BOOK_INVENTORIES, {
+	const { loading, data, refetch } = useQuery(GET_BOOK_INVENTORIES, {
 		fetchPolicy: 'network-only',
 		variables: { input: inquiryInput },
 		notifyOnNetworkStatusChange: true,
 	});
 
-	const [updateBookInventoryStatus] = useMutation(UPDATE_BOOK_INVENTORY_STATUS);
-	const [updateBookInventory] = useMutation(UPDATE_BOOK_INVENTORY);
-	const [removeBookInventoryByAdmin] = useMutation(RREMOVE_BOOK_INVENTORY_BY_ADMIN);
+	const [updateBookInventoryStatus, { loading: updateInventoryStatusLoading }] = useMutation(UPDATE_BOOK_INVENTORY_STATUS);
+	const [updateBookInventory, { loading: updateInventoryLoading }] = useMutation(UPDATE_BOOK_INVENTORY);
+	const [removeBookInventoryByAdmin, { loading: removeInventoryLoading }] = useMutation(RREMOVE_BOOK_INVENTORY_BY_ADMIN);
+	const inventoryActionLoading = updateInventoryStatusLoading || updateInventoryLoading || removeInventoryLoading;
 
 	useEffect(() => {
 		setPage(1);
@@ -253,7 +255,8 @@ const AdminInventory: NextPage = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{list.length === 0 && (
+						{loading && <AdminTableSkeletonRows columnCount={8} />}
+						{!loading && list.length === 0 && (
 							<tr>
 								<td colSpan={8}>
 									<div style={{ padding: '32px 0', textAlign: 'center' }}>
@@ -265,7 +268,7 @@ const AdminInventory: NextPage = () => {
 								</td>
 							</tr>
 						)}
-						{list.map((inventory) => {
+						{!loading && list.map((inventory) => {
 							const isEditing = editingId === inventory._id;
 							return (
 								<tr key={inventory._id}>
@@ -282,6 +285,7 @@ const AdminInventory: NextPage = () => {
 											className="admin-select"
 											style={{ minWidth: 160 }}
 											value={inventory.bookInventoryStatus}
+											disabled={inventoryActionLoading}
 											onChange={(e) =>
 												statusChangeHandler(inventory, e.target.value as BookInventoryStatus)
 											}
@@ -364,12 +368,13 @@ const AdminInventory: NextPage = () => {
 										<div className="admin-cell-actions">
 											{isEditing ? (
 												<>
-													<button type="button" className="admin-link-btn" onClick={saveQuantityHandler}>
+													<button type="button" className="admin-link-btn" disabled={inventoryActionLoading} onClick={saveQuantityHandler}>
 														Save
 													</button>
 													<button
 														type="button"
 														className="admin-link-btn is-muted"
+														disabled={inventoryActionLoading}
 														onClick={() => setEditingId('')}
 													>
 														Cancel
@@ -380,6 +385,7 @@ const AdminInventory: NextPage = () => {
 													<button
 														type="button"
 														className="admin-link-btn"
+														disabled={inventoryActionLoading}
 														onClick={() => startEditHandler(inventory)}
 													>
 														Edit Qty
@@ -387,6 +393,7 @@ const AdminInventory: NextPage = () => {
 													<button
 														type="button"
 														className="admin-link-btn is-danger"
+														disabled={inventoryActionLoading}
 														onClick={() => removeHandler(inventory)}
 													>
 														Remove

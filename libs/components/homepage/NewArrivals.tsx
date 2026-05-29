@@ -15,6 +15,7 @@ import { LIKE_BOOK } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
 import { Message } from '../../../libs/enums/common.enum';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../../libs/sweetAlert';
+import BookCardSkeleton from '../common/BookCardSkeleton';
 
 interface NewArrivalsProps {
 	initialInput: BooksInquiry;
@@ -31,7 +32,7 @@ const NewArrivals = (props: NewArrivalsProps) => {
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
-	const { data: getBooksData, refetch } = useQuery(GET_BOOKS, {
+	const { loading, data: getBooksData, refetch } = useQuery(GET_BOOKS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
@@ -73,7 +74,13 @@ const NewArrivals = (props: NewArrivalsProps) => {
 						<span>{t('arrivals_title')}</span>
 					</Stack>
 					<Stack className={'card-box'} sx={{ mt: '18px' }}>
-						{newArrivals.length === 0 ? (
+						{loading ? (
+							<Stack direction="row" spacing={2}>
+								{Array.from({ length: 2 }).map((_, index) => (
+									<BookCardSkeleton key={`new-arrivals-mobile-skeleton-${index}`} width={300} />
+								))}
+							</Stack>
+						) : newArrivals.length === 0 ? (
 							<Box component={'div'} className={'empty-list'}>
 								{t('no_books')}
 							</Box>
@@ -116,7 +123,13 @@ const NewArrivals = (props: NewArrivalsProps) => {
 						</Box>
 					</Stack>
 					<Stack className={'card-box'} sx={{ mt: '18px' }}>
-						{newArrivals.length === 0 ? (
+						{loading ? (
+							<Stack direction="row" spacing={2}>
+								{Array.from({ length: 3 }).map((_, index) => (
+									<BookCardSkeleton key={`new-arrivals-desktop-skeleton-${index}`} width={300} />
+								))}
+							</Stack>
+						) : newArrivals.length === 0 ? (
 							<Box component={'div'} className={'empty-list'}>
 								{t('no_books')}
 							</Box>

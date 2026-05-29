@@ -13,6 +13,7 @@ import { Member } from '../../../libs/types/member/member';
 import { MembersInquiry } from '../../../libs/types/member/member.input';
 import { MemberUpdate } from '../../../libs/types/member/member.update';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
+import AdminTableSkeletonRows from '../../../libs/components/common/AdminTableSkeletonRows';
 
 const PAGE_LIMIT = 10;
 
@@ -74,13 +75,13 @@ const AdminUsers: NextPage = () => {
 		};
 	}, [page, statusFilter, typeFilter, searchText]);
 
-	const { data, refetch } = useQuery(GET_ALL_MEMBERS_BY_ADMIN, {
+	const { loading, data, refetch } = useQuery(GET_ALL_MEMBERS_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: inquiryInput },
 		notifyOnNetworkStatusChange: true,
 	});
 
-	const [updateMemberByAdmin] = useMutation(UPDATE_MEMBER_BY_ADMIN);
+	const [updateMemberByAdmin, { loading: updateMemberByAdminLoading }] = useMutation(UPDATE_MEMBER_BY_ADMIN);
 
 	useEffect(() => {
 		setPage(1);
@@ -173,15 +174,16 @@ const AdminUsers: NextPage = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{list.length === 0 && (
+						{loading && <AdminTableSkeletonRows columnCount={8} />}
+						{!loading && list.length === 0 && (
 							<tr>
 								<td colSpan={8} className="admin-empty-row">
 									No members found
 								</td>
 							</tr>
 						)}
-						{list.map((member) => {
-							const isUpdating = updatingMemberId === member._id;
+						{!loading && list.map((member) => {
+							const isUpdating = updatingMemberId === member._id || updateMemberByAdminLoading;
 							return (
 								<tr key={member._id}>
 									<td>

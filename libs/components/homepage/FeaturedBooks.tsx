@@ -15,6 +15,7 @@ import { LIKE_BOOK } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
 import { Message } from '../../../libs/enums/common.enum';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../../libs/sweetAlert';
+import BookCardSkeleton from '../common/BookCardSkeleton';
 
 interface FeaturedBooksProps {
 	initialInput: BooksInquiry;
@@ -31,7 +32,7 @@ const FeaturedBooks = (props: FeaturedBooksProps) => {
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
-	const { data: getBooksData, refetch } = useQuery(GET_BOOKS, {
+	const { loading, data: getBooksData, refetch } = useQuery(GET_BOOKS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
@@ -71,21 +72,29 @@ const FeaturedBooks = (props: FeaturedBooksProps) => {
 						<span>{t('featured_title')}</span>
 					</Stack>
 					<Stack className={'card-box'} sx={{ mt: '18px' }}>
-						<Swiper
-							className={'top-property-swiper'}
-							slidesPerView={'auto'}
-							centeredSlides={true}
-							spaceBetween={15}
-							modules={[Autoplay]}
-						>
-								{(featuredBooks ?? []).map((book: Book) => {
-									return (
-										<SwiperSlide className={'top-property-slide'} key={book?._id}>
-											<FeaturedBookCard book={book} likeHandler={likeHandler} />
-										</SwiperSlide>
-									);
-								})}
-						</Swiper>
+						{loading ? (
+							<Stack direction="row" spacing={2}>
+								{Array.from({ length: 2 }).map((_, index) => (
+									<BookCardSkeleton key={`featured-mobile-skeleton-${index}`} width={300} />
+								))}
+							</Stack>
+						) : (
+							<Swiper
+								className={'top-property-swiper'}
+								slidesPerView={'auto'}
+								centeredSlides={true}
+								spaceBetween={15}
+								modules={[Autoplay]}
+							>
+									{(featuredBooks ?? []).map((book: Book) => {
+										return (
+											<SwiperSlide className={'top-property-slide'} key={book?._id}>
+												<FeaturedBookCard book={book} likeHandler={likeHandler} />
+											</SwiperSlide>
+										);
+									})}
+							</Swiper>
+						)}
 					</Stack>
 				</Stack>
 			</Stack>
@@ -108,27 +117,35 @@ const FeaturedBooks = (props: FeaturedBooksProps) => {
 						</Box>
 					</Stack>
 					<Stack className={'card-box'} sx={{ mt: '18px' }}>
-						<Swiper
-							className={'top-property-swiper'}
-							slidesPerView={'auto'}
-							spaceBetween={15}
-							modules={[Autoplay, Navigation, Pagination]}
-							navigation={{
-								nextEl: '.swiper-top-next',
-								prevEl: '.swiper-top-prev',
-							}}
-							pagination={{
-								el: '.swiper-top-pagination',
-							}}
-						>
-								{(featuredBooks ?? []).map((book: Book) => {
-									return (
-										<SwiperSlide className={'top-property-slide'} key={book?._id}>
-											<FeaturedBookCard book={book} likeHandler={likeHandler} />
-										</SwiperSlide>
-									);
-								})}
-						</Swiper>
+						{loading ? (
+							<Stack direction="row" spacing={2}>
+								{Array.from({ length: 3 }).map((_, index) => (
+									<BookCardSkeleton key={`featured-desktop-skeleton-${index}`} width={300} />
+								))}
+							</Stack>
+						) : (
+							<Swiper
+								className={'top-property-swiper'}
+								slidesPerView={'auto'}
+								spaceBetween={15}
+								modules={[Autoplay, Navigation, Pagination]}
+								navigation={{
+									nextEl: '.swiper-top-next',
+									prevEl: '.swiper-top-prev',
+								}}
+								pagination={{
+									el: '.swiper-top-pagination',
+								}}
+							>
+									{(featuredBooks ?? []).map((book: Book) => {
+										return (
+											<SwiperSlide className={'top-property-slide'} key={book?._id}>
+												<FeaturedBookCard book={book} likeHandler={likeHandler} />
+											</SwiperSlide>
+										);
+									})}
+							</Swiper>
+						)}
 					</Stack>
 				</Stack>
 			</Stack>

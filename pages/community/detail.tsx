@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import useDeviceDetect from '../../libs/hooks/useDeviceDetect';
 import withLayoutBasic from '../../libs/components/layout/LayoutBasic';
-import { Button, CircularProgress, IconButton, Stack, TextField, Typography } from '@mui/material';
+import { Button, IconButton, Skeleton, Stack, TextField, Typography } from '@mui/material';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { userVar } from '../../apollo/store';
 import { useTranslation } from 'next-i18next';
@@ -22,6 +22,7 @@ import Moment from 'react-moment';
 import { API_BASE_URL } from '../../libs/config';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberType } from '../../libs/enums/member.enum';
+import TwitCardSkeleton from '../../libs/components/common/TwitCardSkeleton';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -164,9 +165,8 @@ const CommunityDetail: NextPage = () => {
 					</Stack>
 
 					{getTwitLoading && (
-						<Stack className="detail-state-box">
-							<CircularProgress size={28} />
-							<Typography>{t('detail_loading')}</Typography>
+						<Stack className="community-feed" sx={{ gap: 1.5 }}>
+							<TwitCardSkeleton />
 						</Stack>
 					)}
 
@@ -272,8 +272,25 @@ const CommunityDetail: NextPage = () => {
 
 							{/* Replies thread */}
 							{commentsLoading ? (
-								<Stack className="detail-state-box" sx={{ minHeight: 100 }}>
-									<CircularProgress size={22} />
+								<Stack sx={{ gap: 1.2, mt: 1 }}>
+									{Array.from({ length: 2 }).map((_, index) => (
+										<Stack
+											key={`detail-comment-skeleton-${index}`}
+											sx={{
+												border: '1px solid #e2e8f0',
+												borderRadius: '12px',
+												p: 1.5,
+												gap: 1,
+											}}
+										>
+											<Stack direction="row" spacing={1.2} alignItems="center">
+												<Skeleton variant="circular" animation="wave" width={34} height={34} />
+												<Skeleton variant="text" animation="wave" width="34%" height={22} />
+											</Stack>
+											<Skeleton variant="text" animation="wave" width="96%" height={22} />
+											<Skeleton variant="text" animation="wave" width="68%" height={22} />
+										</Stack>
+									))}
 								</Stack>
 							) : depth0.length > 0 ? (
 								<>

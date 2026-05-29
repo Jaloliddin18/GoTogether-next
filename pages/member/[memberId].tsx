@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { Button, IconButton, OutlinedInput, Pagination, Stack, Typography } from '@mui/material';
+import { Button, IconButton, OutlinedInput, Pagination, Skeleton, Stack, Typography } from '@mui/material';
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
@@ -25,6 +25,7 @@ import { getJwtToken } from '../../libs/auth';
 import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import MemberFollowings from '../../libs/components/member/MemberFollowings';
 import { useTranslation } from 'next-i18next';
+import TwitCardSkeleton from '../../libs/components/common/TwitCardSkeleton';
 
 export const getServerSideProps = async ({ locale }: any) => ({
 	props: {
@@ -86,7 +87,7 @@ const MemberProfile: NextPage = () => {
 	}, [router.isReady, memberId, user?._id]);
 
 	// Member data
-	const { data: memberRaw, refetch: memberRefetch } = useQuery(GET_MEMBER, {
+	const { loading: memberLoading, data: memberRaw, refetch: memberRefetch } = useQuery(GET_MEMBER, {
 		variables: { input: memberId },
 		skip: !memberId,
 		fetchPolicy: 'network-only',
@@ -223,11 +224,13 @@ const MemberProfile: NextPage = () => {
 					{/* Center: profile column */}
 					<Stack className="member-feed-column">
 							{/* Sticky back header */}
-							<div className="member-back-header">
+						<div className="member-back-header">
 								<IconButton className="member-back-btn" onClick={() => router.back()} aria-label={t('aria_go_back')}>
 									<ArrowBackOutlinedIcon />
 								</IconButton>
-							<Typography className="member-back-title">{memberData?.memberNick ?? t('default_profile')}</Typography>
+							<Typography className="member-back-title">
+								{memberLoading ? <Skeleton variant="text" animation="wave" width={180} /> : memberData?.memberNick ?? t('default_profile')}
+							</Typography>
 						</div>
 
 						{/* Banner */}
@@ -236,11 +239,15 @@ const MemberProfile: NextPage = () => {
 						{/* Avatar */}
 						<div className="member-profile-actions">
 							<div className="member-profile-avatar-wrap">
-								<img
-									src={resolveAvatar(memberData?.memberImage)}
-									alt={memberData?.memberNick ?? ''}
-									className="member-profile-avatar"
-								/>
+								{memberLoading ? (
+									<Skeleton variant="circular" animation="wave" width={120} height={120} />
+								) : (
+									<img
+										src={resolveAvatar(memberData?.memberImage)}
+										alt={memberData?.memberNick ?? ''}
+										className="member-profile-avatar"
+									/>
+								)}
 							</div>
 						</div>
 
@@ -248,7 +255,7 @@ const MemberProfile: NextPage = () => {
 						<Stack className="member-profile-info">
 							<div className="member-profile-name-row">
 								<Typography className="member-profile-name">
-									{memberData?.memberNick ?? '—'}
+									{memberLoading ? <Skeleton variant="text" animation="wave" width={210} /> : memberData?.memberNick ?? '—'}
 								</Typography>
 								<Button
 									variant="contained"
@@ -290,15 +297,21 @@ const MemberProfile: NextPage = () => {
 
 							<div className="member-stats-row">
 								<span className="member-stat">
-									<strong className="member-stat-count">{memberData?.memberTwits ?? 0}</strong>
+									<strong className="member-stat-count">
+										{memberLoading ? <Skeleton variant="text" animation="wave" width={26} /> : memberData?.memberTwits ?? 0}
+									</strong>
 									<span className="member-stat-label">{t('stat_posts')}</span>
 								</span>
 								<span className="member-stat clickable" onClick={() => handleTabChange(2)}>
-									<strong className="member-stat-count">{memberData?.memberFollowings ?? 0}</strong>
+									<strong className="member-stat-count">
+										{memberLoading ? <Skeleton variant="text" animation="wave" width={26} /> : memberData?.memberFollowings ?? 0}
+									</strong>
 									<span className="member-stat-label">{t('stat_following')}</span>
 								</span>
 								<span className="member-stat clickable" onClick={() => handleTabChange(1)}>
-									<strong className="member-stat-count">{memberData?.memberFollowers ?? 0}</strong>
+									<strong className="member-stat-count">
+										{memberLoading ? <Skeleton variant="text" animation="wave" width={26} /> : memberData?.memberFollowers ?? 0}
+									</strong>
 									<span className="member-stat-label">{t('stat_followers')}</span>
 								</span>
 							</div>
@@ -321,8 +334,10 @@ const MemberProfile: NextPage = () => {
 						{activeTab === 0 && (
 							<>
 								{twitsLoading && (
-									<Stack className="member-feed-state">
-										<Typography className="member-state-text">{t('loading')}</Typography>
+									<Stack sx={{ gap: 1.2, p: 1 }}>
+										{Array.from({ length: 3 }).map((_, index) => (
+											<TwitCardSkeleton key={`member-twit-skeleton-${index}`} />
+										))}
 									</Stack>
 								)}
 								{!twitsLoading && twits.length === 0 && (
@@ -337,8 +352,8 @@ const MemberProfile: NextPage = () => {
 									<TwitCard
 										key={twit._id}
 										twit={twit}
-										currentUserId={user?._id}
 										onDelete={deleteTwitHandler}
+										canDelete={twit.memberId === user?._id}
 									/>
 								))}
 								{twitsTotal > LIMIT && (

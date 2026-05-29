@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import type { NextPage } from 'next';
 import Link from 'next/link';
 import { useQuery } from '@apollo/client';
+import Skeleton from '@mui/material/Skeleton';
 import MenuBookOutlinedIcon from '@mui/icons-material/MenuBookOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
@@ -206,32 +207,32 @@ const DoughnutCanvasChart = ({ data }: { data: { status: string; count: number }
 };
 
 const AdminDashboard: NextPage = () => {
-	const { data: bookCountData } = useQuery(GET_ALL_BOOKS_BY_ADMIN, {
+	const { loading: bookCountLoading, data: bookCountData } = useQuery(GET_ALL_BOOKS_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: COUNT_QUERY_INPUT },
 	});
 
-	const { data: membersData } = useQuery(GET_ALL_MEMBERS_BY_ADMIN, {
+	const { loading: membersLoading, data: membersData } = useQuery(GET_ALL_MEMBERS_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: MEMBER_REPORT_INPUT },
 	});
 
-	const { data: requestsData } = useQuery(GET_REQUESTS, {
+	const { loading: requestsLoading, data: requestsData } = useQuery(GET_REQUESTS, {
 		fetchPolicy: 'network-only',
 		variables: { input: REQUEST_REPORT_INPUT },
 	});
 
-	const { data: robotsData } = useQuery(GET_ROBOTS, {
+	const { loading: robotsLoading, data: robotsData } = useQuery(GET_ROBOTS, {
 		fetchPolicy: 'network-only',
 		variables: { input: ROBOT_REPORT_INPUT },
 	});
 
-	const { data: topViewedBooksData } = useQuery(GET_ALL_BOOKS_BY_ADMIN, {
+	const { loading: topViewedBooksLoading, data: topViewedBooksData } = useQuery(GET_ALL_BOOKS_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: TOP_VIEWED_BOOKS_INPUT },
 	});
 
-	const { data: topLikedBooksData } = useQuery(GET_ALL_BOOKS_BY_ADMIN, {
+	const { loading: topLikedBooksLoading, data: topLikedBooksData } = useQuery(GET_ALL_BOOKS_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: TOP_LIKED_BOOKS_INPUT },
 	});
@@ -284,6 +285,10 @@ const AdminDashboard: NextPage = () => {
 		{ key: 'active', label: 'Active Requests', value: activeRequestCount, Icon: AssignmentOutlinedIcon },
 		{ key: 'robots', label: 'Robots Online', value: robotsOnline, Icon: SmartToyOutlinedIcon },
 	];
+	const statCardsLoading = bookCountLoading || membersLoading || requestsLoading || robotsLoading;
+	const chartsLoading = membersLoading || requestsLoading;
+	const rankedListsLoading = topViewedBooksLoading || topLikedBooksLoading;
+	const recentMembersLoading = membersLoading;
 
 	return (
 		<div className="admin-page admin-dashboard-page">
@@ -294,7 +299,9 @@ const AdminDashboard: NextPage = () => {
 						<div className="stat-icon-wrap">
 							<Icon />
 						</div>
-						<div className="stat-number">{value.toLocaleString()}</div>
+						<div className="stat-number">
+							{statCardsLoading ? <Skeleton variant="text" animation="wave" width={70} /> : value.toLocaleString()}
+						</div>
 						<div className="stat-label">{label}</div>
 					</div>
 				))}
@@ -308,7 +315,11 @@ const AdminDashboard: NextPage = () => {
 						<div className="chart-card-subtitle">Last 6 months</div>
 					</div>
 					<div className="admin-chart-canvas admin-chart-canvas--line">
-						<LineCanvasChart data={memberGrowthData} />
+						{chartsLoading ? (
+							<Skeleton variant="rounded" animation="wave" width="100%" height="100%" />
+						) : (
+							<LineCanvasChart data={memberGrowthData} />
+						)}
 					</div>
 				</div>
 
@@ -318,7 +329,9 @@ const AdminDashboard: NextPage = () => {
 						<div className="chart-card-subtitle">Current delivery pipeline</div>
 					</div>
 					<div className="admin-chart-canvas admin-chart-canvas--donut">
-						{requestsByStatusData.length > 0 ? (
+						{chartsLoading ? (
+							<Skeleton variant="rounded" animation="wave" width="100%" height="100%" />
+						) : requestsByStatusData.length > 0 ? (
 							<DoughnutCanvasChart data={requestsByStatusData} />
 						) : (
 							<div className="admin-chart-empty">No data yet</div>
@@ -335,7 +348,15 @@ const AdminDashboard: NextPage = () => {
 					</div>
 					<table className="admin-compact-table">
 						<tbody>
-							{topViewedBooks.length > 0 ? (
+							{rankedListsLoading ? (
+								Array.from({ length: 4 }).map((_, index) => (
+									<tr key={`top-viewed-skeleton-${index}`}>
+										<td colSpan={4}>
+											<Skeleton variant="text" animation="wave" width="100%" height={26} />
+										</td>
+									</tr>
+								))
+							) : topViewedBooks.length > 0 ? (
 								topViewedBooks.map((book, index) => (
 									<tr key={book._id}>
 										<td style={{ width: 28, paddingLeft: 20 }}>
@@ -378,7 +399,15 @@ const AdminDashboard: NextPage = () => {
 					</div>
 					<table className="admin-compact-table">
 						<tbody>
-							{topLikedBooks.length > 0 ? (
+							{rankedListsLoading ? (
+								Array.from({ length: 4 }).map((_, index) => (
+									<tr key={`top-liked-skeleton-${index}`}>
+										<td colSpan={4}>
+											<Skeleton variant="text" animation="wave" width="100%" height={26} />
+										</td>
+									</tr>
+								))
+							) : topLikedBooks.length > 0 ? (
 								topLikedBooks.map((book, index) => (
 									<tr key={book._id}>
 										<td style={{ width: 28, paddingLeft: 20 }}>
@@ -434,7 +463,15 @@ const AdminDashboard: NextPage = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{recentMembers.length > 0 ? (
+						{recentMembersLoading ? (
+							Array.from({ length: 5 }).map((_, index) => (
+								<tr key={`recent-member-skeleton-${index}`}>
+									<td colSpan={4}>
+										<Skeleton variant="text" animation="wave" width="100%" height={28} />
+									</td>
+								</tr>
+							))
+						) : recentMembers.length > 0 ? (
 							recentMembers.map((member) => (
 								<tr key={member._id}>
 									<td>

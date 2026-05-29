@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter, withRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { getJwtToken, logOut, updateUserInfo } from '../auth';
-import { Stack, Box } from '@mui/material';
+import { Stack, Box, Skeleton } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
@@ -142,7 +142,7 @@ const Top = () => {
 	const [cancelRequest] = useMutation(CANCEL_REQUEST);
 	const [confirmRequestPickup] = useMutation(CONFIRM_REQUEST_PICKUP);
 	const shouldLoadRequestContext = Boolean(user?._id) && (trackingRequests.length > 0 || robotNotifications.length > 0);
-	const { data: sessionRequestsData } = useQuery(GET_SESSION_REQUESTS, {
+	const { loading: sessionRequestsLoading, data: sessionRequestsData } = useQuery(GET_SESSION_REQUESTS, {
 		variables: { input: { page: 1, limit: 100 } },
 		skip: !shouldLoadRequestContext,
 		fetchPolicy: 'network-only',
@@ -680,7 +680,16 @@ const Top = () => {
 						</div>
 					</div>
 					<div className="robot-panel-list">
-						{notificationList.length === 0 ? (
+						{sessionRequestsLoading && notificationList.length === 0 ? (
+							<div style={{ padding: '8px 0' }}>
+								{Array.from({ length: 2 }).map((_, index) => (
+									<div key={`mobile-notification-skeleton-${index}`} style={{ padding: '10px 12px' }}>
+										<Skeleton variant="text" animation="wave" width="72%" height={24} />
+										<Skeleton variant="text" animation="wave" width="56%" height={20} />
+									</div>
+								))}
+							</div>
+						) : notificationList.length === 0 ? (
 							<div className="robot-panel-empty">
 								<p>No robot updates yet</p>
 								<span>Delivery updates will appear here.</span>
@@ -856,7 +865,16 @@ const Top = () => {
 						</div>
 					</div>
 					<div className="robot-panel-list">
-						{notificationList.length === 0 ? (
+						{sessionRequestsLoading && notificationList.length === 0 ? (
+							<div style={{ padding: '8px 0' }}>
+								{Array.from({ length: 2 }).map((_, index) => (
+									<div key={`desktop-notification-skeleton-${index}`} style={{ padding: '10px 12px' }}>
+										<Skeleton variant="text" animation="wave" width="72%" height={24} />
+										<Skeleton variant="text" animation="wave" width="56%" height={20} />
+									</div>
+								))}
+							</div>
+						) : notificationList.length === 0 ? (
 							<div className="robot-panel-empty">
 								<p>No robot updates yet</p>
 								<span>Delivery updates will appear here.</span>

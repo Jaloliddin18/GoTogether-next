@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState } from 'react';
-import { Pagination, Stack, Typography } from '@mui/material';
+import { Pagination, Skeleton, Stack, Typography } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import { useRouter } from 'next/router';
 import { FollowInquiry } from '../../types/follow/follow.input';
@@ -42,7 +42,7 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 	const [hoveredId, setHoveredId] = useState<string | null>(null);
 	const user = useReactiveVar(userVar);
 
-	const { data: followingsData, refetch: getMemberFollowingsRefetch } = useQuery(GET_MEMBER_FOLLOWINGS, {
+	const { loading, data: followingsData, refetch: getMemberFollowingsRefetch } = useQuery(GET_MEMBER_FOLLOWINGS, {
 		fetchPolicy: 'network-only',
 		variables: { input: followInquiry },
 		skip: !followInquiry?.search?.followerId,
@@ -63,12 +63,32 @@ const MemberFollowings = (props: MemberFollowingsProps) => {
 
 	return (
 		<div id="member-follows-page">
-			{memberFollowings.length === 0 && (
+			{loading && (
+				<Stack sx={{ gap: 1.2 }}>
+					{Array.from({ length: 4 }).map((_, index) => (
+						<Stack
+							key={`followings-skeleton-${index}`}
+							direction="row"
+							alignItems="center"
+							spacing={1.5}
+							sx={{ p: 1.4, border: '1px solid #e2e8f0', borderRadius: '10px' }}
+						>
+							<Skeleton variant="circular" animation="wave" width={46} height={46} />
+							<Stack sx={{ flex: 1 }}>
+								<Skeleton variant="text" animation="wave" width="32%" height={24} />
+								<Skeleton variant="text" animation="wave" width="24%" height={20} />
+							</Stack>
+							<Skeleton variant="rounded" animation="wave" width={96} height={34} />
+						</Stack>
+					))}
+				</Stack>
+			)}
+			{!loading && memberFollowings.length === 0 && (
 				<div className="follow-list-empty">
 					<Typography>No followings yet.</Typography>
 				</div>
 			)}
-			{memberFollowings.map((follower: Following) => {
+			{!loading && memberFollowings.map((follower: Following) => {
 				const avatarSrc = resolveAvatar(follower.followingData?.memberImage);
 				const nick = follower.followingData?.memberNick ?? '';
 				const isLiked = follower.meLiked?.[0]?.myFavorite === true;

@@ -1,8 +1,9 @@
 import React from 'react';
 import { ApolloError } from '@apollo/client';
-import { CircularProgress, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import TwitCard from './TwitCard';
 import { Twit } from '../../types/twit/twit';
+import TwitCardSkeleton from '../common/TwitCardSkeleton';
 
 interface CommunityFeedProps {
 	twits: Twit[];
@@ -23,9 +24,10 @@ const CommunityFeed = ({
 }: CommunityFeedProps) => {
 	if (loading) {
 		return (
-			<Stack className="community-feed state-box">
-				<CircularProgress />
-				<Typography className="empty-copy">Loading your community feed...</Typography>
+			<Stack className="community-feed">
+				{Array.from({ length: 4 }).map((_, index) => (
+					<TwitCardSkeleton key={`community-feed-skeleton-${index}`} />
+				))}
 			</Stack>
 		);
 	}

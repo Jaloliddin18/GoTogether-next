@@ -16,6 +16,7 @@ import { LIKE_BOOK } from '../../../apollo/user/mutation';
 import { userVar } from '../../../apollo/store';
 import { Message } from '../../../libs/enums/common.enum';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../../libs/sweetAlert';
+import BookCardSkeleton from '../common/BookCardSkeleton';
 
 interface MostBorrowedProps {
 	initialInput: BooksInquiry;
@@ -32,7 +33,7 @@ const MostBorrowed = (props: MostBorrowedProps) => {
 	const user = useReactiveVar(userVar);
 
 	/** APOLLO REQUESTS **/
-	const { data: getBooksData, refetch } = useQuery(GET_BOOKS, {
+	const { loading, data: getBooksData, refetch } = useQuery(GET_BOOKS, {
 		fetchPolicy: 'cache-and-network',
 		variables: { input: initialInput },
 		notifyOnNetworkStatusChange: true,
@@ -75,21 +76,29 @@ const MostBorrowed = (props: MostBorrowedProps) => {
 						<span>{t('borrowed_title')}</span>
 					</Stack>
 					<Stack className={'card-box'} sx={{ mt: '18px' }}>
-						<Swiper
-							className={'popular-property-swiper'}
-							slidesPerView={'auto'}
-							centeredSlides={true}
-							spaceBetween={25}
-							modules={[Autoplay]}
-						>
-								{(popularBooks ?? []).map((book: Book) => {
-									return (
-										<SwiperSlide key={book._id} className={'popular-property-slide'}>
-											<MostBorrowedCard book={book} likeHandler={likeHandler} />
-										</SwiperSlide>
-									);
-								})}
-						</Swiper>
+						{loading ? (
+							<Stack direction="row" spacing={2}>
+								{Array.from({ length: 2 }).map((_, index) => (
+									<BookCardSkeleton key={`borrowed-mobile-skeleton-${index}`} width={400} />
+								))}
+							</Stack>
+						) : (
+							<Swiper
+								className={'popular-property-swiper'}
+								slidesPerView={'auto'}
+								centeredSlides={true}
+								spaceBetween={25}
+								modules={[Autoplay]}
+							>
+									{(popularBooks ?? []).map((book: Book) => {
+										return (
+											<SwiperSlide key={book._id} className={'popular-property-slide'}>
+												<MostBorrowedCard book={book} likeHandler={likeHandler} />
+											</SwiperSlide>
+										);
+									})}
+							</Swiper>
+						)}
 					</Stack>
 				</Stack>
 			</Stack>
@@ -113,27 +122,35 @@ const MostBorrowed = (props: MostBorrowedProps) => {
 						</Box>
 					</Stack>
 					<Stack className={'card-box'} sx={{ mt: '18px' }}>
-						<Swiper
-							className={'popular-property-swiper'}
-							slidesPerView={'auto'}
-							spaceBetween={25}
-							modules={[Autoplay, Navigation, Pagination]}
-							navigation={{
-								nextEl: '.swiper-popular-next',
-								prevEl: '.swiper-popular-prev',
-							}}
-							pagination={{
-								el: '.swiper-popular-pagination',
-							}}
-						>
-								{(popularBooks ?? []).map((book: Book) => {
-									return (
-										<SwiperSlide key={book._id} className={'popular-property-slide'}>
-											<MostBorrowedCard book={book} likeHandler={likeHandler} />
-										</SwiperSlide>
-									);
-								})}
-						</Swiper>
+						{loading ? (
+							<Stack direction="row" spacing={2}>
+								{Array.from({ length: 3 }).map((_, index) => (
+									<BookCardSkeleton key={`borrowed-desktop-skeleton-${index}`} width={400} />
+								))}
+							</Stack>
+						) : (
+							<Swiper
+								className={'popular-property-swiper'}
+								slidesPerView={'auto'}
+								spaceBetween={25}
+								modules={[Autoplay, Navigation, Pagination]}
+								navigation={{
+									nextEl: '.swiper-popular-next',
+									prevEl: '.swiper-popular-prev',
+								}}
+								pagination={{
+									el: '.swiper-popular-pagination',
+								}}
+							>
+									{(popularBooks ?? []).map((book: Book) => {
+										return (
+											<SwiperSlide key={book._id} className={'popular-property-slide'}>
+												<MostBorrowedCard book={book} likeHandler={likeHandler} />
+											</SwiperSlide>
+										);
+									})}
+							</Swiper>
+						)}
 					</Stack>
 					<Stack className={'pagination-box'}>
 						<WestIcon className={'swiper-popular-prev'} />

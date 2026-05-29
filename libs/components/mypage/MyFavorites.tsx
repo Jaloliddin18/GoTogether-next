@@ -15,6 +15,7 @@ import { LIKE_TARGET_BOOK } from '../../../apollo/user/mutation';
 import { API_BASE_URL } from '../../config';
 import { Message } from '../../enums/common.enum';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../sweetAlert';
+import BookCardSkeleton from '../common/BookCardSkeleton';
 
 const PAGE_LIMIT = 10;
 
@@ -36,7 +37,7 @@ const MyFavorites: NextPage = () => {
 
 	const [likeTargetBook] = useMutation(LIKE_TARGET_BOOK);
 
-	const { data: favoriteBooksData, refetch: refetchFavorites } = useQuery(GET_FAVORITE_BOOKS, {
+	const { loading, data: favoriteBooksData, refetch: refetchFavorites } = useQuery(GET_FAVORITE_BOOKS, {
 		fetchPolicy: 'network-only',
 		variables: { input: { page, limit: PAGE_LIMIT } },
 		skip: !user._id,
@@ -75,7 +76,13 @@ const MyFavorites: NextPage = () => {
 				</Typography>
 			</Stack>
 
-			{books.length > 0 ? (
+			{loading ? (
+				<div className="bk-grid">
+					{Array.from({ length: 6 }).map((_, index) => (
+						<BookCardSkeleton key={`my-favorites-skeleton-${index}`} />
+					))}
+				</div>
+			) : books.length > 0 ? (
 				<>
 					<div className="bk-grid">
 						{books.map((book) => {

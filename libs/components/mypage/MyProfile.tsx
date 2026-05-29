@@ -20,7 +20,7 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 	const [updateData, setUpdateData] = useState<MemberUpdate>(initialValues);
 
 	/** APOLLO REQUESTS **/
-	const [updateMember] = useMutation(UPDATE_MEMBER);
+	const [updateMember, { loading: updateMemberLoading }] = useMutation(UPDATE_MEMBER);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -152,8 +152,8 @@ const MyProfile: NextPage = ({ initialValues, ...props }: any) => {
 					/>
 				</Stack>
 
-				<Button className="profile-update-btn" onClick={updateProfileHandler} disabled={isDisabled()}>
-					Save Changes
+				<Button className="profile-update-btn" onClick={updateProfileHandler} disabled={isDisabled() || updateMemberLoading}>
+					{updateMemberLoading ? 'Saving...' : 'Save Changes'}
 				</Button>
 			</Stack>
 		</div>

@@ -14,6 +14,7 @@ import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } fr
 import TwitCard from '../community/TwitCard';
 import { Direction } from '../../enums/common.enum';
 import { TwitsInquiry } from '../../types/twit/twit.input';
+import TwitCardSkeleton from '../common/TwitCardSkeleton';
 
 const PAGE_LIMIT = 10;
 
@@ -92,8 +93,10 @@ const MyArticles: NextPage = () => {
 			</Stack>
 
 			{loading && (
-				<Stack className="twit-state">
-					<Typography className="twit-state-title">Loading twits...</Typography>
+				<Stack sx={{ gap: 1.2 }}>
+					{Array.from({ length: 3 }).map((_, index) => (
+						<TwitCardSkeleton key={`my-twits-skeleton-${index}`} />
+					))}
 				</Stack>
 			)}
 

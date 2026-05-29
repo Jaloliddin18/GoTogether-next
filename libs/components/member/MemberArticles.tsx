@@ -13,6 +13,7 @@ import { Direction } from '../../enums/common.enum';
 import { TwitsInquiry } from '../../types/twit/twit.input';
 import { userVar } from '../../../apollo/store';
 import TwitCard from '../community/TwitCard';
+import TwitCardSkeleton from '../common/TwitCardSkeleton';
 
 const MemberArticles: NextPage = ({ initialInput }: any) => {
 	const device = useDeviceDetect();
@@ -80,8 +81,10 @@ const MemberArticles: NextPage = ({ initialInput }: any) => {
 
 			<Stack className="articles-list-box">
 				{twitsLoading && (
-					<Stack className={'no-data'}>
-						<p>Loading twits...</p>
+					<Stack sx={{ gap: 1.2 }}>
+						{Array.from({ length: 3 }).map((_, index) => (
+							<TwitCardSkeleton key={`member-articles-skeleton-${index}`} />
+						))}
 					</Stack>
 				)}
 

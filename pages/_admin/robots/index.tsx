@@ -10,6 +10,7 @@ import { Robot } from '../../../libs/types/robot/robot';
 import { CreateRobotInput, RobotsInquiry } from '../../../libs/types/robot/robot.input';
 import { UpdateRobotInput } from '../../../libs/types/robot/robot.update';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
+import AdminTableSkeletonRows from '../../../libs/components/common/AdminTableSkeletonRows';
 
 const PAGE_LIMIT = 10;
 const ROBOT_ID_MIN_LENGTH = 2;
@@ -92,14 +93,15 @@ const AdminRobots: NextPage = () => {
 		};
 	}, [page, statusFilter, onlineFilter]);
 
-	const { data, refetch } = useQuery(GET_ROBOTS, {
+	const { loading, data, refetch } = useQuery(GET_ROBOTS, {
 		fetchPolicy: 'network-only',
 		variables: { input: inquiryInput },
 		notifyOnNetworkStatusChange: true,
 	});
 
-	const [createRobot] = useMutation(CREATE_ROBOT);
-	const [updateRobot] = useMutation(UPDATE_ROBOT);
+	const [createRobot, { loading: createRobotLoading }] = useMutation(CREATE_ROBOT);
+	const [updateRobot, { loading: updateRobotLoading }] = useMutation(UPDATE_ROBOT);
+	const robotActionLoading = createRobotLoading || updateRobotLoading;
 
 	useEffect(() => {
 		setPage(1);
@@ -263,8 +265,8 @@ const AdminRobots: NextPage = () => {
 						<option value="ONLINE">Online</option>
 						<option value="OFFLINE">Offline</option>
 					</select>
-					<button type="button" className="admin-btn admin-btn--primary" onClick={createRobotHandler}>
-						Create
+					<button type="button" className="admin-btn admin-btn--primary" disabled={robotActionLoading} onClick={createRobotHandler}>
+						{createRobotLoading ? 'Creating…' : 'Create'}
 					</button>
 				</div>
 			</div>
@@ -316,7 +318,8 @@ const AdminRobots: NextPage = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{list.length === 0 && (
+						{loading && <AdminTableSkeletonRows columnCount={8} />}
+						{!loading && list.length === 0 && (
 							<tr>
 								<td colSpan={8}>
 									<div style={{ padding: '32px 0', textAlign: 'center' }}>
@@ -328,7 +331,7 @@ const AdminRobots: NextPage = () => {
 								</td>
 							</tr>
 						)}
-						{list.map((robot) => {
+						{!loading && list.map((robot) => {
 							const isEditing = editingId === robot._id;
 							const battery = isEditing ? toBatteryValue(editDraft.battery) : robot.battery ?? 0;
 							return (
@@ -423,12 +426,13 @@ const AdminRobots: NextPage = () => {
 										<div className="admin-cell-actions">
 											{isEditing ? (
 												<>
-													<button type="button" className="admin-link-btn" onClick={saveEditHandler}>
+													<button type="button" className="admin-link-btn" disabled={robotActionLoading} onClick={saveEditHandler}>
 														Save
 													</button>
 													<button
 														type="button"
 														className="admin-link-btn is-muted"
+														disabled={robotActionLoading}
 														onClick={() => setEditingId('')}
 													>
 														Cancel
@@ -438,6 +442,7 @@ const AdminRobots: NextPage = () => {
 												<button
 													type="button"
 													className="admin-link-btn"
+													disabled={robotActionLoading}
 													onClick={() => startEditHandler(robot)}
 												>
 													Edit

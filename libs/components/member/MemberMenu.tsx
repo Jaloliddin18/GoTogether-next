@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Stack, Typography, Box, List, ListItem, Button } from '@mui/material';
+import { Stack, Typography, Box, List, ListItem, Button, Skeleton } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
 import Link from 'next/link';
 import { Member } from '../../types/member/member';
@@ -50,22 +50,34 @@ const MemberMenu = (props: MemberMenuProps) => {
 			<Stack width={'100%'} padding={'30px 24px'}>
 				<Stack className={'profile'}>
 					<Box component={'div'} className={'profile-img'}>
-						<img
-							src={member?.memberImage ? `${API_BASE_URL}/${member?.memberImage}` : '/img/profile/defaultUser.svg'}
-							alt={'member-photo'}
-						/>
+						{getMemberLoading ? (
+							<Skeleton variant="circular" animation="wave" width={84} height={84} />
+						) : (
+							<img
+								src={member?.memberImage ? `${API_BASE_URL}/${member?.memberImage}` : '/img/profile/defaultUser.svg'}
+								alt={'member-photo'}
+							/>
+						)}
 					</Box>
 					<Stack className={'user-info'}>
-						<Typography className={'user-name'}>{member?.memberNick}</Typography>
+						<Typography className={'user-name'}>
+							{getMemberLoading ? <Skeleton variant="text" animation="wave" width={120} /> : member?.memberNick}
+						</Typography>
 						<Box component={'div'} className={'user-phone'}>
 							<img src={'/img/icons/call.svg'} alt={'icon'} />
-							<Typography className={'p-number'}>{member?.memberPhone}</Typography>
+							<Typography className={'p-number'}>
+								{getMemberLoading ? <Skeleton variant="text" animation="wave" width={100} /> : member?.memberPhone}
+							</Typography>
 						</Box>
-						<Typography className={'view-list'}>{member?.memberType}</Typography>
+						<Typography className={'view-list'}>
+							{getMemberLoading ? <Skeleton variant="text" animation="wave" width={80} /> : member?.memberType}
+						</Typography>
 					</Stack>
 				</Stack>
 				<Stack className="follow-button-box">
-					{member?.meFollowed && member?.meFollowed[0]?.myFollowing ? (
+					{getMemberLoading ? (
+						<Skeleton variant="rounded" animation="wave" width={120} height={36} />
+					) : member?.meFollowed && member?.meFollowed[0]?.myFollowing ? (
 						<>
 							<Button
 								variant="outlined"

@@ -7,7 +7,7 @@ import { Navigation, Pagination } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { Box as MuiBox, Divider as MuiDivider, IconButton, Typography as MuiTypography } from '@mui/material';
+import { Box as MuiBox, Divider as MuiDivider, IconButton, Skeleton, Typography as MuiTypography } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import LanguageIcon from '@mui/icons-material/Language';
 import StarIcon from '@mui/icons-material/Star';
@@ -226,8 +226,8 @@ const YouMayAlsoLikeCard = ({ book, likeHandler }: CardProps) => {
 };
 
 const SkeletonCard = () => (
-	<div
-		style={{
+	<MuiBox
+		sx={{
 			width: '100%',
 			backgroundColor: '#ffffff',
 			borderRadius: '16px',
@@ -235,75 +235,21 @@ const SkeletonCard = () => (
 			overflow: 'hidden',
 		}}
 	>
-		<div
-			style={{
-				width: '100%',
-				height: '240px',
-				backgroundColor: '#E5E7EB',
-				animation: 'ymyl-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-			}}
-		/>
-		<div style={{ padding: '16px' }}>
-			<div
-				style={{
-					height: '20px',
-					width: '80%',
-					backgroundColor: '#E5E7EB',
-					borderRadius: '4px',
-					marginBottom: '8px',
-					animation: 'ymyl-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-				}}
-			/>
-			<div
-				style={{
-					height: '14px',
-					width: '60%',
-					backgroundColor: '#E5E7EB',
-					borderRadius: '4px',
-					marginBottom: '12px',
-					animation: 'ymyl-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-				}}
-			/>
-			<div
-				style={{
-					height: '12px',
-					width: '40%',
-					backgroundColor: '#E5E7EB',
-					borderRadius: '4px',
-					marginBottom: '20px',
-					animation: 'ymyl-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-				}}
-			/>
-			<div style={{ height: '1px', width: '100%', backgroundColor: '#E5E7EB', marginBottom: '10px' }} />
-			<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-				<div
-					style={{
-						height: '18px',
-						width: '30%',
-						backgroundColor: '#E5E7EB',
-						borderRadius: '4px',
-						animation: 'ymyl-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-					}}
-				/>
-				<div
-					style={{
-						height: '18px',
-						width: '20%',
-						backgroundColor: '#E5E7EB',
-						borderRadius: '4px',
-						animation: 'ymyl-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-					}}
-				/>
-			</div>
-		</div>
-	</div>
+		<Skeleton variant="rectangular" animation="wave" width="100%" height={240} />
+		<MuiBox sx={{ p: 2 }}>
+			<Skeleton variant="text" animation="wave" width="80%" height={30} />
+			<Skeleton variant="text" animation="wave" width="60%" height={22} />
+			<Skeleton variant="text" animation="wave" width="40%" height={20} sx={{ mb: 1.2 }} />
+			<Skeleton variant="rectangular" animation="wave" width="100%" height={1} sx={{ mb: 1.2 }} />
+			<MuiBox sx={{ display: 'flex', justifyContent: 'space-between' }}>
+				<Skeleton variant="rounded" animation="wave" width="32%" height={20} />
+				<Skeleton variant="rounded" animation="wave" width="24%" height={20} />
+			</MuiBox>
+		</MuiBox>
+	</MuiBox>
 );
 
 const YMYL_STYLES = `
-@keyframes ymyl-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
 .ymyl-swiper .swiper-button-prev,
 .ymyl-swiper .swiper-button-next {
   color: #1B3A6B !important;

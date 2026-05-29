@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import { useApolloClient, useMutation, useQuery } from '@apollo/client';
+import Skeleton from '@mui/material/Skeleton';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { getJwtToken } from '../../../auth';
@@ -105,7 +106,7 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 	const [createBook] = useMutation(CREATE_BOOK);
 	const [updateBook] = useMutation(UPDATE_BOOK);
 
-	const { data: getBookData } = useQuery(GET_BOOK, {
+	const { loading: getBookLoading, data: getBookData } = useQuery(GET_BOOK, {
 		fetchPolicy: 'network-only',
 		skip: !editingId,
 		variables: { input: editingId },
@@ -376,6 +377,25 @@ const AddBook: React.FC<Props> = ({ mode }) => {
 	};
 
 	const cancelHandler = () => router.push('/_admin/books');
+
+	if (mode === 'edit' && editingId && getBookLoading && !getBookData?.getBook) {
+		return (
+			<div className="admin-form-shell">
+				<div className="admin-page-header" style={{ padding: 0, marginTop: 12, marginBottom: 0 }}>
+					<div>
+						<Skeleton variant="text" animation="wave" width={220} height={44} />
+						<Skeleton variant="text" animation="wave" width={280} height={24} />
+					</div>
+				</div>
+				{Array.from({ length: 5 }).map((_, index) => (
+					<section className="admin-form-section" key={`add-book-edit-skeleton-${index}`}>
+						<Skeleton variant="text" animation="wave" width={170} height={32} />
+						<Skeleton variant="rounded" animation="wave" width="100%" height={90} />
+					</section>
+				))}
+			</div>
+		);
+	}
 
 	return (
 		<div className="admin-form-shell">

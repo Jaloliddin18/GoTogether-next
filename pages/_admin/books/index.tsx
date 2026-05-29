@@ -12,6 +12,7 @@ import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '.
 import { Book } from '../../../libs/types/book/book';
 import { T } from '../../../libs/types/common';
 import AddInventoryModal from '../../../libs/components/admin/books/AddInventoryModal';
+import AdminTableSkeletonRows from '../../../libs/components/common/AdminTableSkeletonRows';
 
 const PAGE_LIMIT = 10;
 
@@ -65,14 +66,15 @@ const AdminBooks: NextPage = () => {
 		};
 	}, [page, statusFilter, categoryFilter]);
 
-	const { data, refetch } = useQuery(GET_ALL_BOOKS_BY_ADMIN, {
+	const { loading, data, refetch } = useQuery(GET_ALL_BOOKS_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: inquiryInput },
 		notifyOnNetworkStatusChange: true,
 	});
 
-	const [updateBook] = useMutation(UPDATE_BOOK);
-	const [removeBookByAdmin] = useMutation(REMOVE_BOOK_BY_ADMIN);
+	const [updateBook, { loading: updateBookLoading }] = useMutation(UPDATE_BOOK);
+	const [removeBookByAdmin, { loading: removeBookByAdminLoading }] = useMutation(REMOVE_BOOK_BY_ADMIN);
+	const rowActionLoading = updateBookLoading || removeBookByAdminLoading;
 
 	const rawList: Book[] = data?.getAllBooksByAdmin?.list ?? [];
 	const total: number = data?.getAllBooksByAdmin?.metaCounter?.[0]?.total ?? 0;
@@ -179,7 +181,8 @@ const AdminBooks: NextPage = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{list.length === 0 && (
+						{loading && <AdminTableSkeletonRows columnCount={6} />}
+						{!loading && list.length === 0 && (
 							<tr>
 								<td colSpan={6}>
 									<div style={{ padding: '32px 0', textAlign: 'center' }}>
@@ -191,7 +194,7 @@ const AdminBooks: NextPage = () => {
 								</td>
 							</tr>
 						)}
-						{list.map((book) => {
+						{!loading && list.map((book) => {
 							const cover = resolveCover(book);
 							return (
 								<tr key={book._id}>
@@ -222,6 +225,7 @@ const AdminBooks: NextPage = () => {
 											<button
 												type="button"
 												className="admin-link-btn"
+												disabled={rowActionLoading}
 												onClick={() => setInventoryBook(book)}
 											>
 												Add Inventory
@@ -229,11 +233,12 @@ const AdminBooks: NextPage = () => {
 											<button
 												type="button"
 												className="admin-link-btn is-muted"
+												disabled={rowActionLoading}
 												onClick={() => toggleStatusHandler(book)}
 											>
 												{book.bookStatus === BookStatus.ACTIVE ? 'Hide' : 'Activate'}
 											</button>
-											<button type="button" className="admin-link-btn is-danger" onClick={() => deleteHandler(book)}>
+											<button type="button" className="admin-link-btn is-danger" disabled={rowActionLoading} onClick={() => deleteHandler(book)}>
 												Delete
 											</button>
 										</div>

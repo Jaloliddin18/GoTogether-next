@@ -10,6 +10,7 @@ import { T } from '../../types/common';
 import { Book } from '../../types/book/book';
 import { GET_VISITED_BOOKS } from '../../../apollo/user/query';
 import { API_BASE_URL } from '../../config';
+import BookCardSkeleton from '../common/BookCardSkeleton';
 
 const PAGE_LIMIT = 10;
 
@@ -32,7 +33,7 @@ const RecentlyVisited: NextPage = () => {
 	const [total, setTotal] = useState(0);
 	const [page, setPage] = useState(1);
 
-	const { data: visitedBooksData } = useQuery(GET_VISITED_BOOKS, {
+	const { loading, data: visitedBooksData } = useQuery(GET_VISITED_BOOKS, {
 		fetchPolicy: 'network-only',
 		variables: { input: { page, limit: PAGE_LIMIT } },
 		skip: !user._id,
@@ -59,7 +60,13 @@ const RecentlyVisited: NextPage = () => {
 				</Typography>
 			</Stack>
 
-			{books.length > 0 ? (
+			{loading ? (
+				<div className="bk-grid">
+					{Array.from({ length: 6 }).map((_, index) => (
+						<BookCardSkeleton key={`my-visited-skeleton-${index}`} />
+					))}
+				</div>
+			) : books.length > 0 ? (
 				<>
 					<div className="bk-grid">
 						{books.map((book) => {

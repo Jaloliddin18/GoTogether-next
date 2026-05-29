@@ -16,6 +16,7 @@ import { RequestTask } from '../../../libs/types/request/request';
 import { RequestsInquiry } from '../../../libs/types/request/request.input';
 import { UpdateRequestStatusInput } from '../../../libs/types/request/request.update';
 import { sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
+import AdminTableSkeletonRows from '../../../libs/components/common/AdminTableSkeletonRows';
 
 const PAGE_LIMIT = 10;
 
@@ -115,13 +116,13 @@ const AdminRequests: NextPage = () => {
 		};
 	}, [page, statusFilter, typeFilter, paymentFilter, destinationFilter]);
 
-	const { data, refetch } = useQuery(GET_REQUESTS, {
+	const { loading, data, refetch } = useQuery(GET_REQUESTS, {
 		fetchPolicy: 'network-only',
 		variables: { input: inquiryInput },
 		notifyOnNetworkStatusChange: true,
 	});
 
-	const [updateRequestStatus] = useMutation(UPDATE_REQUEST_STATUS);
+	const [updateRequestStatus, { loading: updateRequestStatusLoading }] = useMutation(UPDATE_REQUEST_STATUS);
 
 	useEffect(() => {
 		setPage(1);
@@ -264,7 +265,8 @@ const AdminRequests: NextPage = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{list.length === 0 && (
+						{loading && <AdminTableSkeletonRows columnCount={9} />}
+						{!loading && list.length === 0 && (
 							<tr>
 								<td colSpan={9}>
 									<div style={{ padding: '32px 0', textAlign: 'center' }}>
@@ -276,9 +278,9 @@ const AdminRequests: NextPage = () => {
 								</td>
 							</tr>
 						)}
-						{list.map((request) => {
+						{!loading && list.map((request) => {
 							const isTerminal = TERMINAL_STATUSES.has(request.status);
-							const isBusy = mutatingId === request._id;
+							const isBusy = mutatingId === request._id || updateRequestStatusLoading;
 							const canMarkPaid =
 								request.requestType === RequestType.PURCHASE &&
 								![PaymentStatus.PAID, PaymentStatus.CANCELLED, PaymentStatus.REFUNDED].includes(request.paymentStatus);

@@ -10,6 +10,7 @@ import { REMOVE_TWIT_BY_ADMIN } from '../../../apollo/admin/mutation';
 import { sweetConfirmAlert, sweetErrorHandling, sweetMixinSuccessAlert } from '../../../libs/sweetAlert';
 import { Twit } from '../../../libs/types/twit/twit';
 import { T } from '../../../libs/types/common';
+import AdminTableSkeletonRows from '../../../libs/components/common/AdminTableSkeletonRows';
 
 const PAGE_LIMIT = 10;
 
@@ -39,13 +40,13 @@ const AdminCommunity: NextPage = () => {
 		};
 	}, [page, statusFilter, searchText]);
 
-	const { data, refetch } = useQuery(GET_ALL_TWITS_BY_ADMIN, {
+	const { loading, data, refetch } = useQuery(GET_ALL_TWITS_BY_ADMIN, {
 		fetchPolicy: 'network-only',
 		variables: { input: inquiryInput },
 		notifyOnNetworkStatusChange: true,
 	});
 
-	const [removeTwitByAdmin] = useMutation(REMOVE_TWIT_BY_ADMIN);
+	const [removeTwitByAdmin, { loading: removeTwitLoading }] = useMutation(REMOVE_TWIT_BY_ADMIN);
 
 	useEffect(() => {
 		setPage(1);
@@ -111,7 +112,8 @@ const AdminCommunity: NextPage = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{list.length === 0 && (
+						{loading && <AdminTableSkeletonRows columnCount={7} />}
+						{!loading && list.length === 0 && (
 							<tr>
 								<td colSpan={7}>
 									<div style={{ padding: '32px 0', textAlign: 'center' }}>
@@ -123,7 +125,7 @@ const AdminCommunity: NextPage = () => {
 								</td>
 							</tr>
 						)}
-						{list.map((twit: Twit) => {
+						{!loading && list.map((twit: Twit) => {
 							const isDeleted = !!twit.deletedAt;
 							const author = twit.memberData?.memberNick ?? '—';
 							return (
@@ -153,7 +155,7 @@ const AdminCommunity: NextPage = () => {
 									<td>
 										<div className="admin-cell-actions">
 											{!isDeleted && (
-												<button type="button" className="admin-link-btn is-danger" onClick={() => removeHandler(twit)}>
+												<button type="button" className="admin-link-btn is-danger" disabled={removeTwitLoading} onClick={() => removeHandler(twit)}>
 													Remove
 												</button>
 											)}
