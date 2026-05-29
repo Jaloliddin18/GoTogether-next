@@ -22,6 +22,8 @@ import { Messages } from '../../libs/config';
 import { Message } from '../../libs/enums/common.enum';
 import { getJwtToken, updateUserInfo } from '../../libs/auth';
 import { useTranslation } from 'next-i18next';
+import { NextSeo } from 'next-seo';
+import { buildCanonicalUrl, buildOpenGraph } from '../../libs/config/seo';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -34,6 +36,8 @@ const MyPage: NextPage = () => {
 	const device = useDeviceDetect();
 	const user = useReactiveVar(userVar);
 	const router = useRouter();
+	const pageTitle = 'My Page | 같이Go Smart Library';
+	const pageDescription = 'Personal dashboard for requests, tracking, and account settings.';
 	const category: any = router.query?.category ?? 'myProfile';
 	const [authHydrated, setAuthHydrated] = useState(false);
 
@@ -107,11 +111,33 @@ const MyPage: NextPage = () => {
 
 	if (!authHydrated) return null;
 	if (!user._id) return null;
-	if (device === 'mobile') return <div>{t('placeholder')}</div>;
+	if (device === 'mobile')
+		return (
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/mypage')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/mypage')}
+					noindex
+					nofollow
+				/>
+				<div>{t('placeholder')}</div>
+			</>
+		);
 
 	return (
-		<div id="my-page" style={{ position: 'relative' }}>
-			<div className="container">
+		<>
+			<NextSeo
+				title={pageTitle}
+				description={pageDescription}
+				canonical={buildCanonicalUrl('/mypage')}
+				openGraph={buildOpenGraph(pageTitle, pageDescription, '/mypage')}
+				noindex
+				nofollow
+			/>
+			<div id="my-page" style={{ position: 'relative' }}>
+				<div className="container">
 				<Stack className={'my-page'}>
 					<Stack className={'back-frame'}>
 						<Stack className={'left-config'}>
@@ -147,8 +173,9 @@ const MyPage: NextPage = () => {
 						</Stack>
 					</Stack>
 				</Stack>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 

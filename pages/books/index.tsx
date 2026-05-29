@@ -18,6 +18,8 @@ import { T } from '../../libs/types/common';
 import { LIKE_TARGET_BOOK } from '../../apollo/user/mutation';
 import { sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { userVar } from '../../apollo/store';
+import { NextSeo } from 'next-seo';
+import { buildCanonicalUrl, buildOpenGraph } from '../../libs/config/seo';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -30,6 +32,9 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	const router = useRouter();
 	const { t } = useTranslation('books');
 	const user = useReactiveVar(userVar);
+	const pageTitle = 'Browse Books | 같이Go Smart Library';
+	const pageDescription =
+		'Browse textbooks, novels, study materials, and library books available through 같이Go Smart Library with smart search and robot-assisted delivery.';
 	const [searchFilter, setSearchFilter] = useState<BooksInquiry>(
 		router?.query?.input ? JSON.parse(router?.query?.input as string) : initialInput,
 	);
@@ -192,14 +197,31 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 	};
 
 	if (device === 'mobile') {
-		return <h1>PROPERTIES MOBILE</h1>;
+		return (
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/books')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/books')}
+				/>
+				<h1>PROPERTIES MOBILE</h1>
+			</>
+		);
 	} else {
 		return (
-			<div id="property-list-page" style={{ position: 'relative' }}>
-				<div className="container">
-					<Box component={'div'} className={'right'}>
-						<span>{t('sort_by')}</span>
-						<div>
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/books')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/books')}
+				/>
+				<div id="property-list-page" style={{ position: 'relative' }}>
+					<div className="container">
+						<Box component={'div'} className={'right'}>
+							<span>{t('sort_by')}</span>
+							<div>
 							<Button onClick={sortingClickHandler} endIcon={<KeyboardArrowDownRoundedIcon />}>
 								{t(filterSortName)}
 							</Button>
@@ -300,9 +322,10 @@ const PropertyList: NextPage = ({ initialInput, ...props }: any) => {
 								)}
 							</Stack>
 						</Stack>
-					</Stack>
+						</Stack>
+					</div>
 				</div>
-			</div>
+			</>
 		);
 	}
 };

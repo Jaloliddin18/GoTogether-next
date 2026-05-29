@@ -17,6 +17,8 @@ import { LIKE_TARGET_MEMBER, SUBSCRIBE, UNSUBSCRIBE } from '../../apollo/user/mu
 import { Messages } from '../../libs/config';
 import { Message } from '../../libs/enums/common.enum';
 import { useTranslation } from 'next-i18next';
+import { NextSeo } from 'next-seo';
+import { buildCanonicalUrl, buildOpenGraph } from '../../libs/config/seo';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -28,6 +30,8 @@ const MemberPage: NextPage = () => {
 	const { t } = useTranslation('member');
 	const device = useDeviceDetect();
 	const router = useRouter();
+	const pageTitle = 'Members | 같이Go Smart Library';
+	const pageDescription = 'Browse member activity in 같이Go Smart Library.';
 	const category: any = router.query?.category;
 	const user = useReactiveVar(userVar);
 
@@ -114,13 +118,34 @@ const MemberPage: NextPage = () => {
 	};
 
 	if (device === 'mobile') {
-		return <>{t('placeholder')}</>;
+		return (
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/member')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/member')}
+					noindex
+					nofollow
+				/>
+				<>{t('placeholder')}</>
+			</>
+		);
 	} else {
 		return (
-			<div id="member-page" style={{ position: 'relative' }}>
-				<div className="container">
-					<Stack className={'member-page'}>
-						<Stack className={'back-frame'}>
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/member')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/member')}
+					noindex
+					nofollow
+				/>
+				<div id="member-page" style={{ position: 'relative' }}>
+					<div className="container">
+						<Stack className={'member-page'}>
+							<Stack className={'back-frame'}>
 							<Stack className={'left-config'}>
 								<MemberMenu subscribeHandler={subscribeHandler} unsubscribeHandler={unsubscribeHandler} />
 							</Stack>
@@ -147,9 +172,10 @@ const MemberPage: NextPage = () => {
 								</Stack>
 							</Stack>
 						</Stack>
-					</Stack>
+						</Stack>
+					</div>
 				</div>
-			</div>
+			</>
 		);
 	}
 };

@@ -26,6 +26,8 @@ import MemberFollowers from '../../libs/components/member/MemberFollowers';
 import MemberFollowings from '../../libs/components/member/MemberFollowings';
 import { useTranslation } from 'next-i18next';
 import TwitCardSkeleton from '../../libs/components/common/TwitCardSkeleton';
+import { NextSeo } from 'next-seo';
+import { buildCanonicalUrl, buildOpenGraph } from '../../libs/config/seo';
 
 export const getServerSideProps = async ({ locale }: any) => ({
 	props: {
@@ -60,6 +62,8 @@ const MemberProfile: NextPage = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
+	const pageTitle = 'Member Profile | 같이Go Smart Library';
+	const pageDescription = 'View member posts and connections in 같이Go Smart Library.';
 	const memberId = router.query.memberId as string;
 
 	const [activeTab, setActiveTab] = useState(0);
@@ -211,13 +215,34 @@ const MemberProfile: NextPage = () => {
 	const deleteTwitHandler = async (_id: string): Promise<void> => {};
 
 	if (device === 'mobile') {
-		return <div id="member-page">{t('placeholder')}</div>;
+		return (
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/member')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/member')}
+					noindex
+					nofollow
+				/>
+				<div id="member-page">{t('placeholder')}</div>
+			</>
+		);
 	}
 
 	return (
-		<div id="member-page">
-			<div className="container">
-				<div className="member-shell">
+		<>
+			<NextSeo
+				title={pageTitle}
+				description={pageDescription}
+				canonical={buildCanonicalUrl('/member')}
+				openGraph={buildOpenGraph(pageTitle, pageDescription, '/member')}
+				noindex
+				nofollow
+			/>
+			<div id="member-page">
+				<div className="container">
+					<div className="member-shell">
 					{/* Left nav */}
 					<CommunityLeftNav />
 
@@ -440,9 +465,10 @@ const MemberProfile: NextPage = () => {
 							))}
 						</Stack>
 					</Stack>
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 

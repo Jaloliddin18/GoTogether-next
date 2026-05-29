@@ -8,6 +8,8 @@ import { logIn, signUp } from '../../libs/auth';
 import { sweetMixinErrorAlert } from '../../libs/sweetAlert';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
+import { NextSeo } from 'next-seo';
+import { buildCanonicalUrl, buildOpenGraph } from '../../libs/config/seo';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -33,6 +35,8 @@ const Join: NextPage = () => {
 	const router = useRouter();
 	const device = useDeviceDetect();
 	const { t } = useTranslation('account');
+	const pageTitle = 'Account Access | 같이Go Smart Library';
+	const pageDescription = 'Log in or create an account to use 같이Go Smart Library services.';
 	const [input, setInput] = useState({ nick: '', password: '', phone: '' });
 	const [loginView, setLoginView] = useState<boolean>(true);
 	const [showPassword, setShowPassword] = useState(false);
@@ -85,12 +89,33 @@ const Join: NextPage = () => {
 	}, [input, router]);
 
 	if (device === 'mobile') {
-		return <div>LOGIN MOBILE</div>;
+		return (
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/account/join')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/account/join')}
+					noindex
+					nofollow
+				/>
+				<div>LOGIN MOBILE</div>
+			</>
+		);
 	} else {
 		return (
-			<Stack className={'join-page'}>
-				<Stack className={'container'}>
-					<Stack className={'main'}>
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/account/join')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/account/join')}
+					noindex
+					nofollow
+				/>
+				<Stack className={'join-page'}>
+					<Stack className={'container'}>
+						<Stack className={'main'}>
 						<Stack className={'left'}>
 							<Box className={'info'}>
 								<span>{loginView ? t('tab_login') : t('tab_signup')}</span>
@@ -202,12 +227,13 @@ const Join: NextPage = () => {
 								)}
 							</Box>
 						</Stack>
-						<Stack className={'right'}>
-							<img src="/img/banner/login-page_cover.jpeg" alt="Library" />
+							<Stack className={'right'}>
+								<img src="/img/banner/login-page_cover.jpeg" alt="Library" />
+							</Stack>
 						</Stack>
 					</Stack>
 				</Stack>
-			</Stack>
+			</>
 		);
 	}
 };

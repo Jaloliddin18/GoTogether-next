@@ -23,6 +23,8 @@ import { CREATE_COMMENT, LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation
 import { GET_COMMENTS, GET_MEMBER, GET_PROPERTIES } from '../../apollo/user/query';
 import { T } from '../../libs/types/common';
 import { Message } from '../../libs/enums/common.enum';
+import { NextSeo } from 'next-seo';
+import { buildCanonicalUrl, buildOpenGraph } from '../../libs/config/seo';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -35,6 +37,8 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
+	const pageTitle = 'Agent Detail | 같이Go Smart Library';
+	const pageDescription = 'Legacy agent detail page.';
 	const [agentId, setAgentId] = useState<string | null>(null);
 	const [agent, setAgent] = useState<Member | null>(null);
 	const [searchFilter, setSearchFilter] = useState<PropertiesInquiry>(initialInput);
@@ -182,12 +186,33 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 	};
 
 	if (device === 'mobile') {
-		return <div>AGENT DETAIL PAGE MOBILE</div>;
+		return (
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/agent/detail')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/agent/detail')}
+					noindex
+					nofollow
+				/>
+				<div>AGENT DETAIL PAGE MOBILE</div>
+			</>
+		);
 	} else {
 		return (
-			<Stack className={'agent-detail-page'}>
-				<Stack className={'container'}>
-					<Stack className={'agent-info'}>
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/agent/detail')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/agent/detail')}
+					noindex
+					nofollow
+				/>
+				<Stack className={'agent-detail-page'}>
+					<Stack className={'container'}>
+						<Stack className={'agent-info'}>
 						<img
 							src={agent?.memberImage ? `${API_BASE_URL}/${agent?.memberImage}` : '/img/profile/defaultUser.svg'}
 							alt=""
@@ -298,9 +323,10 @@ const AgentDetail: NextPage = ({ initialInput, initialComment, ...props }: any) 
 								</Button>
 							</Box>
 						</Stack>
+						</Stack>
 					</Stack>
 				</Stack>
-			</Stack>
+			</>
 		);
 	}
 };

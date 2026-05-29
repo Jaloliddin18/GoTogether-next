@@ -13,11 +13,13 @@ import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
+import { NextSeo } from 'next-seo';
 import { getJwtToken, logOut, updateUserInfo } from '../../auth';
 import { useReactiveVar } from '@apollo/client';
 import { userVar } from '../../../apollo/store';
 import { API_BASE_URL } from '../../config';
 import { MemberType } from '../../enums/member.enum';
+import { buildCanonicalUrl, buildOpenGraph, SITE_NAME } from '../../config/seo';
 const drawerWidth = 220;
 
 const withAdminLayout = (Component: ComponentType) => {
@@ -64,6 +66,18 @@ const withAdminLayout = (Component: ComponentType) => {
 
 		return (
 			<main id="pc-wrap" className="admin">
+				<NextSeo
+					title={`Admin | ${SITE_NAME}`}
+					description="Internal administration interface for 같이Go Smart Library."
+					canonical={buildCanonicalUrl('/_admin')}
+					openGraph={buildOpenGraph(
+						`Admin | ${SITE_NAME}`,
+						'Internal administration interface for 같이Go Smart Library.',
+						'/_admin',
+					)}
+					noindex
+					nofollow
+				/>
 				<Box component={'div'} sx={{ display: 'flex' }}>
 					<AppBar
 						position="fixed"
