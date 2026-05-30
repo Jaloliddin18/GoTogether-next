@@ -1,10 +1,11 @@
 # MEMORY — 같이Go Frontend
 
-**Last Updated:** 2026-05-29
+**Last Updated:** 2026-05-30
 **Current Branch:** `develop`
 
 ---
 
+<<<<<<< HEAD
 ## Today's Session Update (2026-05-29, Books page mobile responsive — true mobile-first layout)
 
 ### Completed today
@@ -43,6 +44,68 @@
   - confirm FAB appears and opens filter drawer correctly
   - confirm 2-column → 1-column grid transitions at 430 px
   - confirm desktop (≥1025 px) is visually unchanged.
+=======
+## Today's Session Update (2026-05-30, professional SEO rollout with next-seo)
+
+### Completed today
+- Installed `next-seo` dependency via `yarn`:
+  - `next-seo@7.2.0`
+  - updated `package.json` and `yarn.lock`.
+- Added centralized SEO config:
+  - `libs/config/seo.ts`
+  - exports: `SITE_URL`, `SITE_NAME`, `SITE_TITLE`, `SITE_DESCRIPTION`, `SITE_TAGLINE`, `SUPPORT_EMAIL`, `DEFAULT_KEYWORDS`, `DEFAULT_OG_IMAGE`, `DEFAULT_SEO`
+  - includes shared canonical/OpenGraph helpers.
+- Wired global default SEO:
+  - `pages/_app.tsx`
+  - added `<DefaultSeo {...DEFAULT_SEO} />`.
+- Added page-level SEO metadata (`NextSeo`) for public and user-facing routes:
+  - `pages/index.tsx` (+ homepage Organization JSON-LD script)
+  - `pages/books/index.tsx`
+  - `pages/books/detail.tsx`
+  - `pages/about/index.tsx`
+  - `pages/community/index.tsx`
+  - `pages/community/detail.tsx` (`noindex`)
+  - `pages/cs/index.tsx`
+  - `pages/demo-restricted/index.tsx`
+  - `pages/account/join.tsx` (`noindex`)
+  - `pages/mypage/index.tsx` (`noindex`)
+  - `pages/member/index.tsx` (`noindex`)
+  - `pages/member/[memberId].tsx` (`noindex`)
+  - `pages/agent/detail.tsx` (`noindex`).
+- Added admin-wide SEO guard:
+  - `libs/components/layout/LayoutAdmin.tsx`
+  - sets `noindex, nofollow` for all admin routes.
+- Removed legacy hardcoded `<Head>` title/meta from shared layouts to prevent SEO conflicts with page/default SEO:
+  - `libs/components/layout/LayoutHome.tsx`
+  - `libs/components/layout/LayoutBasic.tsx`
+  - `libs/components/layout/LayoutFull.tsx`
+  - cleaned old static SEO meta in `pages/_document.tsx`.
+- Added crawler assets:
+  - `public/sitemap.xml`
+  - `public/robots.txt`
+- Added OG image asset:
+  - `public/img/og-image.png`
+  - created from existing brand logo asset and resized to `1200x630`.
+
+### Verification
+- Per project rule, did not run build.
+- Ran lightweight checks only:
+  - `git status --short --branch`
+  - `git diff --stat`.
+
+### Current stopping point
+- Professional SEO defaults + route-level metadata + sitemap/robots are in place.
+- Admin/auth/profile/internal pages are explicitly `noindex`.
+
+### Exact next task
+- Runtime browser QA of page `<title>`, canonical, OG tags, and JSON-LD on:
+  - `/`
+  - `/books`
+  - `/books/detail?id=<bookId>`
+  - `/about`
+  - `/community`
+  - `/cs`.
+>>>>>>> develop
 
 ## Today's Session Update (2026-05-29, demo-restricted nav hydration mismatch fix)
 

@@ -23,6 +23,8 @@ import { API_BASE_URL } from '../../libs/config';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberType } from '../../libs/enums/member.enum';
 import TwitCardSkeleton from '../../libs/components/common/TwitCardSkeleton';
+import { NextSeo } from 'next-seo';
+import { buildCanonicalUrl, buildOpenGraph } from '../../libs/config/seo';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -35,6 +37,8 @@ const CommunityDetail: NextPage = () => {
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
+	const pageTitle = 'Community Post | 같이Go Smart Library';
+	const pageDescription = 'View student discussions and updates in the 같이Go Smart Library community.';
 	const twitId = typeof router.query?.id === 'string' ? router.query.id : '';
 	const [replyText, setReplyText] = useState('');
 	const [replySubmitting, setReplySubmitting] = useState(false);
@@ -153,9 +157,18 @@ const CommunityDetail: NextPage = () => {
 	};
 
 	return (
-		<div id="community-detail-page" className={`community-detail-device-${device}`}>
-			<div className="container">
-				<Stack className="community-detail-shell">
+		<>
+			<NextSeo
+				title={pageTitle}
+				description={pageDescription}
+				canonical={buildCanonicalUrl('/community/detail')}
+				openGraph={buildOpenGraph(pageTitle, pageDescription, '/community/detail')}
+				noindex
+				nofollow
+			/>
+			<div id="community-detail-page" className={`community-detail-device-${device}`}>
+				<div className="container">
+					<Stack className="community-detail-shell">
 					{/* Sticky header */}
 					<Stack className="detail-sticky-header">
 						<IconButton className="detail-back-btn" onClick={goCommunityPage} aria-label={t('detail_back')}>
@@ -316,9 +329,10 @@ const CommunityDetail: NextPage = () => {
 							)}
 						</>
 					)}
-				</Stack>
+					</Stack>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 

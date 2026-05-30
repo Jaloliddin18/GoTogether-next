@@ -20,6 +20,8 @@ import { REMOVE_TWIT_BY_ADMIN } from '../../apollo/admin/mutation';
 import { userVar } from '../../apollo/store';
 import { sweetConfirmAlert, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
 import { MemberType } from '../../libs/enums/member.enum';
+import { NextSeo } from 'next-seo';
+import { buildCanonicalUrl, buildOpenGraph } from '../../libs/config/seo';
 
 export const getStaticProps = async ({ locale }: any) => ({
 	props: {
@@ -32,6 +34,9 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);
+	const pageTitle = 'Community | 같이Go Smart Library';
+	const pageDescription =
+		'Join the 같이Go Smart Library community to share updates, book discussions, and student experiences around smarter library access.';
 	const [searchCommunity, setSearchCommunity] = useState<TwitsInquiry>(initialInput);
 
 	/** APOLLO REQUESTS **/
@@ -131,39 +136,47 @@ const Community: NextPage = ({ initialInput, ...props }: T) => {
 	};
 
 	return (
-		<div id="community-list-page" className={`community-device-${device}`}>
-			<div className="container">
-				<CommunityShell totalCount={totalCount} onTabChange={tabChangeHandler}>
-					<CommunityComposer user={user} loading={createTwitLoading} onSubmit={createTwitHandler} onLogin={goLoginPage} />
-					<CommunityFeed
-						twits={twits}
-						loading={twitsLoading}
-						error={getTwitsError}
-						currentUserId={user?._id}
-						isAdmin={isAdmin}
-						onDelete={deleteTwitHandler}
-					/>
-					{totalCount > searchCommunity.limit && (
-						<Stack className="pagination-config">
-							<Stack className="pagination-box">
-								<Pagination
-									count={Math.ceil(totalCount / searchCommunity.limit)}
-									page={searchCommunity.page}
-									shape="circular"
-									color="primary"
-									onChange={paginationHandler}
-								/>
+		<>
+			<NextSeo
+				title={pageTitle}
+				description={pageDescription}
+				canonical={buildCanonicalUrl('/community')}
+				openGraph={buildOpenGraph(pageTitle, pageDescription, '/community')}
+			/>
+			<div id="community-list-page" className={`community-device-${device}`}>
+				<div className="container">
+					<CommunityShell totalCount={totalCount} onTabChange={tabChangeHandler}>
+						<CommunityComposer user={user} loading={createTwitLoading} onSubmit={createTwitHandler} onLogin={goLoginPage} />
+						<CommunityFeed
+							twits={twits}
+							loading={twitsLoading}
+							error={getTwitsError}
+							currentUserId={user?._id}
+							isAdmin={isAdmin}
+							onDelete={deleteTwitHandler}
+						/>
+						{totalCount > searchCommunity.limit && (
+							<Stack className="pagination-config">
+								<Stack className="pagination-box">
+									<Pagination
+										count={Math.ceil(totalCount / searchCommunity.limit)}
+										page={searchCommunity.page}
+										shape="circular"
+										color="primary"
+										onChange={paginationHandler}
+									/>
+								</Stack>
+								<Stack className="total-result">
+									<Typography>
+										{totalCount === 1 ? t('total_posts_one', { count: totalCount }) : t('total_posts_other', { count: totalCount })}
+									</Typography>
+								</Stack>
 							</Stack>
-							<Stack className="total-result">
-								<Typography>
-									{totalCount === 1 ? t('total_posts_one', { count: totalCount }) : t('total_posts_other', { count: totalCount })}
-								</Typography>
-							</Stack>
-						</Stack>
-					)}
-				</CommunityShell>
+						)}
+					</CommunityShell>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 

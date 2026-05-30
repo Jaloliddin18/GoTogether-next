@@ -12,6 +12,8 @@ import { userVar } from '../../apollo/store';
 import AboutHeroSection from '../../libs/components/about/AboutHeroSection';
 import AboutArchitectureSection from '../../libs/components/about/AboutArchitectureSection';
 import AboutLogoCloudSection from '../../libs/components/about/AboutLogoCloudSection';
+import { NextSeo } from 'next-seo';
+import { buildCanonicalUrl, buildOpenGraph } from '../../libs/config/seo';
 
 // ── Static data ───────────────────────────────────────────────────────────────
 const TEAM = [
@@ -270,23 +272,41 @@ const About: NextPage = () => {
 	const device = useDeviceDetect();
 	const { t } = useTranslation('about');
 	const user = useReactiveVar(userVar);
+	const pageTitle = 'About 같이Go | Smart Library Robot Delivery';
+	const pageDescription =
+		'Learn about 같이Go Smart Library, a university smart library system using autonomous robot delivery to help students access books faster at INHA University.';
 
 	if (device === 'mobile') {
 		return (
-			<Stack className={'about-page'}>
-				<AboutHeroSection headline={t('hero_headline')} subtitle={t('hero_sub')} ctaLabel={t('hero_cta')} />
-				<MarketResearchSection t={t} />
-				<AboutArchitectureSection />
-				<RobotPrototypeSection t={t} />
-				<PrototypeScopeSection t={t} />
-				<SimplePricingSection t={t} />
-				<AboutLogoCloudSection />
-			</Stack>
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/about')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/about')}
+				/>
+				<Stack className={'about-page'}>
+					<AboutHeroSection headline={t('hero_headline')} subtitle={t('hero_sub')} ctaLabel={t('hero_cta')} />
+					<MarketResearchSection t={t} />
+					<AboutArchitectureSection />
+					<RobotPrototypeSection t={t} />
+					<PrototypeScopeSection t={t} />
+					<SimplePricingSection t={t} />
+					<AboutLogoCloudSection />
+				</Stack>
+			</>
 		);
 	}
 
 	return (
-		<Stack className={'about-page'}>
+		<>
+			<NextSeo
+				title={pageTitle}
+				description={pageDescription}
+				canonical={buildCanonicalUrl('/about')}
+				openGraph={buildOpenGraph(pageTitle, pageDescription, '/about')}
+			/>
+			<Stack className={'about-page'}>
 			{/* ── 1. HERO ──────────────────────────────────────────────────────── */}
 			<AboutHeroSection headline={t('hero_headline')} subtitle={t('hero_sub')} ctaLabel={t('hero_cta')} />
 
@@ -374,7 +394,8 @@ const About: NextPage = () => {
 
 			{/* ── 14. LOGO CLOUD ──────────────────────────────────────────────── */}
 			<AboutLogoCloudSection />
-		</Stack>
+			</Stack>
+		</>
 	);
 };
 

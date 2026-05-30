@@ -1,14 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import Head from 'next/head';
 import Top from '../Top';
 import Footer from '../Footer';
 import { Stack } from '@mui/material';
 import { getJwtToken, updateUserInfo } from '../../auth';
 import AiChatBubble from '../AiChatBubble';
-import { useReactiveVar } from '@apollo/client';
-import { userVar } from '../../../apollo/store';
 import { useTranslation } from 'next-i18next';
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -17,10 +14,9 @@ import 'swiper/css/navigation';
 const withLayoutBasic = (Component: any) => {
 	return (props: any) => {
 		const router = useRouter();
-		const { t, i18n } = useTranslation('common');
+		const { t } = useTranslation('common');
 		const device = useDeviceDetect();
 		const [authHeader, setAuthHeader] = useState<boolean>(false);
-		const user = useReactiveVar(userVar);
 		const needsHeroTextLargeFont = ['/about', '/community', '/mypage', '/books', '/cs'].includes(router.pathname);
 		const isBooksRoute = router.pathname === '/books';
 		const hasHeroReadabilityRoute = ['/community', '/mypage', '/cs'].includes(router.pathname);
@@ -96,10 +92,6 @@ const withLayoutBasic = (Component: any) => {
 		if (device == 'mobile') {
 			return (
 				<>
-					<Head>
-						<title>GoTogether</title>
-						<meta name={'title'} content={`GoTogether`} />
-					</Head>
 					<Stack id="mobile-wrap">
 						<Stack id={'top'}>
 							<Top />
@@ -138,10 +130,6 @@ const withLayoutBasic = (Component: any) => {
 		} else {
 			return (
 				<>
-					<Head>
-						<title>같이Go</title>
-						<meta name={'title'} content={`GoTogether`} />
-					</Head>
 					<Stack id="pc-wrap">
 						<Stack id={'top'}>
 							<Top />

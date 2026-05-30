@@ -1187,3 +1187,35 @@ Full spec in `WORKFLOW.md`.
 - Keep admin dashboard layout changes scoped to `pages/_admin/dashboard/index.tsx` and dashboard/admin rules in `scss/pc/admin/admin.scss` unless explicitly asked to touch other admin pages.
 - If Chart.js text looks blurry, avoid CSS-stretching canvas dimensions; let Chart.js manage the backing canvas and set `devicePixelRatio`.
 - `Top Liked Books` requires backend support for sorting `GET_ALL_BOOKS_BY_ADMIN` by `bookLikes`.
+
+---
+
+## Session Update (2026-05-30) — Pages Router SEO rollout + build stabilization
+
+### Completed
+- Added production SEO foundation for Pages Router using `next-seo`:
+  - created `libs/config/seo.ts` with shared site constants, default keywords, OG image, canonical helpers, and `DEFAULT_SEO`.
+  - wired global defaults through `DefaultSeo` in `pages/_app.tsx`.
+- Added page-level SEO (`NextSeo`) with canonical + Open Graph metadata on key public routes:
+  - `/`, `/books`, `/books/detail`, `/about`, `/community`, `/community/detail`, `/cs`, `/demo-restricted`
+  - plus internal surfaces with `noindex/nofollow` where appropriate (`/account/join`, `/mypage`, `/member`, `/member/[memberId]`, `/agent/detail`, admin layout).
+- Added homepage Organization JSON-LD for 같이Go Smart Library (`name`, `url`, `logo`, `email`, `description`, `slogan`).
+- Added crawl assets:
+  - `public/sitemap.xml`
+  - `public/robots.txt`
+  - `public/img/og-image.png` (1200x630 default OG image path target).
+- Removed conflicting hardcoded legacy SEO tags from shared layout/document surfaces to avoid title/meta collisions.
+- Fixed build-breaking JSX mismatch in `pages/cs/index.tsx` (closing tag correction in the CS page layout tree).
+- Resolved package compatibility issue by pinning `next-seo` to `6.8.0` (v7 no longer exports Pages Router `NextSeo`/`DefaultSeo` components used in this codebase).
+
+### Verification
+- Ran `yarn build` after fixes; build completed successfully.
+- First failed attempt identified:
+  - `pages/cs/index.tsx` JSX closing tag mismatch.
+  - `next-seo@7.2.0` export mismatch for `NextSeo`/`DefaultSeo`.
+- After patch + package pin, full static generation/optimization passed.
+
+### Key rules
+- Keep `next-seo` on v6.x while this project stays on Next.js Pages Router component-based SEO.
+- Use `libs/config/seo.ts` as the single source for site URL/canonical/OG defaults.
+- Keep admin/private/member/account surfaces non-indexable unless explicitly requested to open indexing.

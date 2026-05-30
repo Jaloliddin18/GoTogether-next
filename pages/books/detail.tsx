@@ -53,6 +53,8 @@ import { announceTrackingRequest } from '../../libs/library/ws/trackingClient';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert, sweetTopSuccessAlert } from '../../libs/sweetAlert';
 import YouMayAlsoLike from '../../src/components/books/YouMayAlsoLike';
 import BookDetailTabs from '../../src/components/books/BookDetailTabs';
+import { NextSeo } from 'next-seo';
+import { buildCanonicalUrl, buildOpenGraph } from '../../libs/config/seo';
 
 SwiperCore.use([Navigation, Autoplay]);
 
@@ -201,6 +203,8 @@ const BookDetailPage: NextPage = () => {
 	const { t } = useTranslation('books');
 	const user = useReactiveVar(userVar);
 	const isMobile = device === 'mobile';
+	const pageTitle = 'Book Details | 같이Go Smart Library';
+	const pageDescription = 'View book details, availability, and delivery options through 같이Go Smart Library.';
 
 	const [bookId, setBookId] = useState<string | null>(null);
 	const [book, setBook] = useState<Book | null>(null);
@@ -456,6 +460,97 @@ const BookDetailPage: NextPage = () => {
 
 	if (getBookLoading) {
 		return (
+			<>
+				<NextSeo
+					title={pageTitle}
+					description={pageDescription}
+					canonical={buildCanonicalUrl('/books/detail')}
+					openGraph={buildOpenGraph(pageTitle, pageDescription, '/books/detail')}
+				/>
+				<div
+					id="book-detail-page"
+					style={{
+						background: '#ffffff',
+						minHeight: '100vh',
+						paddingBottom: isMobile ? 40 : 64,
+					}}
+				>
+					<Skeleton variant="rectangular" animation="wave" width="100%" height={isMobile ? 280 : 420} />
+					<div
+						className="container"
+						style={{
+							width: '100%',
+							maxWidth: 1300,
+							padding: isMobile ? '0 16px' : '0',
+							boxSizing: 'border-box',
+							display: 'block',
+						}}
+					>
+						<Stack spacing={{ xs: 3, md: 4 }} sx={{ mt: '24px' }}>
+							<SafeBox
+								sx={{
+									...cardSx,
+									p: { xs: 2, sm: 3, md: 4 },
+								}}
+							>
+								<SafeBox
+									sx={{
+										display: 'grid',
+										gridTemplateColumns: { xs: '1fr', lg: '520px minmax(0, 1fr)' },
+										gap: { xs: 3, md: 4.5 },
+									}}
+								>
+									<Stack spacing={2}>
+										<Skeleton variant="rounded" animation="wave" width="100%" height={isMobile ? 500 : 700} />
+										<Stack direction="row" spacing={1.5}>
+											{Array.from({ length: 4 }).map((_, index) => (
+												<Skeleton key={`book-thumb-skeleton-${index}`} variant="rounded" animation="wave" width={90} height={90} />
+											))}
+										</Stack>
+									</Stack>
+									<Stack spacing={2.2}>
+										<Skeleton variant="text" animation="wave" width="72%" height={54} />
+										<Skeleton variant="text" animation="wave" width="46%" height={30} />
+										<Stack direction="row" spacing={1}>
+											<Skeleton variant="rounded" animation="wave" width={110} height={28} />
+											<Skeleton variant="rounded" animation="wave" width={110} height={28} />
+											<Skeleton variant="rounded" animation="wave" width={110} height={28} />
+										</Stack>
+										<Skeleton variant="text" animation="wave" width="30%" height={44} />
+										<Stack direction="row" spacing={1}>
+											<Skeleton variant="rounded" animation="wave" width={102} height={36} />
+											<Skeleton variant="rounded" animation="wave" width={102} height={36} />
+											<Skeleton variant="rounded" animation="wave" width={102} height={36} />
+										</Stack>
+										<Skeleton variant="rounded" animation="wave" width="100%" height={88} />
+										<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+											<Skeleton variant="rounded" animation="wave" width="100%" height={52} />
+											<Skeleton variant="rounded" animation="wave" width="100%" height={52} />
+										</Stack>
+									</Stack>
+								</SafeBox>
+							</SafeBox>
+							<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
+								<Skeleton variant="rounded" animation="wave" width="100%" height={320} />
+							</SafeBox>
+							<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
+								<Skeleton variant="rounded" animation="wave" width="100%" height={240} />
+							</SafeBox>
+						</Stack>
+					</div>
+				</div>
+			</>
+		);
+	}
+
+	return (
+		<>
+			<NextSeo
+				title={pageTitle}
+				description={pageDescription}
+				canonical={buildCanonicalUrl('/books/detail')}
+				openGraph={buildOpenGraph(pageTitle, pageDescription, '/books/detail')}
+			/>
 			<div
 				id="book-detail-page"
 				style={{
@@ -464,82 +559,6 @@ const BookDetailPage: NextPage = () => {
 					paddingBottom: isMobile ? 40 : 64,
 				}}
 			>
-				<Skeleton variant="rectangular" animation="wave" width="100%" height={isMobile ? 280 : 420} />
-				<div
-					className="container"
-					style={{
-						width: '100%',
-						maxWidth: 1300,
-						padding: isMobile ? '0 16px' : '0',
-						boxSizing: 'border-box',
-						display: 'block',
-					}}
-				>
-					<Stack spacing={{ xs: 3, md: 4 }} sx={{ mt: '24px' }}>
-						<SafeBox
-							sx={{
-								...cardSx,
-								p: { xs: 2, sm: 3, md: 4 },
-							}}
-						>
-							<SafeBox
-								sx={{
-									display: 'grid',
-									gridTemplateColumns: { xs: '1fr', lg: '520px minmax(0, 1fr)' },
-									gap: { xs: 3, md: 4.5 },
-								}}
-							>
-								<Stack spacing={2}>
-									<Skeleton variant="rounded" animation="wave" width="100%" height={isMobile ? 500 : 700} />
-									<Stack direction="row" spacing={1.5}>
-										{Array.from({ length: 4 }).map((_, index) => (
-											<Skeleton key={`book-thumb-skeleton-${index}`} variant="rounded" animation="wave" width={90} height={90} />
-										))}
-									</Stack>
-								</Stack>
-								<Stack spacing={2.2}>
-									<Skeleton variant="text" animation="wave" width="72%" height={54} />
-									<Skeleton variant="text" animation="wave" width="46%" height={30} />
-									<Stack direction="row" spacing={1}>
-										<Skeleton variant="rounded" animation="wave" width={110} height={28} />
-										<Skeleton variant="rounded" animation="wave" width={110} height={28} />
-										<Skeleton variant="rounded" animation="wave" width={110} height={28} />
-									</Stack>
-									<Skeleton variant="text" animation="wave" width="30%" height={44} />
-									<Stack direction="row" spacing={1}>
-										<Skeleton variant="rounded" animation="wave" width={102} height={36} />
-										<Skeleton variant="rounded" animation="wave" width={102} height={36} />
-										<Skeleton variant="rounded" animation="wave" width={102} height={36} />
-									</Stack>
-									<Skeleton variant="rounded" animation="wave" width="100%" height={88} />
-									<Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-										<Skeleton variant="rounded" animation="wave" width="100%" height={52} />
-										<Skeleton variant="rounded" animation="wave" width="100%" height={52} />
-									</Stack>
-								</Stack>
-							</SafeBox>
-						</SafeBox>
-						<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
-							<Skeleton variant="rounded" animation="wave" width="100%" height={320} />
-						</SafeBox>
-						<SafeBox sx={{ ...cardSx, p: { xs: 2.4, md: 3.5 } }}>
-							<Skeleton variant="rounded" animation="wave" width="100%" height={240} />
-						</SafeBox>
-					</Stack>
-				</div>
-			</div>
-		);
-	}
-
-	return (
-		<div
-			id="book-detail-page"
-			style={{
-				background: '#ffffff',
-				minHeight: '100vh',
-				paddingBottom: isMobile ? 40 : 64,
-			}}
-		>
 			<div
 				style={{
 					position: 'relative',
@@ -1051,7 +1070,8 @@ const BookDetailPage: NextPage = () => {
 					</Button>
 				</DialogActions>
 			</Dialog>
-		</div>
+			</div>
+		</>
 	);
 };
 

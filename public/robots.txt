@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gotogether.tech/sitemap.xml

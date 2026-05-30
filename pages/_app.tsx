@@ -6,6 +6,8 @@ import { light } from '../scss/MaterialTheme';
 import { ApolloProvider } from '@apollo/client';
 import { useApollo } from '../apollo/client';
 import { appWithTranslation } from 'next-i18next';
+import { DefaultSeo } from 'next-seo';
+import { DEFAULT_SEO } from '../libs/config/seo';
 import '../scss/app.scss';
 import '../scss/pc/main.scss';
 import '../scss/mobile/main.scss';
@@ -18,6 +20,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 	return (
 		<ApolloProvider client={client}>
 			<ThemeProvider theme={theme}>
+				<DefaultSeo {...DEFAULT_SEO} />
 				<CssBaseline />
 				<Component {...pageProps} />
 			</ThemeProvider>
